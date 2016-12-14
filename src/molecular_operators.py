@@ -328,7 +328,8 @@ class MolecularOperator(object):
         if fermionic_term.operators:
           fermionic_expectation = fermionic_rdm.look_up_coefficient(
               fermionic_term.operators)
-          expectation_value += fermionic_term.coefficient * fermionic_expectation
+          expectation_value += (fermionic_term.coefficient *
+                                fermionic_expectation)
       qubit_term.coefficient = expectation_value
 
     # Return.

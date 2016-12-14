@@ -77,8 +77,6 @@ def expectation(operator, state):
     SparseOperatorError: Input state has invalid format.
   """
   n_qubits = operator.shape[0]
-  #state = scipy.sparse.csc_matrix(state)
-  #operator = scipy.sparse.csc_matrix(operator)
 
   # Handle density matrix.
   if state.shape == (n_qubits, n_qubits):
