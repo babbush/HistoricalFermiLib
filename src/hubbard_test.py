@@ -19,7 +19,7 @@ class FermiHubbardTest(unittest.TestCase):
   def test_two_by_two_spinful(self):
 
     # Initialize the Hamiltonian.
-    hubbard_model = hubbard.FermiHubbard(
+    hubbard_model = hubbard.fermi_hubbard(
         self.x_dimension, self.y_dimension, self.tunneling, self.coulomb,
         self.chemical_potential, self.magnetic_field,
         self.periodic, self.spinless)

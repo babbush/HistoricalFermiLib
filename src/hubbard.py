@@ -33,18 +33,18 @@ import fermionic_data
 
 
 # Function to return up-orbital index given orbital index.
-def Up(index):
+def up(index):
   return 2 * index
 
 
 # Function to return down-orbital index given orbital index.
-def Down(index):
+def down(index):
   return 2 * index + 1
 
 
-def FermiHubbard(x_dimension, y_dimension, tunneling, coulomb,
-                 chemical_potential=None, magnetic_field=None,
-                 periodic=True, spinless=False):
+def fermi_hubbard(x_dimension, y_dimension, tunneling, coulomb,
+                  chemical_potential=None, magnetic_field=None,
+                  periodic=True, spinless=False):
   """Return symbolic representation of a Fermi-Hubbard Hamiltonian.
 
   Args:
@@ -86,20 +86,20 @@ def FermiHubbard(x_dimension, y_dimension, tunneling, coulomb,
     if chemical_potential and not spinless:
       coefficient = -1. * chemical_potential
       hubbard_model.add_term(
-          fermionic_data.number_operator(n_sites, Up(site), coefficient))
+          fermionic_data.number_operator(n_sites, up(site), coefficient))
       hubbard_model.add_term(
-          fermionic_data.number_operator(n_sites, Down(site), coefficient))
+          fermionic_data.number_operator(n_sites, down(site), coefficient))
     if magnetic_field and not spinless:
       coefficient = magnetic_field
       hubbard_model.add_term(
-          fermionic_data.number_operator(n_sites, Up(site), -coefficient))
+          fermionic_data.number_operator(n_sites, up(site), -coefficient))
       hubbard_model.add_term(
-          fermionic_data.number_operator(n_sites, Down(site), coefficient))
+          fermionic_data.number_operator(n_sites, down(site), coefficient))
 
     # Add local pair interaction terms.
     if not spinless:
-      operators = [(Up(site), 1), (Up(site), 0),
-                   (Down(site), 1), (Down(site), 0)]
+      operators = [(up(site), 1), (up(site), 0),
+                   (down(site), 1), (down(site), 0)]
       hubbard_model.add_term(
           fermionic_data.FermionicTerm(n_sites, coulomb, operators))
 
@@ -131,12 +131,12 @@ def FermiHubbard(x_dimension, y_dimension, tunneling, coulomb,
         hubbard_model.add_term(hopping_term.get_hermitian_conjugate())
       else:
         # Add hopping term.
-        operators = [(Up(site), 1), (Up(right_neighbor), 0)]
+        operators = [(up(site), 1), (up(right_neighbor), 0)]
         hopping_term = fermionic_data.FermionicTerm(
             n_sites, -tunneling, operators)
         hubbard_model.add_term(hopping_term)
         hubbard_model.add_term(hopping_term.get_hermitian_conjugate())
-        operators = [(Down(site), 1), (Down(right_neighbor), 0)]
+        operators = [(down(site), 1), (down(right_neighbor), 0)]
         hopping_term = fermionic_data.FermionicTerm(
             n_sites, -tunneling, operators)
         hubbard_model.add_term(hopping_term)
@@ -159,12 +159,12 @@ def FermiHubbard(x_dimension, y_dimension, tunneling, coulomb,
         hubbard_model.add_term(hopping_term.get_hermitian_conjugate())
       else:
         # Add hopping term.
-        operators = [(Up(site), 1), (Up(bottom_neighbor), 0)]
+        operators = [(up(site), 1), (up(bottom_neighbor), 0)]
         hopping_term = fermionic_data.FermionicTerm(
             n_sites, -tunneling, operators)
         hubbard_model.add_term(hopping_term)
         hubbard_model.add_term(hopping_term.get_hermitian_conjugate())
-        operators = [(Down(site), 1), (Down(bottom_neighbor), 0)]
+        operators = [(down(site), 1), (down(bottom_neighbor), 0)]
         hopping_term = fermionic_data.FermionicTerm(
             n_sites, -tunneling, operators)
         hubbard_model.add_term(hopping_term)
