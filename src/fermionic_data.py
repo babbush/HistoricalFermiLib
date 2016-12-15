@@ -101,6 +101,14 @@ class FermionicTerm(object):
     """
     return self.operators == fermionic_term.operators
 
+  def __eq__(self, fermionic_term):
+    """Overload equality comparison == to interact with python standard library"""
+    return self.is_identical_term(fermionic_term)
+
+  def __ne__(self, fermionic_term):
+    """Overload not equals comparison != to interact with python standard library"""
+    return (not self.is_identical_term(fermionic_term))
+
   def multiply_by_term(self, fermionic_term):
     """Multiplies a fermionic term by another one (new one is on right)."""
     self.coefficient *= fermionic_term.coefficient
@@ -376,19 +384,36 @@ class FermionicOperator(object):
       if term.operators == operators:
         del self.terms[term_number]
 
-  def expectation(self, fermionic_operator):
-    """Take the expectation value of self with another fermionic operator.
+  def expectation(self, reduced_one_body, reduced_two_body):
+    """Take the expectation value of self with a one- and two- body operator
 
     Args:
-      fermionic_operator: An instance of the FermionicOperator class.
+      reduced_one_body: N x N numpy array representing the reduced one-
+        electron density matrix
+      reduced_two_body: N x N x N x N numpy array representing the two-
+        electron reduced density matrix
 
     Returns:
       expectation: A float, giving the expectation value.
     """
-    expectation = 0.
+
     self.normal_order()
-    fermionic_operator.normal_order()
+    expectation = 0.
+
     for term in self.terms:
-      complement = fermionic_operator.look_up_coefficient(term.operators)
-      expectation += term.coefficient * complement
+      if (len(term.operators) == 2):
+        reduced_value = reduced_one_body[term.operators[0][0],
+                                         term.operators[1][0]]
+      elif (len(term.operators) == 4):
+        reduced_value = reduced_two_body[term.operators[0][0],
+                                         term.operators[1][0],
+                                         term.operators[2][0],
+                                         term.operators[3][0]]
+      elif (len(term.operators) == 0):
+        reduced_value = 1.0
+      else:
+        raise ErrorMolecularOperator(
+          'FermionicOperator is not a molecular operator.')
+
+      expectation += term.coefficient * reduced_value
     return expectation

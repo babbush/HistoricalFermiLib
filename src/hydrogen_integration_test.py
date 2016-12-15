@@ -207,8 +207,9 @@ class HydrogenIntegrationTest(unittest.TestCase):
     self.assertAlmostEqual(expected_hf_density_energy, self.molecule.hf_energy)
 
     # Make sure the fermionic operator has the correct energy.
-    fermionic_rdm = self.fci_rdm.get_fermionic_operator()
-    fermionic_energy = fermionic_rdm.expectation(self.fermionic_hamiltonian)
+    fermionic_energy = self.fermionic_hamiltonian.\
+        expectation(self.fci_rdm.one_body_coefficients,
+                    self.fci_rdm.two_body_coefficients)
     self.assertAlmostEqual(fermionic_energy, self.molecule.fci_energy)
 
     # Make sure the qubit operator has the correct energy.
