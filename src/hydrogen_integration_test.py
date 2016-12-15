@@ -80,6 +80,12 @@ class HydrogenIntegrationTest(unittest.TestCase):
     self.assertTrue(self.qubit_hamiltonian.is_identical_operator(
         qubit_hamiltonian))
 
+    # Check reverse transform.
+    fermionic_hamiltonian = qubit_hamiltonian.reverse_jordan_wigner()
+    fermionic_hamiltonian.normal_order()
+    self.assertTrue(self.fermionic_hamiltonian.is_identical_operator(
+        fermionic_hamiltonian))
+
     # Make sure the mapping of FermionicOperator to MolecularOperator works.
     constant, one_body, two_body = (
         self.fermionic_hamiltonian.to_molecular_operator())
