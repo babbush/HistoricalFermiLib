@@ -21,9 +21,6 @@ class LocalTerm(object):
     n_qubits: An int giving the number of qubits in simulated Hilbert space.
     coefficient: A complex valued float giving the term coefficient.
     operators: A list of site operators representing the term.
-        The elements of this list should be a tuple with the first index
-        indicating the site on which the operator acts and the second
-        index indicating the type of operator.
   """
   def __init__(self, n_qubits, coefficient=0., operators=None):
     """Inits a LocalTerm.
@@ -32,9 +29,6 @@ class LocalTerm(object):
       n_qubits: An int giving the number of qubits in simulated Hilbert space.
       coefficient: A complex valued float giving the term coefficient.
       operators: A list of site operators representing the term.
-          The elements of this list should be a tuple with the first index
-          indicating the site on which the operator acts and the second
-          index indicating the type of operator.
     """
     self.n_qubits = n_qubits
     self.coefficient = coefficient
