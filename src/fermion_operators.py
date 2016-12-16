@@ -1,6 +1,6 @@
 """Class to store and transform fermion operators.
 """
-import pauli_data
+import qubit_operators
 import numpy
 import copy
 
@@ -32,18 +32,18 @@ def jordan_wigner_ladder(n_qubits, site, ladder_type):
   Returns:
     transformed_operator: An instance of the QubitOperator class.
   """
-  pauli_x_component = pauli_data.PauliString(
+  pauli_x_component = qubit_operators.QubitTerm(
       n_qubits, 0.5,
       [(site, 'X')] + [(index, 'Z') for index in range(site - 1, -1, -1)])
   if ladder_type:
-    pauli_y_component = pauli_data.PauliString(
+    pauli_y_component = qubit_operators.QubitTerm(
         n_qubits, -0.5j,
         [(site, 'Y')] + [(index, 'Z') for index in range(site - 1, -1, -1)])
   else:
-    pauli_y_component = pauli_data.PauliString(
+    pauli_y_component = qubit_operators.QubitTerm(
         n_qubits, 0.5j,
         [(site, 'Y')] + [(index, 'Z') for index in range(site - 1, -1, -1)])
-  transformed_operator = pauli_data.QubitOperator(
+  transformed_operator = qubit_operators.QubitOperator(
       n_qubits, [pauli_x_component, pauli_y_component])
   return transformed_operator
 
@@ -99,16 +99,17 @@ class FermionTerm(object):
       self.operators = operators
 
   def __eq__(self, fermion_term):
-    """Overload equality comparison == to interact with python standard library.
+    """Overload equality comparison == to interact with standard library.
+
     Args:
       fermion_term: Another FermionTerm.
 
     Returns:
       True or False, whether terms are the same (without normal ordering).
     """
-    if self.n_qubits != fermion_term.n_qubits:
+    if self.n_sites != fermion_term.n_sites:
       return False
-    elif abs(self.coefficient - fermion_term.coefficient) < _TOLERANCE:
+    elif abs(self.coefficient - fermion_term.coefficient) > _TOLERANCE:
       return False
     elif self.operators != fermion_term.operators:
       return False
@@ -116,7 +117,7 @@ class FermionTerm(object):
       return True
 
   def __ne__(self, fermion_term):
-    """Overload not equals comparison != to interact with python standard library"""
+    """Overload not equals comparison != to interact with standard library."""
     return not (self == fermion_term)
 
   def multiply_by_term(self, fermion_term):
@@ -206,8 +207,8 @@ class FermionTerm(object):
     Returns:
       transformed_term: An instance of the QubitOperator class.
     """
-    transformed_term = pauli_data.QubitOperator(self.n_sites, [
-        pauli_data.PauliString(self.n_sites)])
+    transformed_term = qubit_operators.QubitOperator(self.n_sites, [
+        qubit_operators.QubitTerm(self.n_sites)])
     for operator in self.operators:
       ladder_operator = jordan_wigner_ladder(
           self.n_sites, operator[0], operator[1])
@@ -301,7 +302,7 @@ class FermionOperator(object):
     self.terms = normal_ordered_operator.terms
 
   def jordan_wigner_transform(self):
-    transformed_operator = pauli_data.QubitOperator(self.n_sites)
+    transformed_operator = qubit_operators.QubitOperator(self.n_sites)
     for term in self.iter_terms():
       transformed_term = term.jordan_wigner_transform()
       transformed_operator.add_operator(transformed_term)
@@ -425,38 +426,4 @@ class FermionOperator(object):
     if isinstance(operators, list):
       operators = tuple(operators)
     if operators in self.terms:
-        del self.terms[operators]
-
-  def expectation(self, reduced_one_body, reduced_two_body):
-    """Take the expectation value of self with a one- and two- body operator
-
-    Args:
-      reduced_one_body: N x N numpy array representing the reduced one-
-        electron density matrix
-      reduced_two_body: N x N x N x N numpy array representing the two-
-        electron reduced density matrix
-
-    Returns:
-      expectation: A float, giving the expectation value.
-    """
-
-    self.normal_order()
-    expectation = 0.
-
-    for term in self.terms:
-      if (len(term.operators) == 2):
-        reduced_value = reduced_one_body[term.operators[0][0],
-                                         term.operators[1][0]]
-      elif (len(term.operators) == 4):
-        reduced_value = reduced_two_body[term.operators[0][0],
-                                         term.operators[1][0],
-                                         term.operators[2][0],
-                                         term.operators[3][0]]
-      elif (len(term.operators) == 0):
-        reduced_value = 1.0
-      else:
-        raise ErrorMolecularOperator(
-          'FermionOperator is not a molecular operator.')
-
-      expectation += term.coefficient * reduced_value
-    return expectation
+      del self.terms[operators]
