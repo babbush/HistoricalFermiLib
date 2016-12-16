@@ -1,12 +1,9 @@
 """Class to store and transform fermion operators.
 """
+import local_operators
 import qubit_operators
 import numpy
 import copy
-
-
-# Set tolerance for a term to be considered zero.
-_TOLERANCE = 1e-14
 
 
 class ErrorJordanWigner(Exception):
@@ -48,28 +45,28 @@ def jordan_wigner_ladder(n_qubits, site, ladder_type):
   return transformed_operator
 
 
-def number_operator(n_sites, site=None, coefficient=1.):
+def number_operator(n_qubits, site=None, coefficient=1.):
   """Return a number operator.
 
   Args:
-    n_sites: An int giving the number of spin-orbitals in the system.
+    n_qubits: An int giving the number of spin-orbitals in the system.
     site: The site on which to return the number operator.
       If None, return number operator on all sites.
   """
   if site is None:
-    operator = FermionOperator(n_sites)
-    for spin_orbital in range(n_sites):
-      operator.add_term(number_operator(n_sites, spin_orbital))
+    operator = FermionOperator(n_qubits)
+    for spin_orbital in range(n_qubits):
+      operator.add_term(number_operator(n_qubits, spin_orbital))
   else:
-    operator = FermionTerm(n_sites, coefficient, [(site, 1), (site, 0)])
+    operator = FermionTerm(n_qubits, coefficient, [(site, 1), (site, 0)])
   return operator
 
 
-class FermionTerm(object):
+class FermionTerm(local_operators.LocalTerm):
   """Stores a single term composed of products of fermionic ladder operators.
 
   Attributes:
-    n_sites: An int giving the number of spin-orbitals in the system.
+    n_qubits: An int giving the number of spin-orbitals in the system.
     coefficient: A complex valued float giving the term coefficient.
     operators: A list of tuples. The first element of each tuple is an
       int indicating the site on which operators acts. The second element
@@ -81,49 +78,19 @@ class FermionTerm(object):
       term.coefficient = 6.7
       term.operators = [(3, 1), (1, 0), (7, 1)]
   """
-  def __init__(self, n_sites, coefficient=0., operators=None):
-    """Inits a FermionTerm.
-
-    Args:
-      n_sites: An int giving the number of spin-orbitals in the system.
-      coefficient: A complex valued float giving the term coefficient.
-      operators: A list of tuples. The first element of each tuple is an
-        int indicating the site on which operators acts. The second element
-        of each tuple is boole, indicating whether raising (1) or lowering (0).
-    """
-    self.n_sites = n_sites
-    self.coefficient = coefficient
-    if operators is None:
-      self.operators = []
-    else:
-      self.operators = operators
-
-  def __eq__(self, fermion_term):
-    """Overload equality comparison == to interact with standard library.
-
-    Args:
-      fermion_term: Another FermionTerm.
-
-    Returns:
-      True or False, whether terms are the same (without normal ordering).
-    """
-    if self.n_sites != fermion_term.n_sites:
-      return False
-    elif abs(self.coefficient - fermion_term.coefficient) > _TOLERANCE:
-      return False
-    elif self.operators != fermion_term.operators:
-      return False
-    else:
-      return True
-
-  def __ne__(self, fermion_term):
-    """Overload not equals comparison != to interact with standard library."""
-    return not (self == fermion_term)
-
-  def multiply_by_term(self, fermion_term):
-    """Multiplies a fermionic term by another one (new one is on right)."""
-    self.coefficient *= fermion_term.coefficient
-    self.operators += fermion_term.operators
+  def __str__(self):
+    """Return an easy-to-read string representation of the term."""
+    string_representation = '{} ('.format(self.coefficient)
+    for operator in self.operators:
+      if operator[1]:
+        string_representation += '{}+ '.format(operator[0])
+      else:
+        string_representation += '{} '.format(operator[0])
+    n_characters = len(string_representation)
+    if self.operators:
+      string_representation = string_representation[:(n_characters - 1)]
+    string_representation += ')'
+    return string_representation
 
   def get_hermitian_conjugate(self):
     """Calculate hermitian conjugate.
@@ -134,7 +101,7 @@ class FermionTerm(object):
     conjugate_coefficient = numpy.conjugate(self.coefficient)
     conjugate_operators = [(operator[0], not operator[1]) for operator in
                            self.operators[::-1]]
-    hermitian_conjugate = FermionTerm(self.n_sites,
+    hermitian_conjugate = FermionTerm(self.n_qubits,
                                       conjugate_coefficient,
                                       conjugate_operators)
     return hermitian_conjugate
@@ -157,10 +124,10 @@ class FermionTerm(object):
 
     Returns:
       normal_ordered_operator: FermionOperator object which is the
-        normal ordered form.
+          normal ordered form.
     """
     # Initialize output.
-    normal_ordered_operator = FermionOperator(self.n_sites)
+    normal_ordered_operator = FermionOperator(self.n_qubits)
 
     # Copy self.
     term = copy.copy(self)
@@ -182,7 +149,7 @@ class FermionTerm(object):
           if right_operator[0] == left_operator[0]:
             operators_in_new_term = term.operators[:(j - 1)]
             operators_in_new_term += term.operators[(j + 1)::]
-            new_term = FermionTerm(term.n_sites,
+            new_term = FermionTerm(term.n_qubits,
                                    -1. * term.coefficient,
                                    operators_in_new_term)
 
@@ -207,141 +174,41 @@ class FermionTerm(object):
     Returns:
       transformed_term: An instance of the QubitOperator class.
     """
-    transformed_term = qubit_operators.QubitOperator(self.n_sites, [
-        qubit_operators.QubitTerm(self.n_sites)])
+    transformed_term = qubit_operators.QubitOperator(self.n_qubits, [
+        qubit_operators.QubitTerm(self.n_qubits)])
     for operator in self.operators:
       ladder_operator = jordan_wigner_ladder(
-          self.n_sites, operator[0], operator[1])
+          self.n_qubits, operator[0], operator[1])
       transformed_term.multiply_by_operator(ladder_operator)
     transformed_term.multiply_by_scalar(self.coefficient)
     return transformed_term
 
-  def __str__(self):
-    """Return an easy-to-read string representation of the term."""
-    string_representation = '{} ('.format(self.coefficient)
-    for operator in self.operators:
-      if operator[1]:
-        string_representation += '{}+ '.format(operator[0])
-      else:
-        string_representation += '{} '.format(operator[0])
-    n_characters = len(string_representation)
-    if self.operators:
-      string_representation = string_representation[:(n_characters - 1)]
-    string_representation += ')'
-    return string_representation
 
-  def key(self):
-    """Returns a hashable unique key representing operators"""
-    return tuple(self.operators)
-
-
-class FermionOperator(object):
+class FermionOperator(local_operators.LocalOperator):
   """Data structure which stores sums of FermionTerm objects.
 
   Attributes:
-    n_sites: An int giving the number of fermionic modes.
+    n_qubits: An int giving the number of spin-orbitals in the system.
     terms: A dictionary of FermionTerm objects. The key is given as
         FermionTerm.key() and the value is the FermionTerm.
   """
-  def __init__(self, n_sites, terms=None):
-    """Init a FermionOperator object.
-
-    Args:
-      n_sites: The number of sites in the fermion lattice.
-      terms: This can be either a python list of FermionTerm objects
-          or a dictionary of FermionTerm objects with the keys given as
-          FermionTerm.key() and the value is the FermionTerm.
-          If None, then initialize empty FermionOperator.
-
-    Raises:
-      ErrorFermionOperator: Invalid terms provided to initialization.
-    """
-    self.n_sites = n_sites
-    if terms is None:
-      self.terms = {}
-    elif isinstance(terms, dict):
-      self.terms = terms
-    elif isinstance(terms, list):
-      self.terms = {}
-      self.add_terms_list(terms)
-    else:
-      raise ErrorFermionOperator('Invalid terms provided to initialization.')
-
-  def list_terms(self):
-    return self.terms.values()
-
-  def iter_terms(self):
-    return self.terms.itervalues()
-
-  def add_term(self, new_term):
-    term_key = new_term.key()
-    if term_key in self.terms:
-      new_coefficient = (self.terms[term_key].coefficient +
-                         new_term.coefficient)
-      if abs(new_coefficient) < _TOLERANCE:
-        del self.terms[term_key]
-      else:
-        new_term.coefficient = new_coefficient
-        self.terms[term_key] = new_term
-    else:
-      self.terms[term_key] = new_term
-
-  def add_terms_list(self, list_terms):
-    for new_term in self.iter_terms():
-      self.add_term(new_term)
-
-  def add_operator(self, new_operator):
-    for new_term in new_operator.iter_terms():
-      self.add_term(new_term)
-
   def normal_order(self):
-    normal_ordered_operator = FermionOperator(self.n_sites)
+    normal_ordered_operator = FermionOperator(self.n_qubits)
     for old_term in self.iter_terms():
       new_operator = old_term.return_normal_order()
       normal_ordered_operator.add_operator(new_operator)
     self.terms = normal_ordered_operator.terms
 
   def jordan_wigner_transform(self):
-    transformed_operator = qubit_operators.QubitOperator(self.n_sites)
+    transformed_operator = qubit_operators.QubitOperator(self.n_qubits)
     for term in self.iter_terms():
       transformed_term = term.jordan_wigner_transform()
       transformed_operator.add_operator(transformed_term)
     return transformed_operator
 
-  def multiply_by_scalar(self, scalar):
-    for term in self.iter_terms():
-      term.coefficient *= scalar
-
-  def multiply_by_term(self, new_term):
-    for term in self.iter_terms():
-      term.multiply_by_term(new_term)
-
-  def multiply_by_operator(self, operator):
-    new_operator = FermionOperator(self.n_sites)
-    for term_a in self.iter_terms():
-      for term_b in operator.iter_terms():
-        new_term = copy.deepcopy(term_a)
-        new_term.multiply_by_term(term_b)
-        new_operator.add_term(new_term)
-    self.terms = new_operator.terms
-
-  def print_operator(self):
-    for term in self.iter_terms():
-      print(term.__str__())
-
   def bravyi_kitaev_transform(self):
     # TODO Jarrod.
     return None
-
-  def look_up_coefficient(self, operators):
-    """Given operators list, look up coefficient."""
-    if isinstance(operators, list):
-      operators = tuple(operators)
-    if operators in self.terms:
-      term = self.terms[operators]
-      return term.coefficient
-    else:
-      return 0.
 
   def to_molecular_operator(self):
     """Convert a 2-body fermionic operator to a molecular operator matrix.
@@ -362,9 +229,9 @@ class FermionOperator(object):
     # Normal order the terms and initialize.
     self.normal_order()
     constant = 0.
-    one_body = numpy.zeros((self.n_sites, self.n_sites), float)
+    one_body = numpy.zeros((self.n_qubits, self.n_qubits), float)
     two_body = numpy.zeros((
-        self.n_sites, self.n_sites, self.n_sites, self.n_sites), float)
+        self.n_qubits, self.n_qubits, self.n_qubits, self.n_qubits), float)
 
     # Loop through terms and assign to matrix.
     for term in self.iter_terms():
@@ -399,31 +266,3 @@ class FermionOperator(object):
 
     # Return.
     return constant, one_body, two_body
-
-  def count_terms(self):
-    return len(self.terms)
-
-  def get_coefficients(self):
-    coefficients = [term.coefficient for term in self.iter_terms()]
-    return coefficients
-
-  def __eq__(self, operator):
-    self.normal_order()
-    operator.normal_order()
-    if self.count_terms() != operator.count_terms():
-      return False
-    for term in self.iter_terms():
-      if term.key() in operator.terms:
-        if term == operator[term.key()]:
-          continue
-      return False
-    return True
-
-  def __ne__(self, operator):
-    return not (self == operator)
-
-  def remove_term(self, operators):
-    if isinstance(operators, list):
-      operators = tuple(operators)
-    if operators in self.terms:
-      del self.terms[operators]
