@@ -174,8 +174,8 @@ class FermionTerm(local_operators.LocalTerm):
     Returns:
       transformed_term: An instance of the QubitOperator class.
     """
-    transformed_term = qubit_operators.QubitOperator(self.n_qubits, [
-        qubit_operators.QubitTerm(self.n_qubits)])
+    transformed_term = qubit_operators.QubitOperator(
+        self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits)])
     for operator in self.operators:
       ladder_operator = jordan_wigner_ladder(
           self.n_qubits, operator[0], operator[1])

@@ -69,7 +69,9 @@ class LocalTerm(object):
     return tuple(self.operators)
 
   def __str__(self):
-    return str(self.key())
+    string_representation = '{} {}'.format(
+        self.coefficient, self.key())
+    return string_representation
 
 
 class LocalOperator(object):
@@ -105,6 +107,10 @@ class LocalOperator(object):
   def list_terms(self):
     return self.terms.values()
 
+  def list_coefficients(self):
+    coefficients = [term.coefficient for term in self.iter_terms()]
+    return coefficients
+
   def iter_terms(self):
     return self.terms.itervalues()
 
@@ -135,8 +141,8 @@ class LocalOperator(object):
     else:
       self.terms[term_key] = new_term
 
-  def add_terms_list(self, list_terms):
-    for new_term in self.iter_terms():
+  def add_terms_list(self, terms_list):
+    for new_term in terms_list:
       self.add_term(new_term)
 
   def add_operator(self, new_operator):
@@ -156,7 +162,8 @@ class LocalOperator(object):
     """
     new_operator = LocalOperator(self.n_qubits)
     for term in self.iter_terms():
-      term.multiply_by_term(local_term)
+      print type(new_term)
+      term.multiply_by_term(new_term)
       new_operator.add_term(term)
     self.terms = new_operator.terms
 
@@ -194,7 +201,7 @@ class LocalOperator(object):
       return False
     for term in self.iter_terms():
       if term.key() in operator.terms:
-        if term == operator[term.key()]:
+        if term == operator.terms[term.key()]:
           continue
       return False
     return True
@@ -217,3 +224,7 @@ class LocalOperator(object):
       return term.coefficient
     else:
       return 0.
+
+  def __call__(self, operators):
+    """Provide a very easy way of looking up term coefficients."""
+    return self.look_up_coefficient(operators)
