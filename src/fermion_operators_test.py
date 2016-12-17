@@ -33,8 +33,7 @@ class StandAloneFunctionsTest(unittest.TestCase):
     self.assertEqual(len(total_number_operator.terms), self.n_qubits)
     for qubit in range(self.n_qubits):
       operators = [(qubit, 1), (qubit, 0)]
-      self.assertAlmostEqual(total_number_operator.look_up_coefficient(
-          operators), 1.)
+      self.assertAlmostEqual(total_number_operator(operators), 1.)
 
 
 class FermionTermsTest(unittest.TestCase):
@@ -94,34 +93,42 @@ class FermionTermsTest(unittest.TestCase):
 
 
 class FermionOperatorsTest(unittest.TestCase):
-  pass
 
-  #def test_global_normal_order(self):
-  #  self.fermion_operator.normal_order()
-  #  normal_term_a = self.fermion_operator.terms[0]
-  #  normal_term_b = self.fermion_operator.terms[1]
-  #  normal_term_c = self.fermion_operator.terms[2]
-  #  self.assertTrue(normal_term_a.is_identical_term(self.term_a))
-  #  self.assertEqual(normal_term_b.coefficient,
-  #                   -1. * self.term_b.coefficient)
-  #  self.assertEqual(normal_term_c.coefficient,
-  #                   -1. * self.term_b.coefficient)
-  #  self.assertEqual(normal_term_b.operators[0], (7, 0))
-  #  self.assertEqual(normal_term_c.operators[0], (2, 1))
-  #  self.assertEqual(normal_term_c.operators[1], (7, 0))
-  #  self.assertEqual(normal_term_c.operators[2], (2, 0))
+  def setUp(self):
+    self.n_qubits = 5
+    self.coefficient_a = 6.7j
+    self.coefficient_b = -88.
+    self.operators_a = [(3, 1), (1, 0), (4, 1)]
+    self.operators_b = [(2, 0), (4, 0), (2, 1)]
+    self.term_a = fermion_operators.FermionTerm(
+        self.n_qubits, self.coefficient_a, self.operators_a)
+    self.term_b = fermion_operators.FermionTerm(
+        self.n_qubits, self.coefficient_b, self.operators_b)
+    self.operator = fermion_operators.FermionOperator(
+        self.n_qubits, [self.term_a, self.term_b])
+    self.normal_ordered_a = fermion_operators.FermionTerm(
+        self.n_qubits, self.coefficient_a, [(4, 1), (3, 1), (1, 0)])
+    self.normal_ordered_b1 = fermion_operators.FermionTerm(
+        self.n_qubits, -self.coefficient_b, [(4, 0)])
+    self.normal_ordered_b2 = fermion_operators.FermionTerm(
+        self.n_qubits, -self.coefficient_b, [(2, 1), (4, 0), (2, 0)])
+    self.normal_ordered_operator = fermion_operators.FermionOperator(
+        self.n_qubits, [self.normal_ordered_a,
+                        self.normal_ordered_b1,
+                        self.normal_ordered_b2])
 
-  #def test_jordan_wigner_transform(self):
+  def test_normal_order(self):
+    self.operator.normal_order()
+    self.assertTrue(self.operator == self.normal_ordered_operator)
 
-  #  # Test multi term transformation.
-  #  number_operator = fermion_operators.number_operator(self.n_qubits)
-  #  number_operator_jw = number_operator.jordan_wigner_transform()
-  #  self.assertAlmostEqual(
-  #      number_operator_jw.terms[0].coefficient, 0.5 * self.n_qubits)
-  #  self.assertFalse(number_operator_jw.terms[0].operators)
-  #  for site, term in enumerate(number_operator_jw.terms[1::]):
-  #    self.assertAlmostEqual(term.coefficient, -0.5)
-  #    self.assertEqual(term.operators[0], (site, 'Z'))
+  def test_jordan_wigner_transform(self):
+    number_operator = fermion_operators.number_operator(self.n_qubits)
+    number_operator_jw = number_operator.jordan_wigner_transform()
+    self.assertEqual(self.n_qubits + 1, number_operator_jw.count_terms())
+    self.assertAlmostEqual(self.n_qubits / 2., number_operator_jw([]))
+    for qubit in range(self.n_qubits):
+      operators = [(qubit, 'Z')]
+      self.assertAlmostEqual(total_number_operator(operators), 0.5)
 
 
 if __name__ == '__main__':
