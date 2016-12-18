@@ -1,5 +1,6 @@
 """Class to store and transform fermion operators.
 """
+import molecular_operators
 import local_operators
 import qubit_operators
 import numpy
@@ -16,33 +17,6 @@ class ErrorMolecularOperator(Exception):
 
 class ErrorFermionOperator(Exception):
   pass
-
-
-def jordan_wigner_ladder(n_qubits, site, ladder_type):
-  """Transforms a single fermion raising or lowering operator.
-
-  Args:
-    n_qubits: Int, the number of qubits.
-    site: Int, the site on which operator acts.
-    ladder_type: Boole indicating whether raising (1) or lowering (0).
-
-  Returns:
-    transformed_operator: An instance of the QubitOperator class.
-  """
-  pauli_x_component = qubit_operators.QubitTerm(
-      n_qubits, 0.5,
-      [(site, 'X')] + [(index, 'Z') for index in range(site - 1, -1, -1)])
-  if ladder_type:
-    pauli_y_component = qubit_operators.QubitTerm(
-        n_qubits, -0.5j,
-        [(site, 'Y')] + [(index, 'Z') for index in range(site - 1, -1, -1)])
-  else:
-    pauli_y_component = qubit_operators.QubitTerm(
-        n_qubits, 0.5j,
-        [(site, 'Y')] + [(index, 'Z') for index in range(site - 1, -1, -1)])
-  transformed_operator = qubit_operators.QubitOperator(
-      n_qubits, [pauli_x_component, pauli_y_component])
-  return transformed_operator
 
 
 def number_operator(n_qubits, site=None, coefficient=1.):
@@ -174,13 +148,31 @@ class FermionTerm(local_operators.LocalTerm):
     Returns:
       transformed_term: An instance of the QubitOperator class.
     """
+    # Initialize identity matrix.
     transformed_term = qubit_operators.QubitOperator(
-        self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits)])
+        self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits,
+                                                  self.coefficient)])
+    # Loop through operators, transform and multiply.
     for operator in self.operators:
-      ladder_operator = jordan_wigner_ladder(
-          self.n_qubits, operator[0], operator[1])
-      transformed_term.multiply_by_operator(ladder_operator)
-    transformed_term.multiply_by_scalar(self.coefficient)
+
+      # Handle identity.
+      pauli_x_component = qubit_operators.QubitTerm(
+          self.n_qubits, 0.5,
+          [(operator[0], 'X')] +
+          [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+      if operator[1]:
+        pauli_y_component = qubit_operators.QubitTerm(
+            self.n_qubits, -0.5j,
+            [(operator[0], 'Y')] +
+            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+      else:
+        pauli_y_component = qubit_operators.QubitTerm(
+            self.n_qubits, 0.5j,
+            [(operator[0], 'Y')] +
+            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+      transformed_operator = qubit_operators.QubitOperator(
+          self.n_qubits, [pauli_x_component, pauli_y_component])
+      transformed_term.multiply_by_operator(transformed_operator)
     return transformed_term
 
 
@@ -210,8 +202,8 @@ class FermionOperator(local_operators.LocalOperator):
     # TODO Jarrod.
     return None
 
-  def to_molecular_operator(self):
-    """Convert a 2-body fermionic operator to a molecular operator matrix.
+  def get_molecular_operator(self):
+    """Convert a 2-body fermionic operator to instance of MolecularOperator.
 
     This function should only be called on fermionic operators which consist
     of only a_p^\dagger a_q and a_p^\dagger a_q^\dagger a_r a_s terms.
@@ -219,9 +211,7 @@ class FermionOperator(local_operators.LocalOperator):
     two-body terms are stored in a tensor, two_body[p, q, r, s].
 
     Returns:
-      constant: The coefficient of identity (float)
-      one_body: The N x N numpy array of floats giving one-body terms.
-      two_body: The N x N x N x N numpy array of floats giving two-body terms.
+      molecular_operator: An instance of the MolecularOperator class.
 
     Raises:
       ErrorMolecularOperator: FermionOperator is not a molecular operator.
@@ -264,5 +254,7 @@ class FermionOperator(local_operators.LocalOperator):
         raise ErrorMolecularOperator(
             'FermionOperator is not a molecular operator.')
 
-    # Return.
-    return constant, one_body, two_body
+    # Form MolecularOperator and return.
+    molecular_operator = molecular_operators.MolecularOperator(
+        constant, one_body, two_body)
+    return molecular_operator

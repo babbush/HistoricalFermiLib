@@ -35,119 +35,6 @@ _PAULI_MATRIX_PRODUCTS = {('I', 'I'): (1., 'I'),
                           ('Z', 'Y'): (-1.j, 'X')}
 
 
-def reverse_jordan_wigner_pauli(n_qubits, tensor_factor, operator):
-  """Transforms a single pauli operator into an instance of FermionOperator.
-
-  Args:
-    n_qubits: Int, the number of qubits.
-    tensor_factor: Int, the tensor factor on which operator acts.
-    operator: String, either 'X', 'Y' or 'Z'.
-
-  Returns:
-    transformed_operator: An instance of the FermionOperator class.
-
-  Raises:
-    ErrorQubitTerm: Invalid operator provided: must be 'X', 'Y' or 'Z'.
-  """
-  if operator == 'Z':
-    # Handle Pauli Z.
-    identity = fermion_operators.FermionTerm(n_qubits, 1.)
-    number_operator = fermion_operators.FermionTerm(
-        n_qubits, -2., [(tensor_factor, 1), (tensor_factor, 0)])
-    transformed_operator = fermion_operators.FermionOperator(
-        n_qubits, [identity, number_operator])
-
-  else:
-    if operator == 'X':
-      # Handle Pauli X.
-      raising_term = fermion_operators.FermionTerm(
-          n_qubits, 1., [(tensor_factor, 1)])
-      lowering_term = fermion_operators.FermionTerm(
-          n_qubits, 1., [(tensor_factor, 0)])
-
-    elif operator == 'Y':
-      # Handle Pauli Y.
-      raising_term = fermion_operators.FermionTerm(
-          n_qubits, 1.j, [(tensor_factor, 1)])
-      lowering_term = fermion_operators.FermionTerm(
-          n_qubits, -1.j, [(tensor_factor, 0)])
-
-    else:
-      # Raise for invalid operator.
-      raise ErrorQubitTerm(
-          "Invalid operator provided: must be 'X', 'Y' or 'Z'")
-
-    # Account for the phase terms.
-    transformed_operator = fermion_operators.FermionOperator(
-        n_qubits, [raising_term, lowering_term])
-    for qubit in range(tensor_factor - 1, -1, -1):
-      transformed_operator.multiply_by_operator(
-          reverse_jordan_wigner_pauli(n_qubits, qubit, 'Z'))
-
-  # Return.
-  return transformed_operator
-
-
-def multiply_qubit_terms(qubit_term_a, qubit_term_b):
-  """Multiply together qubit_term_a and qubit_term_b from left to right.
-
-  Args:
-    qubit_term_a: A QubitTerm object.
-    qubit_term_b: Another QubitTerm object.
-
-  Returns:
-    product_string: The QubitTerm qubit_term_a * qubit_term_b.
-
-  Raises:
-    ErrorQubitTerm: Not same number of qubits in each term.
-  """
-  if qubit_term_a.n_qubits != qubit_term_b.n_qubits:
-    raise ErrorQubitTerm(
-        'Attempting to multiply terms acting on different Hilbert spaces.')
-
-  # Loop through terms and create new sorted list of operators.
-  product_coefficient = qubit_term_a.coefficient * \
-      qubit_term_b.coefficient
-  product_operators = []
-  term_index_a = 0
-  term_index_b = 0
-  n_terms_a = len(qubit_term_a.operators)
-  n_terms_b = len(qubit_term_b.operators)
-  while term_index_a < n_terms_a and term_index_b < n_terms_b:
-    (tensor_factor_a, matrix_a) = qubit_term_a.operators[term_index_a]
-    (tensor_factor_b, matrix_b) = qubit_term_b.operators[term_index_b]
-
-    # Multiply matrices if tensor factors are the same.
-    if tensor_factor_a == tensor_factor_b:
-      (scalar, matrix) = _PAULI_MATRIX_PRODUCTS[(matrix_a, matrix_b)]
-      term_index_a += 1
-      term_index_b += 1
-
-      # Add new term.
-      if matrix != 'I':
-        product_operators += [(tensor_factor_a, matrix)]
-        product_coefficient *= scalar
-
-    # If tensor_factor_a > tensor_factor_b, add matrix_b; else, add matrix_a.
-    elif tensor_factor_a > tensor_factor_b:
-      product_operators += [(tensor_factor_b, matrix_b)]
-      term_index_b += 1
-    else:
-      term_index_a += 1
-      product_operators += [(tensor_factor_a, matrix_a)]
-
-  # If either term_index exceeds the number operators, finish.
-  if term_index_a == n_terms_a:
-    product_operators += qubit_term_b.operators[term_index_b::]
-  elif term_index_b == n_terms_b:
-    product_operators += qubit_term_a.operators[term_index_a::]
-
-  # We should now have gone through all operators. Create the new QubitTerm.
-  product_string = QubitTerm(qubit_term_a.n_qubits, product_coefficient,
-                             product_operators)
-  return product_string
-
-
 class QubitTerm(local_operators.LocalTerm):
   """Single term of a hamiltonian for a system of spin 1/2 particles or qubits.
 
@@ -213,22 +100,119 @@ class QubitTerm(local_operators.LocalTerm):
     Raises:
       ErrorQubitTerm: Not same number of qubits in each term.
     """
-    product_term = multiply_qubit_terms(self, qubit_term)
-    self.coefficient = product_term.coefficient
-    self.operators = product_term.operators
+    # Make sure terms act on same Hilbert space.
+    if self.n_qubits != qubit_term.n_qubits:
+      raise ErrorQubitTerm(
+          'Attempting to multiply terms acting on different Hilbert spaces.')
+
+    # Relabel self * qubit_term as left_term * right_term.
+    left_term = self
+    right_term = qubit_term
+    product_coefficient = left_term.coefficient * right_term.coefficient
+
+    # Loop through terms and create new sorted list of operators.
+    product_operators = []
+    left_operator_index = 0
+    right_operator_index = 0
+    n_operators_left = len(left_term.operators)
+    n_operators_right = len(right_term.operators)
+    while (left_operator_index < n_operators_left and
+           right_operator_index < n_operators_right):
+      (left_qubit, left_matrix) = left_term.operators[left_operator_index]
+      (right_qubit, right_matrix) = right_term.operators[right_operator_index]
+
+      # Multiply matrices if tensor factors are the same.
+      if left_qubit == right_qubit:
+        (scalar, matrix) = _PAULI_MATRIX_PRODUCTS[(left_matrix, right_matrix)]
+        left_operator_index += 1
+        right_operator_index += 1
+
+        # Add new term.
+        if matrix != 'I':
+          product_operators += [(left_qubit, matrix)]
+          product_coefficient *= scalar
+
+      # If left_qubit > right_qubit, add right_matrix; else, add left_matrix.
+      elif left_qubit > right_qubit:
+        product_operators += [(right_qubit, right_matrix)]
+        right_operator_index += 1
+      else:
+        product_operators += [(left_qubit, left_matrix)]
+        left_operator_index += 1
+
+    # If either term_index exceeds the number of operators, finish.
+    if left_operator_index == n_operators_left:
+      product_operators += right_term.operators[right_operator_index::]
+    elif right_operator_index == n_operators_right:
+      product_operators += left_term.operators[left_operator_index::]
+
+    # We should now have gone through all operators. Update self.
+    self.coefficient = product_coefficient
+    self.operators = product_operators
 
   def reverse_jordan_wigner(self):
-    """Map QubitTerm back to FermionOperator."""
+    """Transforms a QubitTerm into an instance of FermionOperator using JW.
+
+    Returns:
+      transformed_term: An instance of the FermionOperator class.
+
+    Raises:
+      ErrorQubitTerm: Invalid operator provided: must be 'X', 'Y' or 'Z'.
+    """
+    # Initialize transformed operator.
     identity = fermion_operators.FermionTerm(
         self.n_qubits, self.coefficient)
-    transformed_operator = fermion_operators.FermionOperator(
+    transformed_term = fermion_operators.FermionOperator(
         self.n_qubits, [identity])
+
+    # Loop through operators.
     if self.operators:
       for operator in self.operators:
-        transformed_operator.multiply_by_operator(
-            reverse_jordan_wigner_pauli(
-                self.n_qubits, operator[0], operator[1]))
-    return transformed_operator
+
+        # Handle Pauli Z.
+        if operator[1] == 'Z':
+          identity = fermion_operators.FermionTerm(self.n_qubits, 1.)
+          number_operator = fermion_operators.FermionTerm(
+              self.n_qubits, -2., [(operator[0], 1), (operator[0], 0)])
+          transformed_operator = fermion_operators.FermionOperator(
+              self.n_qubits, [identity, number_operator])
+
+        else:
+          # Handle Pauli X.
+          if operator[1] == 'X':
+            raising_term = fermion_operators.FermionTerm(
+                self.n_qubits, 1., [(operator[0], 1)])
+            lowering_term = fermion_operators.FermionTerm(
+                self.n_qubits, 1., [(operator[0], 0)])
+
+          elif operator[1] == 'Y':
+            # Handle Pauli Y.
+            raising_term = fermion_operators.FermionTerm(
+                self.n_qubits, 1.j, [(operator[0], 1)])
+            lowering_term = fermion_operators.FermionTerm(
+                self.n_qubits, -1.j, [(operator[0], 0)])
+
+          else:
+            # Raise for invalid operator.
+            raise ErrorQubitTerm(
+                "Invalid operator provided: must be 'X', 'Y' or 'Z'")
+
+          # Account for the phase terms.
+          transformed_operator = fermion_operators.FermionOperator(
+              self.n_qubits, [raising_term, lowering_term])
+          for qubit in range(operator[0] - 1, -1, -1):
+            identity = fermion_operators.FermionTerm(self.n_qubits, 1.)
+            number_operator = fermion_operators.FermionTerm(
+                self.n_qubits, -2., [(qubit, 1), (qubit, 0)])
+            transformed_operator.multiply_by_operator(
+                fermion_operators.FermionOperator(
+                    self.n_qubits, [identity, number_operator]))
+
+        # Multiply term by transformed operator.
+        transformed_term.multiply_by_operator(transformed_operator)
+
+    # Return.
+    return transformed_term
 
   def __str__(self):
     """Return an easy-to-read string representation of the term."""
@@ -245,7 +229,7 @@ class QubitTerm(local_operators.LocalTerm):
         string_representation += ' Z{}'.format(operator[0])
     return string_representation
 
-  def to_sparse_matrix(self):
+  def get_sparse_matrix(self):
     tensor_factor = 0
     matrix_form = self.coefficient
     for operator in self.operators:
@@ -288,14 +272,13 @@ class QubitOperator(local_operators.LocalOperator):
       transformed_operator.add_operator(term.reverse_jordan_wigner())
     return transformed_operator
 
-  def to_sparse_matrix(self):
+  def get_sparse_matrix(self):
     hilbert_dimension = 2 ** self.n_qubits
     matrix_form = scipy.sparse.csc_matrix(
         (hilbert_dimension, hilbert_dimension), dtype=complex)
-    for term in self.terms:
-      matrix_form = matrix_form + term.to_sparse_matrix()
+    for term in self.iter_terms():
+      matrix_form = matrix_form + term.get_sparse_matrix()
     return matrix_form
-    return coefficients
 
   def expectation(self, qubit_operator):
     """Take the expectation value of self with another qubit operator.
@@ -308,6 +291,5 @@ class QubitOperator(local_operators.LocalOperator):
     """
     expectation = 0.
     for term in self.iter_terms():
-      complement = qubit_operator.look_up_coefficient(term.operators)
-      expectation += term.coefficient * complement
+      expectation += term.coefficient * qubit_operator(term.operators)
     return expectation

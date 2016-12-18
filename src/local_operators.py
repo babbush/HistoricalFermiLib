@@ -1,5 +1,7 @@
 """Base classes for representation of various local operator types.
 """
+import copy
+
 
 # Set the tolerance below which a coefficient is regarded as zero.
 _TOLERANCE = 1e-15
@@ -45,9 +47,13 @@ class LocalTerm(object):
 
     Returns:
       True or False, whether objects are the same.
+
+    Raises:
+      ErrorLocalTerm: 'Cannot compare terms acting on different Hilbert spaces'
     """
     if self.n_qubits != local_term.n_qubits:
-      return False
+      raise ErrorLocalTerm(
+          'Cannot compare terms acting on different Hilbert spaces.')
     elif abs(self.coefficient - local_term.coefficient) > _TOLERANCE:
       return False
     elif self.operators != local_term.operators:
@@ -162,7 +168,6 @@ class LocalOperator(object):
     """
     new_operator = LocalOperator(self.n_qubits)
     for term in self.iter_terms():
-      print type(new_term)
       term.multiply_by_term(new_term)
       new_operator.add_term(term)
     self.terms = new_operator.terms
@@ -176,8 +181,9 @@ class LocalOperator(object):
     product_operator = LocalOperator(self.n_qubits)
     for term in self.iter_terms():
       for new_term in new_operator.iter_terms():
-        term.multiply_by_term(new_term)
-        product_operator.add_term(term)
+        cloned_term = copy.deepcopy(term)
+        cloned_term.multiply_by_term(new_term)
+        product_operator.add_term(cloned_term)
     self.terms = product_operator.terms
 
   def list_coefficients(self):
@@ -197,8 +203,10 @@ class LocalOperator(object):
     return len(self.terms)
 
   def __eq__(self, operator):
-    if self.count_terms() != operator.count_terms():
-      return False
+    """Compare operators to see if they are the same."""
+    if self.n_qubits != operator.n_qubits:
+      raise ErrorLocalOperator(
+          'Cannot compare operators acting on different Hilbert spaces.')
     for term in self.iter_terms():
       if term.key() in operator.terms:
         if term == operator.terms[term.key()]:

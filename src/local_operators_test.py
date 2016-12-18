@@ -27,6 +27,9 @@ class LocalTermsTest(unittest.TestCase):
     self.assertFalse(self.term_a == self.term_b)
     self.assertTrue(self.term_a != self.term_b)
     self.assertFalse(self.term_a != self.term_a)
+    self.term_b.n_qubits = 10
+    with self.assertRaises(local_operators.ErrorLocalTerm):
+      self.term_a == self.term_b
 
   def test_local_term_multiply(self):
     self.term_a.multiply_by_term(self.term_b)
@@ -93,11 +96,16 @@ class LocalOperatorsTest(unittest.TestCase):
                                 2. * self.coefficient_b,
                                 2. * self.coefficient_c])
     self.assertEqual(new_coefficients, correct_coefficients)
+    self.local_operator_abc.multiply_by_scalar(.5)
 
     local_operator_a_copy = copy.deepcopy(self.local_operator_a)
     self.local_operator_a.multiply_by_term(self.term_a)
     local_operator_a_copy.multiply_by_operator(local_operator_a_copy)
     self.assertTrue(local_operator_a_copy == self.local_operator_a)
+
+    self.local_operator_bc.multiply_by_operator(self.local_operator_bc)
+    self.assertAlmostEqual(self.coefficient_b ** 2, self.local_operator_bc(
+        self.operators_b + self.operators_b))
 
   def test_look_up_coefficient(self):
     self.assertAlmostEqual(

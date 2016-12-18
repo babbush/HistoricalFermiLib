@@ -1,5 +1,5 @@
 """Class and functions to store molecular Hamiltonians / density operators."""
-import fermionic_data
+import fermion_operators
 import numpy
 
 
@@ -176,14 +176,13 @@ def restrict_to_active_space(one_body_integrals,
                                          two_body_integrals[i, u, v, i])
 
   # Restrict integral ranges and change M appropriately
-  return (
-      core_constant,
-      one_body_integrals_new[active_space_start: active_space_stop,
-                             active_space_start:active_space_stop],
-      two_body_integrals[active_space_start:active_space_stop,
-                         active_space_start:active_space_stop,
-                         active_space_start:active_space_stop,
-                         active_space_start:active_space_stop])
+  return (core_constant,
+          one_body_integrals_new[active_space_start: active_space_stop,
+                                 active_space_start:active_space_stop],
+          two_body_integrals[active_space_start:active_space_stop,
+                             active_space_start:active_space_stop,
+                             active_space_start:active_space_stop,
+                             active_space_start:active_space_stop])
 
 
 class MolecularOperator(object):
@@ -193,7 +192,7 @@ class MolecularOperator(object):
   conserve particle number and spin. The most common examples of data
   that will use this structure are molecular Hamiltonians and molecular
   2-RDM density operators. In principle, everything stored in this class
-  could also be represented as the more general FermionicOperator class.
+  could also be represented as the more general FermionOperator class.
   However, this class is able to exploit specific properties of molecular
   operators in order to enable more efficient manipulation of the data.
   Note that the operators stored in this class take the form:
@@ -243,13 +242,13 @@ class MolecularOperator(object):
     self.two_body_coefficients = two_body_basis_change(
         self.two_body_coefficients, rotation_matrix)
 
-  def get_fermionic_operator(self):
-    """Output MolecularOperator as an instance of FermionicOperator class.
+  def get_fermion_operator(self):
+    """Output MolecularOperator as an instance of FermionOperator class.
 
     Returns:
-      fermionic_operator: An instance of the FermionicOperator class.
+      fermion_operator: An instance of the FermionOperator class.
     """
-    identity = fermionic_data.FermionicTerm(self.n_orbitals, self.constant)
+    identity = fermion_operators.FermionTerm(self.n_orbitals, self.constant)
     terms = [identity]
 
     # Loop through terms.
@@ -259,8 +258,8 @@ class MolecularOperator(object):
         # Add one-body terms.
         coefficient = self.one_body_coefficients[p, q]
         if coefficient:
-          terms += [fermionic_data.FermionicTerm(
-              self.n_orbitals, coefficient, [(p, 1), (q, 0)])]
+          terms += [fermion_operators.FermionTerm(
+                    self.n_orbitals, coefficient, [(p, 1), (q, 0)])]
 
         # Keep looping.
         for r in range(self.n_orbitals):
@@ -269,14 +268,14 @@ class MolecularOperator(object):
             # Add two-body terms.
             coefficient = self.two_body_coefficients[p, q, r, s]
             if coefficient:
-              terms += [fermionic_data.FermionicTerm(
-                  self.n_orbitals, coefficient,
-                  [(p, 1), (q, 1), (r, 0), (s, 0)])]
+              terms += [fermion_operators.FermionTerm(
+                        self.n_orbitals, coefficient,
+                        [(p, 1), (q, 1), (r, 0), (s, 0)])]
 
     # Make operator and return.
-    fermionic_operator = fermionic_data.FermionicOperator(
+    fermion_operator = fermion_operators.FermionOperator(
         self.n_orbitals, terms)
-    return fermionic_operator
+    return fermion_operator
 
   def jordan_wigner_transform(self):
     """Output MolecularOperator as QubitOperator class under JW transform.
@@ -286,15 +285,15 @@ class MolecularOperator(object):
     """
     # TODO Ryan: hard code the transformation without going through fermionic
     # class in order to improve performance.
-    fermionic_operator = self.get_fermionic_operator()
-    qubit_operator = fermionic_operator.jordan_wigner_transform()
+    fermion_operator = self.get_fermion_operator()
+    qubit_operator = fermion_operator.jordan_wigner_transform()
     return qubit_operator
 
-  def to_sparse_matrix(self):
+  def get_sparse_matrix(self):
     # TODO Ryan: hard code the transformation without going through pauli
     # class in order to improve performance.
     qubit_operator = self.jordan_wigner_transform()
-    sparse_operator = qubit_operator.to_sparse_matrix()
+    sparse_operator = qubit_operator.get_sparse_matrix()
     return sparse_operator
 
   def get_jordan_wigner_rdm(self):
@@ -304,32 +303,26 @@ class MolecularOperator(object):
       qubit_rdm: The RDM represented as a qubit operator.
     """
     # Map density operator to qubits.
-    fermionic_rdm = self.get_fermionic_operator()
-    fermionic_rdm.normal_order()
-    qubit_rdm = fermionic_rdm.jordan_wigner_transform()
+    fermion_rdm = self.get_fermion_operator()
+    fermion_rdm.normal_order()
+    qubit_rdm = fermion_rdm.jordan_wigner_transform()
+    qubit_rdm.remove_term(())
 
-    # Compute PauliString variances.
-    for term_number, qubit_term in enumerate(qubit_rdm.terms):
-
-      # Ignore the identity.
-      if not qubit_term.operators:
-        del qubit_rdm.terms[term_number]
-        continue
-      else:
-        qubit_term.coefficient = 1.
+    # Compute QubitTerm variances.
+    for qubit_term in qubit_rdm.iter_terms():
 
       # First, reverse Jordan-Wigner transform each pauli_operator.
-      reversed_fermionic_operators = qubit_term.reverse_jordan_wigner()
-      reversed_fermionic_operators.normal_order()
+      qubit_term.coefficient = 1.
+      reversed_fermion_operators = qubit_term.reverse_jordan_wigner()
+      reversed_fermion_operators.normal_order()
 
-      # Compute the expectation value of the PauliStrings.
+      # Compute the expectation value of the QubitTerms.
       expectation_value = 0.
-      for fermionic_term in reversed_fermionic_operators.terms:
-        if fermionic_term.operators:
-          fermionic_expectation = fermionic_rdm.look_up_coefficient(
-              fermionic_term.operators)
-          expectation_value += (fermionic_term.coefficient *
-                                fermionic_expectation)
+      for fermion_term in reversed_fermion_operators.iter_terms():
+        if fermion_term.operators:
+          fermion_expectation = fermion_rdm(fermion_term.operators)
+          expectation_value += (fermion_term.coefficient *
+                                fermion_expectation)
       qubit_term.coefficient = expectation_value
 
     # Return.
