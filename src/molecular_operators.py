@@ -283,14 +283,14 @@ class MolecularOperator(object):
     Returns:
       qubit_operator: An instance of the QubitOperator class.
     """
-    # TODO Ryan: hard code the transformation without going through fermionic
+    # TODO: hard code the transformation without going through fermionic
     # class in order to improve performance.
     fermion_operator = self.get_fermion_operator()
     qubit_operator = fermion_operator.jordan_wigner_transform()
     return qubit_operator
 
   def get_sparse_matrix(self):
-    # TODO Ryan: hard code the transformation without going through pauli
+    # TODO: hard code the transformation without going through pauli
     # class in order to improve performance.
     qubit_operator = self.jordan_wigner_transform()
     sparse_operator = qubit_operator.get_sparse_matrix()

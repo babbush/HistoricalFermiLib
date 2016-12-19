@@ -45,7 +45,11 @@ class QubitTerm(local_operators.LocalTerm):
   where x is the tensor product, 1 the identity matrix, and the others are
   Pauli matrices. We only allow to apply one single Pauli Matrix to each qubit.
 
-  Note: We assume in this class that indices start from 0 to n_qubits - 1.
+  Note 1: We assume in this class that indices start from 0 to n_qubits - 1.
+  Note 2: Always use the abstractions provided here to manipulate the
+      .operators attribute. If ignoring this advice, an important thing to
+      keep in mind is that the operators list is assumed to be sorted in order
+      of the tensor factor on which the operator acts.
 
   Attributes:
     n_qubits: The total number of qubits in the system.
@@ -153,6 +157,11 @@ class QubitTerm(local_operators.LocalTerm):
   def reverse_jordan_wigner(self):
     """Transforms a QubitTerm into an instance of FermionOperator using JW.
 
+    Operators are mapped as follows:
+    Z_j -> I - 2 a^\dagger_j a_j
+    X_j -> (a^\dagger_j + a_j) Z_{j-1} Z_{j-2} .. Z_0
+    Y_j -> i (a^\dagger_j - a_j) Z_{j-1} Z_{j-2} .. Z_0
+
     Returns:
       transformed_term: An instance of the FermionOperator class.
 
@@ -230,6 +239,7 @@ class QubitTerm(local_operators.LocalTerm):
     return string_representation
 
   def get_sparse_matrix(self):
+    """Map the QubitTerm to a scipy.sparse.csc matrix."""
     tensor_factor = 0
     matrix_form = self.coefficient
     for operator in self.operators:
