@@ -190,6 +190,19 @@ class FermionOperator(local_operators.LocalOperator):
       new_operator = old_term.return_normal_order()
       normal_ordered_operator.add_operator(new_operator)
     self.terms = normal_ordered_operator.terms
+    # Remove terms that are zero after normal ordering
+    self.remove_zero_terms()
+
+  def remove_zero_terms(self):
+    """Remove terms that would equate to zero, e.g. a_i a_i"""
+    terms_to_remove = []
+    for term in self.iter_terms():
+      for i in range(1, len(term.operators)):
+        if (term.operators[i - 1] == term.operators[i]):
+          terms_to_remove.append(term.key())
+          break
+    for key in terms_to_remove:
+      del self.terms[key]
 
   def jordan_wigner_transform(self):
     transformed_operator = qubit_operators.QubitOperator(self.n_qubits)

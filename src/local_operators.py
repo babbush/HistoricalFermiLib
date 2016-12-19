@@ -4,7 +4,7 @@ import copy
 
 
 # Set the tolerance below which a coefficient is regarded as zero.
-_TOLERANCE = 1e-15
+_TOLERANCE = 1e-13
 
 
 # Define error classes.
@@ -207,6 +207,8 @@ class LocalOperator(object):
     if self.n_qubits != operator.n_qubits:
       raise ErrorLocalOperator(
           'Cannot compare operators acting on different Hilbert spaces.')
+    if len(self.terms) != len(operator.terms):
+      return False
     for term in self.iter_terms():
       if term.key() in operator.terms:
         if term == operator.terms[term.key()]:
