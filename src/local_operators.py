@@ -235,4 +235,5 @@ class LocalOperator(object):
 
   def __call__(self, operators):
     """Provide a very easy way of looking up term coefficients."""
+    # TODO: Perhaps it would be best to overload slice with __getitem__.
     return self.look_up_coefficient(operators)

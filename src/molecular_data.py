@@ -439,5 +439,5 @@ class MolecularData(object):
     return molecular_rdm
 
   def get_cc_amplitudes(self):
-    # TODO Damian: Do this.
+    # TODO Damian.
     return None
