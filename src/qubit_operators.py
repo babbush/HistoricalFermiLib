@@ -229,8 +229,8 @@ class QubitTerm(local_operators.LocalTerm):
           # Account for the phase terms.
           for j in reversed(range(operator[0])):
             z_term = QubitTerm(self.n_qubits,
-                               coefficient = 1.0,
-                               operators = [(j,'Z')])
+                               coefficient=1.0,
+                               operators=[(j, 'Z')])
             working_term.multiply_by_term(z_term)
           transformed_operator = fermion_operators.FermionOperator(
               self.n_qubits, [raising_term, lowering_term])
@@ -338,19 +338,23 @@ class QubitOperator(local_operators.LocalOperator):
       reversed_fermion_operators.normal_order()
 
       for fermion_term in reversed_fermion_operators.iter_terms():
-          if (sum([ 2 * fermion_term.operators[i][1] - 1
-                    for i in range(len(fermion_term.operators))]) != 0):
-            # Particle non-conserving term
+          if (sum([2 * fermion_term.operators[i][1] - 1
+                   for i in range(len(fermion_term.operators))]) != 0):
+
+            # Particle non-conserving term.
             density_term = 0
+
           elif (len(fermion_term.operators) == 0):
-            # Identity term
+            # Identity term.
             density_term = 1
+
           elif (len(fermion_term.operators) == 2):
-            # One-body
+            # One-body.
             density_term = one_body[fermion_term.operators[0][0],
                                     fermion_term.operators[1][0]]
+
           elif (len(fermion_term.operators) == 4):
-            # Two-body
+            # Two-body.
             density_term = two_body[fermion_term.operators[0][0],
                                     fermion_term.operators[1][0],
                                     fermion_term.operators[2][0],

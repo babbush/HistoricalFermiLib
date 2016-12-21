@@ -317,10 +317,10 @@ class MolecularOperator(object):
     qubit_operator_expectations = copy.deepcopy(qubit_operator)
     for qubit_term in qubit_operator_expectations.iter_terms():
       tmp_qubit_term = qubit_operators.QubitTerm(self.n_orbitals,
-                                                     1.0,
-                                                     qubit_term.operators)
+                                                 1.0,
+                                                 qubit_term.operators)
       tmp_qubit_operator = qubit_operators.QubitOperator(self.n_orbitals,
-                                                             [tmp_qubit_term])
+                                                         [tmp_qubit_term])
       expectation_value = tmp_qubit_operator.expectation_fermion(self)
       qubit_term.coefficient = expectation_value
     return qubit_operator_expectations
@@ -332,7 +332,6 @@ class MolecularOperator(object):
       qubit_rdm: The RDM represented as a qubit operator.
     """
     # Map density operator to qubits.
-    #fermion_rdm = self.get_fermion_operator()
     one_body_terms = [fermion_operators.FermionTerm(self.n_orbitals,
                                                     1.0,
                                                     [(i, 1), (j, 0)])
@@ -350,13 +349,12 @@ class MolecularOperator(object):
                                                     two_body_terms)
     fermion_rdm.normal_order()
     qubit_rdm = fermion_rdm.jordan_wigner_transform()
-    #qubit_rdm.print_operator()
-    #qubit_rdm.remove_term(())
 
     # Compute QubitTerm variances.
     for qubit_term in qubit_rdm.iter_terms():
       qubit_term.coefficient = 1.0
-      qubit_operator = qubit_operators.QubitOperator(self.n_orbitals, [qubit_term])
+      qubit_operator = qubit_operators.QubitOperator(
+          self.n_orbitals, [qubit_term])
       expectation_value = qubit_operator.expectation_fermion(self)
       """
       # First, reverse Jordan-Wigner transform each pauli_operator.
