@@ -87,6 +87,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
     # Make sure the mapping of FermionOperator to MolecularOperator works.
     molecular_hamiltonian = self.fermion_hamiltonian.get_molecular_operator()
     fermion_hamiltonian = molecular_hamiltonian.get_fermion_operator()
+
     self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
 
     # Check that FCI prior has the correct energy.
@@ -192,11 +193,14 @@ class HydrogenIntegrationTest(unittest.TestCase):
     self.assertAlmostEqual(expected_hf_energy, self.molecule.hf_energy)
     self.assertAlmostEqual(expected_hf_density_energy, self.molecule.hf_energy)
 
-    # Make sure the qubit operator has the correct energy.
-    qubit_rdm = self.fci_rdm.get_jordan_wigner_rdm()
-    qubit_energy = qubit_rdm.expectation(self.qubit_hamiltonian)
+    # Confirm expectation on qubit Hamiltonian using reverse JW matches
+    qubit_energy = self.qubit_hamiltonian.expectation_fermion(self.fci_rdm)
     self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 
+    # Confim expectation on qubit Hamiltonian using JW RDM matches
+    qubit_rdm = self.fci_rdm.get_qubit_expectations(self.qubit_hamiltonian)
+    qubit_energy = self.qubit_hamiltonian.expectation(qubit_rdm)
+    self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 
 if __name__ == '__main__':
   unittest.main()

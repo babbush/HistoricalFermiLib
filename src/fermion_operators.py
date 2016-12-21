@@ -191,6 +191,7 @@ class FermionOperator(local_operators.LocalOperator):
       normal_ordered_operator.add_operator(new_operator)
     self.terms = normal_ordered_operator.terms
     # Remove terms that are zero after normal ordering
+    # TODO: Remove such terms during the normal ordering process
     self.remove_zero_terms()
 
   def remove_zero_terms(self):

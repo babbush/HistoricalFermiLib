@@ -93,6 +93,24 @@ class QubitTerm(local_operators.LocalTerm):
       if max(self.operators, key=lambda operator: operator[0])[0] >= n_qubits:
         raise ErrorQubitTerm('Operators acting outside of n_qubit space.')
 
+  def get_operator(self, qubit_number):
+    """Return the operator acting on qubit_number or the one below it
+
+    Args:
+      qubit_number(int): Number of the qubit to look for action on
+
+    Returns:
+      operator: Tuple corresponding to operator representing a Pauli
+        term, acting on index <= qubit_number.  Is None if no terms act
+        on qubit_number or below.
+    """
+    for operator in reversed(self.operators):
+      if operator[0] == qubit_number:
+        return operator
+      elif operator[0] < qubit_number:
+        return operator
+    return None
+
   def multiply_by_term(self, qubit_term):
     """Multiply operators with another QubitTerm object.
 
@@ -170,14 +188,16 @@ class QubitTerm(local_operators.LocalTerm):
     """
     # Initialize transformed operator.
     identity = fermion_operators.FermionTerm(
-        self.n_qubits, self.coefficient)
+        self.n_qubits, 1.0)
     transformed_term = fermion_operators.FermionOperator(
         self.n_qubits, [identity])
-
+    working_term = QubitTerm(self.n_qubits,
+                             1.0,
+                             self.operators)
     # Loop through operators.
-    if self.operators:
-      for operator in self.operators:
-
+    if working_term.operators:
+      operator = working_term.operators[-1]
+      while operator is not None:
         # Handle Pauli Z.
         if operator[1] == 'Z':
           identity = fermion_operators.FermionTerm(self.n_qubits, 1.)
@@ -190,9 +210,9 @@ class QubitTerm(local_operators.LocalTerm):
           # Handle Pauli X.
           if operator[1] == 'X':
             raising_term = fermion_operators.FermionTerm(
-                self.n_qubits, 1., [(operator[0], 1)])
+                self.n_qubits, -1., [(operator[0], 1)])
             lowering_term = fermion_operators.FermionTerm(
-                self.n_qubits, 1., [(operator[0], 0)])
+                self.n_qubits, -1., [(operator[0], 0)])
 
           elif operator[1] == 'Y':
             # Handle Pauli Y.
@@ -207,18 +227,22 @@ class QubitTerm(local_operators.LocalTerm):
                 "Invalid operator provided: must be 'X', 'Y' or 'Z'")
 
           # Account for the phase terms.
+          for j in reversed(range(operator[0])):
+            z_term = QubitTerm(self.n_qubits,
+                               coefficient = 1.0,
+                               operators = [(j,'Z')])
+            working_term.multiply_by_term(z_term)
           transformed_operator = fermion_operators.FermionOperator(
               self.n_qubits, [raising_term, lowering_term])
-          for qubit in range(operator[0] - 1, -1, -1):
-            identity = fermion_operators.FermionTerm(self.n_qubits, 1.)
-            number_operator = fermion_operators.FermionTerm(
-                self.n_qubits, -2., [(qubit, 1), (qubit, 0)])
-            transformed_operator.multiply_by_operator(
-                fermion_operators.FermionOperator(
-                    self.n_qubits, [identity, number_operator]))
+          transformed_operator.multiply_by_scalar(working_term.coefficient)
+          working_term.coefficient = 1.0
+        operator = working_term.get_operator(operator[0] - 1)
 
         # Multiply term by transformed operator.
         transformed_term.multiply_by_operator(transformed_operator)
+
+    # Account for overall coefficient
+    transformed_term.multiply_by_scalar(self.coefficient)
 
     # Return.
     return transformed_term
@@ -302,4 +326,39 @@ class QubitOperator(local_operators.LocalOperator):
     expectation = 0.
     for term in self.iter_terms():
       expectation += term.coefficient * qubit_operator(term.operators)
+    return expectation
+
+  def expectation_fermion(self, molecular_operator):
+    """"""
+    one_body = molecular_operator.one_body_coefficients
+    two_body = molecular_operator.two_body_coefficients
+    expectation = 0.
+    for qubit_term in self.iter_terms():
+      reversed_fermion_operators = qubit_term.reverse_jordan_wigner()
+      reversed_fermion_operators.normal_order()
+
+      for fermion_term in reversed_fermion_operators.iter_terms():
+          if (sum([ 2 * fermion_term.operators[i][1] - 1
+                    for i in range(len(fermion_term.operators))]) != 0):
+            # Particle non-conserving term
+            density_term = 0
+          elif (len(fermion_term.operators) == 0):
+            # Identity term
+            density_term = 1
+          elif (len(fermion_term.operators) == 2):
+            # One-body
+            density_term = one_body[fermion_term.operators[0][0],
+                                    fermion_term.operators[1][0]]
+          elif (len(fermion_term.operators) == 4):
+            # Two-body
+            density_term = two_body[fermion_term.operators[0][0],
+                                    fermion_term.operators[1][0],
+                                    fermion_term.operators[2][0],
+                                    fermion_term.operators[3][0]]
+          else:
+            # Term is 3-body or higher, error has occurred
+            print("Error on term {}".format(fermion_term.key()))
+
+          expectation += fermion_term.coefficient * density_term
+
     return expectation
