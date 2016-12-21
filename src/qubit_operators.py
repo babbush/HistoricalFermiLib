@@ -210,9 +210,9 @@ class QubitTerm(local_operators.LocalTerm):
           # Handle Pauli X.
           if operator[1] == 'X':
             raising_term = fermion_operators.FermionTerm(
-                self.n_qubits, -1., [(operator[0], 1)])
+                self.n_qubits, 1., [(operator[0], 1)])
             lowering_term = fermion_operators.FermionTerm(
-                self.n_qubits, -1., [(operator[0], 0)])
+                self.n_qubits, 1., [(operator[0], 0)])
 
           elif operator[1] == 'Y':
             # Handle Pauli Y.
@@ -231,7 +231,8 @@ class QubitTerm(local_operators.LocalTerm):
             z_term = QubitTerm(self.n_qubits,
                                coefficient=1.0,
                                operators=[(j, 'Z')])
-            working_term.multiply_by_term(z_term)
+            z_term.multiply_by_term(working_term)
+            working_term = copy.deepcopy(z_term)
           transformed_operator = fermion_operators.FermionOperator(
               self.n_qubits, [raising_term, lowering_term])
           transformed_operator.multiply_by_scalar(working_term.coefficient)
