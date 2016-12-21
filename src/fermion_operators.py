@@ -189,19 +189,24 @@ class FermionOperator(local_operators.LocalOperator):
     for old_term in self.iter_terms():
       new_operator = old_term.return_normal_order()
       normal_ordered_operator.add_operator(new_operator)
+
+    # Remove terms that are zero after normal ordering.
+    # TODO Jarrod: Remove such terms during the normal ordering process.
+    normal_ordered_operator.remove_zero_terms()
     self.terms = normal_ordered_operator.terms
-    # Remove terms that are zero after normal ordering
-    # TODO: Remove such terms during the normal ordering process
-    self.remove_zero_terms()
 
   def remove_zero_terms(self):
     """Remove terms that would equate to zero, e.g. a_i a_i"""
     terms_to_remove = []
     for term in self.iter_terms():
+
+      # Remove terms with zero expectation value.
       for i in range(1, len(term.operators)):
         if (term.operators[i - 1] == term.operators[i]):
           terms_to_remove.append(term.key())
           break
+
+    # Remove terms.
     for key in terms_to_remove:
       del self.terms[key]
 

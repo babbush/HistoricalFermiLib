@@ -10,7 +10,7 @@ if __name__ == '__main__':
   basis = 'sto-3g'
   max_electrons = 10
   spacing = 0.7414
-  periodic_table = 0
+  periodic_table = 1
 
   # Select calculations.
   force_recompute = 1

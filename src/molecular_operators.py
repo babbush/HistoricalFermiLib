@@ -1,8 +1,8 @@
 """Class and functions to store molecular Hamiltonians / density operators."""
 import fermion_operators
 import qubit_operators
-import copy
 import numpy
+import copy
 
 
 def unpack_spatial_rdm(one_rdm_a,
@@ -250,8 +250,12 @@ class MolecularOperator(object):
     Returns:
       fermion_operator: An instance of the FermionOperator class.
     """
-    identity = fermion_operators.FermionTerm(self.n_orbitals, self.constant)
-    terms = [identity]
+    # Add identity term.
+    if abs(self.constant) > fermion_operators.local_operators._TOLERANCE:
+      identity = fermion_operators.FermionTerm(self.n_orbitals, self.constant)
+      terms = [identity]
+    else:
+      terms = []
 
     # Loop through terms.
     for p in range(self.n_orbitals):
@@ -259,7 +263,7 @@ class MolecularOperator(object):
 
         # Add one-body terms.
         coefficient = self.one_body_coefficients[p, q]
-        if coefficient:
+        if abs(coefficient) > fermion_operators.local_operators._TOLERANCE:
           terms += [fermion_operators.FermionTerm(
                     self.n_orbitals, coefficient, [(p, 1), (q, 0)])]
 
@@ -269,7 +273,7 @@ class MolecularOperator(object):
 
             # Add two-body terms.
             coefficient = self.two_body_coefficients[p, q, r, s]
-            if coefficient:
+            if abs(coefficient) > fermion_operators.local_operators._TOLERANCE:
               terms += [fermion_operators.FermionTerm(
                         self.n_orbitals, coefficient,
                         [(p, 1), (q, 1), (r, 0), (s, 0)])]

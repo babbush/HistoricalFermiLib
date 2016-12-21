@@ -45,7 +45,7 @@ if __name__ == '__main__':
   y_log = 0
 
   # Set chemical series parameters.
-  periodic_table = 0
+  periodic_table = 1
   max_electrons = 10
   spacing = 0.7414
   basis = 'sto-3g'

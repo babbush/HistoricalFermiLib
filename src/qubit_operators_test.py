@@ -60,6 +60,8 @@ class QubitTermsTest(unittest.TestCase):
     transformed_x = pauli_x.reverse_jordan_wigner()
     retransformed_x = transformed_x.jordan_wigner_transform()
     self.assertEqual(1, retransformed_x.count_terms())
+    print pauli_x.__str__()
+    print retransformed_x.list_terms()[0].__str__()
     self.assertTrue(pauli_x == retransformed_x.list_terms()[0])
 
     transformed_y = pauli_y.reverse_jordan_wigner()

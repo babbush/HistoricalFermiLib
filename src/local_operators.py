@@ -4,7 +4,7 @@ import copy
 
 
 # Set the tolerance below which a coefficient is regarded as zero.
-_TOLERANCE = 1e-13
+_TOLERANCE = 1e-12
 
 
 # Define error classes.
@@ -71,7 +71,11 @@ class LocalTerm(object):
     self.operators += local_term.operators
 
   def key(self):
-    """Returns a hashable unique key representing operators."""
+    """Returns a hashable unique key representing operators.
+
+    Note that this method is essential to the operation of the LocalOperators
+    class because .key() is used as the key for the LocalOperators.terms
+    python dictionary."""
     return tuple(self.operators)
 
   def __str__(self):
