@@ -1,6 +1,6 @@
 """Base class for representation of various local operators.
 """
-import local_terms
+import x_local_terms as local_terms
 import copy
 
 
