@@ -224,14 +224,6 @@ class LocalTerm(object):
       raise ErrorLocalTerm(
           'Can only *= multiply LocalTerm by scalar or LocalTerm.')
 
-  def __hash__(self):
-    """Returns a hashable unique key representing operators.
-
-    Note that this method is essential to the operation of the LocalOperators
-    class which uses a python dictionary to store LocalTerm objects.
-    """
-    return hash(tuple(self.operators))
-
   def __iter__(self):
     return iter(self.operators)
 

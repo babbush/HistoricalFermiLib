@@ -58,33 +58,34 @@ class LocalOperator(object):
     if len(self) != len(operator):
       return False
     for term in self:
-      if self[term] != operator[term]:
+      if self[term.operators] != operator[term.operators]:
         return False
     return True
 
   def __ne__(self, operator):
     return not (self == operator)
 
-  def __contains__(self, term):
-    # TODO: Notice if line below doesn't require "hash".
-    if term in self.terms:
+  def __contains__(self, operators):
+    if tuple(operators) in self.terms:
       return True
     else:
       return False
 
-  def __getitem__(self, term):
-    if term in self:
-      return self.terms[hash(term)].coefficient
+  def __getitem__(self, operators):
+    if operators in self:
+      return self.terms[tuple(operators)].coefficient
     else:
       return 0.
 
-  def __setitem__(self, term, coefficient):
-    if term not in self:
-      self.terms[hash(term)] = copy.deepcopy(term)
-    self.terms[hash(term)].coefficient = coefficient
+  def __setitem__(self, operators, coefficient):
+    if operators in self:
+      self.terms[tuple(operators)].coefficient = coefficient
+    else:
+      new_term = local_terms.LocalTerm(self.n_qubits, coefficient, operators)
+      self.terms[tuple(operators)] = new_term
 
-  def __delitem__(self, term):
-    del self.terms[hash(term)]
+  def __delitem__(self, operators):
+    del self.terms[tuple(operators)]
 
   def __add__(self, addend):
     """Add a LocalTerm or LocalOperator.
@@ -118,6 +119,10 @@ class LocalOperator(object):
     # Return.
     return summand
 
+  def __sub__(self, subtrahend):
+    """Compute self - subtrahend for a LocalTerm or LocalOperator."""
+    return self + (-1. * subtrahend)
+
   def __iadd__(self, addend):
     """In-place method for += addition of LocalTerm or LocalOperator.
 
@@ -136,12 +141,12 @@ class LocalOperator(object):
         raise ErrorLocalOperator(
             'Cannot add terms acting on different Hilbert spaces.')
 
-      # Compute new coefficient and update self.
-      new_coefficient = self[addend] + addend.coefficient
+      # Compute new coefficient and update self.terms.
+      new_coefficient = self[addend.operators] + addend.coefficient
       if abs(new_coefficient) > self._tolerance:
-        self[addend] = new_coefficient
+        self[addend.operators] = new_coefficient
       else:
-        del self[addend]
+        del self[addend.operators]
 
     elif issubclass(addend, LocalOperator):
       # Handle LocalOperators.
@@ -152,6 +157,10 @@ class LocalOperator(object):
       # Throw exception for unknown type.
       raise ErrorLocalOperator(
           'Cannot add term of invalid type to LocalOperator.')
+
+  def __isub__(self, subtrahend):
+    """Compute self - subtrahend for a LocalTerm or LocalOperator."""
+    self += (-1. * subtrahend)
 
   def __mul__(self, multiplier):
     """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
@@ -227,6 +236,9 @@ class LocalOperator(object):
       # Throw exception for wrong type of multiplier.
       raise ErrorLocalTerm(
           'Invalid typed object cannot multiply LocalOperator.')
+
+  def list_terms():
+    return self.terms.values()
 
   def __iter__(self):
     return self.terms.itervalues()
