@@ -18,7 +18,7 @@ class LocalTerm(object):
     coefficient: A complex valued float giving the term coefficient.
     operators: A list of site operators representing the term.
   """
-  def __init__(self, _n_qubits, coefficient=0., operators=None):
+  def __init__(self, n_qubits, coefficient=0., operators=None):
     """Inits a LocalTerm.
 
     Args:
@@ -86,25 +86,27 @@ class LocalTerm(object):
       ErrorLocalTerm: Cannot add terms acting on different Hilbert spaces.
     """
     # Handle LocalTerms.
-    if issubclass(addend, LocalTerm):
+    if issubclass(type(addend), LocalTerm):
 
       # Make sure number of qubits is the same.
       if self._n_qubits != addend._n_qubits:
         raise ErrorLocalTerm(
             'Cannot add terms acting on different Hilbert spaces.')
 
-      # Compute addition.
-      if self.operators == addend.operators:
+      elif self.operators == addend.operators:
+
+        # Compute addition of same term.
         summand = copy.deepcopy(self)
         summand.coefficient += addend.coefficient
         if abs(summand.coefficient) < self._tolerance:
           raise ErrorLocalTerm(
               'Cannot return LocalTerm with zero coefficient.')
       else:
+        # Compute addition of different terms.
         summand = local_operators.LocalOperator(
             self._n_qubits, [copy.deepcopy(self), copy.deepcopy(addend)])
 
-    elif issubclass(addend, local_operators.LocalOperator):
+    elif issubclass(type(addend), local_operators.LocalOperator):
       # Handle LocalOperators.
       summand = addend + self
 
@@ -139,7 +141,7 @@ class LocalTerm(object):
       product.coefficient *= multiplier
 
     # Handle LocalTerms.
-    elif issubclass(multiplier, LocalTerm):
+    elif issubclass(type(multiplier), LocalTerm):
 
       # Make sure number of qubits is the same.
       if self._n_qubits != multiplier._n_qubits:
@@ -151,7 +153,7 @@ class LocalTerm(object):
       product.coefficient *= multiplier.coefficient
       product.operators += multiplier.operators
 
-    elif issubclass(multiplier, local_operators.LocalOperator):
+    elif issubclass(type(multiplier), local_operators.LocalOperator):
       # Handle LocalOperators.
 
       # Loop through multiplier terms to perform multiply.
@@ -207,9 +209,10 @@ class LocalTerm(object):
     """
     # Handle scalars.
     if isinstance(multiplier, (int, long, float, complex)):
-      self.coefficient *= multiplier
+      self.coefficient *= complex(multiplier)
+      return self
 
-    elif issubclass(multiplier, LocalTerm):
+    elif issubclass(type(multiplier), LocalTerm):
       # Handle LocalTerms. Make sure number of qubits is the same.
       if self._n_qubits != multiplier._n_qubits:
         raise ErrorLocalTerm(
@@ -218,6 +221,7 @@ class LocalTerm(object):
       # Compute product.
       self.coefficient *= multiplier.coefficient
       self.operators += multiplier.operators
+      return self
 
     else:
       # Throw exception for wrong type of multiplier.
@@ -231,4 +235,4 @@ class LocalTerm(object):
     return len(self.operators)
 
   def __str__(self):
-    raise NotImplementedError
+    return '{} {}'.format(self.coefficient, self.operators)
