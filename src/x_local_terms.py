@@ -1,5 +1,4 @@
-"""Base class for representation of various local terms.
-"""
+"""Base class for representation of various local terms."""
 import x_local_operators as local_operators
 import copy
 

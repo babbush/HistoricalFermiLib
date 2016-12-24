@@ -1,9 +1,9 @@
-"""Base class for representation of various local operators.
-"""
+"""Base class for representation of various local operators."""
 import x_local_terms as local_terms
 import copy
 
 
+# Define error class.
 class ErrorLocalOperator(Exception):
   pass
 
@@ -35,8 +35,11 @@ class LocalOperator(object):
     elif isinstance(terms, list):
       self.terms = {}
       for term in terms:
-        # TODO: Figure out why self += term does not work but line below does.
-        self[term.operators] = term.coefficient
+        if term in self:
+          new_coefficient = term.coefficient + self[term.operators]
+          self[term.operators] = new_coefficient
+        else:
+          self[term.operators] = term.coefficient
     else:
       raise ErrorLocalOperator('Invalid terms provided to initialization.')
 
@@ -48,7 +51,7 @@ class LocalOperator(object):
   @n_qubits.setter
   def n_qubits(self, n_qubits):
     if hasattr(self, '_n_qubits'):
-      raise ErrorLocalTerm(
+      raise ErrorLocalOperator(
           'Do not change the size of Hilbert space on which terms act.')
 
   def __eq__(self, operator):
@@ -221,7 +224,7 @@ class LocalOperator(object):
         term.coefficient *= complex(multiplier)
       return self
 
-    elif issubclass(type(multiplier), local_operators.LocalTerm):
+    elif issubclass(type(multiplier), local_terms.LocalTerm):
       # Handle LocalTerms. Note that it is necessary to make new dictioanry.
       new_operator = LocalOperator(self.n_qubits)
       for term in self:
