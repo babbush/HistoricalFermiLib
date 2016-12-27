@@ -254,6 +254,9 @@ class LocalOperator(object):
       raise ErrorLocalOperator(
           'Invalid typed object cannot multiply LocalOperator.')
 
+  def list_coefficients(self):
+    return [term.coefficient for term in self]
+
   def list_terms(self):
     return self.terms.values()
 

@@ -6,6 +6,7 @@ import x_local_terms as local_terms
 import sparse_operators
 import scipy
 import scipy.sparse
+import copy
 
 
 class ErrorQubitTerm(Exception):
@@ -221,11 +222,11 @@ class QubitTerm(local_terms.LocalTerm):
             z_term = QubitTerm(self._n_qubits,
                                coefficient=1.0,
                                operators=[(j, 'Z')])
-            z_term.multiply_by_term(working_term)
+            z_term *= working_term
             working_term = copy.deepcopy(z_term)
           transformed_operator = fermion_operators.FermionOperator(
               self._n_qubits, [raising_term, lowering_term])
-          transformed_operator.multiply_by_scalar(working_term.coefficient)
+          transformed_operator *= working_term.coefficient
           working_term.coefficient = 1.0
 
         # Get next non-identity operator acting below the 'working_qubit'.
@@ -347,8 +348,8 @@ class QubitOperator(local_operators.LocalOperator):
       expectation: A float, giving the expectation value.
     """
     expectation = 0.
-    for term in self:
-      expectation += term.coefficient * qubit_operator(term.operators)
+    for term in qubit_operator:
+      expectation += term.coefficient * self[term.operators]
     return expectation
 
   def expectation_fermion(self, molecular_operator):
