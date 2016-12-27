@@ -85,10 +85,12 @@ class LocalOperator(object):
     else:
       return 0.
 
+  # As its coded now, __setitem__ must be rewritten for every child class.
   def __setitem__(self, operators, coefficient):
     if operators in self:
       self.terms[tuple(operators)].coefficient = coefficient
     else:
+      # TODO: Find better solution than using call to LocalTerm here.
       new_term = local_terms.LocalTerm(self.n_qubits, coefficient, operators)
       self.terms[tuple(operators)] = new_term
 
@@ -173,41 +175,6 @@ class LocalOperator(object):
     """Compute self - subtrahend for a LocalTerm or LocalOperator."""
     return self + (-1. * subtrahend)
 
-  def __mul__(self, multiplier):
-    """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
-
-    Args:
-      multiplier: A scalar, LocalTerm or LocalOperator.
-
-    Returns:
-      product: A new instance of LocalOperator.
-    """
-    product = copy.deepcopy(self)
-    product *= multiplier
-    return product
-
-  def __rmul__(self, multiplier):
-    """Compute multiplier * self for a scalar.
-
-    We only define __rmul__ for scalars because the left multiply
-    should exist for LocalTerms and LocalOperators and left multiply
-    is also queried as the default behavior.
-
-    Args:
-      multiplier: A scalar.
-
-    Returns:
-      product: A new instance of LocalTerm.
-
-    Raises:
-      ErrorLocalOperator: Invalid typed object cannot multiply LocalOperator.
-    """
-    if isinstance(multiplier, (int, long, float, complex)):
-      return self * multiplier
-    else:
-      raise ErrorLocalOperator(
-          'Invalid typed object cannot multiply LocalOperator.')
-
   def __imul__(self, multiplier):
     """Compute self *= multiplier.
 
@@ -249,6 +216,42 @@ class LocalOperator(object):
     else:
       # Throw exception for wrong type of multiplier.
       raise ErrorLocalTerm(
+          'Invalid typed object cannot multiply LocalOperator.')
+
+
+  def __mul__(self, multiplier):
+    """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
+
+    Args:
+      multiplier: A scalar, LocalTerm or LocalOperator.
+
+    Returns:
+      product: A new instance of LocalOperator.
+    """
+    product = copy.deepcopy(self)
+    product *= multiplier
+    return product
+
+  def __rmul__(self, multiplier):
+    """Compute multiplier * self for a scalar.
+
+    We only define __rmul__ for scalars because the left multiply
+    should exist for LocalTerms and LocalOperators and left multiply
+    is also queried as the default behavior.
+
+    Args:
+      multiplier: A scalar.
+
+    Returns:
+      product: A new instance of LocalTerm.
+
+    Raises:
+      ErrorLocalOperator: Invalid typed object cannot multiply LocalOperator.
+    """
+    if isinstance(multiplier, (int, long, float, complex)):
+      return self * multiplier
+    else:
+      raise ErrorLocalOperator(
           'Invalid typed object cannot multiply LocalOperator.')
 
   def list_terms(self):

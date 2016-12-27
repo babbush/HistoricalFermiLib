@@ -77,24 +77,22 @@ class QubitTerm(local_terms.LocalTerm):
     Raises:
       ErrorQubitTerm: Invalid operators provided to QubitTerm.
     """
-    super(local_terms.LocalTerm).__init__(n_qubits, coefficient, operators)
+    super(QubitTerm, self).__init__(n_qubits, coefficient, operators)
     for operator in self:
-      if isinstance(term, tuple):
-        tensor_factor, action = term
+      if isinstance(operator, tuple):
+        tensor_factor, action = operator
         if (isinstance(action, str) and
-            isinstance(tensor_factor, int) and
-            tensor_factor < n_qubits):
+           (isinstance(tensor_factor, int) and tensor_factor < n_qubits)):
           continue
       raise ErrorQubitTerm('Invalid operators provided to QubitTerm.')
 
     # Make sure operators are sorted by tensor factor.
-    self.operators = sorted(operators, key=lambda operator: operator[0])
+    self.operators.sort(key=lambda operator: operator[0])
 
-  def __mul__(self, multiplier):
-    """Multiply operators with scalar, QubitTerm or QubitOperator.
+  def __imul__(self, multiplier):
+    """Multiply operators with scalar or QubitTerm using *=.
 
     Note that the "self" term is on the left of the multiply sign.
-    This method returns a new QubitTerm or QubitOperator object.
 
     Args:
       multiplier: Another QubitTerm object.
@@ -105,8 +103,8 @@ class QubitTerm(local_terms.LocalTerm):
     """
     # Handle scalars.
     if isinstance(multiplier, (int, long, float, complex)):
-      product = copy.deepcopy(self)
-      product.coefficient *= multiplier
+      self.coefficient *= multiplier
+      return self
 
     # Handle QubitTerms.
     elif issubclass(type(multiplier), QubitTerm):
@@ -119,7 +117,7 @@ class QubitTerm(local_terms.LocalTerm):
       # Relabel self * qubit_term as left_term * right_term.
       left_term = self
       right_term = multiplier
-      product_coefficient = left_term.coefficient * right_term.coefficient
+      self.coefficient *= multiplier.coefficient
 
       # Loop through terms and create new sorted list of operators.
       product_operators = []
@@ -142,7 +140,7 @@ class QubitTerm(local_terms.LocalTerm):
           # Add new term.
           if matrix != 'I':
             product_operators += [(left_qubit, matrix)]
-            product_coefficient *= scalar
+            self.coefficient *= scalar
 
         # If left_qubit > right_qubit, add right_matrix; else, add left_matrix.
         elif left_qubit > right_qubit:
@@ -158,16 +156,9 @@ class QubitTerm(local_terms.LocalTerm):
       elif right_operator_index == n_operators_right:
         product_operators += left_term[left_operator_index::]
 
-      # We should now have gone through all operators. Return.
-      product = QubitTerm(self._n_qubits,
-                          product_coefficient,
-                          product_operators)
-
-    # Handle QubitOperators.
-    elif issubclass(type(multiplier), QubitOperator):
-      product =
-
-      return product
+      # We should now have gone through all operators.
+      self.operators = product_operators
+      return self
 
   def reverse_jordan_wigner(self):
     """Transforms a QubitTerm into an instance of FermionOperator using JW.
@@ -308,6 +299,30 @@ class QubitOperator(local_operators.LocalOperator):
     terms: Dictionary of QubitTerm objects. The dictionary key is
         QubitTerm.key() and the dictionary value is the QubitTerm.
   """
+  def __init__(self, n_qubits, terms=None):
+    """Init a QubitOperator.
+
+    Args:
+      n_qubits: Int, the number of qubits in the system.
+      terms: Dictionary or list of QubitTerm objects.
+
+    Raises:
+      ErrorQubitOperator: Invalid QubitTerms provided to QubitOperator.
+    """
+    super(QubitOperator, self).__init__(n_qubits, terms)
+    for term in self:
+      if isinstance(term, QubitTerm) and term._n_qubits == n_qubits:
+          continue
+      raise ErrorQubitTerm(
+          'Invalid QubitTerms provided to QubitOperator.')
+
+  def __setitem__(self, operators, coefficient):
+    if operators in self:
+      self.terms[tuple(operators)].coefficient = coefficient
+    else:
+      new_term = QubitTerm(self.n_qubits, coefficient, operators)
+      self.terms[tuple(operators)] = new_term
+
   def reverse_jordan_wigner(self):
     transformed_operator = fermion_operators.FermionOperator(self._n_qubits)
     for term in self:

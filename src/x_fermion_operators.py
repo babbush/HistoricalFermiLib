@@ -4,11 +4,15 @@ import x_qubit_operators as qubit_operators
 import x_local_operators as local_operators
 import x_local_terms as local_terms
 import molecular_operators
-import local_terms
 import numpy
+import copy
 
 
 class ErrorJordanWigner(Exception):
+  pass
+
+
+class ErrorFermionTerm(Exception):
   pass
 
 
@@ -57,18 +61,17 @@ class FermionTerm(local_terms.LocalTerm):
       coefficient: A complex valued float giving the term coefficient.
       operators: A list of tuples. The first element of each tuple is an
           int indicating the site on which operators acts. The second element
-          of each tuple is boole, indicating whether raising (1) or lowering (0).
+          of each tuple is boole, indicating raising (1) or lowering (0).
 
     Raises:
       ErrorFermionTerm: Invalid operators provided to FermionTerm.
     """
-    super(local_terms.LocalTerm).__init__(n_qubits, coefficient, operators)
+    super(FermionTerm, self).__init__(n_qubits, coefficient, operators)
     for operator in self:
-      if isinstance(term, tuple):
-        tensor_factor, action = term
-        if (isinstance(action, bool) and
-            isinstance(tensor_factor, int) and
-            tensor_factor < n_qubits):
+      if isinstance(operator, tuple):
+        tensor_factor, action = operator
+        if ((action == 1 or action == 0) and
+           (isinstance(tensor_factor, int) and tensor_factor < n_qubits)):
           continue
       raise ErrorFermionTerm('Invalid operators provided to FermionTerm.')
 
@@ -201,9 +204,8 @@ class FermionTerm(local_terms.LocalTerm):
             self._n_qubits, 0.5j,
             [(operator[0], 'Y')] +
             [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
-      transformed_operator = qubit_operators.QubitOperator(
+      transformed_term *= qubit_operators.QubitOperator(
           self._n_qubits, [pauli_x_component, pauli_y_component])
-      transformed_term *= transformed_operator
     return transformed_term
 
 
@@ -214,8 +216,8 @@ class FermionOperator(local_operators.LocalOperator):
     _n_qubits: An int giving the number of spin-orbitals in the system.
     terms: A dictionary of FermionTerm objects.
   """
-  def __init__(self, n_qubits, terms):
-    """Init a FermionTerm.
+  def __init__(self, n_qubits, terms=None):
+    """Init a FermionOperator.
 
     Args:
       n_qubits: Int, the number of qubits in the system.
@@ -224,12 +226,19 @@ class FermionOperator(local_operators.LocalOperator):
     Raises:
       ErrorFermionOperator: Invalid FermionTerms provided to FermionOperator.
     """
-    super(local_terms.LocalTerm).__init__(n_qubits, terms)
+    super(FermionOperator, self).__init__(n_qubits, terms)
     for term in self:
-      if isinstance(term, FermionTerm):
-        if FermionTerm._n_qubits == self._n_qubits:
+      if isinstance(term, FermionTerm) and term._n_qubits == n_qubits:
           continue
-      raise ErrorFermionTerm('Invalid operators provided to FermionTerm.')
+      raise ErrorFermionTerm(
+          'Invalid FermionTerms provided to FermionOperator.')
+
+  def __setitem__(self, operators, coefficient):
+    if operators in self:
+      self.terms[tuple(operators)].coefficient = coefficient
+    else:
+      new_term = FermionTerm(self.n_qubits, coefficient, operators)
+      self.terms[tuple(operators)] = new_term
 
   def normal_order(self):
     normal_ordered_operator = FermionOperator(self._n_qubits)
@@ -260,9 +269,10 @@ class FermionOperator(local_operators.LocalOperator):
     # Normal order the terms and initialize.
     self.normal_order()
     constant = 0.
-    one_body = numpy.zeros((self._n_qubits, self._n_qubits), float)
+    one_body = numpy.zeros((self._n_qubits, self._n_qubits), complex)
     two_body = numpy.zeros((
-        self._n_qubits, self._n_qubits, self._n_qubits, self._n_qubits), float)
+        self._n_qubits, self._n_qubits, self._n_qubits, self._n_qubits),
+        complex)
 
     # Loop through terms and assign to matrix.
     for term in self:
