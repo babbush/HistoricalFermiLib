@@ -1,245 +1,266 @@
-"""Base classes for representation of various local operator types.
-"""
+"""Base class for representation of various local operators."""
+import local_terms
 import copy
 
 
-# Set the tolerance below which a coefficient is regarded as zero.
-_TOLERANCE = 1e-12
-
-
-# Define error classes.
-class ErrorLocalTerm(Exception):
-  pass
-
-
+# Define error class.
 class ErrorLocalOperator(Exception):
   pass
 
 
-class LocalTerm(object):
-  """Represents a term consisting of a product of operators and a coefficient.
-
-  Attributes:
-    n_qubits: An int giving the number of qubits in simulated Hilbert space.
-    coefficient: A complex valued float giving the term coefficient.
-    operators: A list of site operators representing the term.
-  """
-  def __init__(self, n_qubits, coefficient=0., operators=None):
-    """Inits a LocalTerm.
-
-    Args:
-      n_qubits: An int giving the number of qubits in simulated Hilbert space.
-      coefficient: A complex valued float giving the term coefficient.
-      operators: A list of site operators representing the term.
-    """
-    self.n_qubits = n_qubits
-    self.coefficient = coefficient
-    if operators is None:
-      self.operators = []
-    else:
-      self.operators = operators
-
-  def __eq__(self, local_term):
-    """Overload equality comparison == to interact with standard library.
-
-    Args:
-      local_term: Another LocalTerm which is to be compared with self.
-
-    Returns:
-      True or False, whether objects are the same.
-
-    Raises:
-      ErrorLocalTerm: 'Cannot compare terms acting on different Hilbert spaces'
-    """
-    if self.n_qubits != local_term.n_qubits:
-      raise ErrorLocalTerm(
-          'Cannot compare terms acting on different Hilbert spaces.')
-    elif abs(self.coefficient - local_term.coefficient) > _TOLERANCE:
-      return False
-    elif self.operators != local_term.operators:
-      return False
-    else:
-      return True
-
-  def __ne__(self, local_term):
-    """Overload not equals comparison != to interact with standard library."""
-    return not (self == local_term)
-
-  def multiply_by_term(self, local_term):
-    """Multiplies a self by another LocalTerm (new one is on right)."""
-    self.coefficient *= local_term.coefficient
-    self.operators += local_term.operators
-
-  def key(self):
-    """Returns a hashable unique key representing operators.
-
-    Note that this method is essential to the operation of the LocalOperators
-    class because .key() is used as the key for the LocalOperators.terms
-    python dictionary."""
-    return tuple(self.operators)
-
-  def __str__(self):
-    string_representation = '{} {}'.format(
-        self.coefficient, self.key())
-    return string_representation
-
-
 class LocalOperator(object):
-  """A collection of LocalOperator objects acting on same number of qubits.
+  """A collection of LocalTerm objects acting on same number of qubits.
 
   Attributes:
-    n_qubits: An int giving the number of qubits in simulated Hilbert space.
-    terms: Dictionary of LocalTerm objects. The dictionary key is
-        LocalTerm.key() and the dictionary value is the LocalTerm.
+    _tolerance: A float, the minimum absolute value below which term is zero.
+    _n_qubits: An int giving the number of qubits in simulated Hilbert space.
+    terms: Dictionary of LocalTerm objects.
   """
   def __init__(self, n_qubits, terms=None):
     """Inits a LocalOperator object.
 
     Args:
       n_qubits: An int giving the number of qubits in simulated Hilbert space.
-      terms: Dictionary of LocalTerm objects. The dictionary key is
-          LocalTerm.key() and the dictionary value is the LocalTerm.
+      terms: Dictionary or list of LocalTerm objects.
 
     Raises:
       ErrorLocalOperator: Invalid terms provided to initialization.
     """
-    self.n_qubits = n_qubits
+    self._tolerance = 1e-12
+    self._n_qubits = n_qubits
     if terms is None:
       self.terms = {}
     elif isinstance(terms, dict):
       self.terms = terms
     elif isinstance(terms, list):
       self.terms = {}
-      self.add_terms_list(terms)
+      for term in terms:
+        self += term
     else:
       raise ErrorLocalOperator('Invalid terms provided to initialization.')
 
-  def list_terms(self):
-    return self.terms.values()
+  @classmethod
+  def return_class(cls, n_qubits, terms=None):
+    return cls(n_qubits, terms)
 
-  def list_coefficients(self):
-    coefficients = [term.coefficient for term in self.iter_terms()]
-    return coefficients
+  # The methods below stop users from changing _n_qubits.
+  @property
+  def n_qubits(self):
+    return self._n_qubits
 
-  def iter_terms(self):
-    return self.terms.itervalues()
-
-  def add_term(self, new_term):
-    """Add another LocalTerm to the LocalOperator.
-
-    Args:
-      new_term: LocalTerm object. It is added to the LocalOperator.
-
-    Raises:
-      ErrorLocalTerm: Cannot add terms which act on different Hilbert spaces.
-    """
-    # Make sure terms act on same number of qubits.
-    if self.n_qubits != new_term.n_qubits:
+  @n_qubits.setter
+  def n_qubits(self, n_qubits):
+    if hasattr(self, '_n_qubits'):
       raise ErrorLocalOperator(
-          'Cannot add terms which act on different Hilbert spaces.')
-
-    # Add term.
-    term_key = new_term.key()
-    if term_key in self.terms:
-      new_coefficient = (self.terms[term_key].coefficient +
-                         new_term.coefficient)
-      if abs(new_coefficient) < _TOLERANCE:
-        del self.terms[term_key]
-      else:
-        new_term.coefficient = new_coefficient
-        self.terms[term_key] = new_term
-    else:
-      self.terms[term_key] = new_term
-
-  def add_terms_list(self, terms_list):
-    for new_term in terms_list:
-      self.add_term(new_term)
-
-  def add_operator(self, new_operator):
-    for new_term in new_operator.iter_terms():
-      self.add_term(new_term)
-
-  def multiply_by_scalar(self, scalar):
-    """Multiplies all terms by a scalar."""
-    for term in self.iter_terms():
-      term.coefficient *= scalar
-
-  def multiply_by_term(self, new_term):
-    """Multiplies the LocalOperator by a new LocalTerm.
-
-    Args:
-      new_term: LocalTerm object.
-    """
-    new_operator = LocalOperator(self.n_qubits)
-    for term in self.iter_terms():
-      term.multiply_by_term(new_term)
-      new_operator.add_term(term)
-    self.terms = new_operator.terms
-
-  def multiply_by_operator(self, new_operator):
-    """Multiplies two LocalOperators together.
-
-    Args:
-      new_operator: LocalOperator which will multiply self.
-    """
-    product_operator = LocalOperator(self.n_qubits)
-    for term in self.iter_terms():
-      for new_term in new_operator.iter_terms():
-        cloned_term = copy.deepcopy(term)
-        cloned_term.multiply_by_term(new_term)
-        product_operator.add_term(cloned_term)
-    self.terms = product_operator.terms
-
-  def list_coefficients(self):
-    """Return the coefficients of all the terms in the operator
-
-    Returns:
-      A list of complex floats giving the operator term coefficients.
-    """
-    coefficients = [term.coefficient for term in self.iter_terms()]
-    return coefficients
-
-  def print_operator(self):
-    for term in self.iter_terms():
-      print(term.__str__())
-
-  def count_terms(self):
-    return len(self.terms)
+          'Do not change the size of Hilbert space on which terms act.')
 
   def __eq__(self, operator):
     """Compare operators to see if they are the same."""
-    if self.n_qubits != operator.n_qubits:
+    if self._n_qubits != operator._n_qubits:
       raise ErrorLocalOperator(
           'Cannot compare operators acting on different Hilbert spaces.')
-    if len(self.terms) != len(operator.terms):
+    if len(self) != len(operator):
       return False
-    for term in self.iter_terms():
-      if term.key() in operator.terms:
-        if term == operator.terms[term.key()]:
-          continue
-      return False
+    for term in self:
+      difference = term.coefficient - operator[term.operators]
+      if abs(difference) > self._tolerance:
+        return False
     return True
 
   def __ne__(self, operator):
     return not (self == operator)
 
-  def remove_term(self, operators):
-    if isinstance(operators, list):
-      operators = tuple(operators)
-    if operators in self.terms:
-      del self.terms[operators]
+  def __contains__(self, operators):
+    if tuple(operators) in self.terms:
+      return True
+    else:
+      return False
 
-  def look_up_coefficient(self, operators):
-    """Given operators list, look up coefficient."""
-    if isinstance(operators, list):
-      operators = tuple(operators)
-    if operators in self.terms:
-      term = self.terms[operators]
-      return term.coefficient
+  def __getitem__(self, operators):
+    if operators in self:
+      return self.terms[tuple(operators)].coefficient
     else:
       return 0.
 
-  def __call__(self, operators):
-    """Provide a very easy way of looking up term coefficients."""
-    # TODO: Perhaps it would be best to overload slice with __getitem__.
-    return self.look_up_coefficient(operators)
+  # As its coded now, __setitem__ must be rewritten for every child class.
+  def __setitem__(self, operators, coefficient):
+    if operators in self:
+      self.terms[tuple(operators)].coefficient = coefficient
+    else:
+      # TODO: Find better solution than using call to LocalTerm here.
+      new_term = local_terms.LocalTerm(self.n_qubits, coefficient, operators)
+      self.terms[tuple(operators)] = new_term
+
+  def __delitem__(self, operators):
+    del self.terms[tuple(operators)]
+
+  def __iadd__(self, addend):
+    """In-place method for += addition of LocalTerm or LocalOperator.
+
+    Args:
+      addend: A LocalTerm or LocalOperator.
+
+    Raises:
+      ErrorLocalOperator: Cannot add terms acting on different Hilbert spaces.
+      ErrorLocalOperator: Cannot add term of invalid type to LocalOperator.
+    """
+    # Handle LocalTerms.
+    if issubclass(type(addend), local_terms.LocalTerm):
+
+      # Make sure number of qubits is the same.
+      if self._n_qubits != addend._n_qubits:
+        raise ErrorLocalOperator(
+            'Cannot add terms acting on different Hilbert spaces.')
+
+      # Compute new coefficient and update self.terms.
+      new_coefficient = self[addend.operators] + addend.coefficient
+      if abs(new_coefficient) > self._tolerance:
+        self[addend.operators] = new_coefficient
+      elif addend.operators in self:
+        del self[addend.operators]
+      return self
+
+    elif issubclass(type(addend), LocalOperator):
+      # Handle LocalOperators.
+      for term in addend:
+        self += term
+      return self
+
+    else:
+      # Throw exception for unknown type.
+      raise ErrorLocalOperator(
+          'Cannot add term of invalid type to LocalOperator.')
+
+  def __isub__(self, subtrahend):
+    """Compute self - subtrahend for a LocalTerm or LocalOperator."""
+    self += (-1. * subtrahend)
+    return self
+
+  def __add__(self, addend):
+    """Add a LocalTerm or LocalOperator.
+
+    Args:
+      addend: A LocalTerm or LocalOperator.
+
+    Returns:
+      summand: The sum given by self + addend.
+
+    Raises:
+      ErrorLocalOperator: Cannot add term of invalid type of LocalOperator.
+    """
+    # Copy self.
+    summand = copy.deepcopy(self)
+
+    # Handle addition of single LocalTerm.
+    if issubclass(type(addend), local_terms.LocalTerm):
+      summand += addend
+
+    elif issubclass(type(addend), LocalOperator):
+      # Handle addition of local operators.
+      for term in addend:
+        summand += term
+
+    else:
+      # Throw exception for unknown type.
+      raise ErrorLocalOperator(
+          'Object of invalid type cannot multiply LocalTerm')
+
+    # Return.
+    return summand
+
+  def __sub__(self, subtrahend):
+    """Compute self - subtrahend for a LocalTerm or LocalOperator."""
+    return self + (-1. * subtrahend)
+
+  def __imul__(self, multiplier):
+    """Compute self *= multiplier.
+
+    Note that this is only actually an in place method when multiplier
+    is a scalar. Otherwise, is is necessary to change all of the keys
+    of the dictionary.
+
+    Args:
+      multiplier: A scalar, LocalTerm or LocalOperator.
+
+    Raises:
+      ErrorLocalOperator: Invalid typed object cannot multiply LocalOperator.
+      ErrorLocalOperator: Cannot multiply terms on different Hilbert spaces.
+    """
+    # Handle scalars.
+    if isinstance(multiplier, (int, long, float, complex)):
+      for term in self:
+        term.coefficient *= complex(multiplier)
+      return self
+
+    # Handle LocalTerms. Note that it is necessary to make new dictioanry.
+    elif issubclass(type(multiplier), local_terms.LocalTerm):
+      new_operator = self.return_class(self._n_qubits)
+      for term in self:
+        term *= multiplier
+        new_operator += term
+      self.terms = new_operator.terms
+      return self
+
+    # Handle LocalOperators. It is necessary to make new dictionary.
+    elif issubclass(type(multiplier), LocalOperator):
+      new_operator = self.return_class(self._n_qubits)
+      for left_term in self:
+        for right_term in multiplier:
+          new_operator += left_term * right_term
+      self.terms = new_operator.terms
+      return self
+
+    else:
+      # Throw exception for wrong type of multiplier.
+      raise ErrorLocalTerm(
+          'Invalid typed object cannot multiply LocalOperator.')
+
+  def __mul__(self, multiplier):
+    """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
+
+    Args:
+      multiplier: A scalar, LocalTerm or LocalOperator.
+
+    Returns:
+      product: A new instance of LocalOperator.
+    """
+    product = copy.deepcopy(self)
+    product *= multiplier
+    return product
+
+  def __rmul__(self, multiplier):
+    """Compute multiplier * self for a scalar.
+
+    We only define __rmul__ for scalars because the left multiply
+    should exist for LocalTerms and LocalOperators and left multiply
+    is also queried as the default behavior.
+
+    Args:
+      multiplier: A scalar.
+
+    Returns:
+      product: A new instance of LocalTerm.
+
+    Raises:
+      ErrorLocalOperator: Invalid typed object cannot multiply LocalOperator.
+    """
+    if isinstance(multiplier, (int, long, float, complex)):
+      return self * multiplier
+    else:
+      raise ErrorLocalOperator(
+          'Invalid typed object cannot multiply LocalOperator.')
+
+  def list_coefficients(self):
+    return [term.coefficient for term in self]
+
+  def list_terms(self):
+    return self.terms.values()
+
+  def __iter__(self):
+    return self.terms.itervalues()
+
+  def __len__(self):
+    return len(self.terms)
+
+  def __str__(self):
+    return ''.join('{}\n'.format(term) for term in self)

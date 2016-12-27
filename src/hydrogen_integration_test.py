@@ -87,7 +87,6 @@ class HydrogenIntegrationTest(unittest.TestCase):
     # Make sure the mapping of FermionOperator to MolecularOperator works.
     molecular_hamiltonian = self.fermion_hamiltonian.get_molecular_operator()
     fermion_hamiltonian = molecular_hamiltonian.get_fermion_operator()
-
     self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
 
     # Check that FCI prior has the correct energy.
@@ -130,49 +129,49 @@ class HydrogenIntegrationTest(unittest.TestCase):
     self.assertAlmostEqual(self.two_body[0, 1, 3, 2], self.g6, places=4)
 
     # Make sure its actually normal ordered.
-    for term in self.fermion_hamiltonian.iter_terms():
+    for term in self.fermion_hamiltonian:
       self.assertTrue(term.is_normal_ordered())
 
     # Test the local Hamiltonian terms.
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(0, 'Z')]), self.f1, places=4)
+        self.qubit_hamiltonian[[(0, 'Z')]], self.f1, places=4)
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(1, 'Z')]), self.f1, places=4)
+        self.qubit_hamiltonian[[(1, 'Z')]], self.f1, places=4)
 
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(2, 'Z')]), self.f2, places=4)
+        self.qubit_hamiltonian[[(2, 'Z')]], self.f2, places=4)
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(3, 'Z')]), self.f2, places=4)
+        self.qubit_hamiltonian[[(3, 'Z')]], self.f2, places=4)
 
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(0, 'Z'), (1, 'Z')]), self.f3, places=4)
+        self.qubit_hamiltonian[[(0, 'Z'), (1, 'Z')]], self.f3, places=4)
 
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(0, 'Z'), (2, 'Z')]), self.f4, places=4)
+        self.qubit_hamiltonian[[(0, 'Z'), (2, 'Z')]], self.f4, places=4)
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(1, 'Z'), (3, 'Z')]), self.f4, places=4)
+        self.qubit_hamiltonian[[(1, 'Z'), (3, 'Z')]], self.f4, places=4)
 
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(1, 'Z'), (2, 'Z')]), self.f5, places=4)
+        self.qubit_hamiltonian[[(1, 'Z'), (2, 'Z')]], self.f5, places=4)
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(0, 'Z'), (3, 'Z')]), self.f5, places=4)
+        self.qubit_hamiltonian[[(0, 'Z'), (3, 'Z')]], self.f5, places=4)
 
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(2, 'Z'), (3, 'Z')]), self.f6, places=4)
+        self.qubit_hamiltonian[[(2, 'Z'), (3, 'Z')]], self.f6, places=4)
 
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(0, 'Y'), (1, 'Y'),
-                                (2, 'X'), (3, 'X')]), -self.f7, places=4)
+        self.qubit_hamiltonian[[(0, 'Y'), (1, 'Y'),
+                                (2, 'X'), (3, 'X')]], -self.f7, places=4)
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(0, 'X'), (1, 'X'),
-                                (2, 'Y'), (3, 'Y')]), -self.f7, places=4)
+        self.qubit_hamiltonian[[(0, 'X'), (1, 'X'),
+                                (2, 'Y'), (3, 'Y')]], -self.f7, places=4)
 
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(0, 'X'), (1, 'Y'),
-                                (2, 'Y'), (3, 'X')]), self.f7, places=4)
+        self.qubit_hamiltonian[[(0, 'X'), (1, 'Y'),
+                                (2, 'Y'), (3, 'X')]], self.f7, places=4)
     self.assertAlmostEqual(
-        self.qubit_hamiltonian([(0, 'Y'), (1, 'X'),
-                                (2, 'X'), (3, 'Y')]), self.f7, places=4)
+        self.qubit_hamiltonian[[(0, 'Y'), (1, 'X'),
+                                (2, 'X'), (3, 'Y')]], self.f7, places=4)
 
     # Test the matrix representation.
     wavefunction, energy = sparse_operators.get_ground_state(
@@ -201,6 +200,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
     qubit_rdm = self.fci_rdm.get_qubit_expectations(self.qubit_hamiltonian)
     qubit_energy = self.qubit_hamiltonian.expectation(qubit_rdm)
     self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
+
 
 if __name__ == '__main__':
   unittest.main()

@@ -255,11 +255,8 @@ class MolecularOperator(object):
       fermion_operator: An instance of the FermionOperator class.
     """
     # Add identity term.
-    if abs(self.constant) > fermion_operators.local_operators._TOLERANCE:
-      identity = fermion_operators.FermionTerm(self.n_orbitals, self.constant)
-      terms = [identity]
-    else:
-      terms = []
+    identity = fermion_operators.FermionTerm(self.n_orbitals, self.constant)
+    terms = [identity]
 
     # Loop through terms.
     for p in range(self.n_orbitals):
@@ -267,9 +264,8 @@ class MolecularOperator(object):
 
         # Add one-body terms.
         coefficient = self.one_body_coefficients[p, q]
-        if abs(coefficient) > fermion_operators.local_operators._TOLERANCE:
-          terms += [fermion_operators.FermionTerm(
-                    self.n_orbitals, coefficient, [(p, 1), (q, 0)])]
+        terms += [fermion_operators.FermionTerm(
+                  self.n_orbitals, coefficient, [(p, 1), (q, 0)])]
 
         # Keep looping.
         for r in range(self.n_orbitals):
@@ -277,10 +273,9 @@ class MolecularOperator(object):
 
             # Add two-body terms.
             coefficient = self.two_body_coefficients[p, q, r, s]
-            if abs(coefficient) > fermion_operators.local_operators._TOLERANCE:
-              terms += [fermion_operators.FermionTerm(
-                        self.n_orbitals, coefficient,
-                        [(p, 1), (q, 1), (r, 0), (s, 0)])]
+            terms += [fermion_operators.FermionTerm(
+                      self.n_orbitals, coefficient,
+                      [(p, 1), (q, 1), (r, 0), (s, 0)])]
 
     # Make operator and return.
     fermion_operator = fermion_operators.FermionOperator(
@@ -319,7 +314,7 @@ class MolecularOperator(object):
         corresponding to expectation values of those operators
       """
     qubit_operator_expectations = copy.deepcopy(qubit_operator)
-    for qubit_term in qubit_operator_expectations.iter_terms():
+    for qubit_term in qubit_operator_expectations:
       tmp_qubit_term = qubit_operators.QubitTerm(self.n_orbitals,
                                                  1.0,
                                                  qubit_term.operators)
@@ -355,25 +350,11 @@ class MolecularOperator(object):
     qubit_rdm = fermion_rdm.jordan_wigner_transform()
 
     # Compute QubitTerm variances.
-    for qubit_term in qubit_rdm.iter_terms():
+    for qubit_term in qubit_rdm:
       qubit_term.coefficient = 1.0
       qubit_operator = qubit_operators.QubitOperator(
           self.n_orbitals, [qubit_term])
       expectation_value = qubit_operator.expectation_fermion(self)
-      """
-      # First, reverse Jordan-Wigner transform each pauli_operator.
-      qubit_term.coefficient = 1.
-      reversed_fermion_operators = qubit_term.reverse_jordan_wigner()
-      reversed_fermion_operators.normal_order()
-
-      # Compute the expectation value of the QubitTerms.
-      expectation_value = 0.
-      for fermion_term in reversed_fermion_operators.iter_terms():
-        if fermion_term.operators:
-          fermion_expectation = fermion_rdm(fermion_term.operators)
-          expectation_value += (fermion_term.coefficient *
-                                fermion_expectation)
-      """
       qubit_term.coefficient = expectation_value
 
     # Return.

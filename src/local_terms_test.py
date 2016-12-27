@@ -1,5 +1,5 @@
 """Tests for local_terms.py"""
-import x_local_terms as local_terms
+import local_terms
 import unittest
 
 
