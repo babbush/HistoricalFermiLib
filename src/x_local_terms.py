@@ -24,7 +24,15 @@ class LocalTerm(object):
       n_qubits: An int giving the number of qubits in simulated Hilbert space.
       coefficient: A complex valued float giving the term coefficient.
       operators: A list of site operators representing the term.
+
+    Raises:
+      ErrorLocalTerm: Number of qubits needs to be an integer.
     """
+    # Check that n_qubits is an integer.
+    if not isinstance(n_qubits, int):
+      raise ErrorLocalTerm('Number of qubits needs to be an integer.')
+
+    # Initialize.
     self._tolerance = 1e-12
     self._n_qubits = n_qubits
     self.coefficient = coefficient

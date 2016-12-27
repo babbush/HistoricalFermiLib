@@ -5,6 +5,10 @@ import numpy
 import copy
 
 
+class ErrorMolecularOperator(Exception):
+  pass
+
+
 def unpack_spatial_rdm(one_rdm_a,
                        one_rdm_b,
                        two_rdm_aa,
