@@ -29,6 +29,13 @@ class LocalTermsTest(unittest.TestCase):
     self.assertTrue(self.term_a != self.term_b)
     self.assertFalse(self.term_a != self.term_a)
 
+  def test_slicing(self):
+    for i in range(len(self.term_a)):
+      self.assertEqual(self.term_a[i], i)
+      self.term_a[i] += 1
+    for i in range(len(self.term_a)):
+      self.assertEqual(self.term_a[i], i + 1)
+
   def test_multiplication(self):
     new_term = 7. * self.term_a
     self.assertTrue(3. * new_term == new_term * 3.)
@@ -47,28 +54,6 @@ class LocalTermsTest(unittest.TestCase):
     self.assertAlmostEqual(self.term_a.coefficient ** 3.,
                            new_term.coefficient)
     self.assertEqual(3 * self.term_a.operators, new_term.operators)
-
-  def test_addition(self):
-    new_term = self.term_a + self.term_a
-    self.assertAlmostEqual(2. * self.term_a.coefficient, new_term.coefficient)
-
-    with self.assertRaises(local_terms.ErrorLocalTerm):
-      self.term_a - self.term_a
-
-    new_term -= self.term_a
-    self.assertTrue(self.term_a == new_term)
-
-    new_term = self.term_a + self.term_a + self.term_a
-    self.assertAlmostEqual(3. * self.term_a.coefficient, new_term.coefficient)
-
-    new_term = self.term_a + self.term_a - self.term_a
-    self.assertAlmostEqual(self.term_a.coefficient, new_term.coefficient)
-
-    operator = self.term_a + self.term_b
-    self.assertAlmostEqual(operator[self.term_a.operators],
-                           self.term_a.coefficient)
-    self.assertAlmostEqual(operator[self.term_b.operators],
-                           self.term_b.coefficient)
 
   def test_iter(self):
     for i, operator in enumerate(self.term_a):

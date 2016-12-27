@@ -1,8 +1,9 @@
 """Class to store and transform fermion operators.
 """
+import x_qubit_operators as qubit_operators
+import x_local_operators as local_operators
+import x_local_terms as local_terms
 import molecular_operators
-import local_operators
-import qubit_operators
 import local_terms
 import numpy
 
@@ -80,7 +81,7 @@ class FermionTerm(local_terms.LocalTerm):
       else:
         string_representation += '{} '.format(operator[0])
     n_characters = len(string_representation)
-    if self.operators:
+    if self:
       string_representation = string_representation[:(n_characters - 1)]
     string_representation += ')'
     return string_representation
@@ -92,8 +93,8 @@ class FermionTerm(local_terms.LocalTerm):
       New FermionTerm object which is the hermitian conjugate.
     """
     conjugate_coefficient = numpy.conjugate(self.coefficient)
-    conjugate_operators = [(operator[0], not operator[1]) for operator in
-                           self.operators[::-1]]
+    conjugate_operators = [(operator[0], not operator[1]) for
+                           operator in self[::-1]]
     hermitian_conjugate = FermionTerm(self._n_qubits,
                                       conjugate_coefficient,
                                       conjugate_operators)
@@ -103,17 +104,19 @@ class FermionTerm(local_terms.LocalTerm):
     """Function to return whether or not term is in normal order."""
     for i in range(1, len(self)):
       for j in range(i, 0, -1):
-        right_operator = self.operators[j]
-        left_operator = self.operators[j - 1]
+        right_operator = self[j]
+        left_operator = self[j - 1]
         if right_operator[1] and not left_operator[1]:
           return False
         elif (right_operator[1] == left_operator[1] and
-              right_operator[0] > left_operator[0]):
+              right_operator[0] >= left_operator[0]):
           return False
     return True
 
   def return_normal_order(self):
-    """Compute and return the normal ordered form of operator.
+    """Compute and return the normal ordered form of a FermionTerm.
+
+    Not an in-place method.
 
     Returns:
       normal_ordered_operator: FermionOperator object which is the
@@ -129,20 +132,20 @@ class FermionTerm(local_terms.LocalTerm):
     # Swap terms operators into correct position by moving left to right.
     for i in range(1, len(term)):
       for j in range(i, 0, -1):
-        right_operator = term.operators[j]
-        left_operator = term.operators[j - 1]
+        right_operator = term[j]
+        left_operator = term[j - 1]
 
         # Swap operators if raising on right and lowering on left.
         if right_operator[1] and not left_operator[1]:
-          term.operators[j - 1] = right_operator
-          term.operators[j] = left_operator
+          term[j - 1] = right_operator
+          term[j] = left_operator
           term *= -1.
 
           # Replace a a^\dagger with 1 - a^\dagger a if indices are same.
           if right_operator[0] == left_operator[0]:
-            operators_in_new_term = term.operators[:(j - 1)]
-            operators_in_new_term += term.operators[(j + 1)::]
-            new_term = FermionTerm(term.n_qubits,
+            operators_in_new_term = term[:(j - 1)]
+            operators_in_new_term += term[(j + 1)::]
+            new_term = FermionTerm(term._n_qubits,
                                    -1. * term.coefficient,
                                    operators_in_new_term)
 
@@ -158,13 +161,17 @@ class FermionTerm(local_terms.LocalTerm):
 
             # Swap if same ladder type but lower index on left.
           elif right_operator[0] > left_operator[0]:
-            term.operators[j - 1] = right_operator
-            term.operators[j] = left_operator
+            term[j - 1] = right_operator
+            term[j] = left_operator
             term *= -1.
 
     # Add processed term to output and return.
     normal_ordered_operator += term
     return normal_ordered_operator
+
+  def bravyi_kitaev_transform(self):
+    # TODO Jarrod.
+    return None
 
   def jordan_wigner_transform(self):
     """Apply the Jordan-Wigner transform and return qubit operator.
@@ -204,27 +211,37 @@ class FermionOperator(local_operators.LocalOperator):
   """Data structure which stores sums of FermionTerm objects.
 
   Attributes:
-    n_qubits: An int giving the number of spin-orbitals in the system.
-    terms: A dictionary of FermionTerm objects. The key is given as
-        FermionTerm.key() and the value is the FermionTerm.
+    _n_qubits: An int giving the number of spin-orbitals in the system.
+    terms: A dictionary of FermionTerm objects.
   """
+  def __init__(self, n_qubits, terms):
+    """Init a FermionTerm.
+
+    Args:
+      n_qubits: Int, the number of qubits in the system.
+      terms: Dictionary or list of FermionTerm objects.
+
+    Raises:
+      ErrorFermionOperator: Invalid FermionTerms provided to FermionOperator.
+    """
+    super(local_terms.LocalTerm).__init__(n_qubits, terms)
+    for term in self:
+      if isinstance(term, FermionTerm):
+        if FermionTerm._n_qubits == self._n_qubits:
+          continue
+      raise ErrorFermionTerm('Invalid operators provided to FermionTerm.')
+
   def normal_order(self):
     normal_ordered_operator = FermionOperator(self._n_qubits)
-    for old_term in self:
-      new_operator = old_term.return_normal_order()
-      normal_ordered_operator += new_operator
+    for term in self:
+      normal_ordered_operator += term.return_normal_order()
     self.terms = normal_ordered_operator.terms
 
   def jordan_wigner_transform(self):
     transformed_operator = qubit_operators.QubitOperator(self._n_qubits)
     for term in self:
-      transformed_term = term.jordan_wigner_transform()
-      transformed_operator += transformed_term
+      transformed_operator += term.jordan_wigner_transform()
     return transformed_operator
-
-  def bravyi_kitaev_transform(self):
-    # TODO Jarrod.
-    return None
 
   def get_molecular_operator(self):
     """Convert a 2-body fermionic operator to instance of MolecularOperator.

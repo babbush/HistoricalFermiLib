@@ -21,7 +21,7 @@ class LocalOperator(object):
 
     Args:
       n_qubits: An int giving the number of qubits in simulated Hilbert space.
-      terms: Dictionary of LocalTerm objects.
+      terms: Dictionary or list of LocalTerm objects.
 
     Raises:
       ErrorLocalOperator: Invalid terms provided to initialization.
@@ -42,6 +42,10 @@ class LocalOperator(object):
           self[term.operators] = term.coefficient
     else:
       raise ErrorLocalOperator('Invalid terms provided to initialization.')
+
+  @classmethod
+  def return_class(cls, n_qubits, terms=None):
+    return cls(n_qubits, terms)
 
   # The methods below stop users from changing _n_qubits.
   @property
@@ -91,42 +95,6 @@ class LocalOperator(object):
   def __delitem__(self, operators):
     del self.terms[tuple(operators)]
 
-  def __add__(self, addend):
-    """Add a LocalTerm or LocalOperator.
-
-    Args:
-      addend: A LocalTerm or LocalOperator.
-
-    Returns:
-      summand: The sum given by self + addend.
-
-    Raises:
-      ErrorLocalOperator: Cannot add term of invalid type of LocalOperator.
-    """
-    # Copy self.
-    summand = copy.deepcopy(self)
-
-    # Handle addition of single LocalTerm.
-    if issubclass(type(addend), local_terms.LocalTerm):
-      summand += addend
-
-    elif issubclass(type(addend), LocalOperator):
-      # Handle addition of local operators.
-      for term in addend:
-        summand += term
-
-    else:
-      # Throw exception for unknown type.
-      raise ErrorLocalOperator(
-          'Object of invalid type cannot multiply LocalTerm')
-
-    # Return.
-    return summand
-
-  def __sub__(self, subtrahend):
-    """Compute self - subtrahend for a LocalTerm or LocalOperator."""
-    return self + (-1. * subtrahend)
-
   def __iadd__(self, addend):
     """In-place method for += addition of LocalTerm or LocalOperator.
 
@@ -168,6 +136,42 @@ class LocalOperator(object):
     """Compute self - subtrahend for a LocalTerm or LocalOperator."""
     self += (-1. * subtrahend)
     return self
+
+  def __add__(self, addend):
+    """Add a LocalTerm or LocalOperator.
+
+    Args:
+      addend: A LocalTerm or LocalOperator.
+
+    Returns:
+      summand: The sum given by self + addend.
+
+    Raises:
+      ErrorLocalOperator: Cannot add term of invalid type of LocalOperator.
+    """
+    # Copy self.
+    summand = copy.deepcopy(self)
+
+    # Handle addition of single LocalTerm.
+    if issubclass(type(addend), local_terms.LocalTerm):
+      summand += addend
+
+    elif issubclass(type(addend), LocalOperator):
+      # Handle addition of local operators.
+      for term in addend:
+        summand += term
+
+    else:
+      # Throw exception for unknown type.
+      raise ErrorLocalOperator(
+          'Object of invalid type cannot multiply LocalTerm')
+
+    # Return.
+    return summand
+
+  def __sub__(self, subtrahend):
+    """Compute self - subtrahend for a LocalTerm or LocalOperator."""
+    return self + (-1. * subtrahend)
 
   def __mul__(self, multiplier):
     """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
@@ -224,18 +228,18 @@ class LocalOperator(object):
         term.coefficient *= complex(multiplier)
       return self
 
+    # Handle LocalTerms. Note that it is necessary to make new dictioanry.
     elif issubclass(type(multiplier), local_terms.LocalTerm):
-      # Handle LocalTerms. Note that it is necessary to make new dictioanry.
-      new_operator = LocalOperator(self.n_qubits)
+      new_operator = self.return_class(self._n_qubits)
       for term in self:
         term *= multiplier
         new_operator += term
       self.terms = new_operator.terms
       return self
 
+    # Handle LocalOperators. It is necessary to make new dictionary.
     elif issubclass(type(multiplier), LocalOperator):
-      # Handle LocalOperators. It is necessary to make new dictionary.
-      new_operator = LocalOperator(self.n_qubits)
+      new_operator = self.return_class(self._n_qubits)
       for left_term in self:
         for right_term in multiplier:
           new_operator += left_term * right_term

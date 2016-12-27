@@ -41,6 +41,10 @@ class LocalTerm(object):
     else:
       self.operators = operators
 
+  @classmethod
+  def return_class(cls, n_qubits, coefficient=0, operators=None):
+    return cls(n_qubits, coefficient, operators)
+
   # The methods below stop users from changing _n_qubits.
   @property
   def n_qubits(self):
@@ -78,43 +82,42 @@ class LocalTerm(object):
     """Overload not equals comparison != to interact with standard library."""
     return not (self == local_term)
 
+  def __getitem__(self, index):
+    return self.operators[index]
+
+  def __setitem__(self, index, value):
+    self.operators[index] = value
+
+  def __delitem__(self, index):
+    del self.operators[index]
+
   def __add__(self, addend):
-    """Compute self + addend for other LocalTerm or LocalOperator.
+    """Compute self + addend for a LocalOperator or derivative.
+
+    Note that we will not allow one to add together two LocalTerms.
+    The reason is because there are ambiguities when LocalTerms sum
+    to zero and also because it is difficult to determine what class
+    the output should be when adding together terms which inherit from
+    LocalTerm.
 
     Args:
-      addend: A LocalTerm or LocalOperator.
+      addend: A LocalOperator or LocalOperator derivative.
 
     Returns:
-      summand: A new instance of LocalTerm or LocalOperator.
+      summand: A new instance of LocalOperator.
 
     Raises:
+      ErrorLocalTerm: Can only add LocalOperator type to LocalTerm type.
       ErrorLocalTerm: Object of invalid type cannot be added to LocalTerm.
-      ErrorLocalTerm: Cannot return LocalTerm with zero coefficient.
       ErrorLocalTerm: Cannot add terms acting on different Hilbert spaces.
     """
     # Handle LocalTerms.
     if issubclass(type(addend), LocalTerm):
+      raise ErrorLocalTerm(
+          'Can only add LocalOperator type to LocalTerm type.')
 
-      # Make sure number of qubits is the same.
-      if self._n_qubits != addend._n_qubits:
-        raise ErrorLocalTerm(
-            'Cannot add terms acting on different Hilbert spaces.')
-
-      elif self.operators == addend.operators:
-
-        # Compute addition of same term.
-        summand = copy.deepcopy(self)
-        summand.coefficient += addend.coefficient
-        if abs(summand.coefficient) < self._tolerance:
-          raise ErrorLocalTerm(
-              'Cannot return LocalTerm with zero coefficient.')
-      else:
-        # Compute addition of different terms.
-        summand = local_operators.LocalOperator(
-            self._n_qubits, [copy.deepcopy(self), copy.deepcopy(addend)])
-
+    # Handle LocalOperators.
     elif issubclass(type(addend), local_operators.LocalOperator):
-      # Handle LocalOperators.
       summand = addend + self
 
     else:
@@ -128,77 +131,6 @@ class LocalTerm(object):
   def __sub__(self, subtrahend):
     """Compute self - subtrahend for a LocalTerm or LocalOperator."""
     return self + (-1. * subtrahend)
-
-  def __mul__(self, multiplier):
-    """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
-
-    Args:
-      multiplier: A scalar, LocalTerm or LocalOperator.
-
-    Returns:
-      product: A new instance of LocalTerm or LocalOperator.
-
-    Raises:
-      ErrorLocalTerm: Object of invalid type cannot multiply LocalTerm.
-      ErrorLocalTerm: Cannot multiply terms acting on different Hilbert spaces.
-    """
-    # Handle scalars.
-    if isinstance(multiplier, (int, long, float, complex)):
-      product = copy.deepcopy(self)
-      product.coefficient *= multiplier
-
-    # Handle LocalTerms.
-    elif issubclass(type(multiplier), LocalTerm):
-
-      # Make sure number of qubits is the same.
-      if self._n_qubits != multiplier._n_qubits:
-        raise ErrorLocalTerm(
-            'Cannot multiply terms acting on different Hilbert spaces.')
-
-      # Compute product.
-      product = copy.deepcopy(self)
-      product.coefficient *= multiplier.coefficient
-      product.operators += multiplier.operators
-
-    elif issubclass(type(multiplier), local_operators.LocalOperator):
-      # Handle LocalOperators.
-
-      # Loop through multiplier terms to perform multiply.
-      product = local_operators.LocalOperator(self._n_qubits)
-      for term in multiplier:
-        product += self * term
-
-    else:
-      # Throw exception for unknown type.
-      raise ErrorLocalTerm(
-          'Object of invalid type cannot multiply LocalTerm.')
-
-    # Return the product.
-    return product
-
-  def __rmul__(self, multiplier):
-    """Compute multiplier * self for a scalar.
-
-    We only define __rmul__ for scalars because the left multiply
-    should exist for LocalTerms and LocalOperators and left multiply
-    is also queried as the default behavior.
-
-    Args:
-      multiplier: A scalar.
-
-    Returns:
-      product: A new instance of LocalTerm.
-
-    Raises:
-      ErrorLocalTerm: Object of invalid type cannot multiply LocalTerm.
-    """
-    if isinstance(multiplier, (int, long, float, complex)):
-      product = copy.deepcopy(self)
-      product.coefficient *= multiplier
-      return product
-    else:
-      raise ErrorLocalTerm(
-          'Object of invalid type cannot multiply LocalTerm.')
 
   def __imul__(self, multiplier):
     """Compute self *= multiplier. Multiplier must be scalar or LocalTerm.
@@ -234,6 +166,62 @@ class LocalTerm(object):
       # Throw exception for wrong type of multiplier.
       raise ErrorLocalTerm(
           'Can only *= multiply LocalTerm by scalar or LocalTerm.')
+
+  def __mul__(self, multiplier):
+    """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
+
+    Args:
+      multiplier: A scalar, LocalTerm or LocalOperator.
+
+    Returns:
+      product: A new instance of LocalTerm or LocalOperator.
+
+    Raises:
+      ErrorLocalTerm: Object of invalid type cannot multiply LocalTerm.
+      ErrorLocalTerm: Cannot multiply terms acting on different Hilbert spaces.
+    """
+    # Handle scalars or LocalTerms.
+    if isinstance(multiplier, (int, long, float, complex, LocalTerm)):
+      product = copy.deepcopy(self)
+      product *= multiplier
+
+    # Handle LocalOperator and derivatives.
+    elif issubclass(type(multiplier), local_operators.LocalOperator):
+      product = multiplier.return_class(self._n_qubits)
+      for term in multiplier:
+        product += self * term
+
+    else:
+      # Throw exception for unknown type.
+      raise ErrorLocalTerm(
+          'Object of invalid type cannot multiply LocalTerm.')
+
+    # Return the product.
+    return product
+
+  def __rmul__(self, multiplier):
+    """Compute multiplier * self for a scalar.
+
+    We only define __rmul__ for scalars because the left multiply
+    should exist for LocalTerms and LocalOperators and left multiply
+    is also queried as the default behavior.
+
+    Args:
+      multiplier: A scalar.
+
+    Returns:
+      product: A new instance of LocalTerm.
+
+    Raises:
+      ErrorLocalTerm: Object of invalid type cannot multiply LocalTerm.
+    """
+    if isinstance(multiplier, (int, long, float, complex)):
+      product = copy.deepcopy(self)
+      product.coefficient *= multiplier
+      return product
+    else:
+      raise ErrorLocalTerm(
+          'Object of invalid type cannot multiply LocalTerm.')
 
   def __iter__(self):
     return iter(self.operators)
