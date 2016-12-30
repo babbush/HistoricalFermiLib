@@ -187,7 +187,7 @@ class LocalOperator(object):
       ErrorLocalOperator: Cannot multiply terms on different Hilbert spaces.
     """
     # Handle scalars.
-    if isinstance(multiplier, (int, long, float, complex)):
+    if isinstance(multiplier, (int, float, complex)):
       for term in self:
         term.coefficient *= complex(multiplier)
       return self
@@ -244,7 +244,7 @@ class LocalOperator(object):
     Raises:
       ErrorLocalOperator: Invalid typed object cannot multiply LocalOperator.
     """
-    if isinstance(multiplier, (int, long, float, complex)):
+    if isinstance(multiplier, (int, float, complex)):
       return self * multiplier
     else:
       raise ErrorLocalOperator(
@@ -254,10 +254,10 @@ class LocalOperator(object):
     return [term.coefficient for term in self]
 
   def list_terms(self):
-    return self.terms.values()
+    return list(self.terms.values())
 
   def __iter__(self):
-    return self.terms.itervalues()
+    return iter(self.terms.values())
 
   def __len__(self):
     return len(self.terms)

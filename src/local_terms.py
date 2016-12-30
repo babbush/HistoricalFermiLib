@@ -147,7 +147,7 @@ class LocalTerm(object):
       ErrorLocalTerm: Can only *= multiply LocalTerm by scalar or LocalTerm.
     """
     # Handle scalars.
-    if isinstance(multiplier, (int, long, float, complex)):
+    if isinstance(multiplier, (int, float, complex)):
       self.coefficient *= complex(multiplier)
       return self
 
@@ -181,7 +181,7 @@ class LocalTerm(object):
       ErrorLocalTerm: Cannot multiply terms acting on different Hilbert spaces.
     """
     # Handle scalars or LocalTerms.
-    if isinstance(multiplier, (int, long, float, complex, LocalTerm)):
+    if isinstance(multiplier, (int, float, complex, LocalTerm)):
       product = copy.deepcopy(self)
       product *= multiplier
 
@@ -215,7 +215,7 @@ class LocalTerm(object):
     Raises:
       ErrorLocalTerm: Object of invalid type cannot multiply LocalTerm.
     """
-    if isinstance(multiplier, (int, long, float, complex)):
+    if isinstance(multiplier, (int, float, complex)):
       product = copy.deepcopy(self)
       product.coefficient *= multiplier
       return product

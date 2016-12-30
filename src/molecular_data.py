@@ -1,6 +1,6 @@
 """Class and functions to store quantum chemistry data."""
 import molecular_operators
-import cPickle
+import pickle
 import numpy
 import sys
 import os
@@ -230,7 +230,8 @@ class MolecularData(object):
     self.name = name_molecule(geometry, basis, multiplicity,
                               charge, description)
     if os.path.isfile(self.data_handle() + '.pkl'):
-      return self.refresh()
+      self.refresh()
+      return
 
     # Attributes generated automatically by class.
     self.n_atoms = len(geometry)
@@ -275,15 +276,15 @@ class MolecularData(object):
     return _DATA_DIRECTORY + self.name
 
   def save(self):
-    """Method to automatically cPickle the class under systematic name."""
-    with open(self.data_handle() + '.pkl', 'w') as stream:
-      cPickle.dump(self, stream)
+    """Method to automatically pickle the class under systematic name."""
+    with open(self.data_handle() + '.pkl', 'wb') as stream:
+      pickle.dump(self, stream)
 
   def refresh(self):
     """Method to automatically unPickle the class under systematic name."""
-    with open(self.data_handle() + '.pkl') as stream:
+    with open(self.data_handle() + '.pkl', 'rb') as stream:
       sys.path.append(_THIS_DIRECTORY)
-      updated_molecular_data = cPickle.load(stream)
+      updated_molecular_data = pickle.load(stream)
       self.__dict__ = updated_molecular_data.__dict__
 
   def get_integrals(self):

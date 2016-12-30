@@ -40,7 +40,6 @@ def is_hermitian(matrix, tolerance=1e-12):
   if difference.nnz:
     discrepancy = max(map(abs, difference.data))
     if discrepancy > tolerance:
-      print "Hermitian discrepancy = %s." % repr(discrepancy)
       return False
   return True
 
