@@ -773,7 +773,7 @@ class UCCFactory(object):
         
         Args:
         op_factory - Pauli operator factory initialized to the correct number of qubits
-        n_electrons - Number of electrons UCC ansatz will be built upon
+        n_fermions - Number of electrons UCC ansatz will be built upon
         amplitude_threshold - Magnitude cutoff for discarding elements
         bos (bool) - Use quasi-bosonization in translation to Pauli operators
         """
@@ -1983,7 +1983,7 @@ class ConstraintCalculator(object):
             coeff_list, op_list = self.op_factory.reduce_list(coeff_list, op_list)
             i_coeff = self.I_Coeff(coeff_list, op_list)
             #total_constraints.append(self.op_factory.print_list(coeff_list, op_list, re_only=True, no_id = True) 
-            #                         + '={}'.format(self.n_electrons - np.real(i_coeff)))
+            #                         + '={}'.format(self.n_fermions - np.real(i_coeff)))
             #total_constraints.append(self.op_factory.print_list(coeff_list, op_list, im_only=True, no_id = True) 
             #                         + '={}'.format(-np.imag(i_coeff)))
             c = self.op_factory.print_list(coeff_list, op_list, re_only=True, no_id = True) \
@@ -2189,7 +2189,7 @@ class ConstraintCalculator(object):
             coeff_list, op_list = self.op_factory.reduce_list(coeff_list, op_list)
             i_coeff = self.I_Coeff(coeff_list, op_list)
             #total_constraints.append(self.op_factory.print_list(coeff_list, op_list, re_only=True, no_id=True) 
-            #                         + '={}'.format(self.n_electrons*(self.n_electrons-1)-np.real(i_coeff)))
+            #                         + '={}'.format(self.n_fermions*(self.n_fermions-1)-np.real(i_coeff)))
             #total_constraints.append(self.op_factory.print_list(coeff_list, op_list, im_only=True, no_id=True) + '={}'.format(-np.imag(i_coeff)))
             #
             c = self.op_factory.print_list(coeff_list, op_list, re_only=True, no_id=True) \

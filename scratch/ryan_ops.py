@@ -628,8 +628,8 @@ def main():
   #  PlotVariance(molecule, basis, n_excitations)
 
   ## Determine further calculation based on size.
-  #n_electrons = commutators.ElectronCount(molecule)
-  #if n_electrons <= 10 and 0:
+  #n_fermions = commutators.ElectronCount(molecule)
+  #if n_fermions <= 10 and 0:
 
   #  # Get spectra.
   #  hamiltonian_spectrum, wavefunctions = GetEigensystem(

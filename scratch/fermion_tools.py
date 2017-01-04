@@ -84,14 +84,14 @@ def MatrixForm(coefficient, term, jw_terms):
 
 
 def GetDeterminants(n_qubits, n_electrons):
-  """Generate an array of all states on n_qubits with n_electrons.
+  """Generate an array of all states on n_qubits with n_fermions.
 
   Args:
     n_qubits: an int giving the number of qubits.
     n_electrons: an int giving the number of electrons:
 
   Returns:
-    A numpy array where each row is a state on n_qubits with n_electrons.
+    A numpy array where each row is a state on n_qubits with n_fermions.
   """
 
   # Initialize vector of states.

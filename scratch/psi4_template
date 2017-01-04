@@ -80,7 +80,7 @@ tei = mints.ao_eri()
 
 
 #MP2 Calc (if/else fixes seg fault glitch for H2+)
-#mp2_energy = energy('mp2') if n_electrons > 1 else None
+#mp2_energy = energy('mp2') if n_fermions > 1 else None
 
 #CISD Energy
 try:

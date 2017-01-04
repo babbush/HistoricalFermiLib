@@ -129,14 +129,14 @@ def get_density_matrix(states, probabilities):
 
 
 def get_determinants(n_orbitals, n_electrons):
-  """Generate an array of all states on n_orbitals with n_electrons.
+  """Generate an array of all states on n_orbitals with n_fermions.
 
   Args:
     n_orbitals: an int giving the number of qubits.
     n_electrons: an int giving the number of electrons:
 
   Returns:
-    A numpy array where each row is a state on n_orbitals with n_electrons.
+    A numpy array where each row is a state on n_orbitals with n_fermions.
   """
 
   # Initialize vector of states.
