@@ -170,16 +170,16 @@ def restrict_to_active_space(one_body_integrals,
   for i in range(active_space_start):
     core_constant += 2 * one_body_integrals[i, i]
     for j in range(active_space_start):
-      core_constant += (2 * two_body_integrals[i, j, i, j] -
-                        two_body_integrals[i, j, j, i])
+      core_constant += (2 * two_body_integrals[i, j, j, i] -
+                        two_body_integrals[i, j, i, j])
 
   # Modified one electron integrals
   one_body_integrals_new = numpy.copy(one_body_integrals)
   for u in range(active_space_start, active_space_stop):
     for v in range(active_space_start, active_space_stop):
       for i in range(active_space_start):
-        one_body_integrals_new[u, v] += (2 * two_body_integrals[i, u, i, v] -
-                                         two_body_integrals[i, u, v, i])
+        one_body_integrals_new[u, v] += (2 * two_body_integrals[i, u, v, i] -
+                                         two_body_integrals[i, u, i, v])
 
   # Restrict integral ranges and change M appropriately
   return (core_constant,
