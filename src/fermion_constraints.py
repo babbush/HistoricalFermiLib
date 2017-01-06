@@ -3,6 +3,9 @@ import fermion_operators
 import qubit_operators
 import copy
 import numpy
+import scipy
+import itertools
+import molecular_operators
 
 
 class FermionConstraints(object):
@@ -84,6 +87,187 @@ class FermionConstraints(object):
         return False
     return True
 
+  @staticmethod
+  def project_density_matrix(rho, new_trace=None):
+    """Project a density matrix to the closest positive semi-definite matrix.
+       Follows the algorithm in PhysRevLett.108.070502
+
+    Args:
+      rho: Numpy array containing the density matrix with dimension (N, N)
+      new_trace(float): number to fix the new trace of the matrix to be
+
+    Returns:
+      rho_projected: The closest positive semi-definite matrix to rho.
+    """
+    # Rescale to unit trace if the matrix is not already
+    rho_trace = numpy.trace(rho)
+    rho_impure = rho / rho_trace
+
+    dimension = rho_impure.shape[0]  # the dimension of the Hilbert space
+    [eigvals, eigvecs] = scipy.linalg.eigh(rho_impure)
+
+    # If matrix is already trace one PSD, we are done
+    if numpy.min(eigvals) >= 0:
+      if (new_trace is None):
+        return rho
+      else:
+        return new_trace * rho_impure
+
+    # Otherwise, continue finding closest trace one, PSD matrix
+    eigvals = list(eigvals)
+    eigvals.reverse()
+    eigvals_new = [0.0] * len(eigvals)
+
+    i = dimension
+    accumulator = 0.0  # Accumulator
+    while eigvals[i - 1] + accumulator / float(i) < 0:
+      accumulator += eigvals[i - 1]
+      i -= 1
+    for j in range(i):
+      eigvals_new[j] = eigvals[j] + accumulator / float(i)
+    eigvals_new.reverse()
+
+    # Reconstruct the matrix
+    rho_projected = reduce(numpy.dot, (eigvecs,
+                                       numpy.diag(eigvals_new),
+                                       numpy.conj(eigvecs.T)))
+    if (new_trace is None):
+      rho_projected = rho_trace * rho_projected
+    else:
+      rho_projected = new_trace * rho_projected
+
+    return rho_projected
+
+  def perm_parity(self, perm):
+    """Given a permutation of the digits 0..N in order as a list,
+    returns its parity (or sign): +1 for even parity; -1 for odd."""
+    lst = list(perm)
+    parity = 1
+    for i in range(0, len(lst) - 1):
+      if lst[i] != i:
+        parity *= -1
+        mn = min(range(i, len(lst)), key=lst.__getitem__)
+        lst[i], lst[mn] = lst[mn], lst[i]
+    return parity
+
+  def wedge_product(self, a, b, new_shape=None):
+    """Compute the Grassmann Wedge Product between tensors a and b
+
+    Args:
+      a: numpy array of the first tensor
+      b: numpy array of the second tensor
+      new_shape: tuple describing the desired shape of the output
+
+    Returns:
+      Grassmann wedge product (a^b) as a numpy array
+    """
+
+    # Get number of upper and lower indices
+    assert (len(a.shape) % 2 == 0 and len(b.shape) % 2 == 0)
+    ka, kb = len(a.shape) / 2, len(b.shape) / 2
+    N = ka + kb
+
+    # Form initial tensor product
+    ab = numpy.kron(a, b)
+    ab = numpy.\
+        reshape(ab,
+                a.shape[:ka] + b.shape[:kb] + a.shape[ka:] + b.shape[kb:])
+
+    # Make buffer and sum in permutations using numpy transpose
+    result = numpy.zeros_like(ab)
+
+    for perm1 in itertools.permutations(range(N)):
+      for perm2 in itertools.permutations(range(N)):
+        parity = self.perm_parity(perm1) * self.perm_parity(perm2)
+        trans_list = [i for i in perm1] + [i + N for i in perm2]
+        result += parity * numpy.transpose(ab, trans_list)
+
+    if (new_shape is not None):
+      result = result.reshape(new_shape)
+    return (1.0 / scipy.math.factorial(N)) ** 2 * result
+
+  def apply_positivity(self, density):
+    """Project the 1- and 2-RDM to being positive semi-definite matrices
+
+    Args:
+      density(MolecularOperator): molecular operator holding the 1- and 2-
+        reduced density matrices as their one and two body coefficients.
+
+    Returns:
+      projected_density(MolecularOperator): molecular operator holding the
+        projected 1- and 2- reduced density matrices as their one and two
+        body coefficients.
+    """
+    one_density = density.one_body_coefficients
+    # Reorder for convention with PSD 2-RDM
+    two_density = numpy.transpose(density.two_body_coefficients, [0, 1, 3, 2])
+    constant = density.constant
+
+    dimension = one_density.shape[0]
+    two_density = two_density.reshape((dimension**2, dimension**2))
+
+    # Project 1- and 2-RDMs
+    projected_one_density = self.\
+        project_density_matrix(one_density, new_trace=self.n_fermions)
+    projected_two_density = self.\
+        project_density_matrix(two_density,
+                               new_trace=(self.n_fermions *
+                                          (self.n_fermions - 1)))
+
+    # Permute one-particle-hole matrices, then project again
+    # not clear this functions as intended
+    """one_hole = numpy.eye(dimension) - one_density
+    projected_one_hole = self.\
+      project_density_matrix(one_hole,
+                             new_trace = self.n_qubits - self.n_fermions)
+    projected_one_density = numpy.eye(dimension) -\
+                            projected_one_hole
+
+    # Do two-particle particle-hole permutations, then project
+    # Q-Matrix
+    two_hole_Q = 2.0 * numpy.eye(dimension**2) -\
+                 4.0 * self.wedge_product(projected_one_density,
+                                          numpy.eye(dimension),
+                                          new_shape = ((dimension**2,
+                                                        dimension**2))) + \
+                 projected_two_density
+    print("Q Trace: {}".format(numpy.trace(two_hole_Q)))
+    projected_two_hole_Q = two_hole_Q #self.\
+      #project_density_matrix(two_hole_Q)
+    projected_two_density = projected_two_hole_Q -\
+                            2.0 * numpy.eye(dimension**2) +\
+                            4.0 * self.\
+                              wedge_product(projected_one_density,
+                                            numpy.eye(dimension),
+                                            new_shape=((dimension**2,
+                                                        dimension**2)))
+    #G Matrix
+    two_hole_G = numpy.kron(projected_one_density, numpy.eye(dimension)) +\
+                 numpy.transpose(projected_two_density.
+                                 reshape((dimension, ) * 4), [0, 2, 1, 3]).\
+                   reshape((dimension**2, ) * 2)
+    print("G Trace: {}".format(numpy.trace(two_hole_G)))
+    projected_two_hole_G = two_hole_G #self.\
+      #project_density_matrix(two_hole_G)
+    projected_two_density = numpy.\
+      transpose((projected_two_hole_G -
+                 numpy.kron(projected_one_density,
+                            numpy.eye(dimension))).
+                reshape((dimension, ) * 4),
+                [0, 2, 1, 3])"""
+
+    # Permute back to ordering used by the rest of code for 2 RDM
+    projected_two_density = numpy.transpose(projected_two_density.
+                                            reshape((dimension, ) * 4),
+                                            [0, 1, 3, 2])
+
+    projected_density = molecular_operators.\
+        MolecularOperator(constant,
+                          projected_one_density,
+                          projected_two_density)
+
+    return projected_density
+
   def constraints_one_body(self):
     """A generator for one-body positivity constraints
 
@@ -93,7 +277,6 @@ class FermionConstraints(object):
     """
 
     # One-RDM Trace Condition
-    #print("1-RDM Trace Condition")
     constraint_operator = qubit_operators.QubitOperator(self.n_qubits)
     for i in range(self.n_qubits):
       transformed_term = fermion_operators.FermionTerm(self.n_qubits,
@@ -111,7 +294,6 @@ class FermionConstraints(object):
         yield (imaginary_constraint, 0.0)
 
     # Diagonal Particle-Hole
-    #print("1-RDM Diagonal Particle-Hole")
     for i in range(self.n_qubits):
       constraint_operator = qubit_operators.QubitOperator(self.n_qubits)
       transformed_term = fermion_operators.FermionTerm(self.n_qubits,
@@ -135,7 +317,6 @@ class FermionConstraints(object):
         yield (imaginary_constraint, 0.0)
 
     # Off-Diagonal Particle-Hole
-    #print("1-RDM Off-Diagonal Particle-Hole")
     for i in range(self.n_qubits):
       for j in range(i + 1, self.n_qubits):
         constraint_operator = qubit_operators.QubitOperator(self.n_qubits)
@@ -160,7 +341,6 @@ class FermionConstraints(object):
           yield (imaginary_constraint, 0.0)
 
     # One-Body Hermiticity
-    #print("1-RDM Hermiticity")
     for i in range(self.n_qubits):
       for j in range(i + 1, self.n_qubits):
         constraint_operator = qubit_operators.QubitOperator(self.n_qubits)

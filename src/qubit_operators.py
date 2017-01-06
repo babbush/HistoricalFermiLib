@@ -2,11 +2,14 @@
 """
 import fermion_operators
 import sparse_operators
+import molecular_operators
 import local_operators
 import local_terms
+import numpy
 import scipy
 import scipy.sparse
 import copy
+import itertools
 
 
 class ErrorQubitTerm(Exception):
@@ -390,3 +393,31 @@ class QubitOperator(local_operators.LocalOperator):
           expectation += fermion_term.coefficient * density_term
 
     return expectation
+
+  def get_fermion_expectations(self):
+    """Build a fermionic density from measured qubit operators"""
+    one_rdm = numpy.zeros((self.n_qubits,) * 2, dtype=complex)
+    two_rdm = numpy.zeros((self.n_qubits,) * 4, dtype=complex)
+
+    # One-RDM
+    for i, j in itertools.product(range(self.n_qubits), repeat=2):
+      transformed_operator = fermion_operators. \
+          FermionTerm(self.n_qubits, 1.0, [(i, 1), (j, 0)]). \
+          jordan_wigner_transform()
+      for term in transformed_operator:
+        if tuple(term.operators) in self.terms:
+          one_rdm[i, j] += term.coefficient * self[term.operators]
+    # Two-RDM
+    for i, j, k, l in itertools.product(range(self.n_qubits), repeat=4):
+      transformed_operator = fermion_operators. \
+          FermionTerm(self.n_qubits, 1.0, [(i, 1), (j, 1),
+                                           (k, 0), (l, 0)]). \
+          jordan_wigner_transform()
+      for term in transformed_operator:
+        if tuple(term.operators) in self.terms:
+          two_rdm[i, j, k, l] += term.coefficient * self[term.operators]
+
+    new_operator = molecular_operators.MolecularOperator(0.0,
+                                                         one_rdm,
+                                                         two_rdm)
+    return new_operator
