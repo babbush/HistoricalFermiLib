@@ -1,4 +1,4 @@
-"""Tests many modules to compute energy of hydrogen."""
+"""Tests many modules to compute energy of lih."""
 import numpy
 import scipy
 import scipy.linalg
@@ -63,7 +63,7 @@ class LiHIntegrationTest(unittest.TestCase):
     # Recore frozen core result from external caluclation
     self.frozen_core_fci_energy = -7.8807607374168
 
-  def test_molecular_nitrogen(self):
+  def test_molecular_LiH(self):
 
     # Check that all the transforms work.
     qubit_hamiltonian = self.fermion_hamiltonian.jordan_wigner_transform()
