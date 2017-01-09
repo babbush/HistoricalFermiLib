@@ -75,6 +75,11 @@ class LocalOperatorsTest(unittest.TestCase):
     self.assertTrue(new_term.coefficient ==
                     self.operator_abc[new_term.operators])
 
+  def test_abs(self):
+    new_operator = abs(self.operator_abc)
+    for term in new_operator:
+      self.assertTrue(term.coefficient > 0.)
+
 
 if __name__ == '__main__':
   unittest.main()

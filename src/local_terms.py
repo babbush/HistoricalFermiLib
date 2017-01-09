@@ -223,6 +223,11 @@ class LocalTerm(object):
       raise ErrorLocalTerm(
           'Object of invalid type cannot multiply LocalTerm.')
 
+  def __abs__(self):
+    term_copy = copy.deepcopy(self)
+    term_copy.coefficient = abs(self.coefficient)
+    return term_copy
+
   def __iter__(self):
     return iter(self.operators)
 

@@ -59,6 +59,11 @@ class LocalTermsTest(unittest.TestCase):
     for i, operator in enumerate(self.term_a):
       self.assertEqual(self.term_a.operators[i], operator)
 
+  def test_abs(self):
+    abs_term_a = abs(self.term_a)
+    self.assertAlmostEqual(abs(self.term_a.coefficient),
+                           abs_term_a.coefficient)
+
 
 if __name__ == '__main__':
   unittest.main()

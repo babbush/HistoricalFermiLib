@@ -250,6 +250,12 @@ class LocalOperator(object):
       raise ErrorLocalOperator(
           'Invalid typed object cannot multiply LocalOperator.')
 
+  def __abs__(self):
+    operator_copy = copy.deepcopy(self)
+    for term in operator_copy:
+      term.coefficient = abs(term.coefficient)
+    return operator_copy
+
   def list_coefficients(self):
     return [term.coefficient for term in self]
 
