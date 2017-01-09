@@ -202,7 +202,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
     self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 
     # Confirm fermionic RDMs can be built from measured qubit RDMs
-    new_fermi_rdm = qubit_rdm.get_fermion_expectations()
+    new_fermi_rdm = qubit_rdm.get_molecular_expectations()
     fci_rdm_energy = self.nuclear_repulsion
     fci_rdm_energy += numpy.sum(new_fermi_rdm.one_body_coefficients *
                                 molecular_hamiltonian.one_body_coefficients)

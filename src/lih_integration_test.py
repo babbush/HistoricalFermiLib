@@ -60,7 +60,7 @@ class LiHIntegrationTest(unittest.TestCase):
     self.hamiltonian_matrix_no_core = self.molecular_hamiltonian_no_core.\
         get_sparse_matrix()
 
-    # Recore frozen core result from external caluclation
+    # Recore frozen core result from external caluclation.
     self.frozen_core_fci_energy = -7.8807607374168
 
   def test_molecular_LiH(self):
@@ -106,17 +106,17 @@ class LiHIntegrationTest(unittest.TestCase):
     self.assertAlmostEqual(expected_hf_energy, self.molecule.hf_energy)
     self.assertAlmostEqual(expected_hf_density_energy, self.molecule.hf_energy)
 
-    # Confirm expectation on qubit Hamiltonian using reverse JW matches
+    # Confirm expectation on qubit Hamiltonian using reverse JW matches.
     qubit_energy = self.qubit_hamiltonian.expectation_fermion(self.fci_rdm)
     self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 
-    # Confim expectation on qubit Hamiltonian using JW RDM matches
+    # Confim expectation on qubit Hamiltonian using JW RDM matches.
     qubit_rdm = self.fci_rdm.get_qubit_expectations(self.qubit_hamiltonian)
     qubit_energy = self.qubit_hamiltonian.expectation(qubit_rdm)
     self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 
-    # Confirm fermionic RDMs can be built from measured qubit RDMs
-    new_fermi_rdm = qubit_rdm.get_fermion_expectations()
+    # Confirm fermionic RDMs can be built from measured qubit RDMs.
+    new_fermi_rdm = qubit_rdm.get_molecular_expectations()
     fci_rdm_energy = self.nuclear_repulsion
     fci_rdm_energy += numpy.sum(new_fermi_rdm.one_body_coefficients *
                                 molecular_hamiltonian.one_body_coefficients)
@@ -124,7 +124,7 @@ class LiHIntegrationTest(unittest.TestCase):
                                 molecular_hamiltonian.two_body_coefficients)
     self.assertAlmostEqual(fci_rdm_energy, self.molecule.fci_energy)
 
-    # Check that frozen core result matches frozen core FCI from psi4
+    # Check that frozen core result matches frozen core FCI from psi4.
     no_core_fci_energy = scipy. \
         linalg.eigh(self.hamiltonian_matrix_no_core.todense())[0][0]
     self.assertAlmostEqual(no_core_fci_energy,
