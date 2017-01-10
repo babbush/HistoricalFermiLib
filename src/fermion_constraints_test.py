@@ -114,7 +114,7 @@ class FermionConstraintsTest(unittest.TestCase):
           QubitTerm(self.n_qubits,
                     term.coefficient + numpy.random.randn(),
                     term.operators)
-    noisy_fermi_rdm = noisy_qubit_rdm.get_fermion_expectations()
+    noisy_fermi_rdm = noisy_qubit_rdm.get_molecular_rdm()
     projected_noisy_rdm = constraint_fermi.apply_positivity(noisy_fermi_rdm)
 
     # Check Trace
