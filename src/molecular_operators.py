@@ -320,7 +320,7 @@ class MolecularOperator(object):
                                                  qubit_term.operators)
       tmp_qubit_operator = qubit_operators.QubitOperator(self.n_orbitals,
                                                          [tmp_qubit_term])
-      expectation_value = tmp_qubit_operator.expectation_fermion(self)
+      expectation_value = tmp_qubit_operator.expectation_molecule(self)
       qubit_term.coefficient = expectation_value
     return qubit_operator_expectations
 
@@ -354,7 +354,7 @@ class MolecularOperator(object):
       qubit_term.coefficient = 1.0
       qubit_operator = qubit_operators.QubitOperator(
           self.n_orbitals, [qubit_term])
-      expectation_value = qubit_operator.expectation_fermion(self)
+      expectation_value = qubit_operator.expectation_molecule(self)
       qubit_term.coefficient = expectation_value
 
     # Return.

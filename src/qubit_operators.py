@@ -355,8 +355,10 @@ class QubitOperator(local_operators.LocalOperator):
       expectation += term.coefficient * self[term.operators]
     return expectation
 
-  def expectation_fermion(self, molecular_operator):
-    """"""
+  def expectation_molecule(self, molecular_operator):
+    """
+    # TODO Jarrod: Never again do this.
+    """
     one_body = molecular_operator.one_body_coefficients
     two_body = molecular_operator.two_body_coefficients
     expectation = 0.
@@ -394,7 +396,7 @@ class QubitOperator(local_operators.LocalOperator):
 
     return expectation
 
-  def get_molecular_expectations(self):
+  def get_molecular_rdm(self):
     """Build a MolecularOperator from measured qubit operators.
 
     Returns: A MolecularOperator object.
