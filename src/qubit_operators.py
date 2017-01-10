@@ -356,8 +356,13 @@ class QubitOperator(local_operators.LocalOperator):
     return expectation
 
   def expectation_molecule(self, molecular_operator):
-    """
-    # TODO Jarrod: Never again do this.
+    """Get expectation of qubit operator with RDM given as MolecularOperator.
+
+    Args:
+      molecular_operator: An instance of the MolecularOperator class.
+
+    Returns:
+      expectation: A float giving the expectation value.
     """
     one_body = molecular_operator.one_body_coefficients
     two_body = molecular_operator.two_body_coefficients
