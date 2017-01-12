@@ -1,6 +1,7 @@
 """Class and functions to store molecular Hamiltonians / density operators."""
 import fermion_operators
 import qubit_operators
+import itertools
 import numpy
 import copy
 
@@ -42,9 +43,10 @@ def unpack_spatial_rdm(one_rdm_a,
     """
     # Initialize RDMs.
     n_orbitals = one_rdm_a.shape[0]
-    one_rdm = numpy.zeros((2 * n_orbitals, 2 * n_orbitals))
-    two_rdm = numpy.zeros((2 * n_orbitals, 2 * n_orbitals,
-                           2 * n_orbitals, 2 * n_orbitals))
+    n_qubits = 2 * n_orbitals
+    one_rdm = numpy.zeros((n_qubits, n_qubits))
+    two_rdm = numpy.zeros((n_qubits, n_qubits,
+                           n_qubits, n_qubits))
 
     # Unpack compact representation.
     for p in range(n_orbitals):
@@ -90,7 +92,7 @@ def one_body_basis_change(one_body_operator,
     one_body_operator: A square numpy array or matrix containing information
       about a 1-body operator such as the 1-body integrals or 1-RDM.
     rotation_matrix: A square numpy array or matrix having dimensions of
-      n_orbitals by n_orbitals. Assumed to be real and invertible.
+      n_qubits by n_qubits. Assumed to be real and invertible.
 
   Returns:
     transformed_one_body_operator: one_body_operator in the rotated basis.
@@ -119,7 +121,7 @@ def two_body_basis_change(two_body_operator,
     two_body_operator: a square rank 4 tensor in a numpy array containing
       information about a 2-body fermionic operator.
     rotation_matrix: A square numpy array or matrix having dimensions of
-      n_orbitals by n_orbitals. Assumed to be real and invertible.
+      n_qubits by n_qubits. Assumed to be real and invertible.
 
   Returns:
     transformed_two_body_operator: two_body_operator matrix in rotated basis.
@@ -130,7 +132,7 @@ def two_body_basis_change(two_body_operator,
     rotation_matrix = numpy.kron(rotation_matrix, numpy.eye(2))
 
   # Effect transformation and return.
-  # TODO Jarrod: Make work without the two lines that perform permutations.
+  # TODO: Make work without the two lines that perform permutations.
   two_body_operator = numpy.einsum('prsq', two_body_operator)
   first_sum = numpy.einsum('ds, abcd', rotation_matrix, two_body_operator)
   second_sum = numpy.einsum('cr, abcs', rotation_matrix, first_sum)
@@ -206,12 +208,12 @@ class MolecularOperator(object):
       \sum_{p, q, r, s} h_[p, q, r, s] a^\dagger_p a^\dagger_q a_r a_s.
 
   Attributes:
-    n_orbitals: An int giving the number of orbitals.
+    n_qubits: An int giving the number of qubits.
     one_body_coefficients: The coefficients of the one-body terms (h[p, q]).
-        This is an n_orbital x n_orbital numpy array of floats.
+        This is an n_qubits x n_qubits numpy array of floats.
     two_body_coefficients: The coefficients of the two-body terms
-        (h[p, q, r, s]). This is an n_orbital x n_orbital x n_orbital x
-        n_orbital numpy array of floats.
+        (h[p, q, r, s]). This is an n_qubits x n_qubits x n_qubits x
+        n_qubits numpy array of floats.
     constant: A constant term in the operator given as a float.
         For instance, the nuclear repulsion energy.
   """
@@ -226,12 +228,12 @@ class MolecularOperator(object):
       constant: A constant term in the operator given as a float.
           For instance, the nuclear repulsion energy.
       one_body_coefficients: The coefficients of the one-body terms (h[p, q]).
-          This is an n_orbital x n_orbital numpy array of floats.
+          This is an n_qubits x n_qubits numpy array of floats.
       two_body_coefficients: The coefficients of the two-body terms
-          (h[p, q, r, s]). This is an n_orbital x n_orbital x n_orbital x
-          n_orbital numpy array of floats.
+          (h[p, q, r, s]). This is an n_qubits x n_qubits x n_qubits x
+          n_qubits numpy array of floats.
     """
-    self.n_orbitals = one_body_coefficients.shape[0]
+    self.n_qubits = one_body_coefficients.shape[0]
     self.constant = constant
     self.one_body_coefficients = one_body_coefficients
     self.two_body_coefficients = two_body_coefficients
@@ -241,7 +243,7 @@ class MolecularOperator(object):
 
     Args:
       rotation_matrix: A square numpy array or matrix having dimensions of
-        n_orbitals by n_orbitals. Assumed to be real and invertible.
+        n_qubits by n_qubits. Assumed to be real and invertible.
     """
     self.one_body_coefficients = one_body_basis_change(
         self.one_body_coefficients, rotation_matrix)
@@ -254,48 +256,217 @@ class MolecularOperator(object):
     Returns:
       fermion_operator: An instance of the FermionOperator class.
     """
-    # Add identity term.
-    identity = fermion_operators.FermionTerm(self.n_orbitals, self.constant)
-    terms = [identity]
+    # Initialize with identity term.
+    identity = fermion_operators.FermionTerm(self.n_qubits, self.constant)
+    fermion_operator = fermion_operators.FermionOperator(self.n_qubits,
+                                                         [identity])
 
     # Loop through terms.
-    for p in range(self.n_orbitals):
-      for q in range(self.n_orbitals):
+    for p in xrange(self.n_qubits):
+      for q in xrange(self.n_qubits):
 
         # Add one-body terms.
         coefficient = self.one_body_coefficients[p, q]
-        terms += [fermion_operators.FermionTerm(
-                  self.n_orbitals, coefficient, [(p, 1), (q, 0)])]
+        fermion_operator += fermion_operators.FermionTerm(
+            self.n_qubits, coefficient, [(p, 1), (q, 0)])
 
         # Keep looping.
-        for r in range(self.n_orbitals):
-          for s in range(self.n_orbitals):
+        for r in xrange(self.n_qubits):
+          for s in xrange(self.n_qubits):
 
             # Add two-body terms.
             coefficient = self.two_body_coefficients[p, q, r, s]
-            terms += [fermion_operators.FermionTerm(
-                      self.n_orbitals, coefficient,
-                      [(p, 1), (q, 1), (r, 0), (s, 0)])]
+            fermion_operator += fermion_operators.FermionTerm(
+                self.n_qubits, coefficient, [(p, 1), (q, 1), (r, 0), (s, 0)])
 
-    # Make operator and return.
-    fermion_operator = fermion_operators.FermionOperator(
-        self.n_orbitals, terms)
+    # Return.
     return fermion_operator
 
   def jordan_wigner_transform(self):
     """Output MolecularOperator as QubitOperator class under JW transform.
 
+    One could accomplish this very easily by first mapping to fermions and
+    then mapping to qubits. We skip the middle step for the sake of speed.
+
     Returns:
       qubit_operator: An instance of the QubitOperator class.
     """
-    # TODO: hard code the transformation without going through fermionic
-    # class in order to improve performance.
+    # TODO: Delete next three lines and get rest of this function to work!
     fermion_operator = self.get_fermion_operator()
     qubit_operator = fermion_operator.jordan_wigner_transform()
     return qubit_operator
 
+    # Initialize qubit operator.
+    qubit_operator = qubit_operators.QubitOperator(self.n_qubits)
+
+    # Add constant.
+    qubit_operator += qubit_operators.QubitTerm(self.n_qubits, self.constant)
+
+    # Handle one-body terms.
+    for p in xrange(self.n_qubits):
+      for q in xrange(p, self.n_qubits):
+        coefficient = self.one_body_coefficients[p, q] / 2.
+
+        # Handle off-diagonal terms.
+        if coefficient and p < q:
+          parity_string = [(z, 'Z') for z in xrange(p + 1, q)]
+          for operator in ['X', 'Y']:
+            operators = [(p, operator)] + parity_string + [(q, operator)]
+            qubit_operator += qubit_operators.QubitTerm(self.n_qubits,
+                                                        coefficient,
+                                                        operators)
+
+        # Handle diagonal terms.
+        elif coefficient and p == q:
+          qubit_operator += qubit_operators.QubitTerm(self.n_qubits,
+                                                      coefficient)
+          qubit_operator += qubit_operators.QubitTerm(self.n_qubits,
+                                                      -coefficient,
+                                                      [(p, 'Z')])
+    # Handle two-body terms.
+    for p in xrange(self.n_qubits):
+      for q in xrange(self.n_qubits):
+        for r in xrange(self.n_qubits):
+          for s in xrange(r, self.n_qubits):
+            coefficient = self.two_body_coefficients[p, q, r, s]
+
+            # Skip zero terms.
+            if (not coefficient) or (p == q) or (r == s):
+              continue
+
+            # Handle p != q != r != s. There are 4! = 24 cases.
+            elif p != q != r != s:
+
+              # Skip complex conjugates. There are 12 complex conjugates.
+              # The cases are identified by s or r being the smallest index.
+              # srqp srpq sprq spqr sqpr sqrp
+              # rsqp rspq rpsq rpqs rqps rqsp.
+              if min(r, s) < min(p, q):
+                continue
+              else:
+                coefficient /= 8.
+
+              # Get operators.
+              a, b, c, d = sorted([p, q, r, s])
+              generator = itertools.combinations_with_replacement(
+                  ['X', 'Y'], r=3)
+              for operator_a, operator_b, operator_c in generator:
+                if [operator_a, operator_b, operator_c].count('X') % 2:
+                  operator_d = 'X'
+                else:
+                  operator_d = 'Y'
+                operators = [(a, operator_a)]
+                operators += [(z, 'Z') for z in range(a + 1, b)]
+                operators += [(b, operator_b)]
+                operators += [(c, operator_c)]
+                operators += [(z, 'Z') for z in range(c + 1, d)]
+                operators += [(d, operator_d)]
+
+                # Get sign of coefficients. There are 12 cases.
+                # pqrs pqsr prqs prsq psrq psqr
+                # qprs qpsr qrps qrsp qsrp qspr.
+
+                # Get coefficients for pqrs and qpsr.
+                if (p < q < r < s) or (q < p < s < r):
+                  if operator_a != operator_b or operator_b == operator_c:
+                    coefficient *= -1.
+
+                # Get coefficients for qprs and pqsr.
+                elif (q < p < r < s) or (p < q < s < r):
+                  if operator_a == operator_b and operator_b != operator_c:
+                    coefficient *= -1.
+
+                # Get coefficients for prqs and prsq.
+                elif (p < r < q < s) or (p < r < s < q):
+                  if operator_a == operator_b or operator_b == operator_c:
+                    coefficient *= -1.
+
+                # Get coefficients for qspr and qsrp.
+                elif (q < s < p < r) or (q < s < r < p):
+                  if operator_a == operator_b or operator_b != operator_c:
+                    coefficient *= -1.
+
+                # Get coefficients for psrq and qrsp.
+                elif (p < s < r < q) and (q < r < s < p):
+                  if operator_a != operator_b and operator_b == operator_c:
+                    coefficient *= -1.
+
+                # Get coefficient for qrps and psqr.
+                elif (q < r < p < s) and (p < s < q < r):
+                  if operator_a != operator_b and operator_b != operator_c:
+                    coefficient *= -1.
+
+                # Add term.
+                qubit_operator += qubit_operators.QubitTerm(self.n_qubits,
+                                                            coefficient,
+                                                            operators)
+
+            # Handle case when p == r, p == s, q == r or q == s.
+            elif len(set([p, q, r, s])) == 3:
+
+              # Skip complex conjugates.
+              if (r < p) or (s < p) or (r < q) or (s < q):
+                continue
+              else:
+                coefficient /= 4.
+
+              # Get operators and add to term.
+              if p == r:
+                a, b = sorted([q, s])
+                c = p
+              elif p == s:
+                a, b = sorted([q, r])
+                c = p
+              elif q == r:
+                a, b = sorted([p, s])
+                c = q
+              elif q == s:
+                a, b = sorted([p, r])
+                c = q
+              parity_string = [(z, 'Z') for z in range(a + 1, b)]
+              pauli_z = qubit_operators.QubitTerm(self.n_qubits,
+                                                  1.,
+                                                  [(c, 'Z')])
+              for operator in ['X', 'Y']:
+                operators = [(a, operator)] + parity_string + [(b, operator)]
+                hopping_term = qubit_operators.QubitTerm(self.n_qubits,
+                                                         coefficient,
+                                                         operators)
+                qubit_operator -= pauli_z * hopping_term
+                qubit_operator += hopping_term
+
+            # Handle case when p == r and q == s or p == s and q == r.
+            elif (p == r and q == s) or (p == s and q == r):
+
+              # Skip complex conjugates.
+              if r < p or s < p:
+                continue
+              else:
+                coefficient /= 2.
+
+              # Add terms.
+              if p == s:
+                coefficient *= -1.
+              qubit_operator -= qubit_operators.QubitTerm(
+                  self.n_qubits, coefficient)
+              qubit_operator += qubit_operators.QubitTerm(
+                  self.n_qubits, coefficient, [(p, 'Z')])
+              qubit_operator += qubit_operators.QubitTerm(
+                  self.n_qubits, coefficient, [(q, 'Z')])
+              qubit_operator -= qubit_operators.QubitTerm(
+                  self.n_qubits, coefficient,
+                  [(min(q, p), 'Z'), (max(q, p), 'Z')])
+
+            # Raise if we missed the case.
+            else:
+              raise ErrorMolecularOperator(
+                  'Unknown pqrs index recieved.')
+
+    # Return.
+    return qubit_operator
+
   def get_sparse_matrix(self):
-    # TODO: hard code the transformation without going through pauli
+    # TODO: hard code the transformation without going through qubit
     # class in order to improve performance.
     qubit_operator = self.jordan_wigner_transform()
     sparse_operator = qubit_operator.get_sparse_matrix()
@@ -315,10 +486,10 @@ class MolecularOperator(object):
       """
     qubit_operator_expectations = copy.deepcopy(qubit_operator)
     for qubit_term in qubit_operator_expectations:
-      tmp_qubit_term = qubit_operators.QubitTerm(self.n_orbitals,
+      tmp_qubit_term = qubit_operators.QubitTerm(self.n_qubits,
                                                  1.0,
                                                  qubit_term.operators)
-      tmp_qubit_operator = qubit_operators.QubitOperator(self.n_orbitals,
+      tmp_qubit_operator = qubit_operators.QubitOperator(self.n_qubits,
                                                          [tmp_qubit_term])
       expectation_value = tmp_qubit_operator.expectation_molecule(self)
       qubit_term.coefficient = expectation_value
@@ -331,19 +502,19 @@ class MolecularOperator(object):
       qubit_rdm: The RDM represented as a qubit operator.
     """
     # Map density operator to qubits.
-    one_body_terms = [fermion_operators.FermionTerm(self.n_orbitals,
+    one_body_terms = [fermion_operators.FermionTerm(self.n_qubits,
                                                     1.0,
                                                     [(i, 1), (j, 0)])
-                      for i in range(self.n_orbitals)
-                      for j in range(self.n_orbitals)]
-    two_body_terms = [fermion_operators.FermionTerm(self.n_orbitals, 1.0,
+                      for i in range(self.n_qubits)
+                      for j in range(self.n_qubits)]
+    two_body_terms = [fermion_operators.FermionTerm(self.n_qubits, 1.0,
                                                     [(i, 1), (j, 1),
                                                      (k, 0), (l, 0)])
-                      for i in range(self.n_orbitals)
-                      for j in range(self.n_orbitals)
-                      for k in range(self.n_orbitals)
-                      for l in range(self.n_orbitals)]
-    fermion_rdm = fermion_operators.FermionOperator(self.n_orbitals,
+                      for i in range(self.n_qubits)
+                      for j in range(self.n_qubits)
+                      for k in range(self.n_qubits)
+                      for l in range(self.n_qubits)]
+    fermion_rdm = fermion_operators.FermionOperator(self.n_qubits,
                                                     one_body_terms +
                                                     two_body_terms)
     fermion_rdm.normal_order()
@@ -353,7 +524,7 @@ class MolecularOperator(object):
     for qubit_term in qubit_rdm:
       qubit_term.coefficient = 1.0
       qubit_operator = qubit_operators.QubitOperator(
-          self.n_orbitals, [qubit_term])
+          self.n_qubits, [qubit_term])
       expectation_value = qubit_operator.expectation_molecule(self)
       qubit_term.coefficient = expectation_value
 
