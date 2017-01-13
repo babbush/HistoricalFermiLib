@@ -227,6 +227,27 @@ class LocalTerm(object):
       raise ErrorLocalTerm(
           'Object of invalid type cannot multiply LocalTerm.')
 
+  def __pow__(self, exponent):
+    """Exponentiate the LocalTerm.
+
+    Args:
+      exponent: An int, giving the exponent with which to raise the term.
+
+    Returns:
+      exponentiated_term: The exponentiated term.
+
+    Raises:
+      ErrorLocalTerm: Can only raise LocalTerm to positive integer powers.
+    """
+    if isinstance(exponent, int) and exponent >= 0:
+      exponentiated_operator = LocalTerm(self._n_qubits)
+      for i in range(exponent):
+        exponentiated_operator *= self
+      return exponentiated_operator
+    else:
+      raise ErrorLocalTerm(
+          'Can only raise LocalTerm to positive integer powers.')
+
   def __abs__(self):
     term_copy = copy.deepcopy(self)
     term_copy.coefficient = abs(self.coefficient)
