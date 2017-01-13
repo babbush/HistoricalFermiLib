@@ -426,10 +426,6 @@ class MolecularOperator(object):
     Returns:
       qubit_operator: An instance of the QubitOperator class.
     """
-    # Hack until I fix this damn function.
-    fermion_operator = self.get_fermion_operator()
-    return fermion_operator.jordan_wigner_transform()
-
     # Initialize qubit operator.
     qubit_operator = qubit_operators.QubitOperator(self.n_qubits)
 
@@ -455,11 +451,19 @@ class MolecularOperator(object):
             if (not coefficient) or (p == q) or (r == s):
               continue
 
-            # Skip complex conjugates.
-            # The cases are identified by s or r being the smallest index:
-            # srqp srpq sprq spqr sqpr sqrp rsqp rspq rpsq rpqs rqps rqsp.
-            elif min(r, s) <= min(p, q):
-              continue
+            # Identify and skip one of the complex conjugates.
+            if [p, q, r, s] != [s, r, q, p]:
+              unique_indices = len(set([p, q, r, s]))
+
+              # srqp srpq sprq spqr sqpr sqrp rsqp rspq rpsq rpqs rqps rqsp.
+              if unique_indices == 4:
+                if min(r, s) <= min(p, q):
+                  continue
+
+              # qqpp.
+              elif unique_indices == 2:
+                if q < p:
+                  continue
 
             # Handle the two-body terms.
             qubit_operator += coefficient * self.jordan_wigner_two_body(
