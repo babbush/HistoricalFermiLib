@@ -106,7 +106,8 @@ class QubitTerm(local_terms.LocalTerm):
           different Hilbert spaces.
     """
     # Handle scalars.
-    if isinstance(multiplier, (int, float, complex)):
+    if (isinstance(multiplier, (int, float, complex)) or
+        numpy.isscalar(multiplier)):
       self.coefficient *= multiplier
       return self
 

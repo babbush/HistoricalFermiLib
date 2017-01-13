@@ -282,6 +282,141 @@ class MolecularOperator(object):
     # Return.
     return fermion_operator
 
+  @staticmethod
+  def jordan_wigner_one_body(n_qubits, p, q):
+    """Map the term a^\dagger_p a_q + a^\dagger_q a_p to a qubit operator.
+
+    Note that the diagonal terms are divided by a factor of 2 because they
+    are equal to their own Hermitian conjugate."""
+    # Initialize qubit operator.
+    qubit_operator = qubit_operators.QubitOperator(n_qubits)
+
+    # Handle off-diagonal terms.
+    if p != q:
+      a, b = sorted([p, q])
+      parity_string = [(z, 'Z') for z in xrange(a + 1, b)]
+      for operator in ['X', 'Y']:
+        operators = [(a, operator)] + parity_string + [(b, operator)]
+        qubit_operator += qubit_operators.QubitTerm(
+            n_qubits, .5, operators)
+
+    # Handle diagonal terms.
+    else:
+      qubit_operator += qubit_operators.QubitTerm(n_qubits, .5)
+      qubit_operator += qubit_operators.QubitTerm(n_qubits, -.5, [(p, 'Z')])
+
+    # Return qubit operator.
+    return qubit_operator
+
+  @staticmethod
+  def jordan_wigner_two_body(n_qubits, p, q, r, s):
+    """Map the term a^\dagger_p a^\dagger_q a_r a_s + h.c. to qubit operator.
+
+    Note that the diagonal terms are divided by a factor of two because they
+    are equal to their own Hermitian conjugate."""
+    # Initialize qubit operator.
+    qubit_operator = qubit_operators.QubitOperator(n_qubits)
+
+    # Return zero terms.
+    if (p == q) or (r == s):
+      return qubit_operator
+
+    # Handle case of four unique indices.
+    elif len(set([p, q, r, s])) == 4:
+
+      # Loop through different operators which act on each tensor factor.
+      for operator_p, operator_q, operator_r in itertools.product(['X', 'Y'],
+                                                                  repeat=3):
+        if [operator_p, operator_q, operator_r].count('X') % 2:
+          operator_s = 'X'
+        else:
+          operator_s = 'Y'
+
+        # Sort operators.
+        [(a, operator_a), (b, operator_b),
+         (c, operator_c), (d, operator_d)] = sorted(
+             [(p, operator_p), (q, operator_q),
+              (r, operator_r), (s, operator_s)], key=lambda pair: pair[0])
+
+        # Computer operator strings.
+        operators = [(a, operator_a)]
+        operators += [(z, 'Z') for z in range(a + 1, b)]
+        operators += [(b, operator_b)]
+        operators += [(c, operator_c)]
+        operators += [(z, 'Z') for z in range(c + 1, d)]
+        operators += [(d, operator_d)]
+
+        # Get coefficients.
+        coefficient = .125
+        parity_condition = bool(operator_p != operator_q or
+                                operator_p == operator_r)
+        if (p > q) ^ (r > s):
+          if not parity_condition: coefficient *= -1.
+        elif parity_condition: coefficient *= -1.
+
+        # Add term.
+        qubit_operator += qubit_operators.QubitTerm(
+            n_qubits, coefficient, operators)
+
+    # Handle case of three unique indices.
+    elif len(set([p, q, r, s])) == 3:
+
+      # Identify equal tensor factors.
+      if p == r:
+        a, b = sorted([q, s])
+        c = p
+      elif p == s:
+        a, b = sorted([q, r])
+        c = p
+      elif q == r:
+        a, b = sorted([p, s])
+        c = q
+      elif q == s:
+        a, b = sorted([p, r])
+        c = q
+
+      # Get operators.
+      parity_string = [(z, 'Z') for z in range(a + 1, b)]
+      pauli_z = qubit_operators.QubitTerm(n_qubits, 1., [(c, 'Z')])
+      for operator in ['X', 'Y']:
+        operators = [(a, operator)] + parity_string + [(b, operator)]
+
+        # Get coefficient.
+        if (p == s) or (q == r):
+          coefficient = .25
+        else:
+          coefficient = -.25
+
+        # Add term.
+        hopping_term = qubit_operators.QubitTerm(
+            n_qubits, coefficient, operators)
+        qubit_operator -= pauli_z * hopping_term
+        qubit_operator += hopping_term
+
+    # Handle case of two unique indices.
+    elif len(set([p, q, r, s])) == 2:
+
+      # Get coefficient.
+      if (p, q, r, s) == (s, r, q, p):
+        coefficient = .25
+      else:
+        coefficient = .5
+      if p == s: coefficient *= -1.
+
+      # Add terms.
+      qubit_operator -= qubit_operators.QubitTerm(
+          n_qubits, coefficient)
+      qubit_operator += qubit_operators.QubitTerm(
+          n_qubits, coefficient, [(p, 'Z')])
+      qubit_operator += qubit_operators.QubitTerm(
+          n_qubits, coefficient, [(q, 'Z')])
+      qubit_operator -= qubit_operators.QubitTerm(
+          n_qubits, coefficient,
+          [(min(q, p), 'Z'), (max(q, p), 'Z')])
+
+    # Return.
+    return qubit_operator
+
   def jordan_wigner_transform(self):
     """Output MolecularOperator as QubitOperator class under JW transform.
 
@@ -291,10 +426,9 @@ class MolecularOperator(object):
     Returns:
       qubit_operator: An instance of the QubitOperator class.
     """
-    # TODO: Delete next three lines and get rest of this function to work!
+    # Hack until I fix this damn function.
     fermion_operator = self.get_fermion_operator()
-    qubit_operator = fermion_operator.jordan_wigner_transform()
-    return qubit_operator
+    return fermion_operator.jordan_wigner_transform()
 
     # Initialize qubit operator.
     qubit_operator = qubit_operators.QubitOperator(self.n_qubits)
@@ -302,165 +436,34 @@ class MolecularOperator(object):
     # Add constant.
     qubit_operator += qubit_operators.QubitTerm(self.n_qubits, self.constant)
 
-    # Handle one-body terms.
-    for p in xrange(self.n_qubits):
-      for q in xrange(p, self.n_qubits):
-        coefficient = self.one_body_coefficients[p, q] / 2.
-
-        # Handle off-diagonal terms.
-        if coefficient and p < q:
-          parity_string = [(z, 'Z') for z in xrange(p + 1, q)]
-          for operator in ['X', 'Y']:
-            operators = [(p, operator)] + parity_string + [(q, operator)]
-            qubit_operator += qubit_operators.QubitTerm(self.n_qubits,
-                                                        coefficient,
-                                                        operators)
-
-        # Handle diagonal terms.
-        elif coefficient and p == q:
-          qubit_operator += qubit_operators.QubitTerm(self.n_qubits,
-                                                      coefficient)
-          qubit_operator += qubit_operators.QubitTerm(self.n_qubits,
-                                                      -coefficient,
-                                                      [(p, 'Z')])
-    # Handle two-body terms.
+    # Loop through all indices.
     for p in xrange(self.n_qubits):
       for q in xrange(self.n_qubits):
+
+        # Handle one-body terms.
+        coefficient = float(self.one_body_coefficients[p, q])
+        if coefficient and p >= q:
+          qubit_operator += coefficient * self.jordan_wigner_one_body(
+              self.n_qubits, p, q)
+
+        # Keep looping for the two-body terms.
         for r in xrange(self.n_qubits):
-          for s in xrange(r, self.n_qubits):
-            coefficient = self.two_body_coefficients[p, q, r, s]
+          for s in xrange(self.n_qubits):
+            coefficient = float(self.two_body_coefficients[p, q, r, s])
 
             # Skip zero terms.
             if (not coefficient) or (p == q) or (r == s):
               continue
 
-            # Handle p != q != r != s. There are 4! = 24 cases.
-            elif p != q != r != s:
+            # Skip complex conjugates.
+            # The cases are identified by s or r being the smallest index:
+            # srqp srpq sprq spqr sqpr sqrp rsqp rspq rpsq rpqs rqps rqsp.
+            elif min(r, s) <= min(p, q):
+              continue
 
-              # Skip complex conjugates. There are 12 complex conjugates.
-              # The cases are identified by s or r being the smallest index.
-              # srqp srpq sprq spqr sqpr sqrp
-              # rsqp rspq rpsq rpqs rqps rqsp.
-              if min(r, s) < min(p, q):
-                continue
-              else:
-                coefficient /= 8.
-
-              # Get operators.
-              a, b, c, d = sorted([p, q, r, s])
-              generator = itertools.combinations_with_replacement(
-                  ['X', 'Y'], r=3)
-              for operator_a, operator_b, operator_c in generator:
-                if [operator_a, operator_b, operator_c].count('X') % 2:
-                  operator_d = 'X'
-                else:
-                  operator_d = 'Y'
-                operators = [(a, operator_a)]
-                operators += [(z, 'Z') for z in range(a + 1, b)]
-                operators += [(b, operator_b)]
-                operators += [(c, operator_c)]
-                operators += [(z, 'Z') for z in range(c + 1, d)]
-                operators += [(d, operator_d)]
-
-                # Get sign of coefficients. There are 12 cases.
-                # pqrs pqsr prqs prsq psrq psqr
-                # qprs qpsr qrps qrsp qsrp qspr.
-
-                # Get coefficients for pqrs and qpsr.
-                if (p < q < r < s) or (q < p < s < r):
-                  if operator_a != operator_b or operator_b == operator_c:
-                    coefficient *= -1.
-
-                # Get coefficients for qprs and pqsr.
-                elif (q < p < r < s) or (p < q < s < r):
-                  if operator_a == operator_b and operator_b != operator_c:
-                    coefficient *= -1.
-
-                # Get coefficients for prqs and prsq.
-                elif (p < r < q < s) or (p < r < s < q):
-                  if operator_a == operator_b or operator_b == operator_c:
-                    coefficient *= -1.
-
-                # Get coefficients for qspr and qsrp.
-                elif (q < s < p < r) or (q < s < r < p):
-                  if operator_a == operator_b or operator_b != operator_c:
-                    coefficient *= -1.
-
-                # Get coefficients for psrq and qrsp.
-                elif (p < s < r < q) and (q < r < s < p):
-                  if operator_a != operator_b and operator_b == operator_c:
-                    coefficient *= -1.
-
-                # Get coefficient for qrps and psqr.
-                elif (q < r < p < s) and (p < s < q < r):
-                  if operator_a != operator_b and operator_b != operator_c:
-                    coefficient *= -1.
-
-                # Add term.
-                qubit_operator += qubit_operators.QubitTerm(self.n_qubits,
-                                                            coefficient,
-                                                            operators)
-
-            # Handle case when p == r, p == s, q == r or q == s.
-            elif len(set([p, q, r, s])) == 3:
-
-              # Skip complex conjugates.
-              if (r < p) or (s < p) or (r < q) or (s < q):
-                continue
-              else:
-                coefficient /= 4.
-
-              # Get operators and add to term.
-              if p == r:
-                a, b = sorted([q, s])
-                c = p
-              elif p == s:
-                a, b = sorted([q, r])
-                c = p
-              elif q == r:
-                a, b = sorted([p, s])
-                c = q
-              elif q == s:
-                a, b = sorted([p, r])
-                c = q
-              parity_string = [(z, 'Z') for z in range(a + 1, b)]
-              pauli_z = qubit_operators.QubitTerm(self.n_qubits,
-                                                  1.,
-                                                  [(c, 'Z')])
-              for operator in ['X', 'Y']:
-                operators = [(a, operator)] + parity_string + [(b, operator)]
-                hopping_term = qubit_operators.QubitTerm(self.n_qubits,
-                                                         coefficient,
-                                                         operators)
-                qubit_operator -= pauli_z * hopping_term
-                qubit_operator += hopping_term
-
-            # Handle case when p == r and q == s or p == s and q == r.
-            elif (p == r and q == s) or (p == s and q == r):
-
-              # Skip complex conjugates.
-              if r < p or s < p:
-                continue
-              else:
-                coefficient /= 2.
-
-              # Add terms.
-              if p == s:
-                coefficient *= -1.
-              qubit_operator -= qubit_operators.QubitTerm(
-                  self.n_qubits, coefficient)
-              qubit_operator += qubit_operators.QubitTerm(
-                  self.n_qubits, coefficient, [(p, 'Z')])
-              qubit_operator += qubit_operators.QubitTerm(
-                  self.n_qubits, coefficient, [(q, 'Z')])
-              qubit_operator -= qubit_operators.QubitTerm(
-                  self.n_qubits, coefficient,
-                  [(min(q, p), 'Z'), (max(q, p), 'Z')])
-
-            # Raise if we missed the case.
-            else:
-              raise ErrorMolecularOperator(
-                  'Unknown pqrs index recieved.')
+            # Handle the two-body terms.
+            qubit_operator += coefficient * self.jordan_wigner_two_body(
+                self.n_qubits, p, q, r, s)
 
     # Return.
     return qubit_operator

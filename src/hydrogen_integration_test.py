@@ -89,6 +89,10 @@ class HydrogenIntegrationTest(unittest.TestCase):
     fermion_hamiltonian = molecular_hamiltonian.get_fermion_operator()
     self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
 
+    # Make sure mapping of MolecularOperator to QubitOperator works.
+    qubit_hamiltonian = self.molecular_hamiltonian.jordan_wigner_transform()
+    self.assertEqual(self.qubit_hamiltonian, qubit_hamiltonian)
+
     # Check that FCI prior has the correct energy.
     fci_rdm_energy = self.nuclear_repulsion
     fci_rdm_energy += numpy.sum(self.fci_rdm.one_body_coefficients *

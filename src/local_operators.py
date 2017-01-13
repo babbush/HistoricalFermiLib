@@ -1,5 +1,6 @@
 """Base class for representation of various local operators."""
 import local_terms
+import numpy
 import copy
 
 
@@ -187,7 +188,8 @@ class LocalOperator(object):
       ErrorLocalOperator: Cannot multiply terms on different Hilbert spaces.
     """
     # Handle scalars.
-    if isinstance(multiplier, (int, float, complex)):
+    if (isinstance(multiplier, (int, float, complex)) or
+        numpy.isscalar(multiplier)):
       for term in self:
         term.coefficient *= complex(multiplier)
       return self
@@ -244,7 +246,8 @@ class LocalOperator(object):
     Raises:
       ErrorLocalOperator: Invalid typed object cannot multiply LocalOperator.
     """
-    if isinstance(multiplier, (int, float, complex)):
+    if (isinstance(multiplier, (int, float, complex)) or
+        numpy.isscalar(multiplier)):
       return self * multiplier
     else:
       raise ErrorLocalOperator(
