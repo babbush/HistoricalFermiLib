@@ -196,7 +196,7 @@ class LocalTerm(object):
 
     # Handle LocalOperator and derivatives.
     elif issubclass(type(multiplier), local_operators.LocalOperator):
-      product = multiplier.return_class(self._n_qubits)
+      product = multiplier.return_class(self.n_qubits)
       for term in multiplier:
         product += self * term
 
@@ -246,7 +246,7 @@ class LocalTerm(object):
     if not isinstance(exponent, int) or exponent < 0:
       raise ValueError('Can only raise LocalTerm to positive integer powers.')
       
-    exponentiated_operator = LocalTerm(self._n_qubits, 1.)
+    exponentiated_operator = LocalTerm(self.n_qubits, 1.)
     for i in range(exponent):
       exponentiated_operator *= self
     return exponentiated_operator
