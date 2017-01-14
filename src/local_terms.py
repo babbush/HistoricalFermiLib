@@ -5,7 +5,7 @@ import copy
 
 
 # Define error classes.
-class ErrorLocalTerm(Exception):
+class LocalTermError(Exception):
   pass
 
 
@@ -27,11 +27,11 @@ class LocalTerm(object):
       operators: A list of site operators representing the term.
 
     Raises:
-      ErrorLocalTerm: Number of qubits needs to be an integer.
+      LocalTermError: Number of qubits needs to be an integer.
     """
     # Check that n_qubits is an integer.
     if not isinstance(n_qubits, int):
-      raise ErrorLocalTerm('Number of qubits needs to be an integer.')
+      raise LocalTermError('Number of qubits needs to be an integer.')
 
     # Initialize.
     self._tolerance = 1e-12
@@ -54,7 +54,7 @@ class LocalTerm(object):
   @n_qubits.setter
   def n_qubits(self, n_qubits):
     if hasattr(self, '_n_qubits'):
-      raise ErrorLocalTerm(
+      raise LocalTermError(
           'Do not change the size of Hilbert space on which terms act.')
 
   def __eq__(self, local_term):
@@ -67,10 +67,10 @@ class LocalTerm(object):
       True or False, whether objects are the same.
 
     Raises:
-      ErrorLocalTerm: Cannot compare terms acting on different Hilbert spaces.
+      LocalTermError: Cannot compare terms acting on different Hilbert spaces.
     """
     if self._n_qubits != local_term._n_qubits:
-      raise ErrorLocalTerm(
+      raise LocalTermError(
           'Cannot compare terms acting on different Hilbert spaces.')
     elif abs(self.coefficient - local_term.coefficient) > self._tolerance:
       return False
@@ -108,13 +108,13 @@ class LocalTerm(object):
       summand: A new instance of LocalOperator.
 
     Raises:
-      ErrorLocalTerm: Can only add LocalOperator type to LocalTerm type.
-      ErrorLocalTerm: Object of invalid type cannot be added to LocalTerm.
-      ErrorLocalTerm: Cannot add terms acting on different Hilbert spaces.
+      LocalTermError: Can only add LocalOperator type to LocalTerm type.
+      LocalTermError: Object of invalid type cannot be added to LocalTerm.
+      LocalTermError: Cannot add terms acting on different Hilbert spaces.
     """
     # Handle LocalTerms.
     if issubclass(type(addend), LocalTerm):
-      raise ErrorLocalTerm(
+      raise LocalTermError(
           'Can only add LocalOperator type to LocalTerm type.')
 
     # Handle LocalOperators.
@@ -123,7 +123,7 @@ class LocalTerm(object):
 
     else:
       # Throw exception for unknown type.
-      raise ErrorLocalTerm(
+      raise LocalTermError(
           'Cannot add term of invalid type to LocalTerm.')
 
     # Return the summand.
@@ -144,8 +144,8 @@ class LocalTerm(object):
       multiplier: A scalar or LocalTerm.
 
     Raises:
-      ErrorLocalTerm: Cannot multiply terms acting on different Hilbert spaces.
-      ErrorLocalTerm: Can only *= multiply LocalTerm by scalar or LocalTerm.
+      LocalTermError: Cannot multiply terms acting on different Hilbert spaces.
+      LocalTermError: Can only *= multiply LocalTerm by scalar or LocalTerm.
     """
     # Handle scalars.
     if (isinstance(multiplier, (int, float, complex)) or
@@ -156,7 +156,7 @@ class LocalTerm(object):
     elif issubclass(type(multiplier), LocalTerm):
       # Handle LocalTerms. Make sure number of qubits is the same.
       if self._n_qubits != multiplier._n_qubits:
-        raise ErrorLocalTerm(
+        raise LocalTermError(
             'Cannot multiply terms acting on different Hilbert spaces.')
 
       # Compute product.
@@ -166,7 +166,7 @@ class LocalTerm(object):
 
     else:
       # Throw exception for wrong type of multiplier.
-      raise ErrorLocalTerm(
+      raise LocalTermError(
           'Can only *= multiply LocalTerm by scalar or LocalTerm.')
 
   def __mul__(self, multiplier):
@@ -179,8 +179,8 @@ class LocalTerm(object):
       product: A new instance of LocalTerm or LocalOperator.
 
     Raises:
-      ErrorLocalTerm: Object of invalid type cannot multiply LocalTerm.
-      ErrorLocalTerm: Cannot multiply terms acting on different Hilbert spaces.
+      LocalTermError: Object of invalid type cannot multiply LocalTerm.
+      LocalTermError: Cannot multiply terms acting on different Hilbert spaces.
     """
     # Handle scalars or LocalTerms.
     if (isinstance(multiplier, (int, float, complex, LocalTerm)) or
@@ -196,7 +196,7 @@ class LocalTerm(object):
 
     else:
       # Throw exception for unknown type.
-      raise ErrorLocalTerm(
+      raise LocalTermError(
           'Object of invalid type cannot multiply LocalTerm.')
 
     # Return the product.
@@ -216,7 +216,7 @@ class LocalTerm(object):
       product: A new instance of LocalTerm.
 
     Raises:
-      ErrorLocalTerm: Object of invalid type cannot multiply LocalTerm.
+      LocalTermError: Object of invalid type cannot multiply LocalTerm.
     """
     if (isinstance(multiplier, (int, float, complex)) or
        numpy.isscalar(multiplier)):
@@ -224,7 +224,7 @@ class LocalTerm(object):
       product.coefficient *= multiplier
       return product
     else:
-      raise ErrorLocalTerm(
+      raise LocalTermError(
           'Object of invalid type cannot multiply LocalTerm.')
 
   def __pow__(self, exponent):
@@ -237,7 +237,7 @@ class LocalTerm(object):
       exponentiated_term: The exponentiated term.
 
     Raises:
-      ErrorLocalTerm: Can only raise LocalTerm to positive integer powers.
+      LocalTermError: Can only raise LocalTerm to positive integer powers.
     """
     if isinstance(exponent, int) and exponent >= 0:
       exponentiated_operator = LocalTerm(self._n_qubits, 1.)
@@ -245,7 +245,7 @@ class LocalTerm(object):
         exponentiated_operator *= self
       return exponentiated_operator
     else:
-      raise ErrorLocalTerm(
+      raise LocalTermError(
           'Can only raise LocalTerm to positive integer powers.')
 
   def __abs__(self):

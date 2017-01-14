@@ -8,15 +8,15 @@ import numpy
 import copy
 
 
-class ErrorJordanWigner(Exception):
+class JordanWignerError(Exception):
   pass
 
 
-class ErrorFermionTerm(Exception):
+class FermionTermError(Exception):
   pass
 
 
-class ErrorFermionOperator(Exception):
+class FermionOperatorError(Exception):
   pass
 
 
@@ -64,7 +64,7 @@ class FermionTerm(local_terms.LocalTerm):
           of each tuple is boole, indicating raising (1) or lowering (0).
 
     Raises:
-      ErrorFermionTerm: Invalid operators provided to FermionTerm.
+      FermionTermError: Invalid operators provided to FermionTerm.
     """
     super(FermionTerm, self).__init__(n_qubits, coefficient, operators)
     for operator in self:
@@ -73,7 +73,7 @@ class FermionTerm(local_terms.LocalTerm):
         if ((action == 1 or action == 0) and
            (isinstance(tensor_factor, int) and tensor_factor < n_qubits)):
           continue
-      raise ErrorFermionTerm('Invalid operators provided to FermionTerm.')
+      raise FermionTermError('Invalid operators provided to FermionTerm.')
 
   def __str__(self):
     """Return an easy-to-read string representation of the term."""
@@ -224,13 +224,13 @@ class FermionOperator(local_operators.LocalOperator):
       terms: Dictionary or list of FermionTerm objects.
 
     Raises:
-      ErrorFermionOperator: Invalid FermionTerms provided to FermionOperator.
+      FermionOperatorError: Invalid FermionTerms provided to FermionOperator.
     """
     super(FermionOperator, self).__init__(n_qubits, terms)
     for term in self:
       if isinstance(term, FermionTerm) and term._n_qubits == n_qubits:
           continue
-      raise ErrorFermionTerm(
+      raise FermionTermError(
           'Invalid FermionTerms provided to FermionOperator.')
 
   def __setitem__(self, operators, coefficient):

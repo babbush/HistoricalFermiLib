@@ -5,7 +5,7 @@ import copy
 
 
 # Define error class.
-class ErrorLocalOperator(Exception):
+class LocalOperatorError(Exception):
   pass
 
 
@@ -25,7 +25,7 @@ class LocalOperator(object):
       terms: Dictionary or list of LocalTerm objects.
 
     Raises:
-      ErrorLocalOperator: Invalid terms provided to initialization.
+      LocalOperatorError: Invalid terms provided to initialization.
     """
     self._tolerance = 1e-12
     self._n_qubits = n_qubits
@@ -38,7 +38,7 @@ class LocalOperator(object):
       for term in terms:
         self += term
     else:
-      raise ErrorLocalOperator('Invalid terms provided to initialization.')
+      raise LocalOperatorError('Invalid terms provided to initialization.')
 
   @classmethod
   def return_class(cls, n_qubits, terms=None):
@@ -52,13 +52,13 @@ class LocalOperator(object):
   @n_qubits.setter
   def n_qubits(self, n_qubits):
     if hasattr(self, '_n_qubits'):
-      raise ErrorLocalOperator(
+      raise LocalOperatorError(
           'Do not change the size of Hilbert space on which terms act.')
 
   def __eq__(self, operator):
     """Compare operators to see if they are the same."""
     if self._n_qubits != operator._n_qubits:
-      raise ErrorLocalOperator(
+      raise LocalOperatorError(
           'Cannot compare operators acting on different Hilbert spaces.')
     if len(self) != len(operator):
       return False
@@ -102,15 +102,15 @@ class LocalOperator(object):
       addend: A LocalTerm or LocalOperator.
 
     Raises:
-      ErrorLocalOperator: Cannot add terms acting on different Hilbert spaces.
-      ErrorLocalOperator: Cannot add term of invalid type to LocalOperator.
+      LocalOperatorError: Cannot add terms acting on different Hilbert spaces.
+      LocalOperatorError: Cannot add term of invalid type to LocalOperator.
     """
     # Handle LocalTerms.
     if issubclass(type(addend), local_terms.LocalTerm):
 
       # Make sure number of qubits is the same.
       if self._n_qubits != addend._n_qubits:
-        raise ErrorLocalOperator(
+        raise LocalOperatorError(
             'Cannot add terms acting on different Hilbert spaces.')
 
       # Compute new coefficient and update self.terms.
@@ -129,7 +129,7 @@ class LocalOperator(object):
 
     else:
       # Throw exception for unknown type.
-      raise ErrorLocalOperator(
+      raise LocalOperatorError(
           'Cannot add term of invalid type to LocalOperator.')
 
   def __isub__(self, subtrahend):
@@ -147,7 +147,7 @@ class LocalOperator(object):
       summand: The sum given by self + addend.
 
     Raises:
-      ErrorLocalOperator: Cannot add term of invalid type of LocalOperator.
+      LocalOperatorError: Cannot add term of invalid type of LocalOperator.
     """
     # Copy self.
     summand = copy.deepcopy(self)
@@ -163,7 +163,7 @@ class LocalOperator(object):
 
     else:
       # Throw exception for unknown type.
-      raise ErrorLocalOperator(
+      raise LocalOperatorError(
           'Object of invalid type cannot multiply LocalTerm')
 
     # Return.
@@ -184,8 +184,8 @@ class LocalOperator(object):
       multiplier: A scalar, LocalTerm or LocalOperator.
 
     Raises:
-      ErrorLocalOperator: Invalid typed object cannot multiply LocalOperator.
-      ErrorLocalOperator: Cannot multiply terms on different Hilbert spaces.
+      LocalOperatorError: Invalid typed object cannot multiply LocalOperator.
+      LocalOperatorError: Cannot multiply terms on different Hilbert spaces.
     """
     # Handle scalars.
     if (isinstance(multiplier, (int, float, complex)) or
@@ -244,13 +244,13 @@ class LocalOperator(object):
       product: A new instance of LocalTerm.
 
     Raises:
-      ErrorLocalOperator: Invalid typed object cannot multiply LocalOperator.
+      LocalOperatorError: Invalid typed object cannot multiply LocalOperator.
     """
     if (isinstance(multiplier, (int, float, complex)) or
        numpy.isscalar(multiplier)):
       return self * multiplier
     else:
-      raise ErrorLocalOperator(
+      raise LocalOperatorError(
           'Invalid typed object cannot multiply LocalOperator.')
 
   def __abs__(self):

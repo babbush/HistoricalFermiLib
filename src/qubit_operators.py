@@ -12,11 +12,11 @@ import copy
 import itertools
 
 
-class ErrorQubitTerm(Exception):
+class QubitTermError(Exception):
   pass
 
 
-class ErrorQubitOperator(Exception):
+class QubitOperatorError(Exception):
   pass
 
 
@@ -79,7 +79,7 @@ class QubitTerm(local_terms.LocalTerm):
         acts on that tensor factor.
 
     Raises:
-      ErrorQubitTerm: Invalid operators provided to QubitTerm.
+      QubitTermError: Invalid operators provided to QubitTerm.
     """
     super(QubitTerm, self).__init__(n_qubits, coefficient, operators)
     for operator in self:
@@ -88,7 +88,7 @@ class QubitTerm(local_terms.LocalTerm):
         if (isinstance(action, str) and
            (isinstance(tensor_factor, int) and tensor_factor < n_qubits)):
           continue
-      raise ErrorQubitTerm('Invalid operators provided to QubitTerm.')
+      raise QubitTermError('Invalid operators provided to QubitTerm.')
 
     # Make sure operators are sorted by tensor factor.
     self.operators.sort(key=lambda operator: operator[0])
@@ -102,7 +102,7 @@ class QubitTerm(local_terms.LocalTerm):
       multiplier: Another QubitTerm object.
 
     Raises:
-      ErrorQubitTerm: Cannot multiply QubitTerms acting on
+      QubitTermError: Cannot multiply QubitTerms acting on
           different Hilbert spaces.
     """
     # Handle scalars.
@@ -116,7 +116,7 @@ class QubitTerm(local_terms.LocalTerm):
 
       # Make sure terms act on same Hilbert space.
       if self._n_qubits != multiplier._n_qubits:
-        raise ErrorQubitTerm(
+        raise QubitTermError(
             'Cannot multiply QubitTerms acting on different Hilbert spaces.')
 
       # Relabel self * qubit_term as left_term * right_term.
@@ -177,7 +177,7 @@ class QubitTerm(local_terms.LocalTerm):
       transformed_term: An instance of the FermionOperator class.
 
     Raises:
-      ErrorQubitTerm: Invalid operator provided: must be 'X', 'Y' or 'Z'.
+      QubitTermError: Invalid operator provided: must be 'X', 'Y' or 'Z'.
     """
     # Initialize transformed operator.
     identity = fermion_operators.FermionTerm(
@@ -218,7 +218,7 @@ class QubitTerm(local_terms.LocalTerm):
 
           else:
             # Raise for invalid operator.
-            raise ErrorQubitTerm(
+            raise QubitTermError(
                 "Invalid operator provided: must be 'X', 'Y' or 'Z'")
 
           # Account for the phase terms.
@@ -312,13 +312,13 @@ class QubitOperator(local_operators.LocalOperator):
       terms: Dictionary or list of QubitTerm objects.
 
     Raises:
-      ErrorQubitOperator: Invalid QubitTerms provided to QubitOperator.
+      QubitOperatorError: Invalid QubitTerms provided to QubitOperator.
     """
     super(QubitOperator, self).__init__(n_qubits, terms)
     for term in self:
       if isinstance(term, QubitTerm) and term._n_qubits == n_qubits:
           continue
-      raise ErrorQubitTerm(
+      raise QubitTermError(
           'Invalid QubitTerms provided to QubitOperator.')
 
   def __setitem__(self, operators, coefficient):

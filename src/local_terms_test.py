@@ -20,7 +20,7 @@ class LocalTermsTest(unittest.TestCase):
     self.assertEqual(len(self.term_a), 5)
     self.assertEqual(self.term_a.operators, self.operators_a)
     self.assertAlmostEqual(self.term_a.coefficient, self.coefficient_a)
-    with self.assertRaises(local_terms.ErrorLocalTerm):
+    with self.assertRaises(local_terms.LocalTermError):
       self.term_a.n_qubits = 2
 
   def test_comparisons(self):

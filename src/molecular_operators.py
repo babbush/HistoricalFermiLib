@@ -6,7 +6,7 @@ import numpy
 import copy
 
 
-class ErrorMolecularOperator(Exception):
+class MolecularOperatorError(Exception):
   pass
 
 

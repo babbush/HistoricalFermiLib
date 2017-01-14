@@ -30,7 +30,7 @@ class LocalOperatorsTest(unittest.TestCase):
   def test_init(self):
     self.assertEqual(
         len(self.operator_a.terms), len(self.operator_a))
-    with self.assertRaises(local_operators.ErrorLocalOperator):
+    with self.assertRaises(local_operators.LocalOperatorError):
       self.operator_a.n_qubits = 2
 
   def test_comparisons(self):
