@@ -155,8 +155,8 @@ class LocalTerm(object):
       TypeError: Can only *= multiply LocalTerm by scalar or LocalTerm.
     """
     # Handle scalars.
-    if (isinstance(multiplier, (int, float, complex)) or
-       numpy.isscalar(multiplier)):
+    if (isinstance(multiplier, (int, float, complex))
+        or numpy.isscalar(multiplier)):
       self.coefficient *= complex(multiplier)
       return self
 
@@ -189,8 +189,8 @@ class LocalTerm(object):
       LocalTermError: Cannot multiply terms acting on different Hilbert spaces.
     """
     # Handle scalars or LocalTerms.
-    if (isinstance(multiplier, (int, float, complex, LocalTerm)) or
-       numpy.isscalar(multiplier)):
+    if (isinstance(multiplier, (int, float, complex, LocalTerm))
+        or numpy.isscalar(multiplier)):
       product = copy.deepcopy(self)
       product *= multiplier
 
@@ -223,13 +223,12 @@ class LocalTerm(object):
     Raises:
       TypeError: Object of invalid type cannot multiply LocalTerm.
     """
-    if (isinstance(multiplier, (int, float, complex)) or
-       numpy.isscalar(multiplier)):
-      product = copy.deepcopy(self)
-      product.coefficient *= multiplier
-      return product
-    else:
+    if not (isinstance(multiplier, (int, float, complex)) 
+            or numpy.isscalar(multiplier)):
       raise TypeError('Object of invalid type cannot multiply LocalTerm.')
+    product = copy.deepcopy(self)
+    product.coefficient *= multiplier
+    return product
 
   def __pow__(self, exponent):
     """Exponentiate the LocalTerm.
