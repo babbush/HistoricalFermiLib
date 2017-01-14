@@ -150,7 +150,7 @@ def get_determinants(n_orbitals, n_electrons):
   return states
 
 
-def configuation_projector(n_orbitals, n_electrons):
+def configuration_projector(n_orbitals, n_electrons):
   """Construct projector into an n_electron manifold.
 
   Args:
