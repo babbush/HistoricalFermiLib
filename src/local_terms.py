@@ -35,7 +35,14 @@ class LocalTerm(object):
     # Check that n_qubits is an integer.
     if not isinstance(n_qubits, int):
       raise TypeError('Number of qubits needs to be an integer.')
-
+    
+    # Convert coefficient to complex
+    try:
+      self.coefficient = complex(coefficient)
+    except Exception as err:
+      raise ValueError(
+        'coefficient must be numeric or convertible to complex.')
+      
     # Initialize.
     self._tolerance = tolerance
     self._n_qubits = n_qubits
@@ -130,7 +137,7 @@ class LocalTerm(object):
     return summand
 
   def __sub__(self, subtrahend):
-    """Compute self - subtrahend for a LocalTerm or LocalOperator."""
+    """Compute self - subtrahend for a LocalOperator or derivative."""
     return self + (-1. * subtrahend)
 
   def __imul__(self, multiplier):
