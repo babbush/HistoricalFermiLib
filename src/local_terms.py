@@ -27,11 +27,11 @@ class LocalTerm(object):
       operators: A list of site operators representing the term.
 
     Raises:
-      LocalTermError: Number of qubits needs to be an integer.
+      TypeError: Number of qubits needs to be an integer.
     """
     # Check that n_qubits is an integer.
     if not isinstance(n_qubits, int):
-      raise LocalTermError('Number of qubits needs to be an integer.')
+      raise TypeError('Number of qubits needs to be an integer.')
 
     # Initialize.
     self._tolerance = 1e-12
@@ -108,13 +108,13 @@ class LocalTerm(object):
       summand: A new instance of LocalOperator.
 
     Raises:
-      LocalTermError: Can only add LocalOperator type to LocalTerm type.
-      LocalTermError: Object of invalid type cannot be added to LocalTerm.
+      TypeError: Can only add LocalOperator type to LocalTerm type.
+      TypeError: Object of invalid type cannot be added to LocalTerm.
       LocalTermError: Cannot add terms acting on different Hilbert spaces.
     """
     # Handle LocalTerms.
     if issubclass(type(addend), LocalTerm):
-      raise LocalTermError(
+      raise TypeError(
           'Can only add LocalOperator type to LocalTerm type.')
 
     # Handle LocalOperators.
@@ -123,7 +123,7 @@ class LocalTerm(object):
 
     else:
       # Throw exception for unknown type.
-      raise LocalTermError(
+      raise TypeError(
           'Cannot add term of invalid type to LocalTerm.')
 
     # Return the summand.
@@ -145,7 +145,7 @@ class LocalTerm(object):
 
     Raises:
       LocalTermError: Cannot multiply terms acting on different Hilbert spaces.
-      LocalTermError: Can only *= multiply LocalTerm by scalar or LocalTerm.
+      TypeError: Can only *= multiply LocalTerm by scalar or LocalTerm.
     """
     # Handle scalars.
     if (isinstance(multiplier, (int, float, complex)) or
@@ -166,8 +166,7 @@ class LocalTerm(object):
 
     else:
       # Throw exception for wrong type of multiplier.
-      raise LocalTermError(
-          'Can only *= multiply LocalTerm by scalar or LocalTerm.')
+      raise TypeError('Can only *= multiply LocalTerm by scalar or LocalTerm.')
 
   def __mul__(self, multiplier):
     """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
@@ -179,7 +178,7 @@ class LocalTerm(object):
       product: A new instance of LocalTerm or LocalOperator.
 
     Raises:
-      LocalTermError: Object of invalid type cannot multiply LocalTerm.
+      TypeError: Object of invalid type cannot multiply LocalTerm.
       LocalTermError: Cannot multiply terms acting on different Hilbert spaces.
     """
     # Handle scalars or LocalTerms.
@@ -196,8 +195,7 @@ class LocalTerm(object):
 
     else:
       # Throw exception for unknown type.
-      raise LocalTermError(
-          'Object of invalid type cannot multiply LocalTerm.')
+      raise TypeError('Object of invalid type cannot multiply LocalTerm.')
 
     # Return the product.
     return product
@@ -216,7 +214,7 @@ class LocalTerm(object):
       product: A new instance of LocalTerm.
 
     Raises:
-      LocalTermError: Object of invalid type cannot multiply LocalTerm.
+      TypeError: Object of invalid type cannot multiply LocalTerm.
     """
     if (isinstance(multiplier, (int, float, complex)) or
        numpy.isscalar(multiplier)):
@@ -224,8 +222,7 @@ class LocalTerm(object):
       product.coefficient *= multiplier
       return product
     else:
-      raise LocalTermError(
-          'Object of invalid type cannot multiply LocalTerm.')
+      raise TypeError('Object of invalid type cannot multiply LocalTerm.')
 
   def __pow__(self, exponent):
     """Exponentiate the LocalTerm.
@@ -237,16 +234,16 @@ class LocalTerm(object):
       exponentiated_term: The exponentiated term.
 
     Raises:
-      LocalTermError: Can only raise LocalTerm to positive integer powers.
+      ValueError: Can only raise LocalTerm to positive integer powers.
     """
-    if isinstance(exponent, int) and exponent >= 0:
-      exponentiated_operator = LocalTerm(self._n_qubits, 1.)
-      for i in range(exponent):
-        exponentiated_operator *= self
-      return exponentiated_operator
-    else:
-      raise LocalTermError(
-          'Can only raise LocalTerm to positive integer powers.')
+    if not isinstance(exponent, int) or exponent < 0:
+      raise ValueError('Can only raise LocalTerm to positive integer powers.')
+      
+    exponentiated_operator = LocalTerm(self._n_qubits, 1.)
+    for i in range(exponent):
+      exponentiated_operator *= self
+    return exponentiated_operator
+    
 
   def __abs__(self):
     term_copy = copy.deepcopy(self)
