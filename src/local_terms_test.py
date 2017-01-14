@@ -19,6 +19,7 @@ class LocalTermsTest(unittest.TestCase):
   def test_init(self):
     self.assertEqual(self.term_a.operators, self.operators_a)
     self.assertAlmostEqual(self.term_a.coefficient, self.coefficient_a)
+    self.assertEqual(self.n_qubits, self.term_a.n_qubits)
     
   def test_init_list_protection(self):
     arr = []

@@ -33,8 +33,8 @@ class LocalTerm(object):
       TypeError: Number of qubits needs to be an integer.
     """
     # Check that n_qubits is an integer.
-    if not isinstance(n_qubits, int):
-      raise TypeError('Number of qubits needs to be an integer.')
+    if not isinstance(n_qubits, int) or n_qubits < 1:
+      raise ValueError('Number of qubits must be a positive integer.')
     
     # Convert coefficient to complex
     try:

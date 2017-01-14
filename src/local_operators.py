@@ -34,7 +34,7 @@ class LocalOperator(object):
     if terms is None:
       self.terms = {}
     elif isinstance(terms, dict):
-      self.terms = terms
+      self.terms = dict(terms)
     elif isinstance(terms, list):
       self.terms = {}
       for term in terms:
@@ -101,18 +101,18 @@ class LocalOperator(object):
 
     Raises:
       LocalOperatorError: Cannot add terms acting on different Hilbert spaces.
-      LocalOperatorError: Cannot add term of invalid type to LocalOperator.
+      TypeError: Cannot add term of invalid type to LocalOperator.
     """
     # Handle LocalTerms.
     if issubclass(type(addend), local_terms.LocalTerm):
 
       # Make sure number of qubits is the same.
-      if self._n_qubits != addend._n_qubits:
+      if self.n_qubits != addend.n_qubits:
         raise LocalOperatorError(
             'Cannot add terms acting on different Hilbert spaces.')
 
       # Compute new coefficient and update self.terms.
-      new_coefficient = self[addend.operators] + addend.coefficient
+      new_coefficient = self[tuple(addend.operators)] + addend.coefficient
       if abs(new_coefficient) > self._tolerance:
         self[addend.operators] = new_coefficient
       elif addend.operators in self:
@@ -127,7 +127,7 @@ class LocalOperator(object):
 
     else:
       # Throw exception for unknown type.
-      raise LocalOperatorError(
+      raise TypeError(
           'Cannot add term of invalid type to LocalOperator.')
 
   def __isub__(self, subtrahend):
@@ -145,7 +145,7 @@ class LocalOperator(object):
       summand: The sum given by self + addend.
 
     Raises:
-      LocalOperatorError: Cannot add term of invalid type of LocalOperator.
+      TypeError: Cannot add term of invalid type of LocalOperator.
     """
     # Copy self.
     summand = copy.deepcopy(self)
@@ -161,7 +161,7 @@ class LocalOperator(object):
 
     else:
       # Throw exception for unknown type.
-      raise LocalOperatorError(
+      raise TypeError(
           'Object of invalid type cannot multiply LocalTerm')
 
     # Return.
@@ -182,7 +182,7 @@ class LocalOperator(object):
       multiplier: A scalar, LocalTerm or LocalOperator.
 
     Raises:
-      LocalOperatorError: Invalid typed object cannot multiply LocalOperator.
+      TypeError: Invalid typed object cannot multiply LocalOperator.
       LocalOperatorError: Cannot multiply terms on different Hilbert spaces.
     """
     # Handle scalars.
@@ -212,7 +212,7 @@ class LocalOperator(object):
 
     else:
       # Throw exception for wrong type of multiplier.
-      raise ErrorLocalTerm(
+      raise TypeError(
           'Invalid typed object cannot multiply LocalOperator.')
 
   def __mul__(self, multiplier):
@@ -242,13 +242,13 @@ class LocalOperator(object):
       product: A new instance of LocalTerm.
 
     Raises:
-      LocalOperatorError: Invalid typed object cannot multiply LocalOperator.
+      TypeError: Invalid typed object cannot multiply LocalOperator.
     """
     if (isinstance(multiplier, (int, float, complex)) or
        numpy.isscalar(multiplier)):
       return self * multiplier
     else:
-      raise LocalOperatorError(
+      raise TypeError(
           'Invalid typed object cannot multiply LocalOperator.')
 
   def __abs__(self):
@@ -298,6 +298,7 @@ if __name__ == '__main__':
   print operator_a * operator_bc
   
   print operator_bc * operator_bc
+  print len(operator_bc * operator_bc)
   
   print operator_a.terms
   print operator_a.terms.values()[0]
