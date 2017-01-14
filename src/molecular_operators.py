@@ -351,8 +351,10 @@ class MolecularOperator(object):
         parity_condition = bool(operator_p != operator_q or
                                 operator_p == operator_r)
         if (p > q) ^ (r > s):
-          if not parity_condition: coefficient *= -1.
-        elif parity_condition: coefficient *= -1.
+          if not parity_condition:
+            coefficient *= -1.
+        elif parity_condition:
+          coefficient *= -1.
 
         # Add term.
         qubit_operator += qubit_operators.QubitTerm(
@@ -401,7 +403,8 @@ class MolecularOperator(object):
         coefficient = .25
       else:
         coefficient = .5
-      if p == s: coefficient *= -1.
+      if p == s:
+        coefficient *= -1.
 
       # Add terms.
       qubit_operator -= qubit_operators.QubitTerm(

@@ -149,7 +149,7 @@ class LocalTerm(object):
     """
     # Handle scalars.
     if (isinstance(multiplier, (int, float, complex)) or
-        numpy.isscalar(multiplier)):
+       numpy.isscalar(multiplier)):
       self.coefficient *= complex(multiplier)
       return self
 
@@ -184,7 +184,7 @@ class LocalTerm(object):
     """
     # Handle scalars or LocalTerms.
     if (isinstance(multiplier, (int, float, complex, LocalTerm)) or
-        numpy.isscalar(multiplier)):
+       numpy.isscalar(multiplier)):
       product = copy.deepcopy(self)
       product *= multiplier
 
@@ -219,7 +219,7 @@ class LocalTerm(object):
       ErrorLocalTerm: Object of invalid type cannot multiply LocalTerm.
     """
     if (isinstance(multiplier, (int, float, complex)) or
-        numpy.isscalar(multiplier)):
+       numpy.isscalar(multiplier)):
       product = copy.deepcopy(self)
       product.coefficient *= multiplier
       return product
@@ -240,7 +240,7 @@ class LocalTerm(object):
       ErrorLocalTerm: Can only raise LocalTerm to positive integer powers.
     """
     if isinstance(exponent, int) and exponent >= 0:
-      exponentiated_operator = LocalTerm(self._n_qubits)
+      exponentiated_operator = LocalTerm(self._n_qubits, 1.)
       for i in range(exponent):
         exponentiated_operator *= self
       return exponentiated_operator

@@ -64,6 +64,10 @@ class LocalTermsTest(unittest.TestCase):
     self.assertAlmostEqual(abs(self.term_a.coefficient),
                            abs_term_a.coefficient)
 
+  def test_pow(self):
+    squared = self.term_a ** 2
+    self.assertEqual(squared, self.term_a * self.term_a)
+
 
 if __name__ == '__main__':
   unittest.main()

@@ -107,7 +107,7 @@ class QubitTerm(local_terms.LocalTerm):
     """
     # Handle scalars.
     if (isinstance(multiplier, (int, float, complex)) or
-        numpy.isscalar(multiplier)):
+       numpy.isscalar(multiplier)):
       self.coefficient *= multiplier
       return self
 

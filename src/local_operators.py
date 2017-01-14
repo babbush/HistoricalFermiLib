@@ -189,7 +189,7 @@ class LocalOperator(object):
     """
     # Handle scalars.
     if (isinstance(multiplier, (int, float, complex)) or
-        numpy.isscalar(multiplier)):
+       numpy.isscalar(multiplier)):
       for term in self:
         term.coefficient *= complex(multiplier)
       return self
@@ -247,7 +247,7 @@ class LocalOperator(object):
       ErrorLocalOperator: Invalid typed object cannot multiply LocalOperator.
     """
     if (isinstance(multiplier, (int, float, complex)) or
-        numpy.isscalar(multiplier)):
+       numpy.isscalar(multiplier)):
       return self * multiplier
     else:
       raise ErrorLocalOperator(
