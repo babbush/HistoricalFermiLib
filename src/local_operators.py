@@ -17,17 +17,19 @@ class LocalOperator(object):
     _n_qubits: An int giving the number of qubits in simulated Hilbert space.
     terms: Dictionary of LocalTerm objects.
   """
-  def __init__(self, n_qubits, terms=None):
+  def __init__(self, n_qubits, terms=None, tolerance=1e-12):
     """Inits a LocalOperator object.
 
     Args:
       n_qubits: An int giving the number of qubits in simulated Hilbert space.
       terms: Dictionary or list of LocalTerm objects.
+      tolerance: A float giving the minimum absolute value below which a term
+                 is zero.
 
     Raises:
-      LocalOperatorError: Invalid terms provided to initialization.
+      TypeError: Invalid terms provided to initialization.
     """
-    self._tolerance = 1e-12
+    self._tolerance = tolerance
     self._n_qubits = n_qubits
     if terms is None:
       self.terms = {}
@@ -38,7 +40,7 @@ class LocalOperator(object):
       for term in terms:
         self += term
     else:
-      raise LocalOperatorError('Invalid terms provided to initialization.')
+      raise TypeError('Invalid terms provided to initialization.')
 
   @classmethod
   def return_class(cls, n_qubits, terms=None):
@@ -55,15 +57,15 @@ class LocalOperator(object):
       raise LocalOperatorError(
           'Do not change the size of Hilbert space on which terms act.')
 
-  def __eq__(self, operator):
+  def __eq__(self, other):
     """Compare operators to see if they are the same."""
-    if self._n_qubits != operator._n_qubits:
+    if self.n_qubits != other.n_qubits:
       raise LocalOperatorError(
           'Cannot compare operators acting on different Hilbert spaces.')
-    if len(self) != len(operator):
+    if len(self) != len(other):
       return False
     for term in self:
-      difference = term.coefficient - operator[term.operators]
+      difference = term.coefficient - other[term.operators]
       if abs(difference) > self._tolerance:
         return False
     return True
@@ -72,16 +74,12 @@ class LocalOperator(object):
     return not (self == operator)
 
   def __contains__(self, operators):
-    if tuple(operators) in self.terms:
-      return True
-    else:
-      return False
+    return tuple(operators) in self.terms
 
   def __getitem__(self, operators):
-    if operators in self:
+    if tuple(operators) in self:
       return self.terms[tuple(operators)].coefficient
-    else:
-      return 0.
+    return 0.
 
   # As its coded now, __setitem__ must be rewritten for every child class.
   def __setitem__(self, operators, coefficient):
@@ -273,3 +271,33 @@ class LocalOperator(object):
 
   def __str__(self):
     return ''.join('{}\n'.format(term) for term in self)
+
+if __name__ == '__main__':
+  n_qubits = 5
+  coefficient_a = 6.7j
+  coefficient_b = -88.
+  coefficient_c = 2.
+  operators_a = [1, 2, 3, 4]
+  operators_b = [1, 2]
+  operators_c = [0, 3, 4]
+  term_a = local_terms.LocalTerm(
+    n_qubits, coefficient_a, operators_a)
+  term_b = local_terms.LocalTerm(
+    n_qubits, coefficient_b, operators_b)
+  term_c = local_terms.LocalTerm(
+    n_qubits, coefficient_c, operators_c)  
+  
+  operator_a = LocalOperator(n_qubits, [term_a])
+  operator_bc = LocalOperator(n_qubits, [term_b, term_c])
+  operator_abc = LocalOperator(n_qubits, [term_a, term_b, term_c])
+  
+  print operator_a
+  print operator_bc
+  print operator_abc
+  print operator_a + operator_bc
+  print operator_a * operator_bc
+  
+  print operator_bc * operator_bc
+  
+  print operator_a.terms
+  print operator_a.terms.values()[0]
