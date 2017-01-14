@@ -28,16 +28,23 @@ class LocalOperatorsTest(unittest.TestCase):
         self.n_qubits, [self.term_a, self.term_b, self.term_c])
 
   def test_init(self):
-    self.assertEqual(
-        len(self.operator_a.terms), len(self.operator_a))
+    self.assertEqual(self.n_qubits, self.operator_a.n_qubits)
+    self.assertEqual(self.coefficient_a, 
+                     self.operator_a[tuple(self.operators_a)])
+    self.assertEqual(self.term_a, self.operator_a.list_terms()[0])
+    self.assertEqual(len(self.operator_a), 1)
+      
+  def test_change_nqubits_error(self):
     with self.assertRaises(local_operators.LocalOperatorError):
-      self.operator_a.n_qubits = 2
+      self.operator_a.n_qubits = 2   
 
-  def test_comparisons(self):
+  def test_cmp(self):
     self.assertTrue(self.operator_a == self.operator_a)
     self.assertFalse(self.operator_a == self.operator_bc)
     self.assertTrue(self.operator_a != self.operator_bc)
     self.assertFalse(self.operator_a != self.operator_a)
+    
+  # TODO Ian: continue from here with tests for local_operators.py.
 
   def test_addition(self):
     new_term = self.operator_a + self.operator_bc
@@ -79,6 +86,9 @@ class LocalOperatorsTest(unittest.TestCase):
     new_operator = abs(self.operator_abc)
     for term in new_operator:
       self.assertTrue(term.coefficient > 0.)
+      
+  def test_len(self):
+    self.assertEqual(len(self.operator_a.terms), len(self.operator_a))    
       
   def test_str(self):
     print self.operator_abc
