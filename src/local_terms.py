@@ -18,13 +18,16 @@ class LocalTerm(object):
     coefficient: A complex valued float giving the term coefficient.
     operators: A list of site operators representing the term.
   """
-  def __init__(self, n_qubits, coefficient=0., operators=None):
+  def __init__(self, n_qubits, coefficient=0., operators=None,
+               tolerance=1e-12):
     """Inits a LocalTerm.
 
     Args:
       n_qubits: An int giving the number of qubits in simulated Hilbert space.
       coefficient: A complex valued float giving the term coefficient.
       operators: A list of site operators representing the term.
+      tolerance: A float giving the minimum absolute value below which term is
+                 zero.
 
     Raises:
       TypeError: Number of qubits needs to be an integer.
@@ -34,13 +37,13 @@ class LocalTerm(object):
       raise TypeError('Number of qubits needs to be an integer.')
 
     # Initialize.
-    self._tolerance = 1e-12
+    self._tolerance = tolerance
     self._n_qubits = n_qubits
     self.coefficient = coefficient
     if operators is None:
       self.operators = []
     else:
-      self.operators = operators
+      self.operators = list(operators)
 
   @classmethod
   def return_class(cls, n_qubits, coefficient=0, operators=None):
@@ -57,11 +60,11 @@ class LocalTerm(object):
       raise LocalTermError(
           'Do not change the size of Hilbert space on which terms act.')
 
-  def __eq__(self, local_term):
+  def __eq__(self, other):
     """Overload equality comparison == to interact with standard library.
 
     Args:
-      local_term: Another LocalTerm which is to be compared with self.
+      other: Another LocalTerm which is to be compared with self.
 
     Returns:
       True or False, whether objects are the same.
@@ -69,19 +72,16 @@ class LocalTerm(object):
     Raises:
       LocalTermError: Cannot compare terms acting on different Hilbert spaces.
     """
-    if self._n_qubits != local_term._n_qubits:
+    if self.n_qubits != other.n_qubits:
       raise LocalTermError(
-          'Cannot compare terms acting on different Hilbert spaces.')
-    elif abs(self.coefficient - local_term.coefficient) > self._tolerance:
-      return False
-    elif self.operators != local_term.operators:
-      return False
-    else:
-      return True
+        'Cannot compare terms acting on different Hilbert spaces.')
+    
+    return (self.operators == other.operators 
+            and abs(self.coefficient - other.coefficient) <= self._tolerance)
 
-  def __ne__(self, local_term):
+  def __ne__(self, other):
     """Overload not equals comparison != to interact with standard library."""
-    return not (self == local_term)
+    return not (self == other)
 
   def __getitem__(self, index):
     return self.operators[index]
