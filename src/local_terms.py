@@ -115,26 +115,18 @@ class LocalTerm(object):
       summand: A new instance of LocalOperator.
 
     Raises:
-      TypeError: Can only add LocalOperator type to LocalTerm type.
       TypeError: Object of invalid type cannot be added to LocalTerm.
       LocalTermError: Cannot add terms acting on different Hilbert spaces.
     """
-    # Handle LocalTerms.
-    if issubclass(type(addend), LocalTerm):
-      raise TypeError(
-          'Can only add LocalOperator type to LocalTerm type.')
-
-    # Handle LocalOperators.
-    elif issubclass(type(addend), local_operators.LocalOperator):
-      summand = addend + self
-
-    else:
-      # Throw exception for unknown type.
-      raise TypeError(
-          'Cannot add term of invalid type to LocalTerm.')
-
-    # Return the summand.
-    return summand
+    if not issubclass(type(addend), 
+                      (LocalTerm, local_operators.LocalOperator)):
+      raise TypeError('Cannot add term of invalid type to LocalTerm.')
+    
+    if not self.n_qubits == addend.n_qubits:
+      raise LocalTermError(
+        'Cannot add terms acting on different Hilbert spaces.')
+    
+    return local_operators.LocalOperator(self.n_qubits, [self]) + addend
 
   def __sub__(self, subtrahend):
     """Compute self - subtrahend for a LocalOperator or derivative."""
@@ -245,11 +237,8 @@ class LocalTerm(object):
     if not isinstance(exponent, int) or exponent < 0:
       raise ValueError('Can only raise LocalTerm to positive integer powers.')
       
-    exponentiated_operator = LocalTerm(self.n_qubits, 1.)
-    for i in range(exponent):
-      exponentiated_operator *= self
-    return exponentiated_operator
-    
+    return LocalTerm(self.n_qubits, self.coefficient ** exponent,
+                     self.operators * exponent)
 
   def __abs__(self):
     term_copy = copy.deepcopy(self)

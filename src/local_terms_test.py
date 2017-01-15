@@ -1,5 +1,6 @@
 """Tests for local_terms.py"""
 import local_terms
+import local_operators
 import unittest
 
 
@@ -68,17 +69,35 @@ class LocalTermsTest(unittest.TestCase):
     del self.term1[3:6]
     self.assertEqual(self.term1.operators, [0, 1, 2, 6, 7, 8, 9])
     
-  # Main addition tests are in local_operators_test.py: term addition
-  # is written using that.
+  def test_add_localterms(self):
+    self.assertEqual(self.term_a + self.term_b, 
+                     local_operators.LocalOperator(self.n_qubits, 
+                                                   [self.term_a, self.term_b]))
+    
+  def test_add_localterms_reverse(self):
+    self.assertEqual(self.term_b + self.term_a, 
+                     local_operators.LocalOperator(self.n_qubits, 
+                                                   [self.term_a, self.term_b]))
+  
   def test_add_localterms_error(self):
     with self.assertRaises(TypeError):
-      self.term_a + self.term_b
+      self.term_a + 1
   
   def test_add_different_nqubits_error(self):
     self.term1 = local_terms.LocalTerm(5, 1)
     self.term2 = local_terms.LocalTerm(2, 1)
-    with self.assertRaises(TypeError):
+    with self.assertRaises(local_terms.LocalTermError):
       self.term1 + self.term2
+      
+  def test_sub(self):
+    self.assertEqual(self.term_a - self.term_b,
+                     local_operators.LocalOperator(self.n_qubits, 
+                                                   [self.term_a, 
+                                                    -1 * self.term_b])) 
+    
+  def test_sub_cancel(self):
+    self.assertEqual(self.term_a - self.term_a,
+                     local_operators.LocalOperator(self.n_qubits, []))
         
   def test_rmul(self):
     self.term = self.term_a * -3.
