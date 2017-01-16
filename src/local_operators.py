@@ -28,17 +28,23 @@ class LocalOperator(object):
 
     Raises:
       TypeError: Invalid terms provided to initialization.
+      ValueError: Number of qubits needs to be a positive integer.
     """
+    # Check that n_qubits is an integer.
+    if not isinstance(n_qubits, int) or n_qubits < 1:
+      raise ValueError('Number of qubits must be a positive integer.')
+    
     self._tolerance = tolerance
     self._n_qubits = n_qubits
     if terms is None:
       self.terms = {}
     elif isinstance(terms, dict):
-      self.terms = dict(terms)
+      self.terms = copy.deepcopy(terms)
     elif isinstance(terms, list):
       self.terms = {}
       for term in terms:
-        self += term
+        self += local_terms.LocalTerm(term.n_qubits, term.coefficient,
+                                      term.operators)
     else:
       raise TypeError('Invalid terms provided to initialization.')
 
@@ -239,7 +245,7 @@ class LocalOperator(object):
       multiplier: A scalar.
 
     Returns:
-      product: A new instance of LocalTerm.
+      product: A new instance of LocalOperator.
 
     Raises:
       TypeError: Invalid typed object cannot multiply LocalOperator.
@@ -250,6 +256,28 @@ class LocalOperator(object):
     else:
       raise TypeError(
           'Invalid typed object cannot multiply LocalOperator.')
+    
+  def __pow__(self, exponent):
+    """Exponentiate the LocalOperator.
+
+    Args:
+      exponent: An int, giving the exponent with which to raise the operator.
+
+    Returns:
+      The exponentiated operator.
+
+    Raises:
+      ValueError: Can only raise LocalOperator to positive integer powers.
+    """
+    if not isinstance(exponent, int) or exponent < 0:
+      raise ValueError('Can only raise LocalTerm to positive integer powers.')
+    
+    res = LocalOperator(self.n_qubits)
+    
+    for i in xrange(exponent):
+      res *= self
+      
+    return res
 
   def __abs__(self):
     operator_copy = copy.deepcopy(self)
