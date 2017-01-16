@@ -21,10 +21,12 @@ class LocalOperator(object):
     """Inits a LocalOperator object.
 
     Args:
-      n_qubits: An int giving the number of qubits in simulated Hilbert space.
-      terms: Dictionary or list of LocalTerm objects.
-      tolerance: A float giving the minimum absolute value below which a term
-                 is zero.
+      n_qubits: An int giving the number of qubits in simulated Hilbert 
+                space.
+      terms: Dictionary or list of LocalTerm objects, or LocalTerm 
+             object.
+      tolerance: A float giving the minimum absolute value below which a
+                 term is zero.
 
     Raises:
       TypeError: Invalid terms provided to initialization.
@@ -45,6 +47,10 @@ class LocalOperator(object):
       for term in terms:
         self += local_terms.LocalTerm(term.n_qubits, term.coefficient,
                                       term.operators)
+    elif isinstance(terms, local_terms.LocalTerm):
+      self.terms = {}
+      self += local_terms.LocalTerm(terms.n_qubits, terms.coefficient,
+                                    terms.operators)
     else:
       raise TypeError('Invalid terms provided to initialization.')
 
@@ -218,8 +224,7 @@ class LocalOperator(object):
 
     else:
       # Throw exception for wrong type of multiplier.
-      raise TypeError(
-          'Invalid typed object cannot multiply LocalOperator.')
+      raise TypeError('Invalid typed object cannot multiply LocalOperator.')
 
   def __mul__(self, multiplier):
     """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
@@ -272,7 +277,8 @@ class LocalOperator(object):
     if not isinstance(exponent, int) or exponent < 0:
       raise ValueError('Can only raise LocalTerm to positive integer powers.')
     
-    res = LocalOperator(self.n_qubits)
+    identity_term = local_terms.LocalTerm(self.n_qubits, 1.0)
+    res = LocalOperator(self.n_qubits, identity_term)
     
     for i in xrange(exponent):
       res *= self
