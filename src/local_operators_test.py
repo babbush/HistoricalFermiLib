@@ -15,24 +15,78 @@ class LocalOperatorsTest(unittest.TestCase):
     self.operators_b = [1, 2]
     self.operators_c = [0, 3, 4]
     self.term_a = local_terms.LocalTerm(
-        self.n_qubits, self.coefficient_a, self.operators_a)
+      self.n_qubits, self.coefficient_a, self.operators_a)
     self.term_b = local_terms.LocalTerm(
-        self.n_qubits, self.coefficient_b, self.operators_b)
+      self.n_qubits, self.coefficient_b, self.operators_b)
     self.term_c = local_terms.LocalTerm(
-        self.n_qubits, self.coefficient_c, self.operators_c)
+      self.n_qubits, self.coefficient_c, self.operators_c)
     self.operator_a = local_operators.LocalOperator(
-        self.n_qubits, [self.term_a])
+      self.n_qubits, [self.term_a])
     self.operator_bc = local_operators.LocalOperator(
-        self.n_qubits, [self.term_b, self.term_c])
+      self.n_qubits, [self.term_b, self.term_c])
     self.operator_abc = local_operators.LocalOperator(
-        self.n_qubits, [self.term_a, self.term_b, self.term_c])
+      self.n_qubits, [self.term_a, self.term_b, self.term_c])
 
-  def test_init(self):
+  def test_init_list(self):
     self.assertEqual(self.n_qubits, self.operator_a.n_qubits)
     self.assertEqual(self.coefficient_a, 
                      self.operator_a[tuple(self.operators_a)])
-    self.assertEqual(self.term_a, self.operator_a.list_terms()[0])
+    self.assertEqual(self.term_a, self.operator_a.terms.values()[0])
+    self.assertEqual(self.coefficient_b, 
+                     self.operator_abc[self.operators_b])
+    self.assertEqual(0.0, self.operator_abc[(1, 2, 9)])
     self.assertEqual(len(self.operator_a), 1)
+    self.assertEqual(len(self.operator_abc), 3)
+    
+  def test_init_dict(self):
+    d = {}
+    d[(1, 2, 3, 4)] = self.term_a
+    d[(0, 3, 4)] = self.term_c
+    op_ac = local_operators.LocalOperator(self.n_qubits, d)
+    self.assertEqual(len(op_ac), 2)
+    self.assertEqual(self.n_qubits, op_ac.n_qubits)
+    self.assertEqual(self.coefficient_a, 
+                     op_ac[tuple(self.operators_a)])
+    self.assertEqual(self.coefficient_c, 
+                     op_ac[tuple(self.operators_c)])
+    self.assertEqual(0.0, 
+                     op_ac[tuple(self.operators_b)])    
+    
+  def test_init_badterm(self):
+    with self.assertRaises(TypeError):
+      local_operators.LocalOperator(self.n_qubits, 1)
+  
+  def test_init_list_protection(self):
+    self.coeff1 = 2.j-3
+    self.operators1 = [6, 7, 8, 11]
+    self.term1 = local_terms.LocalTerm(self.n_qubits, self.coeff1,
+                                       self.operators1)
+    
+    self.operator1 = local_operators.LocalOperator(self.n_qubits, [self.term1])
+    self.term1 *= 2
+    
+    self.assertEqual(self.operator1, local_operators.LocalOperator(
+      self.n_qubits, [local_terms.LocalTerm(self.n_qubits, self.coeff1, 
+                                            self.operators1)]),
+      "Got {}.".format(self.operator1))
+    
+  def test_init_dict_protection(self):
+    d = {}
+    d[(1, 2, 3, 4)] = self.term_a
+    d[(0, 3, 4)] = self.term_c
+    op_ac = local_operators.LocalOperator(self.n_qubits, d)
+    self.assertEqual(len(op_ac), 2)
+    self.assertEqual(self.n_qubits, op_ac.n_qubits)
+    
+    # add a new element to the old dictionary
+    d[tuple(self.operators_b)] = self.term_b
+    
+    self.assertEqual(self.coefficient_a, 
+                     op_ac[tuple(self.operators_a)])
+    self.assertEqual(self.coefficient_c, 
+                     op_ac[tuple(self.operators_c)])
+    self.assertEqual(0.0, 
+                     op_ac[tuple(self.operators_b)]) 
       
   def test_change_nqubits_error(self):
     with self.assertRaises(local_operators.LocalOperatorError):
@@ -91,7 +145,8 @@ class LocalOperatorsTest(unittest.TestCase):
     self.assertEqual(len(self.operator_a.terms), len(self.operator_a))    
       
   def test_str(self):
-    print self.operator_abc
+    self.assertEqual(str(self.operator_abc), 
+                     "-88.0 [1, 2]\n2.0 [0, 3, 4]\n6.7j [1, 2, 3, 4]\n")
     
 
 

@@ -30,7 +30,7 @@ class LocalTerm(object):
                  zero.
 
     Raises:
-      TypeError: Number of qubits needs to be an integer.
+      ValueError: Number of qubits needs to be a positive integer.
     """
     # Check that n_qubits is an integer.
     if not isinstance(n_qubits, int) or n_qubits < 1:
@@ -48,9 +48,8 @@ class LocalTerm(object):
     self._n_qubits = n_qubits
     self.coefficient = coefficient
     if operators is None:
-      self.operators = []
-    else:
-      self.operators = list(operators)
+      operators = []
+    self.operators = list(operators)
 
   @classmethod
   def return_class(cls, n_qubits, coefficient=0, operators=None):
