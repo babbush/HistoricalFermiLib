@@ -8,18 +8,22 @@ class LocalOperatorsTest(unittest.TestCase):
 
   def setUp(self):
     self.n_qubits = 5
+    
     self.coefficient_a = 6.7j
     self.coefficient_b = -88.
     self.coefficient_c = 2.
+    
     self.operators_a = [1, 2, 3, 4]
     self.operators_b = [1, 2]
     self.operators_c = [0, 3, 4]
+    
     self.term_a = local_terms.LocalTerm(
       self.n_qubits, self.coefficient_a, self.operators_a)
     self.term_b = local_terms.LocalTerm(
       self.n_qubits, self.coefficient_b, self.operators_b)
     self.term_c = local_terms.LocalTerm(
       self.n_qubits, self.coefficient_c, self.operators_c)
+    
     self.operator_a = local_operators.LocalOperator(
       self.n_qubits, [self.term_a])
     self.operator_bc = local_operators.LocalOperator(
@@ -92,63 +96,83 @@ class LocalOperatorsTest(unittest.TestCase):
     with self.assertRaises(local_operators.LocalOperatorError):
       self.operator_a.n_qubits = 2   
 
-  def test_cmp(self):
+  def test_eq(self):
     self.assertTrue(self.operator_a == self.operator_a)
     self.assertFalse(self.operator_a == self.operator_bc)
+    
+  def test_neq(self):
     self.assertTrue(self.operator_a != self.operator_bc)
     self.assertFalse(self.operator_a != self.operator_a)
     
-  # TODO Ian: continue from here with tests for local_operators.py.
-
   def test_addition(self):
     new_term = self.operator_a + self.operator_bc
-    self.assertTrue(new_term == self.operator_abc)
+    self.assertEqual(new_term, self.operator_abc)
+    
+  def test_isub(self):
+    self.operator_abc -= self.operator_a
+    self.assertEqual(self.operator_abc, self.operator_bc)
 
-    new_term -= self.operator_a
-    self.assertTrue(new_term == self.operator_bc)
+  def test_iadd(self):
+    self.operator_bc += self.operator_a
+    self.assertEqual(self.operator_bc, self.operator_abc)
 
-    new_term += self.operator_a
-    self.assertTrue(new_term == self.operator_abc)
-
+  def test_add3(self):
     new_term = self.operator_abc + self.operator_abc + self.operator_abc
     for term in new_term:
-      self.assertAlmostEqual(term.coefficient,
+      self.assertEqual(term.coefficient,
                              3. * self.operator_abc[term.operators])
 
-    new_term = self.operator_abc + self.operator_abc - self.operator_abc
-    self.assertEqual(self.operator_abc, new_term)
+  def test_sub_cancel(self):
+    new_term = self.operator_abc - self.operator_abc
+    self.assertEqual(local_operators.LocalOperator(self.n_qubits, []),
+                     new_term)
 
-    self.assertTrue(self.operator_a + self.term_a ==
-                    self.term_a + self.operator_a)
+  def test_add_localterm(self):
+    self.assertEqual(self.operator_a + self.term_a,
+                     self.term_a + self.operator_a)
 
-    self.assertTrue(self.operator_a - self.term_a ==
+  def test_sub_localterm_cancel(self):
+    self.assertEqual(self.operator_a - self.term_a,
                     self.term_a - self.operator_a)
-
-  def test_multiplication(self):
+    self.assertEqual(self.operator_a - self.term_a,
+                     local_operators.LocalOperator(self.n_qubits, []))
+    
+  def test_mul(self):
     new_operator = self.operator_abc * self.operator_abc
     new_term = self.term_a * self.term_a
-    self.assertTrue(new_term.coefficient ==
-                    new_operator[new_term.operators])
+    self.assertEqual(new_term.coefficient,
+                     new_operator[new_term.operators])
 
-    self.assertTrue(3.2 * new_operator == new_operator * 3.2)
+  def test_mul_scalar_commute(self):
+    new_operator = self.operator_abc * self.operator_abc
+    self.assertEqual(3.2 * new_operator, new_operator * 3.2)
 
+  def test_imul_op(self):
+    new_term = self.term_a * self.term_a
     self.operator_abc *= self.operator_abc
-    self.assertTrue(new_term.coefficient ==
-                    self.operator_abc[new_term.operators])
+    self.assertEqual((self.term_a * self.term_a).coefficient,
+                     self.operator_abc[new_term.operators])
 
   def test_abs(self):
     new_operator = abs(self.operator_abc)
     for term in new_operator:
-      self.assertTrue(term.coefficient > 0.)
+      self.assertEqual(term.coefficient, abs(self.operator_abc[term]))
       
   def test_len(self):
-    self.assertEqual(len(self.operator_a.terms), len(self.operator_a))    
+    self.assertEqual(len(self.operator_a.terms), len(self.operator_a))   
+    self.assertEqual(len(self.operator_a), 1)
+    self.assertEqual(len(self.operator_abc), 3)
+    
+  def test_len_add_same(self):
+    self.assertEqual(len(self.operator_abc + self.operator_abc), 3)
+    
+  def test_len_cancel(self):
+    self.assertEqual(len(self.operator_bc), 2)
+    self.assertEqual(len(self.operator_bc - self.operator_bc), 0)
       
   def test_str(self):
     self.assertEqual(str(self.operator_abc), 
                      "-88.0 [1, 2]\n2.0 [0, 3, 4]\n6.7j [1, 2, 3, 4]\n")
-    
-
 
 if __name__ == '__main__':
   unittest.main()
