@@ -2,6 +2,7 @@
 import local_terms
 import local_operators
 import unittest
+import numpy
 
 
 class LocalTermsTest(unittest.TestCase):
@@ -16,10 +17,12 @@ class LocalTermsTest(unittest.TestCase):
         self.n_qubits, self.coefficient_a, self.operators_a)
     self.term_b = local_terms.LocalTerm(
         self.n_qubits, self.coefficient_b, self.operators_b)
+    
+    self.identity = local_terms.LocalTerm(self.n_qubits, 1.0, [])
 
   def test_init(self):
     self.assertEqual(self.term_a.operators, self.operators_a)
-    self.assertAlmostEqual(self.term_a.coefficient, self.coefficient_a)
+    self.assertEqual(self.term_a.coefficient, self.coefficient_a)
     self.assertEqual(self.n_qubits, self.term_a.n_qubits)
     
   def test_init_list_protection(self):
@@ -36,16 +39,21 @@ class LocalTermsTest(unittest.TestCase):
     self.assertTrue(self.term_a == self.term_a)
     self.assertFalse(self.term_a == self.term_b)
     
-  def test_eq_within_tol(self):
+  def test_eq_within_tol_same_ops(self):
     self.term1 = local_terms.LocalTerm(1, coefficient=1)
     self.term2 = local_terms.LocalTerm(1, coefficient=(1+9e-13))
+    self.assertEqual(self.term1, self.term2)
+    
+  def test_eq_within_tol_diff_ops(self):
+    self.term1 = local_terms.LocalTerm(1, coefficient=9e-13, operators=[1])
+    self.term2 = local_terms.LocalTerm(1, coefficient=7e-13, operators=[2])
     self.assertEqual(self.term1, self.term2)
     
   def test_eq_different_nqubits_error(self):
     self.term1 = local_terms.LocalTerm(1, coefficient=1)
     self.term2 = local_terms.LocalTerm(2, coefficient=1)
     with self.assertRaises(local_terms.LocalTermError):
-      self.term1 == self.term2  
+      self.term1 == self.term2
     
   def test_neq(self):
     self.assertTrue(self.term_a != self.term_b)
@@ -105,7 +113,7 @@ class LocalTermsTest(unittest.TestCase):
   def test_lmul_rmul(self):
     new_term = 7. * self.term_a
     self.assertEqual(3. * new_term, new_term * 3.)
-    self.assertAlmostEqual(7. * self.term_a.coefficient, new_term.coefficient)
+    self.assertEqual(7. * self.term_a.coefficient, new_term.coefficient)
     self.assertEqual(self.term_a.operators, new_term.operators)    
     
   def test_imul_scalar(self):
@@ -126,20 +134,34 @@ class LocalTermsTest(unittest.TestCase):
     
     self.assertEqual(self.term_a, expected)
     
-  def test_mul_by_zero(self):
+  def test_mul_by_scalarzero(self):
     term1 = self.term_a * 0
     expected = local_terms.LocalTerm(self.n_qubits, 0, self.term_a.operators)
     self.assertEqual(term1, expected)
+    
+  def test_mul_by_localtermzero(self):
+    term0 = local_terms.LocalTerm(self.n_qubits, 0, [])
+    term0d = self.term_a * term0
+    self.assertEqual(term0d, term0)
 
   def test_mul_by_self(self):
     new_term = self.term_a * self.term_a
-    self.assertAlmostEqual(self.term_a.coefficient ** 2.,
+    self.assertEqual(self.term_a.coefficient ** 2.,
                            new_term.coefficient)
     self.assertEqual(2 * self.term_a.operators, new_term.operators)
     
+  def test_lmul_identity(self):
+    self.assertEqual(self.term_b, self.identity * self.term_b)
+  
+  def test_rmul_identity(self):
+    self.assertEqual(self.term_b, self.term_b * self.identity)
+    
+  def test_mul_by_multiple_of_identity(self):
+    self.assertEqual(3.0 * self.term_a, (3.0 * self.identity) * self.term_a)
+    
   def test_mul_triple(self):
     new_term = self.term_a * self.term_a * self.term_a
-    self.assertAlmostEqual(self.term_a.coefficient ** 3.,
+    self.assertEqual(self.term_a.coefficient ** 3.,
                            new_term.coefficient)
     self.assertEqual(3 * self.term_a.operators, new_term.operators)
     
@@ -148,6 +170,21 @@ class LocalTermsTest(unittest.TestCase):
                      local_terms.LocalTerm(self.n_qubits, 
                                            self.coefficient_a * (-3.+2j),
                                            self.operators_a))
+    
+  @unittest.skip("numpy float64 has strange behaviour: this test fails by "
+                 + "converting the result to an array, but the same test "
+                 + "with float128 passes.")
+  def test_mul_npfloat64(self):
+    self.assertEqual(self.term_b * numpy.float64(2.303),
+                     self.term_b * 2.303)
+    self.assertEqual(numpy.float64(2.303) * self.term_b,
+                     self.term_b * 2.303)   
+
+  def test_mul_npfloat128(self):
+    self.assertEqual(self.term_b * numpy.float128(2.303),
+                     self.term_b * 2.303)
+    self.assertEqual(numpy.float128(2.303) * self.term_b,
+                     self.term_b * 2.303)    
   
   def test_mul_localterm(self):
     term_ab = self.term_a * self.term_b
@@ -193,12 +230,12 @@ class LocalTermsTest(unittest.TestCase):
 
   def test_abs(self):
     abs_term_a = abs(self.term_a)
-    self.assertAlmostEqual(abs(self.term_a.coefficient),
+    self.assertEqual(abs(self.term_a.coefficient),
                            abs_term_a.coefficient)
     
   def test_abs_complex(self):
     term1 = local_terms.LocalTerm(3, 2. + 3j, [])
-    self.assertAlmostEqual(abs(term1).coefficient, abs(term1.coefficient))
+    self.assertEqual(abs(term1).coefficient, abs(term1.coefficient))
     
   def test_len(self):
     self.assertEqual(len(self.term_a), 5)

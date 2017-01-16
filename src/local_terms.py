@@ -76,14 +76,24 @@ class LocalTerm(object):
       True or False, whether objects are the same.
 
     Raises:
-      LocalTermError: Cannot compare terms acting on different Hilbert spaces.
+      LocalTermError: Cannot compare terms acting on different Hilbert 
+                      spaces.
+      
+    Notes:
+      Two LocalTerms are considered equal either if their coefficients
+      are within _tolerance and their operators are the same, or if both
+      their coefficients are within tolerance of zero.
     """
     if self.n_qubits != other.n_qubits:
       raise LocalTermError(
         'Cannot compare terms acting on different Hilbert spaces.')
-    
-    return (self.operators == other.operators 
-            and abs(self.coefficient - other.coefficient) <= self._tolerance)
+        
+    # Operators are equal if their coefficients are sufficiently close
+    # and they have the same operators, or if they are both close to 0.
+    return ((self.operators == other.operators 
+             and abs(self.coefficient - other.coefficient) <= self._tolerance)
+            or (abs(self.coefficient) <= self._tolerance
+                and abs(other.coefficient) <= self._tolerance))
 
   def __ne__(self, other):
     """Overload not equals comparison != to interact with standard library."""
@@ -99,19 +109,17 @@ class LocalTerm(object):
     del self.operators[index]
 
   def __add__(self, addend):
-    """Compute self + addend for a LocalOperator or derivative.
-
-    Note that we will not allow one to add together two LocalTerms.
-    The reason is because there are ambiguities when LocalTerms sum
-    to zero and also because it is difficult to determine what class
-    the output should be when adding together terms which inherit from
-    LocalTerm.
+    """Compute self + addend for a LocalTerm or derivative.
 
     Args:
-      addend: A LocalOperator or LocalOperator derivative.
+      addend: A LocalTerm or LocalTerm derivative.
 
     Returns:
-      summand: A new instance of LocalOperator.
+      summand: A new instance of LocalOperator. The reason for returning
+               LocalOperator is that there are ambiguities when 
+               LocalTerms sum to zero and also because it is difficult
+               to determine what class the output should be when adding 
+               together terms which inherit from LocalTerm.
 
     Raises:
       TypeError: Object of invalid type cannot be added to LocalTerm.
@@ -128,8 +136,13 @@ class LocalTerm(object):
     return local_operators.LocalOperator(self.n_qubits, [self]) + addend
 
   def __sub__(self, subtrahend):
-    """Compute self - subtrahend for a LocalOperator or derivative."""
+    """Compute self - subtrahend for a LocalTerm or derivative."""
     return self + (-1. * subtrahend)
+  
+  def __isub__(self, subtrahend):
+    """Compute self - subtrahend for a LocalTerm or derivative."""
+    self += (-1. * subtrahend)
+    return self  
 
   def __imul__(self, multiplier):
     """Compute self *= multiplier. Multiplier must be scalar or LocalTerm.
@@ -153,7 +166,7 @@ class LocalTerm(object):
 
     elif issubclass(type(multiplier), LocalTerm):
       # Handle LocalTerms. Make sure number of qubits is the same.
-      if self._n_qubits != multiplier._n_qubits:
+      if self.n_qubits != multiplier.n_qubits:
         raise LocalTermError(
             'Cannot multiply terms acting on different Hilbert spaces.')
 
