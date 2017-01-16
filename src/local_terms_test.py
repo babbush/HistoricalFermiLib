@@ -1,5 +1,6 @@
 """Tests for local_terms.py"""
 import local_terms
+import local_operators
 import unittest
 
 
@@ -26,9 +27,6 @@ class LocalTermsTest(unittest.TestCase):
     self.term1 = local_terms.LocalTerm(1, coefficient=1, operators=[])
     arr.append(3)
     self.assertEqual(self.term1.operators, [])
-    
-  def test_len(self):
-    self.assertEqual(len(self.term_a), 5)
     
   def test_change_nqubits_error(self):
     with self.assertRaises(local_terms.LocalTermError):
@@ -68,17 +66,35 @@ class LocalTermsTest(unittest.TestCase):
     del self.term1[3:6]
     self.assertEqual(self.term1.operators, [0, 1, 2, 6, 7, 8, 9])
     
-  # Main addition tests are in local_operators_test.py: term addition
-  # is written using that.
+  def test_add_localterms(self):
+    self.assertEqual(self.term_a + self.term_b, 
+                     local_operators.LocalOperator(self.n_qubits, 
+                                                   [self.term_a, self.term_b]))
+    
+  def test_add_localterms_reverse(self):
+    self.assertEqual(self.term_b + self.term_a, 
+                     local_operators.LocalOperator(self.n_qubits, 
+                                                   [self.term_a, self.term_b]))
+  
   def test_add_localterms_error(self):
     with self.assertRaises(TypeError):
-      self.term_a + self.term_b
+      self.term_a + 1
   
   def test_add_different_nqubits_error(self):
     self.term1 = local_terms.LocalTerm(5, 1)
     self.term2 = local_terms.LocalTerm(2, 1)
-    with self.assertRaises(TypeError):
+    with self.assertRaises(local_terms.LocalTermError):
       self.term1 + self.term2
+      
+  def test_sub(self):
+    self.assertEqual(self.term_a - self.term_b,
+                     local_operators.LocalOperator(self.n_qubits, 
+                                                   [self.term_a, 
+                                                    -1 * self.term_b])) 
+    
+  def test_sub_cancel(self):
+    self.assertEqual(self.term_a - self.term_a,
+                     local_operators.LocalOperator(self.n_qubits, []))
         
   def test_rmul(self):
     self.term = self.term_a * -3.
@@ -101,14 +117,14 @@ class LocalTermsTest(unittest.TestCase):
     self.assertEqual(self.term, expected)
   
   def test_imul_localterm(self):
-    term_ab = self.term_a * self.term_b
-    
     expected_coeff = self.term_a.coefficient * self.term_b.coefficient
     expected_ops = self.term_a.operators + self.term_b.operators
+    expected = local_terms.LocalTerm(self.n_qubits,
+                                     expected_coeff, expected_ops)
     
-    self.assertEqual(term_ab, 
-                     local_terms.LocalTerm(self.n_qubits,
-                                           expected_coeff, expected_ops))
+    self.term_a *= self.term_b
+    
+    self.assertEqual(self.term_a, expected)
     
   def test_mul_by_zero(self):
     term1 = self.term_a * 0
@@ -127,6 +143,22 @@ class LocalTermsTest(unittest.TestCase):
                            new_term.coefficient)
     self.assertEqual(3 * self.term_a.operators, new_term.operators)
     
+  def test_mul_scalar(self):
+    self.assertEqual(self.term_a * (-3. + 2j),
+                     local_terms.LocalTerm(self.n_qubits, 
+                                           self.coefficient_a * (-3.+2j),
+                                           self.operators_a))
+  
+  def test_mul_localterm(self):
+    term_ab = self.term_a * self.term_b
+    
+    expected_coeff = self.term_a.coefficient * self.term_b.coefficient
+    expected_ops = self.term_a.operators + self.term_b.operators
+    
+    self.assertEqual(term_ab, 
+                     local_terms.LocalTerm(self.n_qubits,
+                                           expected_coeff, expected_ops))
+    
   def test_pow_square(self):
     squared = self.term_a ** 2
     self.assertEqual(squared, self.term_a * self.term_a)
@@ -136,6 +168,9 @@ class LocalTermsTest(unittest.TestCase):
     expected = local_terms.LocalTerm(self.n_qubits, 1.0, [])
     
     self.assertEqual(zerod, expected)
+    
+  def test_pow_one(self):
+    self.assertEqual(self.term_a, self.term_a ** 1)
     
   def test_pow_neg_error(self):
     with self.assertRaises(ValueError):
@@ -164,6 +199,10 @@ class LocalTermsTest(unittest.TestCase):
   def test_abs_complex(self):
     term1 = local_terms.LocalTerm(3, 2. + 3j, [])
     self.assertAlmostEqual(abs(term1).coefficient, abs(term1.coefficient))
+    
+  def test_len(self):
+    self.assertEqual(len(self.term_a), 5)
+    self.assertEqual(len(self.term_b), 2)
   
   def test_str(self):
     self.assertEqual(str(self.term_a), "-2.0 [0, 1, 2, 3, 4]")
