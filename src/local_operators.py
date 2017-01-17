@@ -336,3 +336,6 @@ if __name__ == '__main__':
   
   print operator_a.terms
   print operator_a.terms.values()[0]
+  
+  print operator_abc.list_coefficients()
+  print operator_abc.list_terms()

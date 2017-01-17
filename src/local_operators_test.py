@@ -156,7 +156,26 @@ class LocalOperatorsTest(unittest.TestCase):
     self.assertEqual(self.coefficient_a * self.coefficient_b,
                        new_operator[(self.term_a * self.term_b).operators])
     self.assertEqual(self.coefficient_a * self.coefficient_b,
-                       new_operator[(self.term_b * self.term_a).operators])    
+                       new_operator[(self.term_b * self.term_a).operators])
+    
+  def test_mul_by_zero_localterm(self):
+    zero_term = local_terms.LocalTerm(self.n_qubits, 0.0, [1])
+    zero_op = local_operators.LocalOperator(self.n_qubits, zero_term)
+    self.assertEqual(self.operator_abc * zero_term, zero_op)
+    
+  def test_mul_by_zero_op(self):
+    zero_term = local_terms.LocalTerm(self.n_qubits, 0.0, [1])
+    zero_op = local_operators.LocalOperator(self.n_qubits, zero_term)
+    self.assertEqual(self.operator_abc * zero_op, zero_op)
+    
+  def test_mul_by_identity_term(self):
+    identity_term = local_terms.LocalTerm(self.n_qubits, 1.0)
+    self.assertEqual(self.operator_abc * identity_term, self.operator_abc)
+    
+  def test_mul_by_identity_op(self):
+    identity_term = local_terms.LocalTerm(self.n_qubits, 1.0)
+    identity_op = local_operators.LocalOperator(self.n_qubits, identity_term)
+    self.assertEqual(self.operator_abc * identity_op, self.operator_abc)    
       
   @unittest.skip("numpy float64 has strange behaviour: this test fails by "
                  + "converting the result to an array, but the same test "
@@ -236,6 +255,45 @@ class LocalOperatorsTest(unittest.TestCase):
   def test_str(self):
     self.assertEqual(str(self.operator_abc), 
                      "-88.0 [1, 2]\n2.0 [0, 3, 4]\n6.7j [1, 2, 3, 4]\n")
+    
+  def test_contains(self):
+    self.assertFalse((1, 2, 9) in self.operator_abc)
+    self.assertTrue(self.operators_a in self.operator_abc)
+    self.assertTrue(self.operators_b in self.operator_abc)
+    self.assertTrue(self.operators_c in self.operator_abc)
+    
+  def test_get(self):
+    self.assertEqual(self.coefficient_a, self.operator_abc[self.operators_a])
+    self.assertEqual(self.coefficient_b, self.operator_abc[self.operators_b])
+    self.assertEqual(self.coefficient_c, self.operator_abc[self.operators_c])
+    self.assertEqual(0.0, self.operator_abc[(1, 2, 9)])
+    
+  def test_set(self):
+    self.operator_abc[self.operators_a] = 2.37
+    result = self.operator_abc.terms[tuple(self.operators_a)].coefficient
+    self.assertEqual(result, 2.37)
+    self.assertEqual(self.operator_abc[self.operators_a], 2.37)
+    
+  def test_del(self):
+    del self.operator_abc[self.operators_a]
+    self.assertEqual(0.0, self.operator_abc[self.operators_a])
+    self.assertEqual(len(self.operator_abc), 2)
+    
+  def test_list_coeffs(self):
+    orig_set = set([self.coefficient_a, self.coefficient_b, 
+                    self.coefficient_c])
+    true_set = set(self.operator_abc.list_coefficients())
+    self.assertEqual(orig_set, true_set)
+  
+  def test_list_ops(self):
+    expected = [self.term_a, self.term_b, self.term_c]
+    actual = self.operator_abc.list_terms()
+    
+    for term in expected:
+      self.assertTrue(term in actual)
+    for term in actual:
+      self.assertTrue(term in expected)
+      self.assertEqual(self.operator_abc[term], term.coefficient)
 
 if __name__ == '__main__':
   unittest.main()
