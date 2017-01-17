@@ -69,10 +69,24 @@ class LocalTermsTest(unittest.TestCase):
     for i in xrange(len(self.term_a)):
       self.assertEqual(self.term_a[i], i + 1)
       
+  def test_set_not_in(self):
+    term1 = local_terms.LocalTerm(5, coefficient=1, operators=[1])
+    with self.assertRaises(local_terms.LocalTermError):
+      term1[2] = 2
+      
+  def test_get_not_in(self):
+    with self.assertRaises(local_terms.LocalTermError):
+      self.term_a[11]
+  
+  def test_del_not_in(self):
+    term1 = local_terms.LocalTerm(5, coefficient=1, operators=range(10))
+    with self.assertRaises(local_terms.LocalTermError):
+      del term1[10]
+      
   def test_slicing_del(self):
-    self.term1 = local_terms.LocalTerm(5, coefficient=1, operators=range(10))
-    del self.term1[3:6]
-    self.assertEqual(self.term1.operators, [0, 1, 2, 6, 7, 8, 9])
+    term1 = local_terms.LocalTerm(5, coefficient=1, operators=range(10))
+    del term1[3:6]
+    self.assertEqual(term1.operators, [0, 1, 2, 6, 7, 8, 9])
     
   def test_add_localterms(self):
     self.assertEqual(self.term_a + self.term_b, 

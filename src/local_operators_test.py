@@ -274,10 +274,18 @@ class LocalOperatorsTest(unittest.TestCase):
     self.assertEqual(result, 2.37)
     self.assertEqual(self.operator_abc[self.operators_a], 2.37)
     
+  def test_set_new(self):
+    self.operator_bc[self.operators_a] = self.coefficient_a
+    self.assertEqual(self.operator_bc, self.operator_abc)
+    
   def test_del(self):
     del self.operator_abc[self.operators_a]
     self.assertEqual(0.0, self.operator_abc[self.operators_a])
     self.assertEqual(len(self.operator_abc), 2)
+    
+  def test_del_not_in_term(self):
+    with self.assertRaises(local_operators.LocalOperatorError):
+      del self.operator_a[self.operators_b]
     
   def test_list_coeffs(self):
     orig_set = set([self.coefficient_a, self.coefficient_b, 

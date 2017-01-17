@@ -103,6 +103,9 @@ class LocalOperator(object):
       self.terms[tuple(operators)] = new_term
 
   def __delitem__(self, operators):
+    if not operators in self:
+      raise LocalOperatorError(
+        'operators {} not in LocalOperator'.format(operators))
     del self.terms[tuple(operators)]
 
   def __iadd__(self, addend):
@@ -305,37 +308,3 @@ class LocalOperator(object):
 
   def __str__(self):
     return ''.join('{}\n'.format(term) for term in self)
-
-if __name__ == '__main__':
-  n_qubits = 5
-  coefficient_a = 6.7j
-  coefficient_b = -88.
-  coefficient_c = 2.
-  operators_a = [1, 2, 3, 4]
-  operators_b = [1, 2]
-  operators_c = [0, 3, 4]
-  term_a = local_terms.LocalTerm(
-    n_qubits, coefficient_a, operators_a)
-  term_b = local_terms.LocalTerm(
-    n_qubits, coefficient_b, operators_b)
-  term_c = local_terms.LocalTerm(
-    n_qubits, coefficient_c, operators_c)  
-  
-  operator_a = LocalOperator(n_qubits, [term_a])
-  operator_bc = LocalOperator(n_qubits, [term_b, term_c])
-  operator_abc = LocalOperator(n_qubits, [term_a, term_b, term_c])
-  
-  print operator_a
-  print operator_bc
-  print operator_abc
-  print operator_a + operator_bc
-  print operator_a * operator_bc
-  
-  print operator_bc * operator_bc
-  print len(operator_bc * operator_bc)
-  
-  print operator_a.terms
-  print operator_a.terms.values()[0]
-  
-  print operator_abc.list_coefficients()
-  print operator_abc.list_terms()

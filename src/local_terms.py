@@ -100,13 +100,22 @@ class LocalTerm(object):
     return not (self == other)
 
   def __getitem__(self, index):
-    return self.operators[index]
+    try:
+      return self.operators[index]
+    except IndexError:
+      raise LocalTermError('LocalTerm index out of range')
 
   def __setitem__(self, index, value):
-    self.operators[index] = value
+    try:
+      self.operators[index] = value
+    except IndexError:
+      raise LocalTermError('LocalTerm assignment index out of range')
 
   def __delitem__(self, index):
-    del self.operators[index]
+    try:
+      del self.operators[index]
+    except IndexError:
+      raise LocalTermError('LocalTerm deletion index out of range')
 
   def __add__(self, addend):
     """Compute self + addend for a LocalTerm or derivative.
