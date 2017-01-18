@@ -456,15 +456,10 @@ class MolecularOperator(object):
 
             # Identify and skip one of the complex conjugates.
             if [p, q, r, s] != [s, r, q, p]:
-              unique_indices = len(set([p, q, r, s]))
-
-              # srqp srpq sprq spqr sqpr sqrp rsqp rspq rpsq rpqs rqps rqsp.
-              if unique_indices == 4:
-                if min(r, s) <= min(p, q):
+              if len(set([p, q, r, s])) == 4:
+                if min(r, s) < min(p, q):
                   continue
-
-              # qqpp.
-              elif unique_indices == 2:
+              else:
                 if q < p:
                   continue
 
