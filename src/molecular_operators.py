@@ -53,27 +53,27 @@ def unpack_spatial_rdm(one_rdm_a,
       for q in range(n_orbitals):
 
         # Populate 1-RDM.
-        one_rdm[2 * p, 2 * q] = one_rdm_a[p, q]
-        one_rdm[2 * p + 1, 2 * q + 1] = one_rdm_b[p, q]
+        one_rdm[2*p, 2*q] = one_rdm_a[p, q]
+        one_rdm[2*p + 1, 2*q + 1] = one_rdm_b[p, q]
 
         # Continue looping to unpack 2-RDM.
         for r in range(n_orbitals):
           for s in range(n_orbitals):
 
             # Handle case of same spin.
-            two_rdm[2 * p, 2 * q, 2 * r, 2 * s] = (
+            two_rdm[2*p, 2*q, 2*r, 2*s] = (
                 two_rdm_aa[p, r, q, s])
-            two_rdm[2 * p + 1, 2 * q + 1, 2 * r + 1, 2 * s + 1] = (
+            two_rdm[2*p + 1, 2*q + 1, 2*r + 1, 2*s + 1] = (
                 two_rdm_bb[p, r, q, s])
 
             # Handle case of mixed spin.
-            two_rdm[2 * p, 2 * q + 1, 2 * r, 2 * s + 1] = (
+            two_rdm[2*p, 2*q + 1, 2*r, 2*s + 1] = (
                 two_rdm_ab[p, r, q, s])
-            two_rdm[2 * p, 2 * q + 1, 2 * r + 1, 2 * s] = (
+            two_rdm[2*p, 2*q + 1, 2*r + 1, 2*s] = (
                 -1. * two_rdm_ab[p, s, q, r])
-            two_rdm[2 * p + 1, 2 * q, 2 * r + 1, 2 * s] = (
+            two_rdm[2*p + 1, 2*q, 2*r + 1, 2*s] = (
                 two_rdm_ab[q, s, p, r])
-            two_rdm[2 * p + 1, 2 * q, 2 * r, 2 * s + 1] = (
+            two_rdm[2*p + 1, 2*q, 2*r, 2*s + 1] = (
                 -1. * two_rdm_ab[q, r, p, s])
 
     # Map to physicist notation and return.
