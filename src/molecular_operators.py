@@ -238,6 +238,26 @@ class MolecularOperator(object):
     self.one_body_coefficients = one_body_coefficients
     self.two_body_coefficients = two_body_coefficients
 
+  def __getitem__(self, args):
+    if len(args) == 4:
+      p, q, r, s = args
+      return self.two_body_coefficients[p, q, r, s]
+    elif len(args) == 2:
+      p, q = args
+      return self.one_body_coefficients[p, q]
+    elif not len(args):
+      return constant
+
+  def __setitem__(self, args, value):
+    if len(args) == 4:
+      p, q, r, s = args
+      self.two_body_coefficients[p, q, r, s] = value
+    elif len(args) == 2:
+      p, q = args
+      self.one_body_coefficients[p, q] = value
+    elif not len(args):
+      constant = value
+
   def rotate_basis(self, rotation_matrix):
     """Rotate the orbital basis of the MolecularOperator.
 
@@ -266,7 +286,7 @@ class MolecularOperator(object):
       for q in xrange(self.n_qubits):
 
         # Add one-body terms.
-        coefficient = self.one_body_coefficients[p, q]
+        coefficient = self[p, q]
         fermion_operator += fermion_operators.FermionTerm(
             self.n_qubits, coefficient, [(p, 1), (q, 0)])
 
@@ -275,7 +295,7 @@ class MolecularOperator(object):
           for s in xrange(self.n_qubits):
 
             # Add two-body terms.
-            coefficient = self.two_body_coefficients[p, q, r, s]
+            coefficient = self[p, q, r, s]
             fermion_operator += fermion_operators.FermionTerm(
                 self.n_qubits, coefficient, [(p, 1), (q, 1), (r, 0), (s, 0)])
 
@@ -440,7 +460,7 @@ class MolecularOperator(object):
       for q in xrange(self.n_qubits):
 
         # Handle one-body terms.
-        coefficient = float(self.one_body_coefficients[p, q])
+        coefficient = float(self[p, q])
         if coefficient and p >= q:
           qubit_operator += coefficient * self.jordan_wigner_one_body(
               self.n_qubits, p, q)
@@ -448,7 +468,7 @@ class MolecularOperator(object):
         # Keep looping for the two-body terms.
         for r in xrange(self.n_qubits):
           for s in xrange(self.n_qubits):
-            coefficient = float(self.two_body_coefficients[p, q, r, s])
+            coefficient = float(self[p, q, r, s])
 
             # Skip zero terms.
             if (not coefficient) or (p == q) or (r == s):

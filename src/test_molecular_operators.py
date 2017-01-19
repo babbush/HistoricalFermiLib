@@ -6,7 +6,7 @@ import unittest
 import numpy
 
 
-class QubitTermsTest(unittest.TestCase):
+class MolecularOperatorsTest(unittest.TestCase):
 
   def setUp(self):
     self.n_qubits = 5
@@ -20,8 +20,8 @@ class QubitTermsTest(unittest.TestCase):
   def test_jordan_wigner_one_body(self):
 
     # Make sure it agrees with FermionTerm.jordan_wigner_transform().
-    for p in xrange(self.n_qubits):
-      for q in xrange(self.n_qubits):
+    for p in range(self.n_qubits):
+      for q in range(self.n_qubits):
 
         # Get test qubit operator.
         test_operator = self.molecular_operator.jordan_wigner_one_body(
@@ -41,10 +41,10 @@ class QubitTermsTest(unittest.TestCase):
   def test_jordan_wigner_two_body(self):
 
     # Make sure it agrees with FermionTerm.jordan_wigner_transform().
-    for p in xrange(self.n_qubits):
-      for q in xrange(self.n_qubits):
-        for r in xrange(self.n_qubits):
-          for s in xrange(self.n_qubits):
+    for p in range(self.n_qubits):
+      for q in range(self.n_qubits):
+        for r in range(self.n_qubits):
+          for s in range(self.n_qubits):
 
             # Get test qubit operator.
             test_operator = self.molecular_operator.jordan_wigner_two_body(
