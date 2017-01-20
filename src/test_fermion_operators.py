@@ -88,6 +88,14 @@ class FermionTermsTest(unittest.TestCase):
     self.assertAlmostEqual(number_operator_jw[[]], 0.5)
     self.assertEqual(len(number_operator_jw), 2)
 
+  def test_add_terms(self):
+    sum_terms = self.term_a + self.term_b
+    diff_terms = self.term_a - self.term_b
+    self.assertEqual(2. * self.term_a + self.term_b - self.term_b,
+                     sum_terms + diff_terms)
+    self.assertTrue(isinstance(sum_terms, fermion_operators.FermionOperator))
+    self.assertTrue(isinstance(diff_terms, fermion_operators.FermionOperator))
+
 
 class FermionOperatorsTest(unittest.TestCase):
 

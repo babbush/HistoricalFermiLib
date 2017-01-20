@@ -75,6 +75,31 @@ class FermionTerm(local_terms.LocalTerm):
           continue
       raise FermionTermError('Invalid operators provided to FermionTerm.')
 
+  def __add__(self, addend):
+    """Compute self + addend for a FermionTerm.
+
+    Note that we only need to handle the case of adding other fermion terms.
+
+    Args:
+      addend: A FermionTerm.
+
+    Returns:
+      summand: A new instance of FermionOperator.
+
+    Raises:
+      TypeError: Object of invalid type cannot be added to FermionTerm.
+      FermionTermError: Cannot add terms acting on different Hilbert spaces.
+    """
+    if not issubclass(type(addend),
+                      (FermionTerm, FermionOperator)):
+      raise TypeError('Cannot add term of invalid type to FermionTerm.')
+
+    if not self.n_qubits == addend.n_qubits:
+      raise FermionTermError(
+        'Cannot add terms acting on different Hilbert spaces.')
+
+    return FermionOperator(self.n_qubits, [self]) + addend
+
   def __str__(self):
     """Return an easy-to-read string representation of the term."""
     string_representation = '{} ('.format(self.coefficient)

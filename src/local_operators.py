@@ -21,9 +21,9 @@ class LocalOperator(object):
     """Inits a LocalOperator object.
 
     Args:
-      n_qubits: An int giving the number of qubits in simulated Hilbert 
+      n_qubits: An int giving the number of qubits in simulated Hilbert
                 space.
-      terms: Dictionary or list of LocalTerm objects, or LocalTerm 
+      terms: Dictionary or list of LocalTerm objects, or LocalTerm
              object.
       tolerance: A float giving the minimum absolute value below which a
                  term is zero.
@@ -35,7 +35,7 @@ class LocalOperator(object):
     # Check that n_qubits is an integer.
     if not isinstance(n_qubits, int) or n_qubits < 1:
       raise ValueError('Number of qubits must be a positive integer.')
-    
+
     self._tolerance = tolerance
     self._n_qubits = n_qubits
     if terms is None:
@@ -264,7 +264,7 @@ class LocalOperator(object):
     else:
       raise TypeError(
           'Invalid typed object cannot multiply LocalOperator.')
-    
+
   def __pow__(self, exponent):
     """Exponentiate the LocalOperator.
 
@@ -279,13 +279,13 @@ class LocalOperator(object):
     """
     if not isinstance(exponent, int) or exponent < 0:
       raise ValueError('Can only raise LocalTerm to positive integer powers.')
-    
+
     identity_term = local_terms.LocalTerm(self.n_qubits, 1.0)
     res = LocalOperator(self.n_qubits, identity_term)
-    
+
     for i in xrange(exponent):
       res *= self
-      
+
     return res
 
   def __abs__(self):

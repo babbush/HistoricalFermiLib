@@ -35,14 +35,14 @@ class LocalTerm(object):
     # Check that n_qubits is an integer.
     if not isinstance(n_qubits, int) or n_qubits < 1:
       raise ValueError('Number of qubits must be a positive integer.')
-    
+
     # Convert coefficient to complex
     try:
       self.coefficient = complex(coefficient)
     except Exception as err:
       raise ValueError(
         'coefficient must be numeric or convertible to complex.')
-      
+
     # Initialize.
     self._tolerance = tolerance
     self._n_qubits = n_qubits
@@ -76,9 +76,9 @@ class LocalTerm(object):
       True or False, whether objects are the same.
 
     Raises:
-      LocalTermError: Cannot compare terms acting on different Hilbert 
+      LocalTermError: Cannot compare terms acting on different Hilbert
                       spaces.
-      
+
     Notes:
       Two LocalTerms are considered equal either if their coefficients
       are within _tolerance and their operators are the same, or if both
@@ -87,10 +87,10 @@ class LocalTerm(object):
     if self.n_qubits != other.n_qubits:
       raise LocalTermError(
         'Cannot compare terms acting on different Hilbert spaces.')
-        
+
     # Operators are equal if their coefficients are sufficiently close
     # and they have the same operators, or if they are both close to 0.
-    return ((self.operators == other.operators 
+    return ((self.operators == other.operators
              and abs(self.coefficient - other.coefficient) <= self._tolerance)
             or (abs(self.coefficient) <= self._tolerance
                 and abs(other.coefficient) <= self._tolerance))
@@ -125,33 +125,33 @@ class LocalTerm(object):
 
     Returns:
       summand: A new instance of LocalOperator. The reason for returning
-               LocalOperator is that there are ambiguities when 
+               LocalOperator is that there are ambiguities when
                LocalTerms sum to zero and also because it is difficult
-               to determine what class the output should be when adding 
+               to determine what class the output should be when adding
                together terms which inherit from LocalTerm.
 
     Raises:
       TypeError: Object of invalid type cannot be added to LocalTerm.
       LocalTermError: Cannot add terms acting on different Hilbert spaces.
     """
-    if not issubclass(type(addend), 
+    if not issubclass(type(addend),
                       (LocalTerm, local_operators.LocalOperator)):
       raise TypeError('Cannot add term of invalid type to LocalTerm.')
-    
+
     if not self.n_qubits == addend.n_qubits:
       raise LocalTermError(
         'Cannot add terms acting on different Hilbert spaces.')
-    
+
     return local_operators.LocalOperator(self.n_qubits, [self]) + addend
 
   def __sub__(self, subtrahend):
     """Compute self - subtrahend for a LocalTerm or derivative."""
     return self + (-1. * subtrahend)
-  
+
   def __isub__(self, subtrahend):
     """Compute self - subtrahend for a LocalTerm or derivative."""
     self += (-1. * subtrahend)
-    return self  
+    return self
 
   def __imul__(self, multiplier):
     """Compute self *= multiplier. Multiplier must be scalar or LocalTerm.
@@ -236,7 +236,7 @@ class LocalTerm(object):
     Raises:
       TypeError: Object of invalid type cannot multiply LocalTerm.
     """
-    if not (isinstance(multiplier, (int, float, complex)) 
+    if not (isinstance(multiplier, (int, float, complex))
             or numpy.isscalar(multiplier)):
       raise TypeError('Object of invalid type cannot multiply LocalTerm.')
     product = copy.deepcopy(self)
@@ -257,7 +257,7 @@ class LocalTerm(object):
     """
     if not isinstance(exponent, int) or exponent < 0:
       raise ValueError('Can only raise LocalTerm to positive integer powers.')
-      
+
     return LocalTerm(self.n_qubits, self.coefficient ** exponent,
                      self.operators * exponent)
 
