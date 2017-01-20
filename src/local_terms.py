@@ -138,11 +138,11 @@ class LocalTerm(object):
                       (LocalTerm, local_operators.LocalOperator)):
       raise TypeError('Cannot add term of invalid type to LocalTerm.')
 
-    if not self.n_qubits == addend.n_qubits:
+    if not self._n_qubits == addend._n_qubits:
       raise LocalTermError(
         'Cannot add terms acting on different Hilbert spaces.')
 
-    return local_operators.LocalOperator(self.n_qubits, [self]) + addend
+    return local_operators.LocalOperator(self._n_qubits, [self]) + addend
 
   def __sub__(self, subtrahend):
     """Compute self - subtrahend for a LocalTerm or derivative."""

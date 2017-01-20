@@ -73,6 +73,17 @@ class QubitTermsTest(unittest.TestCase):
     self.assertEqual(1, len(retransformed_term))
     self.assertTrue(self.term == retransformed_term.list_terms()[0])
 
+  def test_sum_terms(self):
+    self.coefficient = 0.5
+    self.operators = [(1, 'X'), (3, 'Y'), (8, 'Z')]
+    new_term = 2. * self.term + self.term - 2. * self.term
+    self.assertEqual(qubit_operators.QubitOperator(
+      self._n_qubits, [self.term]), new_term)
+    self.assertTrue(isinstance(self.term + self.term,
+                               qubit_operators.QubitOperator))
+    self.assertTrue(isinstance(self.term - self.term,
+                               qubit_operators.QubitOperator))
+
 
 class QubitOperatorsTest(unittest.TestCase):
 

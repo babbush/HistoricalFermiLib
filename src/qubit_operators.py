@@ -93,6 +93,31 @@ class QubitTerm(local_terms.LocalTerm):
     # Make sure operators are sorted by tensor factor.
     self.operators.sort(key=lambda operator: operator[0])
 
+  def __add__(self, addend):
+    """Compute self + addend for a QubitTerm.
+
+    Note that we only need to handle the case of adding other qubit terms.
+
+    Args:
+      addend: A QubitTerm.
+
+    Returns:
+      summand: A new instance of QubitOperator.
+
+    Raises:
+      TypeError: Object of invalid type cannot be added to QubitTerm.
+      FermionTermError: Cannot add terms acting on different Hilbert spaces.
+    """
+    if not issubclass(type(addend),
+                      (QubitTerm, QubitOperator)):
+      raise TypeError('Cannot add term of invalid type to QubitTerm.')
+
+    if not self._n_qubits == addend._n_qubits:
+      raise QubitTermError(
+        'Cannot add terms acting on different Hilbert spaces.')
+
+    return QubitOperator(self._n_qubits, [self]) + addend
+
   def __imul__(self, multiplier):
     """Multiply operators with scalar or QubitTerm using *=.
 

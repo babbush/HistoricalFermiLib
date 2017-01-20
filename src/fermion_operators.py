@@ -94,11 +94,11 @@ class FermionTerm(local_terms.LocalTerm):
                       (FermionTerm, FermionOperator)):
       raise TypeError('Cannot add term of invalid type to FermionTerm.')
 
-    if not self.n_qubits == addend.n_qubits:
+    if not self._n_qubits == addend._n_qubits:
       raise FermionTermError(
         'Cannot add terms acting on different Hilbert spaces.')
 
-    return FermionOperator(self.n_qubits, [self]) + addend
+    return FermionOperator(self._n_qubits, [self]) + addend
 
   def __str__(self):
     """Return an easy-to-read string representation of the term."""
