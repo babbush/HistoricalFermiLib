@@ -246,7 +246,7 @@ class MolecularOperator(object):
       p, q = args
       return self.one_body_coefficients[p, q]
     elif not len(args):
-      return constant
+      return self.constant
 
   def __setitem__(self, args, value):
     if len(args) == 4:
