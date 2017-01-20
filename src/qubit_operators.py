@@ -39,6 +39,10 @@ _PAULI_MATRIX_PRODUCTS = {('I', 'I'): (1., 'I'),
                           ('Z', 'Y'): (-1.j, 'X')}
 
 
+def identity(n_qubits):
+  return QubitTerm(n_qubits, 1.)
+
+
 class QubitTerm(local_terms.LocalTerm):
   """Single term of a hamiltonian for a system of spin 1/2 particles or qubits.
 

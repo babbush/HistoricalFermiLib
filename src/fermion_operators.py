@@ -20,6 +20,10 @@ class FermionOperatorError(Exception):
   pass
 
 
+def identity(n_qubits):
+  return FermionTerm(n_qubits, 1.)
+
+
 def number_operator(n_qubits, site=None, coefficient=1.):
   """Return a number operator.
 

@@ -261,6 +261,12 @@ class LocalTerm(object):
     return LocalTerm(self.n_qubits, self.coefficient ** exponent,
                      self.operators * exponent)
 
+  def is_identity(self):
+    if self.operators:
+      return False
+    else:
+      return True
+
   def __abs__(self):
     term_copy = copy.deepcopy(self)
     term_copy.coefficient = abs(self.coefficient)
