@@ -389,42 +389,39 @@ class QubitOperator(local_operators.LocalOperator):
 
     Returns:
       expectation: A float giving the expectation value.
+
+    Raises:
+      QubitOperatorError: Term did not come from molecular Hamiltonian.
     """
-    one_body = molecular_operator.one_body_coefficients
-    two_body = molecular_operator.two_body_coefficients
     expectation = 0.
     for qubit_term in self:
       reversed_fermion_operators = qubit_term.reverse_jordan_wigner()
       reversed_fermion_operators.normal_order()
-
       for fermion_term in reversed_fermion_operators:
-          if (sum([2 * fermion_term.operators[i][1] - 1
-                   for i in range(len(fermion_term))]) != 0):
 
-            # Particle non-conserving term.
-            density_term = 0
+          # Particle non-conserving term.
+          if sum([2 * operator[1] - 1 for operator in fermion_term]):
+            continue
 
-          elif (len(fermion_term.operators) == 0):
-            # Identity term.
-            density_term = 1
+          # Identity term.
+          elif not fermion_term.operators:
+            density_term = 1.
 
+          # One-body.
           elif (len(fermion_term.operators) == 2):
-            # One-body.
-            density_term = one_body[fermion_term.operators[0][0],
-                                    fermion_term.operators[1][0]]
+            density_term = molecular_operator[fermion_term.operators[0][0],
+                                              fermion_term.operators[1][0]]
 
+          # Two-body.
           elif (len(fermion_term.operators) == 4):
-            # Two-body.
-            density_term = two_body[fermion_term.operators[0][0],
-                                    fermion_term.operators[1][0],
-                                    fermion_term.operators[2][0],
-                                    fermion_term.operators[3][0]]
+            density_term = molecular_operator[fermion_term.operators[0][0],
+                                              fermion_term.operators[1][0],
+                                              fermion_term.operators[2][0],
+                                              fermion_term.operators[3][0]]
           else:
-            # Term is 3-body or higher, error has occurred
-            print("Error on term {}".format(fermion_term.key()))
-
+            raise QubitOperatorError(
+                'Term did not come from molecular Hamiltonian.')
           expectation += fermion_term.coefficient * density_term
-
     return expectation
 
   def get_molecular_rdm(self):
