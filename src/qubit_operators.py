@@ -381,49 +381,6 @@ class QubitOperator(local_operators.LocalOperator):
       expectation += term.coefficient * self[term.operators]
     return expectation
 
-  def expectation_molecule(self, molecular_operator):
-    """Get expectation of qubit operator with RDM given as MolecularOperator.
-
-    Args:
-      molecular_operator: An instance of the MolecularOperator class.
-
-    Returns:
-      expectation: A float giving the expectation value.
-
-    Raises:
-      QubitOperatorError: Term did not come from molecular Hamiltonian.
-    """
-    expectation = 0.
-    for qubit_term in self:
-      reversed_fermion_operators = qubit_term.reverse_jordan_wigner()
-      reversed_fermion_operators.normal_order()
-      for fermion_term in reversed_fermion_operators:
-
-          # Particle non-conserving term.
-          if sum([2 * operator[1] - 1 for operator in fermion_term]):
-            continue
-
-          # Identity term.
-          elif not fermion_term.operators:
-            density_term = 1.
-
-          # One-body.
-          elif (len(fermion_term.operators) == 2):
-            density_term = molecular_operator[fermion_term.operators[0][0],
-                                              fermion_term.operators[1][0]]
-
-          # Two-body.
-          elif (len(fermion_term.operators) == 4):
-            density_term = molecular_operator[fermion_term.operators[0][0],
-                                              fermion_term.operators[1][0],
-                                              fermion_term.operators[2][0],
-                                              fermion_term.operators[3][0]]
-          else:
-            raise QubitOperatorError(
-                'Term did not come from molecular Hamiltonian.')
-          expectation += fermion_term.coefficient * density_term
-    return expectation
-
   def get_molecular_rdm(self):
     """Build a MolecularOperator from measured qubit operators.
 

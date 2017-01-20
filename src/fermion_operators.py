@@ -129,7 +129,11 @@ class FermionTerm(local_terms.LocalTerm):
     return hermitian_conjugate
 
   def is_normal_ordered(self):
-    """Function to return whether or not term is in normal order."""
+    """Function to return whether or not term is in normal order.
+
+    In our convention. Normal ordering implies terms are ordered
+    from highest tensor factor (on left) to lowest (on right).
+    Also, ladder operators come first."""
     for i in range(1, len(self)):
       for j in range(i, 0, -1):
         right_operator = self[j]

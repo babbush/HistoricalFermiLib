@@ -196,13 +196,9 @@ class HydrogenIntegrationTest(unittest.TestCase):
     self.assertAlmostEqual(expected_hf_energy, self.molecule.hf_energy)
     self.assertAlmostEqual(expected_hf_density_energy, self.molecule.hf_energy)
 
-    # Confirm expectation on qubit Hamiltonian using reverse JW matches
-    qubit_energy = self.qubit_hamiltonian.expectation_molecule(self.fci_rdm)
-    self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
-
-    # Confim expectation on qubit Hamiltonian using JW RDM matches
+    # Confirm expectation on qubit Hamiltonian using reverse JW matches.
     qubit_rdm = self.fci_rdm.get_qubit_expectations(self.qubit_hamiltonian)
-    qubit_energy = self.qubit_hamiltonian.expectation(qubit_rdm)
+    qubit_energy = qubit_rdm.expectation(self.qubit_hamiltonian)
     self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 
     # Confirm fermionic RDMs can be built from measured qubit RDMs
