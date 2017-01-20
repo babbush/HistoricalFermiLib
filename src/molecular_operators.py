@@ -256,7 +256,7 @@ class MolecularOperator(object):
       p, q = args
       self.one_body_coefficients[p, q] = value
     elif not len(args):
-      constant = value
+      self.constant = value
 
   def rotate_basis(self, rotation_matrix):
     """Rotate the orbital basis of the MolecularOperator.
