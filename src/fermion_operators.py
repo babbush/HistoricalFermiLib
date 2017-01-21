@@ -241,6 +241,17 @@ class FermionTerm(local_terms.LocalTerm):
           self._n_qubits, [pauli_x_component, pauli_y_component])
     return transformed_term
 
+  def is_molecular_term(self):
+    if len(self.operators) > 4:
+      return False
+    n_particles = 0
+    for operator in self:
+      if operator[1]:
+        n_particles += 1
+      else:
+        n_particles -= 1
+    return not bool(n_particles)
+
 
 class FermionOperator(local_operators.LocalOperator):
   """Data structure which stores sums of FermionTerm objects.
