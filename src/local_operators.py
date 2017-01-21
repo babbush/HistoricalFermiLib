@@ -103,9 +103,9 @@ class LocalOperator(object):
       self.terms[tuple(operators)] = new_term
 
   def __delitem__(self, operators):
-    if not operators in self:
-      raise LocalOperatorError(
-        'operators {} not in LocalOperator'.format(operators))
+    if operators not in self:
+      raise LocalOperatorError('operators {} not in'
+                               'LocalOperator'.format(operators))
     del self.terms[tuple(operators)]
 
   def __iadd__(self, addend):
