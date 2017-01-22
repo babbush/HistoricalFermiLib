@@ -12,11 +12,11 @@ class JordanWignerError(Exception):
   pass
 
 
-class FermionTermError(Exception):
+class FermionTermError(local_terms.LocalTermError):
   pass
 
 
-class FermionOperatorError(Exception):
+class FermionOperatorError(local_operators.LocalOperatorError):
   pass
 
 
@@ -30,11 +30,11 @@ def number_operator(n_qubits, site=None, coefficient=1.):
   Args:
     n_qubits: An int giving the number of spin-orbitals in the system.
     site: The site on which to return the number operator.
-      If None, return number operator on all sites.
+      If None, return total number operator on all sites.
   """
   if site is None:
     operator = FermionOperator(n_qubits)
-    for spin_orbital in range(n_qubits):
+    for spin_orbital in xrange(n_qubits):
       operator += number_operator(n_qubits, spin_orbital)
   else:
     operator = FermionTerm(n_qubits, coefficient, [(site, 1), (site, 0)])
@@ -72,20 +72,20 @@ class FermionTerm(local_terms.LocalTerm):
     """
     super(FermionTerm, self).__init__(n_qubits, coefficient, operators)
     for operator in self:
-      if isinstance(operator, tuple):
+      if isinstance(operator, tuple):  # what if operator isn't a tuple??
         tensor_factor, action = operator
-        if ((action == 1 or action == 0) and
-           (isinstance(tensor_factor, int) and tensor_factor < n_qubits)):
-          continue
-      raise FermionTermError('Invalid operators provided to FermionTerm.')
+        if (action not in (0, 1) or not isinstance(tensor_factor, int)
+            or tensor_factor >= n_qubits):
+          raise FermionTermError('Invalid operators provided to FermionTerm.')
 
   def __add__(self, addend):
     """Compute self + addend for a FermionTerm.
 
-    Note that we only need to handle the case of adding other fermion terms.
+    Note that we only need to handle the case of adding other fermionic terms
+    or operators.
 
     Args:
-      addend: A FermionTerm.
+      addend: A FermionTerm or FermionOperator.
 
     Returns:
       summand: A new instance of FermionOperator.
@@ -94,13 +94,12 @@ class FermionTerm(local_terms.LocalTerm):
       TypeError: Object of invalid type cannot be added to FermionTerm.
       FermionTermError: Cannot add terms acting on different Hilbert spaces.
     """
-    if not issubclass(type(addend),
-                      (FermionTerm, FermionOperator)):
+    if not issubclass(type(addend), (FermionTerm, FermionOperator)):
       raise TypeError('Cannot add term of invalid type to FermionTerm.')
 
-    if not self._n_qubits == addend._n_qubits:
-      raise FermionTermError(
-        'Cannot add terms acting on different Hilbert spaces.')
+    if self.n_qubits != addend.n_qubits:
+      raise FermionTermError('Cannot add terms acting on different'
+                             'Hilbert spaces.')
 
     return FermionOperator(self._n_qubits, [self]) + addend
 
@@ -122,7 +121,7 @@ class FermionTerm(local_terms.LocalTerm):
     """Calculate hermitian conjugate.
 
     Returns:
-      New FermionTerm object which is the hermitian conjugate.
+      A new FermionTerm object which is the hermitian conjugate of this.
     """
     conjugate_coefficient = numpy.conjugate(self.coefficient)
     conjugate_operators = [(operator[0], not operator[1]) for
@@ -133,13 +132,14 @@ class FermionTerm(local_terms.LocalTerm):
     return hermitian_conjugate
 
   def is_normal_ordered(self):
-    """Function to return whether or not term is in normal order.
+    """Return whether or not term is in normal order.
 
-    In our convention. Normal ordering implies terms are ordered
+    In our convention, normal ordering implies terms are ordered
     from highest tensor factor (on left) to lowest (on right).
-    Also, ladder operators come first."""
-    for i in range(1, len(self)):
-      for j in range(i, 0, -1):
+    Also, ladder operators come first.
+    """
+    for i in xrange(1, len(self)):
+      for j in xrange(i, 0, -1):
         right_operator = self[j]
         left_operator = self[j - 1]
         if right_operator[1] and not left_operator[1]:
@@ -149,7 +149,7 @@ class FermionTerm(local_terms.LocalTerm):
           return False
     return True
 
-  def return_normal_order(self):
+  def normal_order(self):
     """Compute and return the normal ordered form of a FermionTerm.
 
     Not an in-place method.
@@ -166,8 +166,8 @@ class FermionTerm(local_terms.LocalTerm):
 
     # Iterate from left to right across operators and reorder to normal form.
     # Swap terms operators into correct position by moving left to right.
-    for i in range(1, len(term)):
-      for j in range(i, 0, -1):
+    for i in xrange(1, len(term)):
+      for j in xrange(i, 0, -1):
         right_operator = term[j]
         left_operator = term[j - 1]
 
@@ -186,7 +186,7 @@ class FermionTerm(local_terms.LocalTerm):
                                    operators_in_new_term)
 
             # Recursively add the processed new term.
-            normal_ordered_operator += new_term.return_normal_order()
+            normal_ordered_operator += new_term.normal_order()
 
           # Handle case when operator type is the same.
         elif right_operator[1] == left_operator[1]:
@@ -226,17 +226,17 @@ class FermionTerm(local_terms.LocalTerm):
       pauli_x_component = qubit_operators.QubitTerm(
           self._n_qubits, 0.5,
           [(operator[0], 'X')] +
-          [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+          [(index, 'Z') for index in xrange(operator[0] - 1, -1, -1)])
       if operator[1]:
         pauli_y_component = qubit_operators.QubitTerm(
             self._n_qubits, -0.5j,
             [(operator[0], 'Y')] +
-            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+            [(index, 'Z') for index in xrange(operator[0] - 1, -1, -1)])
       else:
         pauli_y_component = qubit_operators.QubitTerm(
             self._n_qubits, 0.5j,
             [(operator[0], 'Y')] +
-            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+            [(index, 'Z') for index in xrange(operator[0] - 1, -1, -1)])
       transformed_term *= qubit_operators.QubitOperator(
           self._n_qubits, [pauli_x_component, pauli_y_component])
     return transformed_term
@@ -272,10 +272,9 @@ class FermionOperator(local_operators.LocalOperator):
     """
     super(FermionOperator, self).__init__(n_qubits, terms)
     for term in self:
-      if isinstance(term, FermionTerm) and term._n_qubits == n_qubits:
-          continue
-      raise FermionTermError(
-          'Invalid FermionTerms provided to FermionOperator.')
+      if term.n_qubits != n_qubits or not isinstance(term, FermionTerm):
+          raise FermionTermError('Invalid FermionTerms provided to'
+                                 'FermionOperator.')
 
   def __setitem__(self, operators, coefficient):
     if operators in self:
@@ -287,7 +286,7 @@ class FermionOperator(local_operators.LocalOperator):
   def normal_order(self):
     normal_ordered_operator = FermionOperator(self._n_qubits)
     for term in self:
-      normal_ordered_operator += term.return_normal_order()
+      normal_ordered_operator += term.normal_order()
     self.terms = normal_ordered_operator.terms
 
   def jordan_wigner_transform(self):
@@ -332,8 +331,8 @@ class FermionOperator(local_operators.LocalOperator):
           p, q = [operator[0] for operator in term]
           one_body[p, q] = coefficient
         else:
-          raise ErrorMolecularOperator(
-              'FermionOperator is not a molecular operator.')
+          raise ErrorMolecularOperator('FermionOperator is not a '
+                                       'molecular operator.')
 
       elif len(term) == 4:
         # Handle two-body terms.
@@ -341,13 +340,13 @@ class FermionOperator(local_operators.LocalOperator):
           p, q, r, s = [operator[0] for operator in term]
           two_body[p, q, r, s] = coefficient
         else:
-          raise ErrorMolecularOperator(
-              'FermionOperator is not a molecular operator.')
+          raise ErrorMolecularOperator('FermionOperator is not a'
+                                       'molecular operator.')
 
       else:
         # Handle non-molecular Hamiltonian.
-        raise ErrorMolecularOperator(
-            'FermionOperator is not a molecular operator.')
+        raise ErrorMolecularOperator('FermionOperator is not a'
+                                     'molecular operator.')
 
     # Form MolecularOperator and return.
     molecular_operator = molecular_operators.MolecularOperator(

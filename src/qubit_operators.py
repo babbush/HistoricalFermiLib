@@ -1,4 +1,4 @@
-"""This files has utilities to read and store qubit hamiltonians.
+"""This files has utilities to read and store qubit Hamiltonians.
 """
 import fermion_operators
 import sparse_operators
@@ -117,8 +117,8 @@ class QubitTerm(local_terms.LocalTerm):
       raise TypeError('Cannot add term of invalid type to QubitTerm.')
 
     if not self._n_qubits == addend._n_qubits:
-      raise QubitTermError(
-        'Cannot add terms acting on different Hilbert spaces.')
+      raise QubitTermError('Cannot add terms acting on different'
+                           'Hilbert spaces.')
 
     return QubitOperator(self._n_qubits, [self]) + addend
 
@@ -346,9 +346,8 @@ class QubitOperator(local_operators.LocalOperator):
     super(QubitOperator, self).__init__(n_qubits, terms)
     for term in self:
       if isinstance(term, QubitTerm) and term._n_qubits == n_qubits:
-          continue
-      raise QubitTermError(
-          'Invalid QubitTerms provided to QubitOperator.')
+        continue
+      raise QubitTermError('Invalid QubitTerms provided to QubitOperator.')
 
   def __setitem__(self, operators, coefficient):
     if operators in self:
