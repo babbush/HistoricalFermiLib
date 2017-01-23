@@ -280,8 +280,8 @@ class FermionOperator(local_operators.LocalOperator):
     super(FermionOperator, self).__init__(n_qubits, terms)
     for term in self:
       if term.n_qubits != n_qubits or not isinstance(term, FermionTerm):
-          raise FermionTermError('Invalid FermionTerms provided to'
-                                 'FermionOperator.')
+          raise FermionOperatorError('Invalid FermionTerms provided to '
+                                     'FermionOperator.')
 
   def __setitem__(self, operators, coefficient):
     if operators in self:
@@ -291,10 +291,17 @@ class FermionOperator(local_operators.LocalOperator):
       self.terms[tuple(operators)] = new_term
 
   def normal_order(self):
+    self.terms = self.normal_ordered().terms
+
+  def normal_ordered(self):
     normal_ordered_operator = FermionOperator(self._n_qubits)
     for term in self:
       normal_ordered_operator += term.normal_order()
-    self.terms = normal_ordered_operator.terms
+    return normal_ordered_operator
+
+  def hermitian_conjugate(self):
+    # TODO Ian
+    raise NotImplementedError
 
   def jordan_wigner_transform(self):
     transformed_operator = qubit_operators.QubitOperator(self._n_qubits)
