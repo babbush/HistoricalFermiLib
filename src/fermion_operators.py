@@ -156,7 +156,7 @@ class FermionTerm(local_terms.LocalTerm):
           return False
     return True
 
-  def normal_order(self):
+  def normal_ordered(self):
     """Compute and return the normal ordered form of a FermionTerm.
 
     Not an in-place method.
@@ -193,7 +193,7 @@ class FermionTerm(local_terms.LocalTerm):
                                    operators_in_new_term)
 
             # Recursively add the processed new term.
-            normal_ordered_operator += new_term.normal_order()
+            normal_ordered_operator += new_term.normal_ordered()
 
           # Handle case when operator type is the same.
         elif right_operator[1] == left_operator[1]:
@@ -296,7 +296,7 @@ class FermionOperator(local_operators.LocalOperator):
   def normal_ordered(self):
     normal_ordered_operator = FermionOperator(self._n_qubits)
     for term in self:
-      normal_ordered_operator += term.normal_order()
+      normal_ordered_operator += term.normal_ordered()
     return normal_ordered_operator
 
   def hermitian_conjugate(self):

@@ -114,9 +114,9 @@ class FermionTermsTest(unittest.TestCase):
 
   def test_normal_order(self):
     self.assertTrue(self.normal_ordered_a ==
-                    self.term_a.normal_order().list_terms()[0])
+                    self.term_a.normal_ordered().list_terms()[0])
 
-    normal_ordered_b = self.term_b.normal_order()
+    normal_ordered_b = self.term_b.normal_ordered()
     self.assertEqual(2, len(normal_ordered_b.terms))
     normal_ordered_b *= -1.
     normal_ordered_b += self.normal_ordered_b1
