@@ -274,6 +274,7 @@ class FermionOperator(local_operators.LocalOperator):
     for term in self:
       normal_ordered_operator += term.return_normal_order()
     self.terms = normal_ordered_operator.terms
+    return self
 
   def jordan_wigner_transform(self):
     transformed_operator = qubit_operators.QubitOperator(self._n_qubits)
