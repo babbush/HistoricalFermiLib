@@ -321,11 +321,11 @@ class FermionOperator(local_operators.LocalOperator):
       Even assuming that each creation or annihilation operator appears
       at most a constant number of times in the original term, the
       runtime of this method is exponential in the number of qubits.
-    """    
+    """
     self.terms = self.normal_ordered().terms
 
   def normal_ordered(self):
-    """Compute and return the normal ordered form of this 
+    """Compute and return the normal ordered form of this
     FermionOperator.
 
     Not an in-place method.
@@ -337,7 +337,7 @@ class FermionOperator(local_operators.LocalOperator):
       Even assuming that each creation or annihilation operator appears
       at most a constant number of times in the original term, the
       runtime of this method is exponential in the number of qubits.
-    """    
+    """
     normal_ordered_operator = FermionOperator(self._n_qubits)
     for term in self:
       normal_ordered_operator += term.normal_ordered()
@@ -352,12 +352,12 @@ class FermionOperator(local_operators.LocalOperator):
 
     Returns:
       transformed_operator: An instance of the QubitOperator class.
-      
+
     Warning:
       Even assuming that each creation or annihilation operator appears
       at most a constant number of times in the original operator, the
       runtime of this method is exponential in the number of qubits.
-    """    
+    """
     transformed_operator = qubit_operators.QubitOperator(self._n_qubits)
     for term in self:
       transformed_operator += term.jordan_wigner_transform()
