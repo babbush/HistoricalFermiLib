@@ -72,7 +72,7 @@ class OddNumberElectronBug(unittest.TestCase):
     self.basis = 'sto-3g'
     self.multiplicity = 2
     self.molecule = molecular_data.MolecularData(
-      self.geometry, self.basis, self.multiplicity)
+        self.geometry, self.basis, self.multiplicity)
 
     # Run calculations.
     run_scf = 1
@@ -100,12 +100,12 @@ class OddNumberElectronBug(unittest.TestCase):
 
     # Get fermion Hamiltonian.
     self.fermion_hamiltonian = (
-      self.molecular_hamiltonian.get_fermion_operator())
+        self.molecular_hamiltonian.get_fermion_operator())
     self.fermion_hamiltonian.normal_order()
 
     # Get qubit Hamiltonian.
     self.qubit_hamiltonian = (
-      self.fermion_hamiltonian.jordan_wigner_transform())
+        self.fermion_hamiltonian.jordan_wigner_transform())
 
     # Get matrix form.
     self.hamiltonian_matrix = self.molecular_hamiltonian.get_sparse_matrix()
@@ -140,20 +140,20 @@ class OddNumberElectronBug(unittest.TestCase):
 
     # Test the matrix representation.
     wavefunction, energy = sparse_operators.get_ground_state(
-      self.hamiltonian_matrix)
+        self.hamiltonian_matrix)
     self.assertAlmostEqual(energy, self.molecule.fci_energy)
     expected_energy = sparse_operators.expectation(
-      self.hamiltonian_matrix, wavefunction)
+        self.hamiltonian_matrix, wavefunction)
     self.assertAlmostEqual(expected_energy, energy)
 
     # Make sure you can reproduce Hartree-Fock energy.
     hf_state = sparse_operators.hartree_fock_state(
-      self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits)
+        self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits)
     hf_density = sparse_operators.get_density_matrix([hf_state], [1.])
     expected_hf_density_energy = sparse_operators.expectation(
-      self.hamiltonian_matrix, hf_density)
+        self.hamiltonian_matrix, hf_density)
     expected_hf_energy = sparse_operators.expectation(
-      self.hamiltonian_matrix, hf_state)
+        self.hamiltonian_matrix, hf_state)
     self.assertAlmostEqual(expected_hf_energy, self.molecule.hf_energy)
     self.assertAlmostEqual(expected_hf_density_energy,
                            self.molecule.hf_energy)
@@ -177,7 +177,7 @@ class OddNumberElectronBug(unittest.TestCase):
       if (numpy.abs(term.coefficient) > 1.):
         print("Mismatch on term: {}".format(term))
         print("Hamiltonian Coefficient of Term: {}".format(
-          self.qubit_hamiltonian[term]))
+              self.qubit_hamiltonian[term]))
         print("Reverse JW of term: {}".format(term.reverse_jordan_wigner(
 
         ).normal_order()))
