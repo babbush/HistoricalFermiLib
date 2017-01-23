@@ -40,8 +40,8 @@ class LocalTerm(object):
     try:
       self.coefficient = complex(coefficient)
     except Exception as err:
-      raise ValueError(
-        'coefficient must be numeric or convertible to complex.')
+      raise ValueError('coefficient must be numeric or convertible'
+                       'to complex.')
 
     # Initialize.
     self._tolerance = tolerance
@@ -63,8 +63,8 @@ class LocalTerm(object):
   @n_qubits.setter
   def n_qubits(self, n_qubits):
     if hasattr(self, '_n_qubits'):
-      raise LocalTermError(
-          'Do not change the size of Hilbert space on which terms act.')
+      raise LocalTermError('Do not change the size of Hilbert space'
+                           'on which terms act.')
 
   def __eq__(self, other):
     """Overload equality comparison == to interact with standard library.
@@ -85,15 +85,15 @@ class LocalTerm(object):
       their coefficients are within tolerance of zero.
     """
     if self.n_qubits != other.n_qubits:
-      raise LocalTermError(
-        'Cannot compare terms acting on different Hilbert spaces.')
+      raise LocalTermError('Cannot compare terms acting on '
+                           'different Hilbert spaces.')
 
     # Operators are equal if their coefficients are sufficiently close
     # and they have the same operators, or if they are both close to 0.
-    return ((self.operators == other.operators
-             and abs(self.coefficient - other.coefficient) <= self._tolerance)
-            or (abs(self.coefficient) <= self._tolerance
-                and abs(other.coefficient) <= self._tolerance))
+    return ((self.operators == other.operators and
+             abs(self.coefficient - other.coefficient) <= self._tolerance) or
+            (abs(self.coefficient) <= self._tolerance and
+             abs(other.coefficient) <= self._tolerance))
 
   def __ne__(self, other):
     """Overload not equals comparison != to interact with standard library."""
@@ -139,8 +139,8 @@ class LocalTerm(object):
       raise TypeError('Cannot add term of invalid type to LocalTerm.')
 
     if not self._n_qubits == addend._n_qubits:
-      raise LocalTermError(
-        'Cannot add terms acting on different Hilbert spaces.')
+      raise LocalTermError('Cannot add terms acting on different'
+                           'Hilbert spaces.')
 
     return local_operators.LocalOperator(self._n_qubits, [self]) + addend
 
@@ -168,16 +168,15 @@ class LocalTerm(object):
       TypeError: Can only *= multiply LocalTerm by scalar or LocalTerm.
     """
     # Handle scalars.
-    if (isinstance(multiplier, (int, float, complex))
-        or numpy.isscalar(multiplier)):
+    if numpy.isscalar(multiplier):
       self.coefficient *= complex(multiplier)
       return self
 
     elif issubclass(type(multiplier), LocalTerm):
       # Handle LocalTerms. Make sure number of qubits is the same.
       if self.n_qubits != multiplier.n_qubits:
-        raise LocalTermError(
-            'Cannot multiply terms acting on different Hilbert spaces.')
+        raise LocalTermError('Cannot multiply terms acting on different'
+                             'Hilbert spaces.')
 
       # Compute product.
       self.coefficient *= multiplier.coefficient
@@ -202,8 +201,7 @@ class LocalTerm(object):
       LocalTermError: Cannot multiply terms acting on different Hilbert spaces.
     """
     # Handle scalars or LocalTerms.
-    if (isinstance(multiplier, (int, float, complex, LocalTerm))
-        or numpy.isscalar(multiplier)):
+    if (numpy.isscalar(multiplier) or isinstance(multiplier, LocalTerm)):
       product = copy.deepcopy(self)
       product *= multiplier
 
@@ -236,8 +234,8 @@ class LocalTerm(object):
     Raises:
       TypeError: Object of invalid type cannot multiply LocalTerm.
     """
-    if not (isinstance(multiplier, (int, float, complex))
-            or numpy.isscalar(multiplier)):
+    if not (isinstance(multiplier, (int, float, complex)) or
+            numpy.isscalar(multiplier)):
       raise TypeError('Object of invalid type cannot multiply LocalTerm.')
     product = copy.deepcopy(self)
     product.coefficient *= multiplier
@@ -260,6 +258,12 @@ class LocalTerm(object):
 
     return LocalTerm(self.n_qubits, self.coefficient ** exponent,
                      self.operators * exponent)
+
+  def is_identity(self):
+    if self.operators:
+      return False
+    else:
+      return True
 
   def __abs__(self):
     term_copy = copy.deepcopy(self)

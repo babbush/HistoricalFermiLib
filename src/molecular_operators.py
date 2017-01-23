@@ -309,10 +309,8 @@ class MolecularOperator(object):
 
     Note that the diagonal terms are divided by a factor of 2 because they
     are equal to their own Hermitian conjugate."""
-    # Initialize qubit operator.
-    qubit_operator = qubit_operators.QubitOperator(n_qubits)
-
     # Handle off-diagonal terms.
+    qubit_operator = qubit_operators.QubitOperator(n_qubits)
     if p != q:
       a, b = sorted([p, q])
       parity_string = [(z, 'Z') for z in xrange(a + 1, b)]
@@ -485,11 +483,58 @@ class MolecularOperator(object):
                   continue
 
             # Handle the two-body terms.
-            qubit_operator += coefficient * self.jordan_wigner_two_body(
+            transformed_term = self.jordan_wigner_two_body(
                 self.n_qubits, p, q, r, s)
+            transformed_term *= coefficient
+            qubit_operator += transformed_term
 
     # Return.
     return qubit_operator
+
+  def get_qubit_term_expectation(self, qubit_term):
+    """Return expectation value of a QubitTerm with a molecular RDM (self).
+
+    Args:
+      qubit_term: QubitTerm instance to be evaluated on this
+          MolecularOperator representing a reduced density matrix.
+
+    Returns:
+      expectation: A float giving the expectation value.
+
+    Raises:
+      MolecularOperatorError: Observable not contained in 1-RDM or 2-RDM.
+    """
+    expectation = 0.
+    reversed_fermion_operators = qubit_term.reverse_jordan_wigner()
+    reversed_fermion_operators.normal_order()
+    for fermion_term in reversed_fermion_operators:
+
+      # Handle non-molecular terms.
+      if not fermion_term.is_molecular_term():
+        if len(fermion_term.operators) > 4:
+          raise MolecularOperatorError(
+              'Observable not contained in 1-RDM or 2-RDM.')
+
+      # Identity term.
+      elif fermion_term.is_identity():
+        expectation += fermion_term.coefficient
+
+      # One-body.
+      elif (len(fermion_term.operators) == 2):
+        rdm_element = self[fermion_term.operators[0][0],
+                           fermion_term.operators[1][0]]
+        expectation += rdm_element * fermion_term.coefficient
+
+      # Two-body.
+      elif (len(fermion_term.operators) == 4):
+        rdm_element = self[fermion_term.operators[0][0],
+                           fermion_term.operators[1][0],
+                           fermion_term.operators[2][0],
+                           fermion_term.operators[3][0]]
+        expectation += rdm_element * fermion_term.coefficient
+
+    # Return expectation.
+    return expectation / qubit_term.coefficient
 
   def get_qubit_expectations(self, qubit_operator):
     """Return expectations of qubit op as coefficients of new qubit op.
@@ -509,46 +554,10 @@ class MolecularOperator(object):
     """
     qubit_operator_expectations = copy.deepcopy(qubit_operator)
     for qubit_term in qubit_operator_expectations:
-      expectation = 0.
-      qubit_term.coefficient = 1.
-      reversed_fermion_operators = qubit_term.reverse_jordan_wigner()
-      reversed_fermion_operators.normal_order()
-      for fermion_term in reversed_fermion_operators:
-
-          # Particle non-conserving term.
-          if sum([2 * operator[1] - 1 for operator in fermion_term]):
-            continue
-
-          # Identity term.
-          elif not fermion_term.operators:
-            expectation += fermion_term.coefficient
-
-          # One-body.
-          elif (len(fermion_term.operators) == 2):
-            rdm_element = self[fermion_term.operators[0][0],
-                               fermion_term.operators[1][0]]
-            expectation += rdm_element * fermion_term.coefficient
-
-          # Two-body.
-          elif (len(fermion_term.operators) == 4):
-            rdm_element = self[fermion_term.operators[0][0],
-                               fermion_term.operators[1][0],
-                               fermion_term.operators[2][0],
-                               fermion_term.operators[3][0]]
-            expectation += rdm_element * fermion_term.coefficient
-
-          # Higher-order term encountered.
-          else:
-            raise MolecularOperatorError(
-                'Observable not contained in 1-RDM or 2-RDM.')
-
-      # Update coefficient of qubit_term.
-      qubit_term.coefficient = expectation
+      qubit_term.coefficient = self.get_qubit_term_expectation(qubit_term)
     return qubit_operator_expectations
 
   def get_sparse_matrix(self):
-    # TODO: hard code the transformation without going through qubit
-    # class in order to improve performance.
     qubit_operator = self.jordan_wigner_transform()
     sparse_operator = qubit_operator.get_sparse_matrix()
     return sparse_operator
