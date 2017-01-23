@@ -162,8 +162,12 @@ class FermionTerm(local_terms.LocalTerm):
     Not an in-place method.
 
     Returns:
-      normal_ordered_operator: FermionOperator object in normal ordered
-                               form.
+      FermionOperator object in normal ordered form.
+
+    Warning:
+      Even assuming that each creation or annihilation operator appears
+      at most a constant number of times in the original term, the
+      runtime of this method is exponential in the number of qubits.
     """
     # Initialize output.
     normal_ordered_operator = FermionOperator(self._n_qubits)
