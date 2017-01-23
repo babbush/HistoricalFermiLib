@@ -73,11 +73,6 @@ class FermionTerm(local_terms.LocalTerm):
     super(FermionTerm, self).__init__(n_qubits, coefficient, operators)
 
     for operator in self:
-      if isinstance(operator, tuple):  # what if operator isn't a tuple??
-        tensor_factor, action = operator
-        if (action not in (0, 1) or not isinstance(tensor_factor, int) or
-           tensor_factor >= n_qubits):
-          raise FermionTermError('Invalid operators provided to FermionTerm.')
       if not isinstance(operator, tuple):
         raise ValueError('Provided incorrect operator in list of operators.')
 
@@ -85,8 +80,8 @@ class FermionTerm(local_terms.LocalTerm):
       if action not in (0, 1):
         raise ValueError('Invalid action provided to FermionTerm. '
                          'Must be 0 (lowering) or 1 (raising).')
-      if not (isinstance(tensor_factor, int)
-              and 0 <= tensor_factor < n_qubits):
+      if not (isinstance(tensor_factor, int) and
+              0 <= tensor_factor < n_qubits):
         raise ValueError('Invalid tensor factor provided to FermionTerm. '
                          'Must be an integer between 0 and n_qubits-1.')
 

@@ -91,9 +91,9 @@ class LocalTerm(object):
     # Operators are equal if their coefficients are sufficiently close
     # and they have the same operators, or if they are both close to 0.
     return ((self.operators == other.operators and
-            abs(self.coefficient - other.coefficient) <= self._tolerance) or
+             abs(self.coefficient - other.coefficient) <= self._tolerance) or
             (abs(self.coefficient) <= self._tolerance and
-            abs(other.coefficient) <= self._tolerance))
+             abs(other.coefficient) <= self._tolerance))
 
   def __ne__(self, other):
     """Overload not equals comparison != to interact with standard library."""
