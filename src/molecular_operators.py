@@ -483,8 +483,10 @@ class MolecularOperator(object):
                   continue
 
             # Handle the two-body terms.
-            qubit_operator += coefficient * self.jordan_wigner_two_body(
+            transformed_term = self.jordan_wigner_two_body(
                 self.n_qubits, p, q, r, s)
+            transformed_term *= coefficient
+            qubit_operator += transformed_term
 
     # Return.
     return qubit_operator

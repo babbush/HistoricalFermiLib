@@ -35,11 +35,11 @@ class FermionTermsTest(unittest.TestCase):
                                                 self.coefficient_b,
                                                 self.operators_b)
     self.normal_ordered_a = fermion_operators.FermionTerm(
-      self.n_qubits, self.coefficient_a, [(4, 1), (3, 1), (1, 0)])
+        self.n_qubits, self.coefficient_a, [(4, 1), (3, 1), (1, 0)])
     self.normal_ordered_b1 = fermion_operators.FermionTerm(
-      self.n_qubits, -self.coefficient_b, [(4, 0)])
+        self.n_qubits, -self.coefficient_b, [(4, 0)])
     self.normal_ordered_b2 = fermion_operators.FermionTerm(
-      self.n_qubits, -self.coefficient_b, [(2, 1), (4, 0), (2, 0)])
+        self.n_qubits, -self.coefficient_b, [(2, 1), (4, 0), (2, 0)])
 
   def test_str(self):
     self.assertEqual(str(self.term_a), '6.7j (3+ 1 4+)')

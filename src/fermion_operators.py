@@ -74,8 +74,8 @@ class FermionTerm(local_terms.LocalTerm):
     for operator in self:
       if isinstance(operator, tuple):  # what if operator isn't a tuple??
         tensor_factor, action = operator
-        if (action not in (0, 1) or not isinstance(tensor_factor, int)
-            or tensor_factor >= n_qubits):
+        if (action not in (0, 1) or not isinstance(tensor_factor, int) or
+           tensor_factor >= n_qubits):
           raise FermionTermError('Invalid operators provided to FermionTerm.')
 
   def __add__(self, addend):

@@ -178,9 +178,9 @@ class LocalOperatorsTest(unittest.TestCase):
     identity_op = local_operators.LocalOperator(self.n_qubits, identity_term)
     self.assertEqual(self.operator_abc * identity_op, self.operator_abc)
 
-  @unittest.skip("numpy float64 has strange behaviour: this test fails by "
-                 + "converting the result to an array, but the same test "
-                 + "with float128 passes.")
+  @unittest.skip("numpy float64 has strange behaviour: this test fails by " +
+                 "converting the result to an array, but the same test " +
+                 "with float128 passes.")
   def test_mul_npfloat64(self):
     self.assertEqual(self.operator_abc * numpy.float64(2.303),
                      self.operator_abc * 2.303)
