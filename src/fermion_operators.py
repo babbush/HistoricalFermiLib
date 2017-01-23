@@ -131,8 +131,8 @@ class FermionTerm(local_terms.LocalTerm):
       A new FermionTerm object which is the hermitian conjugate of this.
     """
     conjugate_coefficient = numpy.conjugate(self.coefficient)
-    conjugate_operators = [(operator[0], not operator[1]) for
-                           operator in self[::-1]]
+    conjugate_operators = [(operator[0], not operator[1])
+                           for operator in self[::-1]]
     hermitian_conjugate = FermionTerm(self._n_qubits,
                                       conjugate_coefficient,
                                       conjugate_operators)
