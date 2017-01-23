@@ -50,8 +50,6 @@ class FermionTermsTest(unittest.TestCase):
         self.n_qubits, -self.coefficient_b, [(4, 0)])
     self.normal_ordered_b2 = fermion_operators.FermionTerm(
         self.n_qubits, -self.coefficient_b, [(2, 1), (4, 0), (2, 0)])
-<<<<<<< HEAD
-=======
 
     self.operator_a = fermion_operators.FermionOperator(
         self.n_qubits, [self.term_a])
