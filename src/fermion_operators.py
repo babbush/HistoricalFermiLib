@@ -225,6 +225,11 @@ class FermionTerm(local_terms.LocalTerm):
 
     Returns:
       transformed_term: An instance of the QubitOperator class.
+
+    Warning:
+      Even assuming that each creation or annihilation operator appears
+      at most a constant number of times in the original term, the
+      runtime of this method is exponential in the number of qubits.
     """
     # Initialize identity matrix.
     transformed_term = qubit_operators.QubitOperator(
@@ -310,9 +315,29 @@ class FermionOperator(local_operators.LocalOperator):
       self.terms[tuple(operators)] = new_term
 
   def normal_order(self):
+    """Normal order this FermionOperator.
+
+    Warning:
+      Even assuming that each creation or annihilation operator appears
+      at most a constant number of times in the original term, the
+      runtime of this method is exponential in the number of qubits.
+    """    
     self.terms = self.normal_ordered().terms
 
   def normal_ordered(self):
+    """Compute and return the normal ordered form of this 
+    FermionOperator.
+
+    Not an in-place method.
+
+    Returns:
+      FermionOperator object in normal ordered form.
+
+    Warning:
+      Even assuming that each creation or annihilation operator appears
+      at most a constant number of times in the original term, the
+      runtime of this method is exponential in the number of qubits.
+    """    
     normal_ordered_operator = FermionOperator(self._n_qubits)
     for term in self:
       normal_ordered_operator += term.normal_ordered()
@@ -323,6 +348,16 @@ class FermionOperator(local_operators.LocalOperator):
     raise NotImplementedError
 
   def jordan_wigner_transform(self):
+    """Apply the Jordan-Wigner transform and return qubit operator.
+
+    Returns:
+      transformed_operator: An instance of the QubitOperator class.
+      
+    Warning:
+      Even assuming that each creation or annihilation operator appears
+      at most a constant number of times in the original operator, the
+      runtime of this method is exponential in the number of qubits.
+    """    
     transformed_operator = qubit_operators.QubitOperator(self._n_qubits)
     for term in self:
       transformed_operator += term.jordan_wigner_transform()
@@ -341,6 +376,11 @@ class FermionOperator(local_operators.LocalOperator):
 
     Raises:
       ErrorMolecularOperator: FermionOperator is not a molecular operator.
+
+    Warning:
+      Even assuming that each creation or annihilation operator appears
+      at most a constant number of times in the original operator, the
+      runtime of this method is exponential in the number of qubits.
     """
     # Normal order the terms and initialize.
     self.normal_order()
