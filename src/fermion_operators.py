@@ -249,15 +249,30 @@ class FermionTerm(local_terms.LocalTerm):
     return transformed_term
 
   def is_molecular_term(self):
+    """Query whether term has correct form to be from a molecular.
+
+    Require that term is particle-number conserving (same number of
+    raising and lowering operators). Require that term has 0, 2 or 4
+    ladder operators. Require that term conserves spin (parity of
+    raising operators equals parity of lowering operators)."""
+    # Make sure there are at most 2-body operators.
     if len(self.operators) > 4:
       return False
+
+    # Make sure term conserves particle number and spin.
+    total_spin = 0
     n_particles = 0
     for operator in self:
       if operator[1]:
         n_particles += 1
+        total_spin += (-1) ** (operator[0] % 2)
       else:
         n_particles -= 1
-    return not n_particles
+        total_spin -= (-1) ** (operator[0] % 2)
+    if n_particles or total_spin:
+      return False
+    else:
+      return True
 
 
 class FermionOperator(local_operators.LocalOperator):

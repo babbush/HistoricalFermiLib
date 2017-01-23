@@ -185,6 +185,7 @@ class MolecularData(object):
     nuclear_repulsion: Energy from nuclei-nuclei interaction.
     canonical_orbitals: numpy array giving canonical orbital coefficients.
     n_orbitals: Integer giving total number of spatial orbitals.
+    n_qubits: Integer giving total number of qubits that would be needed.
     orbital_energies: Numpy array giving the canonical orbital energies.
     fock_matrix: Numpy array giving the Fock matrix.
     orbital_overlaps: Numpy array giving the orbital overlap coefficients.
@@ -245,6 +246,7 @@ class MolecularData(object):
     self.nuclear_repulsion = None
     self.canonical_orbitals = None
     self.n_orbitals = None
+    self.n_qubits = None
     self.orbital_energies = None
     self.fock_matrix = None
 

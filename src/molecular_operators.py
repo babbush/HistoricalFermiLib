@@ -509,29 +509,16 @@ class MolecularOperator(object):
     reversed_fermion_operators.normal_order()
     for fermion_term in reversed_fermion_operators:
 
+      # Handle molecular terms.
+      if fermion_term.is_molecular_term():
+        indices = [operator[0] for operator in fermion_term]
+        rdm_element = self[indices]
+        expectation += rdm_element * fermion_term.coefficient
+
       # Handle non-molecular terms.
-      if not fermion_term.is_molecular_term():
-        if len(fermion_term.operators) > 4:
-          raise MolecularOperatorError(
-              'Observable not contained in 1-RDM or 2-RDM.')
-
-      # Identity term.
-      elif fermion_term.is_identity():
-        expectation += fermion_term.coefficient
-
-      # One-body.
-      elif (len(fermion_term.operators) == 2):
-        rdm_element = self[fermion_term.operators[0][0],
-                           fermion_term.operators[1][0]]
-        expectation += rdm_element * fermion_term.coefficient
-
-      # Two-body.
-      elif (len(fermion_term.operators) == 4):
-        rdm_element = self[fermion_term.operators[0][0],
-                           fermion_term.operators[1][0],
-                           fermion_term.operators[2][0],
-                           fermion_term.operators[3][0]]
-        expectation += rdm_element * fermion_term.coefficient
+      elif len(fermion_term.operators) > 4:
+        raise MolecularOperatorError(
+            'Observable not contained in 1-RDM or 2-RDM.')
 
     # Return expectation.
     return expectation / qubit_term.coefficient
