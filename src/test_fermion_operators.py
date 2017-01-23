@@ -95,20 +95,37 @@ class FermionTermsTest(unittest.TestCase):
   def test_str_identity(self):
     self.assertEqual(str(fermion_operators.identity(self.n_qubits)), '1.0 ()')
 
-  def test_hermitian_conjugate(self):
-    hermitian_conjugate = self.term_a.hermitian_conjugate()
+  def test_hermitian_conjugated(self):
+    self.term_a.hermitian_conjugate()
+    self.assertEqual(self.term_a.operators[0], (4, 0))
+    self.assertEqual(self.term_a.operators[1], (1, 1))
+    self.assertEqual(self.term_a.operators[2], (3, 0))
+    self.assertEqual(-6.7j, self.term_a.coefficient)
+
+  def test_hermitian_conjugate_identity(self):
+    result = fermion_operators.identity(self.n_qubits)
+    result.hermitian_conjugate()
+    self.assertEqual(fermion_operators.identity(self.n_qubits), result)
+
+  def test_hermitian_conjugate_number_site(self):
+    term = fermion_operators.number_operator(self.n_qubits, 1)
+    term.hermitian_conjugate()
+    self.assertEqual(term, fermion_operators.number_operator(self.n_qubits, 1))
+
+  def test_hermitian_conjugated(self):
+    hermitian_conjugate = self.term_a.hermitian_conjugated()
     self.assertEqual(hermitian_conjugate.operators[0], (4, 0))
     self.assertEqual(hermitian_conjugate.operators[1], (1, 1))
     self.assertEqual(hermitian_conjugate.operators[2], (3, 0))
     self.assertEqual(-6.7j, hermitian_conjugate.coefficient)
 
-  def test_hermitian_conjugate_identity(self):
-    result = fermion_operators.identity(self.n_qubits).hermitian_conjugate()
+  def test_hermitian_conjugated_identity(self):
+    result = fermion_operators.identity(self.n_qubits).hermitian_conjugated()
     self.assertEqual(fermion_operators.identity(self.n_qubits), result)
 
-  def test_hermitian_conjugate_number_site(self):
+  def test_hermitian_conjugated_number_site(self):
     term = fermion_operators.number_operator(self.n_qubits, 1)
-    self.assertEqual(term, term.hermitian_conjugate())
+    self.assertEqual(term, term.hermitian_conjugated())
 
   def test_is_normal_ordered(self):
     self.assertFalse(self.term_a.is_normal_ordered())
@@ -219,6 +236,39 @@ class FermionTermsTest(unittest.TestCase):
     self.assertIsInstance(sum_terms, fermion_operators.FermionOperator)
     self.assertIsInstance(diff_terms, fermion_operators.FermionOperator)
 
+  def test_is_molecular_term_identity(self):
+    term = fermion_operators.FermionTerm(self.n_qubits, 1.0)
+    self.assertTrue(term.is_molecular_term())
+
+  def test_is_molecular_term_number(self):
+    term = fermion_operators.number_operator(self.n_qubits, 3)
+    self.assertTrue(term.is_molecular_term())
+
+  def test_is_molecular_term_updown(self):
+    term = fermion_operators.FermionTerm(self.n_qubits, 1.0,
+                                         [(2, 1), (4, 0)])
+    self.assertTrue(term.is_molecular_term())
+
+  def test_is_molecular_term_downup(self):
+    term = fermion_operators.FermionTerm(self.n_qubits, 1.0,
+                                         [(2, 0), (4, 1)])
+    self.assertTrue(term.is_molecular_term())
+
+  def test_is_molecular_term_downup_badspin(self):
+    term = fermion_operators.FermionTerm(self.n_qubits, 1.0,
+                                         [(2, 0), (3, 1)])
+    self.assertFalse(term.is_molecular_term())
+
+  def test_is_molecular_term_three(self):
+    term = fermion_operators.FermionTerm(self.n_qubits, 1.0,
+                                         [(0, 1), (2, 1), (4, 0)])
+    self.assertFalse(term.is_molecular_term())
+
+  def test_is_molecular_term_four(self):
+    term = fermion_operators.FermionTerm(self.n_qubits, 1.0,
+                                         [(0, 1), (2, 0), (1, 1), (3, 0)])
+    self.assertTrue(term.is_molecular_term())
+
 
 class FermionOperatorsTest(unittest.TestCase):
 
@@ -286,4 +336,5 @@ class FermionOperatorsTest(unittest.TestCase):
     self.assertEqual(self.operator_c, fermion_operator)
 
 if __name__ == '__main__':
+  a = fermion_operators.FermionTerm(3, 6j, [(1, 1)])
   unittest.main()

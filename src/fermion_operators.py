@@ -125,18 +125,22 @@ class FermionTerm(local_terms.LocalTerm):
     return string_representation
 
   def hermitian_conjugate(self):
-    """Calculate hermitian conjugate.
+    """Hermitian conjugate this fermionic term."""
+    self.coefficient = numpy.conjugate(self.coefficient)
+    self.operators.reverse()
+    for tensor_factor in xrange(len(self)):
+      self[tensor_factor] = (self[tensor_factor][0],
+                             1 - self[tensor_factor][1])
+
+  def hermitian_conjugated(self):
+    """Calculate Hermitian conjugate of fermionic term.
 
     Returns:
       A new FermionTerm object which is the hermitian conjugate of this.
     """
-    conjugate_coefficient = numpy.conjugate(self.coefficient)
-    conjugate_operators = [(operator[0], not operator[1])
-                           for operator in self[::-1]]
-    hermitian_conjugate = FermionTerm(self._n_qubits,
-                                      conjugate_coefficient,
-                                      conjugate_operators)
-    return hermitian_conjugate
+    res = copy.deepcopy(self)
+    res.hermitian_conjugate()
+    return res
 
   def is_normal_ordered(self):
     """Return whether or not term is in normal order.
@@ -264,24 +268,17 @@ class FermionTerm(local_terms.LocalTerm):
     raising and lowering operators). Require that term has 0, 2 or 4
     ladder operators. Require that term conserves spin (parity of
     raising operators equals parity of lowering operators)."""
-    # Make sure there are at most 2-body operators.
-    if len(self.operators) > 4:
+    if len(self.operators) not in (0, 2, 4):
       return False
 
     # Make sure term conserves particle number and spin.
-    total_spin = 0
-    n_particles = 0
+    spin = 0
+    particles = 0
     for operator in self:
-      if operator[1]:
-        n_particles += 1
-        total_spin += (-1) ** (operator[0] % 2)
-      else:
-        n_particles -= 1
-        total_spin -= (-1) ** (operator[0] % 2)
-    if n_particles or total_spin:
-      return False
-    else:
-      return True
+      particles += (-1) ** operator[1]  # add 1 if create, else subtract
+      spin += (-1) ** (operator[0] + operator[1])
+
+    return not (particles or spin)
 
 
 class FermionOperator(local_operators.LocalOperator):
@@ -344,8 +341,13 @@ class FermionOperator(local_operators.LocalOperator):
     return normal_ordered_operator
 
   def hermitian_conjugate(self):
-    # TODO Ian
-    raise NotImplementedError
+    for term in self:
+      term.hermitian_conjugate()
+
+  def hermitian_conjugated(self):
+    new = copy.deepcopy(self)
+    new.hermitian_conjugate()
+    return new
 
   def jordan_wigner_transform(self):
     """Apply the Jordan-Wigner transform and return qubit operator.
