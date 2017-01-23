@@ -31,7 +31,7 @@ class MolecularOperatorsTest(unittest.TestCase):
         fermion_term = fermion_operators.FermionTerm(
             self.n_qubits, 1., [(p, 1), (q, 0)])
         correct_operator = fermion_term.jordan_wigner_transform()
-        hermitian_conjugate = fermion_term.get_hermitian_conjugate()
+        hermitian_conjugate = fermion_term.hermitian_conjugate()
         if fermion_term != hermitian_conjugate:
           correct_operator += hermitian_conjugate.jordan_wigner_transform()
 
@@ -54,7 +54,7 @@ class MolecularOperatorsTest(unittest.TestCase):
             fermion_term = fermion_operators.FermionTerm(
                 self.n_qubits, 1., [(p, 1), (q, 1), (r, 0), (s, 0)])
             correct_operator = fermion_term.jordan_wigner_transform()
-            hermitian_conjugate = fermion_term.get_hermitian_conjugate()
+            hermitian_conjugate = fermion_term.hermitian_conjugate()
             if fermion_term != hermitian_conjugate:
               correct_operator += hermitian_conjugate.jordan_wigner_transform()
 

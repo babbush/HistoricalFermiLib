@@ -65,18 +65,25 @@ class FermionTerm(local_terms.LocalTerm):
       coefficient: A complex valued float giving the term coefficient.
       operators: A list of tuples. The first element of each tuple is an
           int indicating the site on which operators acts. The second element
-          of each tuple is boole, indicating raising (1) or lowering (0).
+          of each tuple is an integer indicating raising (1) or lowering (0).
 
     Raises:
       FermionTermError: Invalid operators provided to FermionTerm.
     """
     super(FermionTerm, self).__init__(n_qubits, coefficient, operators)
+
     for operator in self:
-      if isinstance(operator, tuple):  # what if operator isn't a tuple??
-        tensor_factor, action = operator
-        if (action not in (0, 1) or not isinstance(tensor_factor, int)
-            or tensor_factor >= n_qubits):
-          raise FermionTermError('Invalid operators provided to FermionTerm.')
+      if not isinstance(operator, tuple):
+        raise ValueError('Provided incorrect operator in list of operators.')
+
+      tensor_factor, action = operator
+      if action not in (0, 1):
+        raise ValueError('Invalid action provided to FermionTerm. '
+                         'Must be 0 (lowering) or 1 (raising).')
+      if not (isinstance(tensor_factor, int)
+              and 0 <= tensor_factor < n_qubits):
+        raise ValueError('Invalid tensor factor provided to FermionTerm. '
+                         'Must be an integer between 0 and n_qubits-1.')
 
   def __add__(self, addend):
     """Compute self + addend for a FermionTerm.
@@ -101,7 +108,7 @@ class FermionTerm(local_terms.LocalTerm):
       raise FermionTermError('Cannot add terms acting on different'
                              'Hilbert spaces.')
 
-    return FermionOperator(self._n_qubits, [self]) + addend
+    return FermionOperator(self.n_qubits, [self]) + addend
 
   def __str__(self):
     """Return an easy-to-read string representation of the term."""
@@ -117,7 +124,7 @@ class FermionTerm(local_terms.LocalTerm):
     string_representation += ')'
     return string_representation
 
-  def get_hermitian_conjugate(self):
+  def hermitian_conjugate(self):
     """Calculate hermitian conjugate.
 
     Returns:
@@ -155,8 +162,8 @@ class FermionTerm(local_terms.LocalTerm):
     Not an in-place method.
 
     Returns:
-      normal_ordered_operator: FermionOperator object which is the
-          normal ordered form.
+      normal_ordered_operator: FermionOperator object in normal ordered
+                               form.
     """
     # Initialize output.
     normal_ordered_operator = FermionOperator(self._n_qubits)
@@ -250,7 +257,7 @@ class FermionTerm(local_terms.LocalTerm):
         n_particles += 1
       else:
         n_particles -= 1
-    return not bool(n_particles)
+    return not n_particles
 
 
 class FermionOperator(local_operators.LocalOperator):
@@ -322,7 +329,7 @@ class FermionOperator(local_operators.LocalOperator):
       coefficient = term.coefficient
 
       # Handle constant shift.
-      if not len(term):
+      if len(term) == 0:
         constant = coefficient
 
       elif len(term) == 2:
