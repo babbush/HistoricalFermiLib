@@ -1,10 +1,10 @@
 """This files has utilities to read and store qubit Hamiltonians.
 """
+from local_terms import LocalTerm
+from local_operators import LocalOperator
 import fermion_operators
 import sparse_operators
 import molecular_operators
-from local_operators import LocalOperator
-from local_terms import LocalTerm
 import numpy
 import scipy
 import scipy.sparse
