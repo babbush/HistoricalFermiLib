@@ -39,7 +39,7 @@ _PAULI_MATRIX_PRODUCTS = {('I', 'I'): (1., 'I'),
                           ('Z', 'Y'): (-1.j, 'X')}
 
 
-def identity(n_qubits):
+def qubit_identity(n_qubits):
   return QubitTerm(n_qubits, 1.)
 
 
@@ -60,7 +60,7 @@ class QubitTerm(local_terms.LocalTerm):
       of the tensor factor on which the operator acts.
 
   Attributes:
-    _n_qubits: The total number of qubits in the system.
+    n_qubits: The total number of qubits in the system.
     coefficient: A real or complex floating point number.
     operators: A sorted list of tuples. The first element of each tuple is an
       int indicating the qubit on which operators acts. The second element
@@ -116,11 +116,11 @@ class QubitTerm(local_terms.LocalTerm):
                       (QubitTerm, QubitOperator)):
       raise TypeError('Cannot add term of invalid type to QubitTerm.')
 
-    if not self._n_qubits == addend._n_qubits:
+    if not self.n_qubits == addend.n_qubits:
       raise QubitTermError('Cannot add terms acting on different'
                            'Hilbert spaces.')
 
-    return QubitOperator(self._n_qubits, [self]) + addend
+    return QubitOperator(self.n_qubits, [self]) + addend
 
   def __imul__(self, multiplier):
     """Multiply operators with scalar or QubitTerm using *=.
@@ -144,7 +144,7 @@ class QubitTerm(local_terms.LocalTerm):
     elif issubclass(type(multiplier), QubitTerm):
 
       # Make sure terms act on same Hilbert space.
-      if self._n_qubits != multiplier._n_qubits:
+      if self.n_qubits != multiplier.n_qubits:
         raise QubitTermError(
             'Cannot multiply QubitTerms acting on different Hilbert spaces.')
 
@@ -209,11 +209,10 @@ class QubitTerm(local_terms.LocalTerm):
       QubitTermError: Invalid operator provided: must be 'X', 'Y' or 'Z'.
     """
     # Initialize transformed operator.
-    identity = fermion_operators.FermionTerm(
-        self._n_qubits, 1.0)
+    identity = fermion_operators.fermion_identity(self.n_qubits)
     transformed_term = fermion_operators.FermionOperator(
-        self._n_qubits, [identity])
-    working_term = QubitTerm(self._n_qubits,
+        self.n_qubits, [identity])
+    working_term = QubitTerm(self.n_qubits,
                              1.0,
                              self.operators)
 
@@ -224,26 +223,26 @@ class QubitTerm(local_terms.LocalTerm):
 
         # Handle Pauli Z.
         if operator[1] == 'Z':
-          identity = fermion_operators.FermionTerm(self._n_qubits, 1.)
+          identity = fermion_operators.fermion_identity(self.n_qubits)
           number_operator = fermion_operators.FermionTerm(
-              self._n_qubits, -2., [(operator[0], 1), (operator[0], 0)])
+              self.n_qubits, -2., [(operator[0], 1), (operator[0], 0)])
           transformed_operator = fermion_operators.FermionOperator(
-              self._n_qubits, [identity, number_operator])
+              self.n_qubits, [identity, number_operator])
 
         else:
           # Handle Pauli X.
           if operator[1] == 'X':
             raising_term = fermion_operators.FermionTerm(
-                self._n_qubits, 1., [(operator[0], 1)])
+                self.n_qubits, 1., [(operator[0], 1)])
             lowering_term = fermion_operators.FermionTerm(
-                self._n_qubits, 1., [(operator[0], 0)])
+                self.n_qubits, 1., [(operator[0], 0)])
 
           elif operator[1] == 'Y':
             # Handle Pauli Y.
             raising_term = fermion_operators.FermionTerm(
-                self._n_qubits, 1.j, [(operator[0], 1)])
+                self.n_qubits, 1.j, [(operator[0], 1)])
             lowering_term = fermion_operators.FermionTerm(
-                self._n_qubits, -1.j, [(operator[0], 0)])
+                self.n_qubits, -1.j, [(operator[0], 0)])
 
           else:
             # Raise for invalid operator.
@@ -252,13 +251,13 @@ class QubitTerm(local_terms.LocalTerm):
 
           # Account for the phase terms.
           for j in reversed(range(operator[0])):
-            z_term = QubitTerm(self._n_qubits,
+            z_term = QubitTerm(self.n_qubits,
                                coefficient=1.0,
                                operators=[(j, 'Z')])
             z_term *= working_term
             working_term = copy.deepcopy(z_term)
           transformed_operator = fermion_operators.FermionOperator(
-              self._n_qubits, [raising_term, lowering_term])
+              self.n_qubits, [raising_term, lowering_term])
           transformed_operator *= working_term.coefficient
           working_term.coefficient = 1.0
 
@@ -314,8 +313,8 @@ class QubitTerm(local_terms.LocalTerm):
       tensor_factor = operator[0] + 1
 
     # Grow space at end of string unless operator acted on final qubit.
-    if tensor_factor < self._n_qubits or not self.operators:
-      identity_qubits = self._n_qubits - tensor_factor
+    if tensor_factor < self.n_qubits or not self.operators:
+      identity_qubits = self.n_qubits - tensor_factor
       identity = scipy.sparse.identity(
           2 ** identity_qubits, dtype=complex, format='csc')
       matrix_form = scipy.sparse.kron(matrix_form, identity, 'csc')
@@ -345,7 +344,7 @@ class QubitOperator(local_operators.LocalOperator):
     """
     super(QubitOperator, self).__init__(n_qubits, terms)
     for term in self:
-      if isinstance(term, QubitTerm) and term._n_qubits == n_qubits:
+      if isinstance(term, QubitTerm) and term.n_qubits == n_qubits:
         continue
       raise QubitTermError('Invalid QubitTerms provided to QubitOperator.')
 
@@ -357,13 +356,13 @@ class QubitOperator(local_operators.LocalOperator):
       self.terms[tuple(operators)] = new_term
 
   def reverse_jordan_wigner(self):
-    transformed_operator = fermion_operators.FermionOperator(self._n_qubits)
+    transformed_operator = fermion_operators.FermionOperator(self.n_qubits)
     for term in self:
       transformed_operator += term.reverse_jordan_wigner()
     return transformed_operator
 
   def get_sparse_matrix(self):
-    hilbert_dimension = 2 ** self._n_qubits
+    hilbert_dimension = 2 ** self.n_qubits
     matrix_form = scipy.sparse.csc_matrix(
         (hilbert_dimension, hilbert_dimension), dtype=complex)
     for term in self:

@@ -20,7 +20,7 @@ class FermionOperatorError(local_operators.LocalOperatorError):
   pass
 
 
-def identity(n_qubits):
+def fermion_identity(n_qubits):
   return FermionTerm(n_qubits, 1.)
 
 
@@ -45,7 +45,7 @@ class FermionTerm(local_terms.LocalTerm):
   """Stores a single term composed of products of fermionic ladder operators.
 
   Attributes:
-    _n_qubits: An int giving the number of spin-orbitals in the system.
+    n_qubits: An int giving the number of spin-orbitals in the system.
     coefficient: A complex valued float giving the term coefficient.
     operators: A list of tuples. The first element of each tuple is an
       int indicating the site on which operators acts. The second element
@@ -179,7 +179,7 @@ class FermionTerm(local_terms.LocalTerm):
       runtime of this method is exponential in the number of qubits.
     """
     # Initialize output.
-    normal_ordered_operator = FermionOperator(self._n_qubits)
+    normal_ordered_operator = FermionOperator(self.n_qubits)
 
     # Copy self.
     term = copy.deepcopy(self)
@@ -201,7 +201,7 @@ class FermionTerm(local_terms.LocalTerm):
           if right_operator[0] == left_operator[0]:
             operators_in_new_term = term[:(j - 1)]
             operators_in_new_term += term[(j + 1)::]
-            new_term = FermionTerm(term._n_qubits,
+            new_term = FermionTerm(term.n_qubits,
                                    -1. * term.coefficient,
                                    operators_in_new_term)
 
@@ -242,28 +242,28 @@ class FermionTerm(local_terms.LocalTerm):
     """
     # Initialize identity matrix.
     transformed_term = qubit_operators.QubitOperator(
-        self._n_qubits, [qubit_operators.QubitTerm(self._n_qubits,
-                                                   self.coefficient)])
+        self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits,
+                                                  self.coefficient)])
     # Loop through operators, transform and multiply.
     for operator in self:
 
       # Handle identity.
       pauli_x_component = qubit_operators.QubitTerm(
-          self._n_qubits, 0.5,
+          self.n_qubits, 0.5,
           [(operator[0], 'X')] +
           [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
       if operator[1]:
         pauli_y_component = qubit_operators.QubitTerm(
-            self._n_qubits, -0.5j,
+            self.n_qubits, -0.5j,
             [(operator[0], 'Y')] +
             [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
       else:
         pauli_y_component = qubit_operators.QubitTerm(
-            self._n_qubits, 0.5j,
+            self.n_qubits, 0.5j,
             [(operator[0], 'Y')] +
             [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
       transformed_term *= qubit_operators.QubitOperator(
-          self._n_qubits, [pauli_x_component, pauli_y_component])
+          self.n_qubits, [pauli_x_component, pauli_y_component])
     return transformed_term
 
   def is_molecular_term(self):
@@ -290,7 +290,7 @@ class FermionOperator(local_operators.LocalOperator):
   """Data structure which stores sums of FermionTerm objects.
 
   Attributes:
-    _n_qubits: An int giving the number of spin-orbitals in the system.
+    n_qubits: An int giving the number of spin-orbitals in the system.
     terms: A dictionary of FermionTerm objects.
   """
   def __init__(self, n_qubits, terms=None):
@@ -340,7 +340,7 @@ class FermionOperator(local_operators.LocalOperator):
       at most a constant number of times in the original term, the
       runtime of this method is exponential in the number of qubits.
     """
-    normal_ordered_operator = FermionOperator(self._n_qubits)
+    normal_ordered_operator = FermionOperator(self.n_qubits)
     for term in self:
       normal_ordered_operator += term.normal_ordered()
     return normal_ordered_operator
@@ -365,7 +365,7 @@ class FermionOperator(local_operators.LocalOperator):
       at most a constant number of times in the original operator, the
       runtime of this method is exponential in the number of qubits.
     """
-    transformed_operator = qubit_operators.QubitOperator(self._n_qubits)
+    transformed_operator = qubit_operators.QubitOperator(self.n_qubits)
     for term in self:
       transformed_operator += term.jordan_wigner_transform()
     return transformed_operator
@@ -392,10 +392,9 @@ class FermionOperator(local_operators.LocalOperator):
     # Normal order the terms and initialize.
     self.normal_order()
     constant = 0.
-    one_body = numpy.zeros((self._n_qubits, self._n_qubits), complex)
+    one_body = numpy.zeros((self.n_qubits, self.n_qubits), complex)
     two_body = numpy.zeros((
-        self._n_qubits, self._n_qubits, self._n_qubits, self._n_qubits),
-        complex)
+        self.n_qubits, self.n_qubits, self.n_qubits, self.n_qubits), complex)
 
     # Loop through terms and assign to matrix.
     for term in self:
