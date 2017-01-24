@@ -265,11 +265,11 @@ class MolecularOperator(object):
       return False
     elif (numpy.amax(
         numpy.absolute(self.one_body_coefficients -
-                       molecular_operators.one_body_coefficients)) > tol):
+                       molecular_operator.one_body_coefficients)) > tol):
       return False
     elif (numpy.amax(
         numpy.absolute(self.two_body_coefficients -
-                       molecular_operators.two_body_coefficients)) > tol):
+                       molecular_operator.two_body_coefficients)) > tol):
       return False
     else:
       return True

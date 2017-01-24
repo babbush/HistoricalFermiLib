@@ -410,7 +410,7 @@ class QubitOperator(local_operators.LocalOperator):
           two_rdm[i, j, k, l] += term.coefficient * self[term.operators]
 
     # Return new operator.
-    molecular_operator = molecular_operators.MolecularOperator(0.0,
+    molecular_operator = molecular_operators.MolecularOperator(1.0,
                                                                one_rdm,
                                                                two_rdm)
     return molecular_operator

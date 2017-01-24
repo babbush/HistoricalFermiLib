@@ -110,6 +110,11 @@ class OddNumberElectronBug(unittest.TestCase):
     # Get matrix form.
     self.hamiltonian_matrix = self.molecular_hamiltonian.get_sparse_matrix()
 
+  def test_qubit_to_molecular_rdm(self):
+    qubit_rdm = self.fci_rdm.get_qubit_expectations(self.qubit_hamiltonian)
+    molecular_rdm = qubit_rdm.get_molecular_rdm()
+    self.assertTrue(molecular_rdm == self.fci_rdm)
+
   def test_molecular_hydrogen(self):
 
     # Check that all the transforms work.
