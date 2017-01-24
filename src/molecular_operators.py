@@ -259,6 +259,24 @@ class MolecularOperator(object):
     elif not len(args):
       self.constant = value
 
+  def __eq__(self, molecular_operator):
+    _tolerance = 1e-12
+    if abs(self.constant - molecular_operator.constant) > _tolerance:
+      return False
+    elif (numpy.amax(numpy.absolute(self.one_body_coefficients -
+          molecular_operators.one_body_coefficients)) >
+        _tolerance):
+      return False
+    elif (numpy.amax(numpy.absolute(self.two_body_coefficients -
+          molecular_operators.two_body_coefficients)) >
+        _tolerance):
+      return False
+    else:
+      return True
+
+  def __neq__(self, molecular_operator):
+    return not (self == molecular_operator)
+
   def rotate_basis(self, rotation_matrix):
     """Rotate the orbital basis of the MolecularOperator.
 
