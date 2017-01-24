@@ -1,5 +1,5 @@
 """Tests for molecular_operators.py"""
-import molecular_operators
+from molecular_operators import MolecularOperator, MolecularOperatorError
 import fermion_operators
 import itertools
 import unittest
@@ -14,8 +14,8 @@ class MolecularOperatorsTest(unittest.TestCase):
     self.one_body = numpy.zeros((self.n_qubits, self.n_qubits), float)
     self.two_body = numpy.zeros((self.n_qubits, self.n_qubits,
                                  self.n_qubits, self.n_qubits), float)
-    self.molecular_operator = molecular_operators.MolecularOperator(
-        self.constant, self.one_body, self.two_body)
+    self.molecular_operator = MolecularOperator(self.constant, self.one_body,
+                                                self.two_body)
 
   def test_jordan_wigner_one_body(self):
 

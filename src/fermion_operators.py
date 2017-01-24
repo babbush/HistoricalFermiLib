@@ -1,9 +1,9 @@
 """Class to store and transform fermion operators.
 """
+from local_terms import LocalTerm, LocalTermError
+from local_operators import LocalOperator, LocalOperatorError
+from qubit_operators import QubitTerm, QubitOperator
 import molecular_operators
-import qubit_operators
-import local_operators
-import local_terms
 import numpy
 import copy
 
@@ -12,11 +12,11 @@ class JordanWignerError(Exception):
   pass
 
 
-class FermionTermError(local_terms.LocalTermError):
+class FermionTermError(LocalTermError):
   pass
 
 
-class FermionOperatorError(local_operators.LocalOperatorError):
+class FermionOperatorError(LocalOperatorError):
   pass
 
 
@@ -41,7 +41,7 @@ def number_operator(n_qubits, site=None, coefficient=1.):
   return operator
 
 
-class FermionTerm(local_terms.LocalTerm):
+class FermionTerm(LocalTerm):
   """Stores a single term composed of products of fermionic ladder operators.
 
   Attributes:
@@ -201,8 +201,7 @@ class FermionTerm(local_terms.LocalTerm):
           if right_operator[0] == left_operator[0]:
             operators_in_new_term = term[:(j - 1)]
             operators_in_new_term += term[(j + 1)::]
-            new_term = FermionTerm(term.n_qubits,
-                                   -1. * term.coefficient,
+            new_term = FermionTerm(term.n_qubits, -1. * term.coefficient,
                                    operators_in_new_term)
 
             # Recursively add the processed new term.
@@ -241,29 +240,28 @@ class FermionTerm(local_terms.LocalTerm):
       runtime of this method is exponential in the number of qubits.
     """
     # Initialize identity matrix.
-    transformed_term = qubit_operators.QubitOperator(
-        self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits,
-                                                  self.coefficient)])
+    transformed_term = QubitOperator(self.n_qubits,
+                                     [QubitTerm(self.n_qubits,
+                                                self.coefficient)])
     # Loop through operators, transform and multiply.
     for operator in self:
 
       # Handle identity.
-      pauli_x_component = qubit_operators.QubitTerm(
-          self.n_qubits, 0.5,
-          [(operator[0], 'X')] +
-          [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+      pauli_x_component = QubitTerm(self.n_qubits, 0.5, [(operator[0], 'X')] +
+                                    [(index, 'Z') for index in
+                                     range(operator[0] - 1, -1, -1)])
       if operator[1]:
-        pauli_y_component = qubit_operators.QubitTerm(
-            self.n_qubits, -0.5j,
-            [(operator[0], 'Y')] +
-            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+        pauli_y_component = QubitTerm(self.n_qubits, -0.5j,
+                                      [(operator[0], 'Y')] +
+                                      [(index, 'Z') for index in
+                                       range(operator[0] - 1, -1, -1)])
       else:
-        pauli_y_component = qubit_operators.QubitTerm(
-            self.n_qubits, 0.5j,
-            [(operator[0], 'Y')] +
-            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
-      transformed_term *= qubit_operators.QubitOperator(
-          self.n_qubits, [pauli_x_component, pauli_y_component])
+        pauli_y_component = QubitTerm(self.n_qubits, 0.5j,
+                                      [(operator[0], 'Y')] +
+                                      [(index, 'Z') for index in
+                                       range(operator[0] - 1, -1, -1)])
+      transformed_term *= QubitOperator(self.n_qubits, [pauli_x_component,
+                                                        pauli_y_component])
     return transformed_term
 
   def is_molecular_term(self):
@@ -286,7 +284,7 @@ class FermionTerm(local_terms.LocalTerm):
     return not (particles or spin)
 
 
-class FermionOperator(local_operators.LocalOperator):
+class FermionOperator(LocalOperator):
   """Data structure which stores sums of FermionTerm objects.
 
   Attributes:
@@ -365,7 +363,7 @@ class FermionOperator(local_operators.LocalOperator):
       at most a constant number of times in the original operator, the
       runtime of this method is exponential in the number of qubits.
     """
-    transformed_operator = qubit_operators.QubitOperator(self.n_qubits)
+    transformed_operator = QubitOperator(self.n_qubits)
     for term in self:
       transformed_operator += term.jordan_wigner_transform()
     return transformed_operator
@@ -410,8 +408,8 @@ class FermionOperator(local_operators.LocalOperator):
           p, q = [operator[0] for operator in term]
           one_body[p, q] = coefficient
         else:
-          raise ErrorMolecularOperator('FermionOperator is not a '
-                                       'molecular operator.')
+          raise molecular_operators.ErrorMolecularOperator(
+              'FermionOperator is not a molecular operator.')
 
       elif len(term) == 4:
         # Handle two-body terms.
@@ -419,15 +417,16 @@ class FermionOperator(local_operators.LocalOperator):
           p, q, r, s = [operator[0] for operator in term]
           two_body[p, q, r, s] = coefficient
         else:
-          raise ErrorMolecularOperator('FermionOperator is not a'
-                                       'molecular operator.')
+          raise molecular_operators.ErrorMolecularOperator(
+              'FermionOperator is not a molecular operator.')
 
       else:
         # Handle non-molecular Hamiltonian.
-        raise ErrorMolecularOperator('FermionOperator is not a'
-                                     'molecular operator.')
+        raise molecular_operators.ErrorMolecularOperator(
+            'FermionOperator is  not a molecular operator.')
 
     # Form MolecularOperator and return.
-    molecular_operator = molecular_operators.MolecularOperator(
-        constant, one_body, two_body)
+    molecular_operator = molecular_operators.MolecularOperator(constant,
+                                                               one_body,
+                                                               two_body)
     return molecular_operator

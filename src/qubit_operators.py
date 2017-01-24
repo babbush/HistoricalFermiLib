@@ -3,8 +3,8 @@
 import fermion_operators
 import sparse_operators
 import molecular_operators
-import local_operators
-import local_terms
+from local_operators import LocalOperator
+from local_terms import LocalTerm
 import numpy
 import scipy
 import scipy.sparse
@@ -43,7 +43,7 @@ def qubit_identity(n_qubits):
   return QubitTerm(n_qubits, 1.)
 
 
-class QubitTerm(local_terms.LocalTerm):
+class QubitTerm(LocalTerm):
   """Single term of a hamiltonian for a system of spin 1/2 particles or qubits.
 
   A hamiltonian of qubits can be written as a sum of QubitTerm objects.
@@ -112,8 +112,7 @@ class QubitTerm(local_terms.LocalTerm):
       TypeError: Object of invalid type cannot be added to QubitTerm.
       FermionTermError: Cannot add terms acting on different Hilbert spaces.
     """
-    if not issubclass(type(addend),
-                      (QubitTerm, QubitOperator)):
+    if not issubclass(type(addend), (QubitTerm, QubitOperator)):
       raise TypeError('Cannot add term of invalid type to QubitTerm.')
 
     if not self.n_qubits == addend.n_qubits:
@@ -321,7 +320,7 @@ class QubitTerm(local_terms.LocalTerm):
     return matrix_form
 
 
-class QubitOperator(local_operators.LocalOperator):
+class QubitOperator(LocalOperator):
   """A collection of QubitTerm objects acting on same number of qubits.
 
   Note that to be a Hamiltonian which is a hermitian operator, the individual

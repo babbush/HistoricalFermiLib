@@ -1,6 +1,7 @@
 """Tests for qubit_operators.py"""
 import sparse_operators
-import qubit_operators
+from qubit_operators import (QubitTerm, QubitOperator, qubit_identity,
+                             QubitTermError, QubitOperatorError)
 import unittest
 import copy
 
@@ -11,9 +12,8 @@ class QubitTermsTest(unittest.TestCase):
     self._n_qubits = 12
     self.coefficient = 0.5
     self.operators = [(1, 'X'), (3, 'Y'), (8, 'Z')]
-    self.term = qubit_operators.QubitTerm(
-        self._n_qubits, self.coefficient, self.operators)
-    self.identity = qubit_operators.QubitTerm(self._n_qubits)
+    self.term = QubitTerm(self._n_qubits, self.coefficient, self.operators)
+    self.identity = QubitTerm(self._n_qubits)
 
   def test_correct_input(self):
     self.assertAlmostEqual(self.term.coefficient, 0.5)
@@ -22,21 +22,21 @@ class QubitTermsTest(unittest.TestCase):
     self.assertTrue(self.term == self.term)
 
   def test_correct_multiply(self):
-    term = qubit_operators.QubitTerm(
-        self._n_qubits, 3.j, [(0, 'Y'), (3, 'X'), (8, 'Z'), (11, 'X')])
+    term = QubitTerm(self._n_qubits, 3.j, [(0, 'Y'), (3, 'X'),
+                                           (8, 'Z'), (11, 'X')])
     product = copy.deepcopy(term)
     product *= self.term
     correct_coefficient = 1.j * term.coefficient * self.coefficient
     correct_operators = [(0, 'Y'), (1, 'X'), (3, 'Z'), (11, 'X')]
-    correct_product = qubit_operators.QubitTerm(
-        self._n_qubits, correct_coefficient, correct_operators)
-    self.assertTrue(correct_product == product)
+    correct_product = QubitTerm(self._n_qubits, correct_coefficient,
+                                correct_operators)
+    self.assertEqual(correct_product, product)
 
   def test_sparse_matrix(self):
     n_qubits = 2
     coefficient = 2.
     operators = [(0, 'Z'), (1, 'X')]
-    term = qubit_operators.QubitTerm(n_qubits, coefficient, operators)
+    term = QubitTerm(n_qubits, coefficient, operators)
     matrix = term.get_sparse_matrix()
     self.assertAlmostEqual(list(matrix.data), [2., 2., -2., -2.])
     self.assertAlmostEqual(list(matrix.indices), [1, 0, 3, 2])
@@ -44,9 +44,9 @@ class QubitTermsTest(unittest.TestCase):
 
   def test_reverse_jordan_wigner(self):
 
-    pauli_x = qubit_operators.QubitTerm(self._n_qubits, 1., [(2, 'X')])
-    pauli_y = qubit_operators.QubitTerm(self._n_qubits, 1., [(2, 'Y')])
-    pauli_z = qubit_operators.QubitTerm(self._n_qubits, 1., [(2, 'Z')])
+    pauli_x = QubitTerm(self._n_qubits, 1., [(2, 'X')])
+    pauli_y = QubitTerm(self._n_qubits, 1., [(2, 'Y')])
+    pauli_z = QubitTerm(self._n_qubits, 1., [(2, 'Z')])
 
     transformed_x = pauli_x.reverse_jordan_wigner()
     retransformed_x = transformed_x.jordan_wigner_transform()
@@ -77,26 +77,23 @@ class QubitTermsTest(unittest.TestCase):
     self.coefficient = 0.5
     self.operators = [(1, 'X'), (3, 'Y'), (8, 'Z')]
     new_term = 2. * self.term + self.term - 2. * self.term
-    self.assertEqual(qubit_operators.QubitOperator(self._n_qubits, self.term),
-                     new_term)
-    self.assertTrue(isinstance(self.term + self.term,
-                               qubit_operators.QubitOperator))
-    self.assertTrue(isinstance(self.term - self.term,
-                               qubit_operators.QubitOperator))
+    self.assertEqual(QubitOperator(self._n_qubits, self.term), new_term)
+    self.assertTrue(isinstance(self.term + self.term, QubitOperator))
+    self.assertTrue(isinstance(self.term - self.term, QubitOperator))
 
 
 class QubitOperatorsTest(unittest.TestCase):
 
   def setUp(self):
     self._n_qubits = 12
-    self.identity = qubit_operators.QubitTerm(self._n_qubits)
-    self.term_a = qubit_operators.QubitTerm(
+    self.identity = QubitTerm(self._n_qubits)
+    self.term_a = QubitTerm(
         self._n_qubits, 0.5, [(1, 'X'), (3, 'Y'), (8, 'Z')])
-    self.term_b = qubit_operators.QubitTerm(
+    self.term_b = QubitTerm(
         self._n_qubits, 1.2, [(1, 'Z'), (3, 'X'), (8, 'Z')])
-    self.term_c = qubit_operators.QubitTerm(
+    self.term_c = QubitTerm(
         self._n_qubits, 1.4, [(1, 'Z'), (3, 'Y'), (9, 'Z')])
-    self.qubit_operator = qubit_operators.QubitOperator(self._n_qubits)
+    self.qubit_operator = QubitOperator(self._n_qubits)
     self.assertEqual(self.qubit_operator.terms, {})
     self.qubit_operator += self.term_a
     self.qubit_operator += self.term_b
