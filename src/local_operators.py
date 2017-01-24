@@ -286,7 +286,7 @@ class LocalOperator(object):
     identity_term = local_terms.LocalTerm(self.n_qubits, 1.0)
     res = LocalOperator(self.n_qubits, identity_term)
 
-    for i in xrange(exponent):
+    for i in range(exponent):
       res *= self
 
     return res
