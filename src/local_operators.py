@@ -186,6 +186,9 @@ class LocalOperator(object):
     """Compute self - subtrahend for a LocalTerm or LocalOperator."""
     return self + (-1. * subtrahend)
 
+  def __neg__(self):
+    return -1 * self
+
   def __imul__(self, multiplier):
     """Compute self *= multiplier.
 

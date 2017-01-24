@@ -147,6 +147,12 @@ class LocalOperatorsTest(unittest.TestCase):
     expected = local_operators.LocalOperator(self.n_qubits, [])
     self.assertEqual(self.operator_a - self.term_a, expected)
 
+  def test_neg(self):
+    term = local_terms.LocalTerm(self.n_qubits, -self.coefficient_a,
+                                 self.operators_a)
+    expected = local_operators.LocalOperator(self.n_qubits, term)
+    self.assertEqual(-self.operator_a, expected)
+
   def test_mul(self):
     new_operator = self.operator_abc * self.operator_abc
     new_a_term = self.term_a * self.term_a

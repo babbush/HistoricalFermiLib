@@ -144,6 +144,9 @@ class LocalTerm(object):
 
     return local_operators.LocalOperator(self._n_qubits, [self]) + addend
 
+  def __neg__(self):
+    return -1 * self
+
   def __sub__(self, subtrahend):
     """Compute self - subtrahend for a LocalTerm or derivative."""
     return self + (-1. * subtrahend)

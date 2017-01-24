@@ -67,7 +67,7 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(self.term_a + self.term_b, self.operator_ab)
 
   def test_sub_fermionterm(self):
-    neg_term_b = -1 * self.term_b
+    neg_term_b = -self.term_b
     expected = fermion_operators.FermionOperator(self.n_qubits,
                                                  [self.term_a, neg_term_b])
     self.assertEqual(self.term_a - self.term_b, expected)
@@ -77,7 +77,7 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(self.term_b - self.term_b, expected)
 
   def test_sub_fermionop(self):
-    neg_term_b = -1 * self.term_b
+    neg_term_b = -self.term_b
     expected = fermion_operators.FermionOperator(self.n_qubits, [neg_term_b])
     self.assertEqual(self.term_a - self.operator_ab, expected)
 
@@ -203,7 +203,7 @@ class FermionTermsTest(unittest.TestCase):
                                              [(3, 0), (2, 0), (1, 1)])
     op_321 = fermion_operators.FermionOperator(self.n_qubits, term_321)
 
-    self.assertEqual(term_123.normal_ordered(), -1 * op_132)
+    self.assertEqual(term_123.normal_ordered(), -op_132)
     self.assertEqual(term_132.normal_ordered(), op_132)
     self.assertEqual(term_321.normal_ordered(), op_132)
 
@@ -317,7 +317,7 @@ class FermionOperatorsTest(unittest.TestCase):
     term_123 = fermion_operators.FermionTerm(self.n_qubits, 1,
                                              [(1, 1), (2, 0), (3, 0)])
     op_123 = fermion_operators.FermionOperator(self.n_qubits, term_123)
-    self.assertEqual(op_123.normal_ordered(), -1 * op_132.normal_ordered())
+    self.assertEqual(op_123.normal_ordered(), -op_132.normal_ordered())
 
   def test_jordan_wigner_transform(self):
     number_operator = fermion_operators.number_operator(self.n_qubits)
