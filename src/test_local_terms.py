@@ -60,13 +60,13 @@ class LocalTermsTest(unittest.TestCase):
     self.assertFalse(self.term_a != self.term_a)
 
   def test_slicing(self):
-    for i in xrange(len(self.term_a)):
+    for i in range(len(self.term_a)):
       self.assertEqual(self.term_a[i], i)
 
   def test_slicing_set(self):
-    for i in xrange(len(self.term_a)):
+    for i in range(len(self.term_a)):
       self.term_a[i] += 1
-    for i in xrange(len(self.term_a)):
+    for i in range(len(self.term_a)):
       self.assertEqual(self.term_a[i], i + 1)
 
   def test_set_not_in(self):

@@ -34,7 +34,7 @@ def number_operator(n_qubits, site=None, coefficient=1.):
   """
   if site is None:
     operator = FermionOperator(n_qubits)
-    for spin_orbital in xrange(n_qubits):
+    for spin_orbital in range(n_qubits):
       operator += number_operator(n_qubits, spin_orbital)
   else:
     operator = FermionTerm(n_qubits, coefficient, [(site, 1), (site, 0)])
@@ -128,7 +128,7 @@ class FermionTerm(local_terms.LocalTerm):
     """Hermitian conjugate this fermionic term."""
     self.coefficient = numpy.conjugate(self.coefficient)
     self.operators.reverse()
-    for tensor_factor in xrange(len(self)):
+    for tensor_factor in range(len(self)):
       self[tensor_factor] = (self[tensor_factor][0],
                              1 - self[tensor_factor][1])
 
@@ -149,8 +149,8 @@ class FermionTerm(local_terms.LocalTerm):
     from highest tensor factor (on left) to lowest (on right).
     Also, ladder operators come first.
     """
-    for i in xrange(1, len(self)):
-      for j in xrange(i, 0, -1):
+    for i in range(1, len(self)):
+      for j in range(i, 0, -1):
         right_operator = self[j]
         left_operator = self[j - 1]
         if right_operator[1] and not left_operator[1]:
@@ -181,8 +181,8 @@ class FermionTerm(local_terms.LocalTerm):
 
     # Iterate from left to right across operators and reorder to normal form.
     # Swap terms operators into correct position by moving left to right.
-    for i in xrange(1, len(term)):
-      for j in xrange(i, 0, -1):
+    for i in range(1, len(term)):
+      for j in range(i, 0, -1):
         right_operator = term[j]
         left_operator = term[j - 1]
 
@@ -246,17 +246,17 @@ class FermionTerm(local_terms.LocalTerm):
       pauli_x_component = qubit_operators.QubitTerm(
           self._n_qubits, 0.5,
           [(operator[0], 'X')] +
-          [(index, 'Z') for index in xrange(operator[0] - 1, -1, -1)])
+          [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
       if operator[1]:
         pauli_y_component = qubit_operators.QubitTerm(
             self._n_qubits, -0.5j,
             [(operator[0], 'Y')] +
-            [(index, 'Z') for index in xrange(operator[0] - 1, -1, -1)])
+            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
       else:
         pauli_y_component = qubit_operators.QubitTerm(
             self._n_qubits, 0.5j,
             [(operator[0], 'Y')] +
-            [(index, 'Z') for index in xrange(operator[0] - 1, -1, -1)])
+            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
       transformed_term *= qubit_operators.QubitOperator(
           self._n_qubits, [pauli_x_component, pauli_y_component])
     return transformed_term

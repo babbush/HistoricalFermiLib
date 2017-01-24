@@ -17,7 +17,7 @@ class NumberOperatorsTest(unittest.TestCase):
   def test_number_operator_total(self):
     total_number_operator = fermion_operators.number_operator(self.n_qubits)
     self.assertEqual(len(total_number_operator.terms), self.n_qubits)
-    for qubit in xrange(self.n_qubits):
+    for qubit in range(self.n_qubits):
       operators = [(qubit, 1), (qubit, 0)]
       self.assertEqual(total_number_operator[operators], 1.)
 

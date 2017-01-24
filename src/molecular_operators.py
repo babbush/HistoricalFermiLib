@@ -301,8 +301,8 @@ class MolecularOperator(object):
                                                          [identity])
 
     # Loop through terms.
-    for p in xrange(self.n_qubits):
-      for q in xrange(self.n_qubits):
+    for p in range(self.n_qubits):
+      for q in range(self.n_qubits):
 
         # Add one-body terms.
         coefficient = self[p, q]
@@ -310,8 +310,8 @@ class MolecularOperator(object):
             self.n_qubits, coefficient, [(p, 1), (q, 0)])
 
         # Keep looping.
-        for r in xrange(self.n_qubits):
-          for s in xrange(self.n_qubits):
+        for r in range(self.n_qubits):
+          for s in range(self.n_qubits):
 
             # Add two-body terms.
             coefficient = self[p, q, r, s]
@@ -331,7 +331,7 @@ class MolecularOperator(object):
     qubit_operator = qubit_operators.QubitOperator(n_qubits)
     if p != q:
       a, b = sorted([p, q])
-      parity_string = [(z, 'Z') for z in xrange(a + 1, b)]
+      parity_string = [(z, 'Z') for z in range(a + 1, b)]
       for operator in ['X', 'Y']:
         operators = [(a, operator)] + parity_string + [(b, operator)]
         qubit_operator += qubit_operators.QubitTerm(
@@ -473,8 +473,8 @@ class MolecularOperator(object):
     qubit_operator += qubit_operators.QubitTerm(self.n_qubits, self.constant)
 
     # Loop through all indices.
-    for p in xrange(self.n_qubits):
-      for q in xrange(self.n_qubits):
+    for p in range(self.n_qubits):
+      for q in range(self.n_qubits):
 
         # Handle one-body terms.
         coefficient = float(self[p, q])
@@ -483,8 +483,8 @@ class MolecularOperator(object):
               self.n_qubits, p, q)
 
         # Keep looping for the two-body terms.
-        for r in xrange(self.n_qubits):
-          for s in xrange(self.n_qubits):
+        for r in range(self.n_qubits):
+          for s in range(self.n_qubits):
             coefficient = float(self[p, q, r, s])
 
             # Skip zero terms.
