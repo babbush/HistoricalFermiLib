@@ -2,7 +2,7 @@
 """
 from local_terms import LocalTerm, LocalTermError
 from local_operators import LocalOperator, LocalOperatorError
-from qubit_operators import QubitTerm, QubitOperator
+import qubit_operators
 import molecular_operators
 import numpy
 import copy
@@ -240,28 +240,26 @@ class FermionTerm(LocalTerm):
       runtime of this method is exponential in the number of qubits.
     """
     # Initialize identity matrix.
-    transformed_term = QubitOperator(self.n_qubits,
-                                     [QubitTerm(self.n_qubits,
-                                                self.coefficient)])
+    transformed_term = qubit_operators.QubitOperator(
+        self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits,
+                                                  self.coefficient)])
     # Loop through operators, transform and multiply.
     for operator in self:
 
       # Handle identity.
-      pauli_x_component = QubitTerm(self.n_qubits, 0.5, [(operator[0], 'X')] +
-                                    [(index, 'Z') for index in
-                                     range(operator[0] - 1, -1, -1)])
+      pauli_x_component = qubit_operators.QubitTerm(
+          self.n_qubits, 0.5, [(operator[0], 'X')] +
+          [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
       if operator[1]:
-        pauli_y_component = QubitTerm(self.n_qubits, -0.5j,
-                                      [(operator[0], 'Y')] +
-                                      [(index, 'Z') for index in
-                                       range(operator[0] - 1, -1, -1)])
+        pauli_y_component = qubit_operators.QubitTerm(
+            self.n_qubits, -0.5j, [(operator[0], 'Y')] +
+            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
       else:
-        pauli_y_component = QubitTerm(self.n_qubits, 0.5j,
-                                      [(operator[0], 'Y')] +
-                                      [(index, 'Z') for index in
-                                       range(operator[0] - 1, -1, -1)])
-      transformed_term *= QubitOperator(self.n_qubits, [pauli_x_component,
-                                                        pauli_y_component])
+        pauli_y_component = qubit_operators.QubitTerm(
+            self.n_qubits, 0.5j, [(operator[0], 'Y')] +
+            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+      transformed_term *= qubit_operators.QubitOperator(
+          self.n_qubits, [pauli_x_component, pauli_y_component])
     return transformed_term
 
   def is_molecular_term(self):
@@ -363,7 +361,7 @@ class FermionOperator(LocalOperator):
       at most a constant number of times in the original operator, the
       runtime of this method is exponential in the number of qubits.
     """
-    transformed_operator = QubitOperator(self.n_qubits)
+    transformed_operator = qubit_operators.QubitOperator(self.n_qubits)
     for term in self:
       transformed_operator += term.jordan_wigner_transform()
     return transformed_operator
