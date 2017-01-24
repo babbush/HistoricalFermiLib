@@ -68,7 +68,11 @@ class FermionTerm(local_terms.LocalTerm):
           of each tuple is an integer indicating raising (1) or lowering (0).
 
     Raises:
-      FermionTermError: Invalid operators provided to FermionTerm.
+      ValueError: Provided incorrect operator in list of operators.
+      ValueError: Invalid action provided to FermionTerm. Must be 0
+                  (lowering) or 1 (raising).
+      ValueError: Invalid tensor factor provided to FermionTerm.
+                  Must be an integer between 0 and n_qubits-1.
     """
     super(FermionTerm, self).__init__(n_qubits, coefficient, operators)
 
@@ -108,19 +112,16 @@ class FermionTerm(local_terms.LocalTerm):
       raise FermionTermError('Cannot add terms acting on different'
                              'Hilbert spaces.')
 
-    return FermionOperator(self.n_qubits, [self]) + addend
+    return FermionOperator(self.n_qubits, self) + addend
 
   def __str__(self):
     """Return an easy-to-read string representation of the term."""
     string_representation = '{} ('.format(self.coefficient)
     for operator in self:
-      if operator[1]:
-        string_representation += '{}+ '.format(operator[0])
-      else:
-        string_representation += '{} '.format(operator[0])
-    n_characters = len(string_representation)
+      string_representation += str(operator[0]) + '+' * operator[1] + ' '
+
     if self:
-      string_representation = string_representation[:(n_characters - 1)]
+      string_representation = string_representation[:-1]
     string_representation += ')'
     return string_representation
 
@@ -164,6 +165,10 @@ class FermionTerm(local_terms.LocalTerm):
     """Compute and return the normal ordered form of a FermionTerm.
 
     Not an in-place method.
+
+    In our convention, normal ordering implies terms are ordered
+    from highest tensor factor (on left) to lowest (on right).
+    Also, ladder operators come first.
 
     Returns:
       FermionOperator object in normal ordered form.

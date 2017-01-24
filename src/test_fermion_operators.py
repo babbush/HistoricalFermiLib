@@ -52,9 +52,9 @@ class FermionTermsTest(unittest.TestCase):
         self.n_qubits, -self.coefficient_b, [(2, 1), (4, 0), (2, 0)])
 
     self.operator_a = fermion_operators.FermionOperator(
-        self.n_qubits, [self.term_a])
+        self.n_qubits, self.term_a)
     self.operator_b = fermion_operators.FermionOperator(
-        self.n_qubits, [self.term_b])
+        self.n_qubits, self.term_b)
     self.operator_ab = fermion_operators.FermionOperator(
         self.n_qubits, [self.term_a, self.term_b])
 
@@ -63,13 +63,16 @@ class FermionTermsTest(unittest.TestCase):
     self.operator_b_normal = fermion_operators.FermionOperator(
         self.n_qubits, [self.normal_ordered_b1, self.normal_ordered_b2])
 
+  def test_init_bad(self):
+    with self.assertRaises(ValueError):
+      term = fermion_operators.FermionTerm(4, 1, [(1, 2)])
+
   def test_add_fermionterm(self):
     self.assertEqual(self.term_a + self.term_b, self.operator_ab)
 
   def test_sub_fermionterm(self):
-    neg_term_b = -self.term_b
     expected = fermion_operators.FermionOperator(self.n_qubits,
-                                                 [self.term_a, neg_term_b])
+                                                 [self.term_a, -self.term_b])
     self.assertEqual(self.term_a - self.term_b, expected)
 
   def test_sub_cancel(self):
@@ -77,8 +80,7 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(self.term_b - self.term_b, expected)
 
   def test_sub_fermionop(self):
-    neg_term_b = -self.term_b
-    expected = fermion_operators.FermionOperator(self.n_qubits, [neg_term_b])
+    expected = fermion_operators.FermionOperator(self.n_qubits, -self.term_b)
     self.assertEqual(self.term_a - self.operator_ab, expected)
 
   def test_iadd(self):
