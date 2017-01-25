@@ -281,3 +281,6 @@ class LocalTerm(object):
 
   def __str__(self):
     return '{} {}'.format(self.coefficient, self.operators)
+
+  def __repr__(self):
+    return str(self)
