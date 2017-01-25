@@ -209,11 +209,9 @@ class QubitTerm(LocalTerm):
     """
     # Initialize transformed operator.
     identity = fermion_operators.fermion_identity(self.n_qubits)
-    transformed_term = fermion_operators.FermionOperator(
-        self.n_qubits, [identity])
-    working_term = QubitTerm(self.n_qubits,
-                             1.0,
-                             self.operators)
+    transformed_term = fermion_operators.FermionOperator(self.n_qubits,
+                                                         identity)
+    working_term = QubitTerm(self.n_qubits, 1.0, self.operators)
 
     # Loop through operators.
     if working_term.operators:
@@ -222,31 +220,25 @@ class QubitTerm(LocalTerm):
 
         # Handle Pauli Z.
         if operator[1] == 'Z':
-          identity = fermion_operators.fermion_identity(self.n_qubits)
-          number_operator = fermion_operators.FermionTerm(
-              self.n_qubits, -2., [(operator[0], 1), (operator[0], 0)])
-          transformed_operator = fermion_operators.FermionOperator(
-              self.n_qubits, [identity, number_operator])
+          number_operator = fermion_operators.number_operator(
+              self.n_qubits, operator[0], -2.)
+          transformed_operator = identity + number_operator
 
         else:
+          raising_term = fermion_operators.FermionTerm(
+              self.n_qubits, 1., [(operator[0], 1)])
+          lowering_term = fermion_operators.FermionTerm(
+              self.n_qubits, 1., [(operator[0], 0)])
+
           # Handle Pauli X.
-          if operator[1] == 'X':
-            raising_term = fermion_operators.FermionTerm(
-                self.n_qubits, 1., [(operator[0], 1)])
-            lowering_term = fermion_operators.FermionTerm(
-                self.n_qubits, 1., [(operator[0], 0)])
+          if operator[1] == 'Y':
+            raising_term *= 1j
+            lowering_term *= -1j
 
-          elif operator[1] == 'Y':
-            # Handle Pauli Y.
-            raising_term = fermion_operators.FermionTerm(
-                self.n_qubits, 1.j, [(operator[0], 1)])
-            lowering_term = fermion_operators.FermionTerm(
-                self.n_qubits, -1.j, [(operator[0], 0)])
-
-          else:
+          elif operator[1] != 'X':
             # Raise for invalid operator.
-            raise QubitTermError(
-                "Invalid operator provided: must be 'X', 'Y' or 'Z'")
+            raise QubitTermError("Invalid operator provided: "
+                                 "must be 'X', 'Y' or 'Z'")
 
           # Account for the phase terms.
           for j in reversed(range(operator[0])):
