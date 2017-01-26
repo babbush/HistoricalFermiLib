@@ -1,10 +1,18 @@
 class FenwickNode:
   """ Fenwick Tree node """
-  parent = None
-  children = None
+  parent = None    
+  children = None 
   value = None
   
   def __init__(self, parent = None, children=[], value = None):
+    """ Fenwick Tree node
+
+    Args: 
+        parent: FenwickTree. A parent node.
+        children: FenwickTree, list. A list of children nodes.
+        value: Int. Currently for debugging purposes only. 
+    """
+
     self.children = children
     self.parent = parent
     self.value = value
@@ -15,8 +23,6 @@ class FenwickTree:
      
   Please see Subsection B.2. of Operator Locality in Quantum Simulation of Fermionic Models by
   Havlicek, Troyer and Whitfiled for a reference to U, P and F sets of the Fenwick. 
-  
-  TOOD: this implementation is legible, but greedy. 
   """
 
   root = None # Root node
@@ -31,36 +37,39 @@ class FenwickTree:
     self.root = FenwickNode()
     self.root.value = n_qubits-1 # For debug atm
 
-    def F(L, R, parent): 
-      """ This inner function defines the Fenwick tree recursivelly.
-      See Algorithm 1 in the paper. """
+    def fenwick(left, right, parent): 
+      """ This inner function is used to define the Fenwick 
+      tree recursivelly. See Algorithm 1 in the paper. 
       
-      if L == R:
+      Args:
+          left: Int. Left boundary of the range.
+          right: Int. Right boundary of the range.
+          parent: Parent node
+      """
+      
+      if left == right:
         return
       else:
-        pivot = (L+R)>>1
-      
-        lchild = FenwickNode(parent, [])        
-        lchild.value = pivot # For debug at the moment
-        
-        parent.children.append(lchild)
-        lchild.parent = parent
+        pivot = (left + right) >> 1 # Split the register into two parts
+        child = FenwickNode(parent, [], pivot) # Prepare the left child
+        parent.children.append(child) # Link the parent to the child
+        child.parent = parent # And the child to the parent
 
-        F(L, pivot, lchild) # build the left part of the tree
-        F(pivot + 1, R,  parent) # build the right part         
+        fenwick(left, pivot, child) # Proceed recursivelly to the left part of the tree
+        fenwick(pivot+1, right, parent) # and to the right part         
 
-    F(0, n_qubits-1, self.root) # Build the structure
+    fenwick(0, n_qubits-1, self.root) # Build the structure
     
-  def U(j):
+  def get_U(j):
     """ The set of all ancestors of j, or the update set """
     pass
 
-  def F(j):
+  def get_F(j):
     """ The set of children of j-th site """
 
     pass
 
-  def C(j):
+  def get_C(j):
     """ Return the set of children with indices less than j od all ancestors of j"""
     pass
 
