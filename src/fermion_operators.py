@@ -225,7 +225,18 @@ class FermionTerm(LocalTerm):
     return normal_ordered_operator
 
   def bravyi_kitaev_transform(self):
-    # TODO Jarrod.
+    # TODO Jarrod and Vojta
+    """ Apply the Bravyi-Kitaev transform and return qubit operator. 
+
+    Returns: 
+        transformed_term: An instance of the QubitOperator class.
+    
+    Warning: 
+        
+    """
+
+
+
     return None
 
   def jordan_wigner_transform(self):
