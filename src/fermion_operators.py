@@ -281,12 +281,15 @@ class FermionTerm(LocalTerm):
 
     final_matrix = scipy.sparse.identity(2**self.n_qubits,
                                          format="csc", dtype=complex)
+    if self.is_identity():
+      return self.coefficient * final_matrix
+
     for i, operator in enumerate(self):
       term_matrix = \
           reduce(wrap_kron, [self.coefficient if (i == 0) else 1.0] +
-                 [_PAULI_Z_CSC for _ in range(operator[0])] +
+                 [_IDENTITY_CSC for _ in range(operator[0])] +
                  [_Q_RAISE_CSC if operator[1] == 1 else _Q_LOWER_CSC] +
-                 [_IDENTITY_CSC for _ in
+                 [_PAULI_Z_CSC for _ in
                   range(self.n_qubits - operator[0] - 1)])
       final_matrix = final_matrix.dot(term_matrix)
     return final_matrix

@@ -4,6 +4,8 @@ import unittest
 import run_psi4
 import molecular_data
 import sparse_operators
+import scipy
+import scipy.linalg
 import molecular_operators
 
 
@@ -184,6 +186,12 @@ class HydrogenIntegrationTest(unittest.TestCase):
     expected_energy = sparse_operators.expectation(
         self.hamiltonian_matrix, wavefunction)
     self.assertAlmostEqual(expected_energy, energy)
+
+    # Test direct fermion to sparse transformation
+    hamiltonian_test_matrix = self.fermion_hamiltonian.jordan_wigner_sparse()
+    self.assertAlmostEqual(scipy.linalg.norm(
+        (self.hamiltonian_matrix -
+         hamiltonian_test_matrix).todense()), 0.0)
 
     # Make sure you can reproduce Hartree-Fock energy.
     hf_state = sparse_operators.hartree_fock_state(
