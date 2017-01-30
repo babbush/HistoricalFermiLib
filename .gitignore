@@ -2,5 +2,6 @@
 src/data/
 data/
 __pycache__/
-
+.DS_Store
 Ian_todo.txt
+.ipynb_checkpoints/
