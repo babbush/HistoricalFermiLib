@@ -93,7 +93,7 @@ class FenwickTree:
 
 
   def get_U(self, j):
-    """ The set of all ancestors of j, or the update set from the paper 
+    """ The set of all ancestors of j, (the update set from the paper).
     
     Args:
         j: Int. Fermionic site index.
@@ -107,12 +107,31 @@ class FenwickTree:
 
 
   def get_F(self, j):
-    """ The set of children of j-th site """
-    # TODO: Not yet implemented
-    return NotImplemented
+    """ Returns the set of children of j-th site.
+    
+    Args: 
+        j: Int. Fermionic site index.
+
+    Returns: 
+        A list of children of j. ordered from lowest index. 
+    
+    """
+
+    node = self.get_node(j)
+    return node.children
+
 
   def get_C(self, j):
-    """ Return the set of children with indices less than j od all ancestors of j"""
-    # TODO: Not yet implemented
-    return NotImplemented
+    """ Return the set of children with indices less than j of all ancestors of j"""
+
+    result = []
+    ancestors = self.get_U(j)
+
+    # TODO: Likely suboptimal. Possible bottleneck. Uses c.value!
+    for a in ancestors:
+        for c in a.children:
+            if c.value < j: 
+                result.append(c)
+
+    return result
     
