@@ -400,8 +400,4 @@ class QubitOperator(LocalOperator):
         if tuple(term.operators) in self.terms:
           two_rdm[i, j, k, l] += term.coefficient * self[term.operators]
 
-    # Return new operator.
-    molecular_operator = molecular_operators.MolecularOperator(1.0,
-                                                               one_rdm,
-                                                               two_rdm)
-    return molecular_operator
+    return molecular_operators.MolecularOperator(1.0, one_rdm, two_rdm)

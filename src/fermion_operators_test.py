@@ -194,7 +194,7 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(term_132.normal_ordered(), op_132)
     self.assertEqual(term_321.normal_ordered(), op_132)
 
-  def test_jordan_wigner_transform_raise(self):
+  def test_jordan_wigner_transform_raise3(self):
     raising = FermionTerm(self.n_qubits, 1.,
                           [(3, 1)]).jordan_wigner_transform()
     self.assertEqual(len(raising), 2)
@@ -205,7 +205,18 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(raising[correct_operators_x], 0.5)
     self.assertEqual(raising[correct_operators_y], -0.5j)
 
-  def test_jordan_wigner_transform_lower(self):
+  def test_jordan_wigner_transform_raise1(self):
+    lowering = FermionTerm(self.n_qubits, 1.,
+                           [(1, 1)]).jordan_wigner_transform()
+    self.assertEqual(len(lowering), 2)
+
+    correct_operators_x = [(0, 'Z'), (1, 'X')]
+    correct_operators_y = [(0, 'Z'), (1, 'Y')]
+
+    self.assertEqual(lowering[correct_operators_x], 0.5)
+    self.assertEqual(lowering[correct_operators_y], -0.5j)
+
+  def test_jordan_wigner_transform_lower3(self):
     lowering = FermionTerm(self.n_qubits, 1.,
                            [(3, 0)]).jordan_wigner_transform()
     self.assertEqual(len(lowering), 2)
@@ -215,6 +226,52 @@ class FermionTermsTest(unittest.TestCase):
 
     self.assertEqual(lowering[correct_operators_x], 0.5)
     self.assertEqual(lowering[correct_operators_y], 0.5j)
+
+  def test_jordan_wigner_transform_lower2(self):
+    lowering = FermionTerm(self.n_qubits, 1.,
+                           [(2, 0)]).jordan_wigner_transform()
+    self.assertEqual(len(lowering), 2)
+
+    correct_operators_x = [(0, 'Z'), (1, 'Z'), (2, 'X')]
+    correct_operators_y = [(0, 'Z'), (1, 'Z'), (2, 'Y')]
+
+    self.assertEqual(lowering[correct_operators_x], 0.5)
+    self.assertEqual(lowering[correct_operators_y], 0.5j)
+
+  def test_jordan_wigner_transform_lower1(self):
+    lowering = FermionTerm(self.n_qubits, 1.,
+                           [(1, 0)]).jordan_wigner_transform()
+    self.assertEqual(len(lowering), 2)
+
+    correct_operators_x = [(0, 'Z'), (1, 'X')]
+    correct_operators_y = [(0, 'Z'), (1, 'Y')]
+
+    self.assertEqual(lowering[correct_operators_x], 0.5)
+    self.assertEqual(lowering[correct_operators_y], 0.5j)
+
+  def test_jordan_wigner_transform_lower0(self):
+    lowering = FermionTerm(self.n_qubits, 1.,
+                           [(0, 0)]).jordan_wigner_transform()
+    self.assertEqual(len(lowering), 2)
+
+    correct_operators_x = [(0, 'X')]
+    correct_operators_y = [(0, 'Y')]
+
+    self.assertEqual(lowering[correct_operators_x], 0.5)
+    self.assertEqual(lowering[correct_operators_y], 0.5j)
+
+  def test_jordan_wigner_transform_raise3lower0(self):
+    # recall that creation gets -1j on Y and annihilation gets +1j on Y.
+    term = FermionTerm(self.n_qubits, 1.,
+                       [(3, 1), (0, 0)]).jordan_wigner_transform()
+    self.assertEqual(term[((0, 'X'), (1, 'Z'), (2, 'Z'), (3, 'Y'))],
+                     0.25 * 1 * -1j)
+    self.assertEqual(term[((0, 'Y'), (1, 'Z'), (2, 'Z'), (3, 'Y'))],
+                     0.25 * 1j * -1j)
+    self.assertEqual(term[((0, 'Y'), (1, 'Z'), (2, 'Z'), (3, 'X'))],
+                     0.25 * 1j * 1)
+    self.assertEqual(term[((0, 'X'), (1, 'Z'), (2, 'Z'), (3, 'X'))],
+                     0.25 * 1 * 1)
 
   def test_jordan_wigner_transform_number(self):
     n = number_operator(self.n_qubits, 3)
