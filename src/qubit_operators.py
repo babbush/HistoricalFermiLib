@@ -118,14 +118,14 @@ class QubitTerm(LocalTerm):
     if not issubclass(type(addend), (QubitTerm, QubitOperator)):
       raise TypeError('Cannot add term of invalid type to QubitTerm.')
 
-    if not self.n_qubits == addend.n_qubits:
+    if self.n_qubits != addend.n_qubits:
       raise QubitTermError('Cannot add terms acting on different'
                            'Hilbert spaces.')
 
     return QubitOperator(self.n_qubits, [self]) + addend
 
   def __imul__(self, multiplier):
-    """Multiply operators with scalar or QubitTerm using *=.
+    """Multiply terms with scalar or QubitTerm using *=.
 
     Note that the "self" term is on the left of the multiply sign.
 
@@ -233,7 +233,7 @@ class QubitTerm(LocalTerm):
           lowering_term = fermion_operators.FermionTerm(
               self.n_qubits, 1., [(operator[0], 0)])
 
-          # Handle Pauli X.
+          # Handle Pauli X, Y, Z.
           if operator[1] == 'Y':
             raising_term *= 1j
             lowering_term *= -1j
@@ -270,7 +270,6 @@ class QubitTerm(LocalTerm):
     # Account for overall coefficient
     transformed_term *= self.coefficient
 
-    # Return.
     return transformed_term
 
   def __str__(self):
@@ -309,8 +308,8 @@ class QubitTerm(LocalTerm):
     # Grow space at end of string unless operator acted on final qubit.
     if tensor_factor < self.n_qubits or not self.operators:
       identity_qubits = self.n_qubits - tensor_factor
-      identity = scipy.sparse.identity(
-          2 ** identity_qubits, dtype=complex, format='csc')
+      identity = scipy.sparse.identity(2 ** identity_qubits,
+                                       dtype=complex, format='csc')
       matrix_form = scipy.sparse.kron(matrix_form, identity, 'csc')
     return matrix_form
 
