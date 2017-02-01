@@ -89,10 +89,13 @@ class QubitTerm(LocalTerm):
     for operator in self:
       if isinstance(operator, tuple):
         tensor_factor, action = operator
-        if (isinstance(action, str) and
-           (isinstance(tensor_factor, int) and tensor_factor < n_qubits)):
-          continue
-      raise QubitTermError('Invalid operators provided to QubitTerm.')
+        if not isinstance(action, str) or action not in 'XYZ':
+          raise QubitTermError("Invalid action provided: must be string 'X', "
+                               "'Y', or 'Z'.")
+        if not (isinstance(tensor_factor, int) and
+                0 <= tensor_factor < n_qubits):
+          raise QubitTermError('Invalid tensor factor provided to QubitTerm: '
+                               'must be an integer between 0 and n_qubits-1.')
 
     # Make sure operators are sorted by tensor factor.
     self.operators.sort(key=lambda operator: operator[0])
@@ -335,9 +338,8 @@ class QubitOperator(LocalOperator):
     """
     super(QubitOperator, self).__init__(n_qubits, terms)
     for term in self:
-      if isinstance(term, QubitTerm) and term.n_qubits == n_qubits:
-        continue
-      raise QubitTermError('Invalid QubitTerms provided to QubitOperator.')
+      if not isinstance(term, QubitTerm) or term.n_qubits != n_qubits:
+        raise QubitTermError('Invalid QubitTerms provided to QubitOperator.')
 
   def __setitem__(self, operators, coefficient):
     if operators in self:
