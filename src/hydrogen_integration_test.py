@@ -188,7 +188,11 @@ class HydrogenIntegrationTest(unittest.TestCase):
     self.assertAlmostEqual(expected_energy, energy)
 
     # Test direct fermion to sparse transformation
-    hamiltonian_test_matrix = self.fermion_hamiltonian.jordan_wigner_sparse()
+    self.sparse_ladder = \
+        sparse_operators.SparseLadderOperators(self.qubit_hamiltonian.n_qubits)
+    hamiltonian_test_matrix = \
+        self.fermion_hamiltonian.jordan_wigner_sparse(self.sparse_ladder)
+
     self.assertAlmostEqual(scipy.linalg.norm(
         (self.hamiltonian_matrix -
          hamiltonian_test_matrix).todense()), 0.0)

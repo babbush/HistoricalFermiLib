@@ -264,20 +264,8 @@ class FermionTerm(LocalTerm):
           self.n_qubits, [pauli_x_component, pauli_y_component])
     return transformed_term
 
-  def jordan_wigner_sparse(self):
+  def jordan_wigner_sparse(self, sparse_ladder):
     """Return a sparse matrix representation of the JW transformed term"""
-
-    _IDENTITY_CSC = scipy.sparse.identity(2, format="csc", dtype=complex)
-    _PAULI_X_CSC = scipy.sparse.csc_matrix([[0., 1.], [1., 0.]], dtype=complex)
-    _PAULI_Y_CSC = scipy.sparse.csc_matrix([[0., -1.j], [1.j, 0.]],
-                                           dtype=complex)
-    _PAULI_Z_CSC = scipy.sparse.csc_matrix([[1., 0.], [0., -1.]],
-                                           dtype=complex)
-    _Q_RAISE_CSC = (_PAULI_X_CSC - 1.j * _PAULI_Y_CSC) / 2.
-    _Q_LOWER_CSC = (_PAULI_X_CSC + 1.j * _PAULI_Y_CSC) / 2.
-
-    def wrap_kron(operator_1, operator_2):
-      return scipy.sparse.kron(operator_1, operator_2, "csc")
 
     final_matrix = scipy.sparse.identity(2**self.n_qubits,
                                          format="csc", dtype=complex)
@@ -285,14 +273,9 @@ class FermionTerm(LocalTerm):
       return self.coefficient * final_matrix
 
     for i, operator in enumerate(self):
-      term_matrix = \
-          reduce(wrap_kron, [self.coefficient if (i == 0) else 1.0] +
-                 [_IDENTITY_CSC for _ in range(operator[0])] +
-                 [_Q_RAISE_CSC if operator[1] == 1 else _Q_LOWER_CSC] +
-                 [_PAULI_Z_CSC for _ in
-                  range(self.n_qubits - operator[0] - 1)])
+      term_matrix = sparse_ladder.get_operator(operator[0], operator[1])
       final_matrix = final_matrix.dot(term_matrix)
-    return final_matrix
+    return self.coefficient * final_matrix
 
   def is_molecular_term(self):
     """Query whether term has correct form to be from a molecular.
@@ -398,12 +381,12 @@ class FermionOperator(LocalOperator):
       transformed_operator += term.jordan_wigner_transform()
     return transformed_operator
 
-  def jordan_wigner_sparse(self):
+  def jordan_wigner_sparse(self, sparse_ladder):
     """Apply Jordan-Wigner transform directly to sparse matrix form"""
     final_matrix = scipy.sparse.csc_matrix((2**self.n_qubits, ) * 2,
                                            dtype=complex)
     for term in self:
-      final_matrix += term.jordan_wigner_sparse()
+      final_matrix += term.jordan_wigner_sparse(sparse_ladder)
     return final_matrix
 
   def get_molecular_operator(self):

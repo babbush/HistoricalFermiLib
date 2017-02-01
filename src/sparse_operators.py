@@ -24,6 +24,60 @@ _PAULI_MATRIX_MAP = {'I': _IDENTITY_CSC, 'X': _PAULI_X_CSC,
                      'Y': _PAULI_Y_CSC, 'Z': _PAULI_Z_CSC}
 
 
+class SparseLadderOperators(object):
+  """Class to store sparse creation and annihiliation operators
+
+  This class is a convenient numerical intermediate that stores creation and
+  annihilation operators on the full Hilbert space of n_qubits so they may be
+  easily accessed without requiring additional Kronecker products, which are
+  quite expensive due to the method by which they allocate memory.
+
+  Attributes:
+    n_qubits(int): Number of qubits the system acts on
+    sparse_type(str): Scipy sparse matrix format, e.g. csc
+    operators(list): List of sparse operators in the full Hilbert space such
+      that a creation (annihilation) operator on index i is stored at
+      operators[2 * i + 1] (operators[2 * i]).
+  """
+
+  def __init__(self, n_qubits, sparse_type="csc"):
+    """Initialize the operator stores
+
+    Args:
+      n_qubits(int): Number of qubits in the system
+      sparse_type(str): Type of scipy sparse matrix to use in storage
+    """
+    self.n_qubits = n_qubits
+    self.sparse_type = sparse_type
+    self.initialize_operators()
+
+  def get_operator(self, index, type):
+    """Retrieve the sparse operator at index i of given type
+
+    Args:
+      index(int): index the operator acts on
+      type(int): 1 for creation, 0 for annihiliation
+    """
+    return self.operators[2 * index + type]
+
+  def initialize_operators(self):
+    """Build all possible creation and annihilation operators on the system"""
+    self.operators = []
+
+    def wrap_kron(operator_1, operator_2):
+      return scipy.sparse.kron(operator_1, operator_2, self.sparse_type)
+
+    for i in range(self.n_qubits):
+      for type in range(2):
+        term_matrix = \
+            reduce(wrap_kron,
+                   ([_IDENTITY_CSC for _ in range(i)] +
+                    [_Q_RAISE_CSC if type == 1 else _Q_LOWER_CSC] +
+                    [_PAULI_Z_CSC for _ in
+                       range(self.n_qubits - i - 1)]))
+        self.operators.append(term_matrix)
+
+
 def is_hermitian(matrix, tolerance=1e-12):
   """Test if matrix is Hermitian.
 
