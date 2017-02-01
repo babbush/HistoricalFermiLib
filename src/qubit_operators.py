@@ -46,12 +46,12 @@ def qubit_identity(n_qubits):
 class QubitTerm(LocalTerm):
   """Single term of a hamiltonian for a system of spin 1/2 particles or qubits.
 
-  A hamiltonian of qubits can be written as a sum of QubitTerm objects.
-  Suppose you have n_qubits = 5 qubits a term of the hamiltonian
-  could be coefficient * X1 Z3 which we call a QubitTerm object. It means
-  coefficient *(1 x PauliX x 1 x PauliZ x 1),
-  where x is the tensor product, 1 the identity matrix, and the others are
-  Pauli matrices. We only allow to apply one single Pauli Matrix to each qubit.
+  A Hamiltonian of qubits can be written as a sum of QubitTerm objects.
+  Suppose you have n_qubits = 5 qubits a term of the Hamiltonian could
+  be coefficient * X1 Z3 which we call a QubitTerm object. It means
+  coefficient * (1 x PauliX x 1 x PauliZ x 1), where x is the tensor
+  product, 1 the identity matrix, and the others are Pauli matrices. We
+  only allow to apply one single Pauli Matrix to each qubit.
 
   Note 1: We assume in this class that indices start from 0 to n_qubits - 1.
   Note 2: Always use the abstractions provided here to manipulate the
