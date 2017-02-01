@@ -294,7 +294,7 @@ class FermionTerm(LocalTerm):
       particles += (-1) ** operator[1]  # add 1 if create, else subtract
       spin += (-1) ** (operator[0] + operator[1])
 
-    return not (particles or spin)
+    return particles == spin == 0
 
 
 class FermionOperator(LocalOperator):
