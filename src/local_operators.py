@@ -310,7 +310,8 @@ class LocalOperator(object):
     return len(self.terms)
 
   def __str__(self):
-    return ''.join('{}\n'.format(term) for term in self)
+    s = ''.join('{}\n'.format(term) for term in self)
+    return s if s else '0'
 
   def __repr__(self):
     return str(self)

@@ -262,6 +262,9 @@ class LocalOperatorsTest(unittest.TestCase):
     self.assertEqual(str(self.operator_abc),
                      "-88.0 [1, 2]\n2.0 [0, 3, 4]\n6.7j [1, 2, 3, 4]\n")
 
+  def test_str_zero(self):
+    self.assertEqual('0', str(local_operators.LocalOperator(3)))
+
   def test_contains(self):
     self.assertFalse((1, 2, 9) in self.operator_abc)
     self.assertTrue(self.operators_a in self.operator_abc)

@@ -355,6 +355,9 @@ class QubitOperatorsTest(unittest.TestCase):
     with self.assertRaises(QubitTermError):
       self.qubit_operator[((19, 'X'),)] = 1
 
+  def test_str_zero(self):
+    self.assertEqual('0', str(QubitOperator(3)))
+
   def test_reverse_jordan_wigner(self):
     transformed_operator = self.qubit_operator.reverse_jordan_wigner()
     retransformed_operator = transformed_operator.jordan_wigner_transform()

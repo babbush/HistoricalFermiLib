@@ -247,19 +247,18 @@ class FermionTerm(LocalTerm):
                                                   self.coefficient)])
     # Loop through operators, transform and multiply.
     for operator in self:
+      z_factors = [(index, 'Z') for index in range(0, operator[0])]
 
       # Handle identity.
       pauli_x_component = qubit_operators.QubitTerm(
-          self.n_qubits, 0.5, [(operator[0], 'X')] +
-          [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+          self.n_qubits, 0.5, z_factors + [(operator[0], 'X')])
       if operator[1]:
         pauli_y_component = qubit_operators.QubitTerm(
-            self.n_qubits, -0.5j, [(operator[0], 'Y')] +
-            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+            self.n_qubits, -0.5j, z_factors + [(operator[0], 'Y')])
       else:
         pauli_y_component = qubit_operators.QubitTerm(
-            self.n_qubits, 0.5j, [(operator[0], 'Y')] +
-            [(index, 'Z') for index in range(operator[0] - 1, -1, -1)])
+            self.n_qubits, 0.5j, z_factors + [(operator[0], 'Y')])
+
       transformed_term *= qubit_operators.QubitOperator(
           self.n_qubits, [pauli_x_component, pauli_y_component])
     return transformed_term
