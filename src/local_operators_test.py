@@ -225,6 +225,15 @@ class LocalOperatorsTest(unittest.TestCase):
     self.assertEqual((self.term_a * self.term_a).coefficient,
                      self.operator_abc[new_term.operators])
 
+  def test_div(self):
+    new_op = self.operator_bc / 3
+    self.assertEqual(new_op, self.operator_bc * (1.0 / 3.0))
+
+  def test_idiv(self):
+    self.operator_bc /= 2
+    self.assertEqual(self.operator_bc[self.term_b], self.coefficient_b / 2)
+    self.assertEqual(self.operator_bc[self.term_c], self.coefficient_c / 2)
+
   def test_abs(self):
     new_operator = abs(self.operator_abc)
     for term in new_operator:

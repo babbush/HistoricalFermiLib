@@ -265,8 +265,16 @@ class LocalOperator(object):
        numpy.isscalar(multiplier)):
       return self * multiplier
     else:
-      raise TypeError(
-          'Invalid typed object cannot multiply LocalOperator.')
+      raise TypeError('Invalid typed object cannot multiply LocalOperator.')
+
+  def __div__(self, divisor):
+    if not numpy.isscalar(divisor):
+      raise TypeError('Cannot divide local operator by non-scalar type.')
+    return self * (1.0 / divisor)
+
+  def __idiv__(self, divisor):
+    self *= (1.0 / divisor)
+    return self
 
   def __pow__(self, exponent):
     """Exponentiate the LocalOperator.

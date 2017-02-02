@@ -204,6 +204,16 @@ class LocalTermsTest(unittest.TestCase):
     self.assertEqual(numpy.float128(2.303) * self.term_b,
                      self.term_b * 2.303)
 
+  def test_div(self):
+    new_term = self.term_a / 3
+    self.assertEqual(new_term.coefficient, self.term_a.coefficient / 3)
+    self.assertEqual(new_term.operators, self.term_a.operators)
+
+  def test_idiv(self):
+    self.term_a /= 2
+    self.assertEqual(self.term_a.coefficient, self.coefficient_a / 2)
+    self.assertEqual(self.term_a.operators, self.operators_a)
+
   def test_mul_localterm(self):
     term_ab = self.term_a * self.term_b
 

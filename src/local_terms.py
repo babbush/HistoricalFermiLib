@@ -218,7 +218,6 @@ class LocalTerm(object):
       # Throw exception for unknown type.
       raise TypeError('Object of invalid type cannot multiply LocalTerm.')
 
-    # Return the product.
     return product
 
   def __rmul__(self, multiplier):
@@ -244,6 +243,15 @@ class LocalTerm(object):
     product.coefficient *= multiplier
     return product
 
+  def __div__(self, divisor):
+    if not numpy.isscalar(divisor):
+      raise TypeError('Cannot divide local operator by non-scalar type.')
+    return self * (1.0 / divisor)
+
+  def __idiv__(self, divisor):
+    self *= (1.0 / divisor)
+    return self
+
   def __pow__(self, exponent):
     """Exponentiate the LocalTerm.
 
@@ -263,10 +271,7 @@ class LocalTerm(object):
                      self.operators * exponent)
 
   def is_identity(self):
-    if self.operators:
-      return False
-    else:
-      return True
+    return len(self.operators) == 0
 
   def __abs__(self):
     term_copy = copy.deepcopy(self)
