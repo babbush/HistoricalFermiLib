@@ -212,7 +212,7 @@ class LocalOperator(object):
 
     # Handle LocalTerms. Note that it is necessary to make new dictioanry.
     elif issubclass(type(multiplier), local_terms.LocalTerm):
-      new_operator = self.return_class(self._n_qubits)
+      new_operator = self.return_class(self.n_qubits)
       for term in self:
         term *= multiplier
         new_operator += term
@@ -221,7 +221,7 @@ class LocalOperator(object):
 
     # Handle LocalOperators. It is necessary to make new dictionary.
     elif issubclass(type(multiplier), LocalOperator):
-      new_operator = self.return_class(self._n_qubits)
+      new_operator = self.return_class(self.n_qubits)
       for left_term in self:
         for right_term in multiplier:
           new_operator += left_term * right_term
@@ -283,21 +283,23 @@ class LocalOperator(object):
       exponent: An int, giving the exponent with which to raise the operator.
 
     Returns:
-      The exponentiated operator.
+      exponentiated: The exponentiated operator.
 
     Raises:
       ValueError: Can only raise LocalOperator to positive integer powers.
     """
+    # Handle invalid exponents.
     if not isinstance(exponent, int) or exponent < 0:
       raise ValueError('Can only raise LocalTerm to positive integer powers.')
 
-    identity_term = local_terms.LocalTerm(self.n_qubits, 1.0)
-    res = LocalOperator(self.n_qubits, identity_term)
+    # Initialized identity.
+    exponentiated = self.return_class(self.n_qubits)
+    exponentiated += self.list_terms()[0].return_class(self.n_qubits, 1.)
 
+    # Handle other exponents.
     for i in range(exponent):
-      res *= self
-
-    return res
+      exponentiated *= self
+    return exponentiated
 
   def __abs__(self):
     operator_copy = copy.deepcopy(self)
@@ -323,3 +325,14 @@ class LocalOperator(object):
 
   def __repr__(self):
     return str(self)
+
+  def commutator(self, term):
+    """Evaluate commutator of self with LocalTerm or LocalOperator.
+
+    Args:
+      term: Despite the name, this is either a LocalTerm or LocalOperator.
+
+    Returns:
+      commutator: LocalOperator giving self * term - term * self.
+    """
+    return self * term - term * self

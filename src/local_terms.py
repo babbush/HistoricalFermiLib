@@ -217,7 +217,6 @@ class LocalTerm(object):
     else:
       # Throw exception for unknown type.
       raise TypeError('Object of invalid type cannot multiply LocalTerm.')
-
     return product
 
   def __rmul__(self, multiplier):
@@ -270,9 +269,6 @@ class LocalTerm(object):
     return LocalTerm(self.n_qubits, self.coefficient ** exponent,
                      self.operators * exponent)
 
-  def is_identity(self):
-    return len(self.operators) == 0
-
   def __abs__(self):
     term_copy = copy.deepcopy(self)
     term_copy.coefficient = abs(self.coefficient)
@@ -289,3 +285,17 @@ class LocalTerm(object):
 
   def __repr__(self):
     return str(self)
+
+  def is_identity(self):
+    return len(self.operators) == 0
+
+  def commutator(self, term):
+    """Evaluate commutator of self with LocalTerm or LocalOperator.
+
+    Args:
+      term: Despite the name, this is either a LocalTerm or LocalOperator.
+
+    Returns:
+      commutator: LocalOperator giving self * term - term * self.
+    """
+    return self * term - term * self

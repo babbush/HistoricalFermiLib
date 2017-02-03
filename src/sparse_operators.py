@@ -61,7 +61,7 @@ class SparseLadderOperators(object):
     return self.operators[2 * index + type]
 
   def initialize_operators(self):
-    """Build all possible creation and annihilation operators on the system"""
+    """Build all possible creation and annihilation operators for system."""
     self.operators = []
 
     def wrap_kron(operator_1, operator_2):

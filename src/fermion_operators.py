@@ -118,13 +118,13 @@ class FermionTerm(LocalTerm):
 
   def __str__(self):
     """Return an easy-to-read string representation of the term."""
-    string_representation = '{} ('.format(self.coefficient)
+    string_representation = '{} ['.format(self.coefficient)
     for operator in self:
       string_representation += str(operator[0]) + '+' * operator[1] + ' '
 
     if self:
       string_representation = string_representation[:-1]
-    string_representation += ')'
+    string_representation += ']'
     return string_representation
 
   def hermitian_conjugate(self):
@@ -227,7 +227,7 @@ class FermionTerm(LocalTerm):
     return normal_ordered_operator
 
   def bravyi_kitaev_transform(self):
-    # TODO Jarrod.
+    # TODO Vojtech and James.
     return None
 
   def jordan_wigner_transform(self):

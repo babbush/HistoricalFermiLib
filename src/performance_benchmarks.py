@@ -1,4 +1,5 @@
 """This file contains tests of code performance to reveal bottlenecks."""
+from fermion_operators import FermionTerm
 import molecular_operators
 import numpy
 import time
@@ -78,13 +79,86 @@ def benchmark_molecular_operator_jordan_wigner(n_qubits):
   return runtime
 
 
+def benchmark_fermion_math_and_normal_order(n_qubits, term_length, power):
+  """Benchmark both arithmetic operators and normal ordering on fermions.
+
+  The idea is we generate two random FermionTerms, A and B, each acting
+  on n_qubits with term_length operators. We then compute
+  (A + B) ** power. This is costly that is the first benchmark. The second
+  benchmark is in normal ordering whatever comes out.
+
+  Args:
+    n_qubits: The number of qubits on which these terms act.
+    term_length: The number of operators in each term.
+    power: Int, the exponent to which to raise sum of the two terms.
+
+  Returns:
+    runtime_math: The time it takes to perform (A + B) ** power
+    runtime_normal_order: The time it takes to perform
+      FermionOperator.normal_order()
+  """
+  # Generate random operator strings.
+  operators_a = [(numpy.random.randint(n_qubits),
+                  numpy.random.randint(2))]
+  operators_b = [(numpy.random.randint(n_qubits),
+                  numpy.random.randint(2))]
+  for operator_number in range(term_length):
+
+    # Make sure the operator is not trivially zero.
+    operator_a = (numpy.random.randint(n_qubits),
+                  numpy.random.randint(2))
+    while operator_a == operators_a[-1]:
+      operator_a = (numpy.random.randint(n_qubits),
+                    numpy.random.randint(2))
+    operators_a += [operator_a]
+
+    # Do the same for the other operator.
+    operator_b = (numpy.random.randint(n_qubits),
+                  numpy.random.randint(2))
+    while operator_b == operators_b[-1]:
+      operator_b = (numpy.random.randint(n_qubits),
+                    numpy.random.randint(2))
+    operators_b += [operator_b]
+
+  # Initialize FermionTerms and then sum them together.
+  fermion_term_a = FermionTerm(
+      n_qubits, float(numpy.random.randn()), operators_a)
+  fermion_term_b = FermionTerm(
+      n_qubits, float(numpy.random.randn()), operators_b)
+  fermion_operator = fermion_term_a + fermion_term_b
+
+  # Exponentiate.
+  start_time = time.time()
+  fermion_operator **= power
+  runtime_math = time.time() - start_time
+
+  # Normal order.
+  start_time = time.time()
+  fermion_operator.normal_order()
+  runtime_normal_order = time.time() - start_time
+
+  # Return.
+  return runtime_math, runtime_normal_order
+
+
 # Run benchmarks.
 if __name__ == '__main__':
 
   # Run MolecularOperator.jordan_wigner_transform() benchmark.
-  if 1:
+  if 0:
     n_qubits = 18
     print('Starting test on MolecularOperator.jordan_wigner_transform()')
     runtime = benchmark_molecular_operator_jordan_wigner(n_qubits)
     print('MolecularOperator.jordan_wigner_transform() ' +
           'takes {} seconds on {} qubits.'.format(runtime, n_qubits))
+
+  # Run MolecularOperator.jordan_wigner_transform() benchmark.
+  if 1:
+    n_qubits = 20
+    term_length = 5
+    power = 15
+    print('Starting test on FermionOperator math and normal ordering.')
+    runtime_math, runtime_normal = benchmark_fermion_math_and_normal_order(
+        n_qubits, term_length, power)
+    print('Math took {} seconds. Normal ordering took {} seconds.'.format(
+        runtime_math, runtime_normal))
