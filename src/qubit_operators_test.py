@@ -347,6 +347,11 @@ class QubitOperatorsTest(unittest.TestCase):
     zero[((1, 'X'),)] = 1
     self.assertEqual(zero, QubitOperator(3, [QubitTerm(3, 1, [(1, 'X')])]))
 
+  def test_setting_identity(self):
+    zero = QubitOperator(3)
+    zero[()] = 3.7
+    self.assertEqual(zero, QubitOperator(3, 3.7 * qubit_identity(3)))
+
   def test_set_protect_bad_operator(self):
     with self.assertRaises(QubitTermError):
       self.qubit_operator[((1, 'Q'),)] = 1
@@ -376,8 +381,52 @@ class QubitOperatorsTest(unittest.TestCase):
                                          3+2j, -0.1, -0.1, -3-2j])
     self.assertEqual(list(matrix.indices), [2, 3, 2, 3, 0, 1, 0, 1])
 
+  def test_sparse_matrix_zero_1qubit(self):
+    matrix = QubitOperator(1).get_sparse_matrix()
+    self.assertEqual(len(list(matrix.data)), 0)
+    self.assertEqual(matrix.shape, (2, 2))
+
+  def test_sparse_matrix_zero_5qubit(self):
+    matrix = QubitOperator(5).get_sparse_matrix()
+    self.assertEqual(len(list(matrix.data)), 0)
+    self.assertEqual(matrix.shape, (32, 32))
+
+  def test_sparse_matrix_identity_1qubit(self):
+    matrix = QubitOperator(1, qubit_identity(1)).get_sparse_matrix()
+    self.assertEqual(list(matrix.data), [1] * 2)
+    self.assertEqual(matrix.shape, (2, 2))
+
+  def test_sparse_matrix_identity_5qubit(self):
+    matrix = QubitOperator(5, qubit_identity(5)).get_sparse_matrix()
+    self.assertEqual(list(matrix.data), [1] * 32)
+    self.assertEqual(matrix.shape, (32, 32))
+
+  def test_sparse_matrix_linearity(self):
+    identity = QubitOperator(4, qubit_identity(4))
+    zzzz = QubitOperator(4, QubitTerm(4, 1.0, [(i, 'Z') for i in range(4)]))
+
+    matrix1 = (identity + zzzz).get_sparse_matrix()
+    matrix2 = identity.get_sparse_matrix() + zzzz.get_sparse_matrix()
+
+    self.assertEqual(list(matrix1.data), [2] * 8)
+    self.assertEqual(list(matrix1.indices), [0, 3, 5, 6, 9, 10, 12, 15])
+    self.assertEqual(list(matrix2.data), [2] * 8)
+    self.assertEqual(list(matrix2.indices), [0, 3, 5, 6, 9, 10, 12, 15])
+
+  def test_reverse_jw_linearity(self):
+    term1 = QubitTerm(4, -0.5, [(0, 'X'), (1, 'Y')])
+    term2 = QubitTerm(4, -1j, [(0, 'Y'), (1, 'X'), (2, 'Y'), (3, 'Y')])
+
+    op12 = term1.reverse_jordan_wigner() - term2.reverse_jordan_wigner()
+    self.assertEqual(op12, (term1 - term2).reverse_jordan_wigner())
+
+  @unittest.skip("Should this work? I don't know.")
   def test_get_molecular_rdm(self):
-    pass
+    term1 = QubitTerm(4, -0.5, [(0, 'X')])
+    op1 = QubitOperator(4, term1)
+    mol1 = op1.get_molecular_rdm()
+
+    self.assertEqual(op1, mol1.jordan_wigner_transform())
 
 if __name__ == "__main__":
   unittest.main()
