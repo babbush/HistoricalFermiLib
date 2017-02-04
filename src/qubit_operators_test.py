@@ -6,6 +6,7 @@ import fermion_operators as fo
 import local_terms
 import unittest
 import copy
+import numpy
 
 
 class QubitTermsTest(unittest.TestCase):
@@ -178,6 +179,21 @@ class QubitTermsTest(unittest.TestCase):
     with self.assertRaises(QubitTermError):
       term_a *= QubitTerm(1)
 
+  def test_mul_npfloat64(self):
+    self.assertEqual(self.term * numpy.float64(2.303),
+                     self.term * 2.303)
+    self.assertEqual(numpy.float64(2.303) * self.term,
+                     self.term * 2.303)
+
+  def test_mul_npfloat128(self):
+    self.assertEqual(self.term * numpy.float128(2.303),
+                     self.term * 2.303)
+    self.assertEqual(numpy.float128(2.303) * self.term,
+                     self.term * 2.303)
+
+  def test_mul_scalar_commute(self):
+    self.assertEqual(3.2j * self.term, self.term * 3.2j)
+
   def test_str_X(self):
     term = QubitTerm(1, 1, [(0, 'X')])
     self.assertEqual(str(term), '1 X0')
@@ -329,6 +345,21 @@ class QubitOperatorsTest(unittest.TestCase):
                       ((1, 'Z'), (3, 'X'), (8, 'Z')): self.term_b})
     self.assertEqual(len(self.qubit_operator), 2)
 
+  def test_mul_npfloat64(self):
+    self.assertEqual(self.qubit_operator * numpy.float64(2.303),
+                     self.qubit_operator * 2.303)
+    self.assertEqual(numpy.float64(2.303) * self.qubit_operator,
+                     self.qubit_operator * 2.303)
+
+  def test_mul_npfloat128(self):
+    self.assertEqual(self.qubit_operator * numpy.float128(2.303),
+                     self.qubit_operator * 2.303)
+    self.assertEqual(numpy.float128(2.303) * self.qubit_operator,
+                     self.qubit_operator * 2.303)
+
+  def test_mul_scalar_commute(self):
+    self.assertEqual(3.2j * self.qubit_operator, self.qubit_operator * 3.2j)
+
   def test_set_in(self):
     self.qubit_operator[((1, 'X'), (3, 'Y'), (8, 'Z'))] = 0.1
     self.assertEqual(self.qubit_operator.terms,
@@ -362,6 +393,32 @@ class QubitOperatorsTest(unittest.TestCase):
 
   def test_str_zero(self):
     self.assertEqual('0', str(QubitOperator(3)))
+
+  def test_pow_sq(self):
+    op = QubitOperator(2, [qubit_identity(2) * 3,
+                           QubitTerm(2, 1.0, [(1, 'X')]),
+                           QubitTerm(2, 2.0, [(0, 'X'), (1, 'Y')])])
+    expect_sq = QubitOperator(2, [14 * qubit_identity(2),
+                                  QubitTerm(2, 6.0, [(1, 'X')]),
+                                  QubitTerm(2, 12.0, [(0, 'X'), (1, 'Y')])])
+    self.assertEqual(op ** 2, expect_sq)
+
+  def test_pow_sq_selfinverse(self):
+    op = QubitOperator(2, QubitTerm(2, -1.5j, [(1, 'X')]))
+    self.assertEqual(op ** 2, QubitOperator(2, qubit_identity(2) * -2.25))
+
+  def test_pow_operator_commute(self):
+    term = QubitTerm(2, -1.5j, [(1, 'X')])
+    op = QubitOperator(2, term)
+
+    self.assertEqual(QubitOperator(2, term ** 2), op ** 2)
+
+  def test_pow_zero(self):
+    identity_op = QubitOperator(4, qubit_identity(4))
+    op = QubitOperator(4, [qubit_identity(4) * 3,
+                           QubitTerm(4, 1.0, [(1, 'X')]),
+                           QubitTerm(4, 2.0, [(0, 'X'), (1, 'Y')])])
+    self.assertEqual(op ** 0, identity_op)
 
   def test_reverse_jordan_wigner(self):
     transformed_operator = self.qubit_operator.reverse_jordan_wigner()

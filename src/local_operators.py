@@ -17,6 +17,8 @@ class LocalOperator(object):
     _n_qubits: An int giving the number of qubits in simulated Hilbert space.
     terms: Dictionary of LocalTerm objects.
   """
+  __array_priority__ = 10000  # this ensures good behavior with numpy scalars
+
   def __init__(self, n_qubits, terms=None, tolerance=1e-12):
     """Inits a LocalOperator object.
 
@@ -261,11 +263,10 @@ class LocalOperator(object):
     Raises:
       TypeError: Invalid typed object cannot multiply LocalOperator.
     """
-    if (isinstance(multiplier, (int, float, complex)) or
-       numpy.isscalar(multiplier)):
-      return self * multiplier
-    else:
+    if not numpy.isscalar(multiplier):
       raise TypeError('Invalid typed object cannot multiply LocalOperator.')
+
+    return self * multiplier
 
   def __div__(self, divisor):
     if not numpy.isscalar(divisor):

@@ -189,9 +189,6 @@ class LocalTermsTest(unittest.TestCase):
                                      self.operators_a)
     self.assertEqual(self.term_a * (-3. + 2j), expected)
 
-  @unittest.skip("numpy float64 has strange behaviour: this test fails by "
-                 "converting the result to an array, but the same test "
-                 "with float128 passes.")
   def test_mul_npfloat64(self):
     self.assertEqual(self.term_b * numpy.float64(2.303),
                      self.term_b * 2.303)
@@ -203,6 +200,9 @@ class LocalTermsTest(unittest.TestCase):
                      self.term_b * 2.303)
     self.assertEqual(numpy.float128(2.303) * self.term_b,
                      self.term_b * 2.303)
+
+  def test_mul_scalar_commute(self):
+    self.assertEqual(self.term_a * -3.7j, -3.7j * self.term_a)
 
   def test_div(self):
     new_term = self.term_a / 3

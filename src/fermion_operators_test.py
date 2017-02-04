@@ -5,6 +5,7 @@ from fermion_operators import (fermion_identity, number_operator,
                                JordanWignerError)
 import qubit_operators as qo
 import unittest
+import numpy
 
 
 class NumberOperatorsTest(unittest.TestCase):
@@ -84,6 +85,21 @@ class FermionTermsTest(unittest.TestCase):
   def test_iadd(self):
     self.term_a += self.term_b
     self.assertEqual(self.term_a, self.operator_ab)
+
+  def test_mul_npfloat64(self):
+    self.assertEqual(self.term_b * numpy.float64(2.303),
+                     self.term_b * 2.303)
+    self.assertEqual(numpy.float64(2.303) * self.term_b,
+                     self.term_b * 2.303)
+
+  def test_mul_npfloat128(self):
+    self.assertEqual(self.term_b * numpy.float128(2.303),
+                     self.term_b * 2.303)
+    self.assertEqual(numpy.float128(2.303) * self.term_b,
+                     self.term_b * 2.303)
+
+  def test_mul_scalar_commute(self):
+    self.assertEqual(3.2 * self.term_a, self.term_a * 3.2)
 
   def test_str(self):
     self.assertEqual(str(self.term_a), '6.7j [3+ 1 4+]')
@@ -418,6 +434,21 @@ class FermionOperatorsTest(unittest.TestCase):
     self.normal_ordered_operator = FermionOperator(
         self.n_qubits, [self.normal_ordered_a, self.normal_ordered_b1,
                         self.normal_ordered_b2])
+
+  def test_mul_npfloat64(self):
+    self.assertEqual(self.operator * numpy.float64(2.303),
+                     self.operator * 2.303)
+    self.assertEqual(numpy.float64(2.303) * self.operator,
+                     self.operator * 2.303)
+
+  def test_mul_npfloat128(self):
+    self.assertEqual(self.operator * numpy.float128(2.303),
+                     self.operator * 2.303)
+    self.assertEqual(numpy.float128(2.303) * self.operator,
+                     self.operator * 2.303)
+
+  def test_mul_scalar_commute(self):
+    self.assertEqual(3.2 * self.operator, self.operator * 3.2)
 
   def test_normal_order(self):
     self.operator.normal_order()
