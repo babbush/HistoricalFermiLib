@@ -17,7 +17,7 @@ class LocalOperator(object):
     _n_qubits: An int giving the number of qubits in simulated Hilbert space.
     terms: Dictionary of LocalTerm objects.
   """
-  __array_priority__ = 10000  # this ensures good behavior with numpy scalars
+  __array_priority__ = 0  # this ensures good behavior with numpy scalars
 
   def __init__(self, n_qubits, terms=None, tolerance=1e-12):
     """Inits a LocalOperator object.

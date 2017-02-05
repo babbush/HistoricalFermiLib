@@ -18,7 +18,7 @@ class LocalTerm(object):
     coefficient: A complex valued float giving the term coefficient.
     operators: A list of site operators representing the term.
   """
-  __array_priority__ = 10000  # this ensures good behavior with numpy scalars
+  __array_priority__ = 0  # this ensures good behavior with numpy scalars
 
   def __init__(self, n_qubits, coefficient=0., operators=None,
                tolerance=1e-12):

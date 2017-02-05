@@ -11,7 +11,7 @@ import copy
 
 class NumpyScalarBug(unittest.TestCase):
   """THIS BUG HAS BEEN FIXED --- IAN
-  
+
   Multiplying certain classes by numpy scalars returns invalid objects.
 
   When a FermionOpeator, QubitOperator or LocalOperator is multiplied by

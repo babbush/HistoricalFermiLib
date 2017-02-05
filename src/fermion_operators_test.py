@@ -6,6 +6,7 @@ from fermion_operators import (fermion_identity, number_operator,
 import qubit_operators as qo
 import unittest
 import numpy
+import local_terms
 
 
 class NumberOperatorsTest(unittest.TestCase):
@@ -63,9 +64,22 @@ class FermionTermsTest(unittest.TestCase):
                                              [self.normal_ordered_b1,
                                               self.normal_ordered_b2])
 
+  def test_init(self):
+    self.assertEqual(self.term_a.n_qubits, self.n_qubits)
+    self.assertEqual(self.term_a.coefficient, self.coefficient_a)
+    self.assertEqual(self.term_a.operators, self.operators_a)
+
+    self.assertEqual(self.term_b.n_qubits, self.n_qubits)
+    self.assertEqual(self.term_b.coefficient, self.coefficient_b)
+    self.assertEqual(self.term_b.operators, self.operators_b)
+
   def test_init_bad(self):
     with self.assertRaises(ValueError):
       term = FermionTerm(4, 1, [(1, 2)])
+
+  def test_change_nqubits_error(self):
+    with self.assertRaises(local_terms.LocalTermError):
+      self.term_a.n_qubits = 2
 
   def test_add_fermionterm(self):
     self.assertEqual(self.term_a + self.term_b, self.operator_ab)
@@ -82,9 +96,182 @@ class FermionTermsTest(unittest.TestCase):
     expected = FermionOperator(self.n_qubits, -self.term_b)
     self.assertEqual(self.term_a - self.operator_ab, expected)
 
+  def test_eq(self):
+    self.assertTrue(self.term_a == self.term_a)
+    self.assertFalse(self.term_a == self.term_b)
+
+  def test_eq_within_tol_same_ops(self):
+    self.term1 = FermionTerm(2, 1, [(1, 1)])
+    self.term2 = FermionTerm(2, (1+9e-13), [(1, 1)])
+    self.assertEqual(self.term1, self.term2)
+
+  def test_eq_within_tol_diff_ops(self):
+    self.term1 = FermionTerm(2, 9e-13, [(1, 1)])
+    self.term2 = FermionTerm(2, 7e-13, [(1, 0)])
+    self.assertEqual(self.term1, self.term2)
+
+  def test_neq(self):
+    self.assertTrue(self.term_a != self.term_b)
+    self.assertFalse(self.term_a != self.term_a)
+
+  def test_neq_outside_tol(self):
+    self.term1 = FermionTerm(2, 1, [(1, 1)])
+    self.term2 = FermionTerm(2, (1+9e-12), [(1, 1)])
+    self.assertNotEqual(self.term1, self.term2)
+    self.assertFalse(self.term1 == self.term2)
+
+  def test_eq_different_nqubits_error(self):
+    self.term1 = FermionTerm(1, coefficient=1)
+    self.term2 = FermionTerm(2, coefficient=1)
+    with self.assertRaises(local_terms.LocalTermError):
+      self.term1 == self.term2
+
+  def test_slicing(self):
+    self.assertEqual(self.term_a[0], (3, 1))
+    self.assertEqual(self.term_a[1], (1, 0))
+    self.assertEqual(self.term_a[2], (4, 1))
+
+  def test_slicing_set(self):
+    for i in range(len(self.term_a)):
+      self.term_a[i] = (self.term_a[i][0], 1 - self.term_a[i][1])
+
+    self.assertEqual(self.term_a[0], (3, 0))
+    self.assertEqual(self.term_a[1], (1, 1))
+    self.assertEqual(self.term_a[2], (4, 0))
+
+  def test_set_not_in(self):
+    term1 = FermionTerm(5, coefficient=1, operators=[(1, 1)])
+    with self.assertRaises(local_terms.LocalTermError):
+      term1[2] = [(2, 1)]
+
+  def test_get_not_in(self):
+    with self.assertRaises(local_terms.LocalTermError):
+      self.term_a[11]
+
+  def test_del_not_in(self):
+    term1 = FermionTerm(5, coefficient=1, operators=[(1, 1)])
+    with self.assertRaises(local_terms.LocalTermError):
+      del term1[10]
+
+  def test_slicing_del(self):
+    term1 = FermionTerm(10, 1, [(i, 1) for i in range(10)])
+    del term1[3:6]
+    self.assertEqual(term1.operators,
+                     ([(i, 1) for i in range(3)] +
+                      [(i, 1) for i in range(6, 10)]))
+
+  def test_add_fermionterms(self):
+    self.assertEqual(self.term_a + self.term_b,
+                     FermionOperator(self.n_qubits,
+                                     [self.term_a, self.term_b]))
+
+  def test_add_localterms_reverse(self):
+    self.assertEqual(self.term_b + self.term_a,
+                     FermionOperator(self.n_qubits,
+                                     [self.term_a, self.term_b]))
+
+  def test_add_localterms_error(self):
+    with self.assertRaises(TypeError):
+      self.term_a + 1
+
+  def test_add_different_nqubits_error(self):
+    self.term1 = FermionTerm(5, 1)
+    self.term2 = FermionTerm(2, 1)
+    with self.assertRaises(local_terms.LocalTermError):
+      self.term1 + self.term2
+
+  def test_add_terms(self):
+    sum_terms = self.term_a + self.term_b
+    diff_terms = self.term_a - self.term_b
+    self.assertEqual(2. * self.term_a + self.term_b - self.term_b,
+                     sum_terms + diff_terms)
+    self.assertIsInstance(sum_terms, FermionOperator)
+    self.assertIsInstance(diff_terms, FermionOperator)
+
   def test_iadd(self):
     self.term_a += self.term_b
     self.assertEqual(self.term_a, self.operator_ab)
+
+  def test_sub(self):
+    self.assertEqual(self.term_a - self.term_b,
+                     FermionOperator(self.n_qubits,
+                                     [self.term_a, -self.term_b]))
+
+  def test_sub_cancel(self):
+    self.assertEqual(self.term_a - self.term_a,
+                     FermionOperator(self.n_qubits))
+
+  def test_neg(self):
+    expected = FermionTerm(self.n_qubits, -self.coefficient_a,
+                           self.operators_a)
+    self.assertEqual(-self.term_a, expected)
+
+  def test_rmul(self):
+    term = self.term_a * -3.
+    expected = FermionTerm(self.n_qubits, self.coefficient_a * -3.,
+                           self.operators_a)
+    self.assertEqual(term, expected)
+
+  def test_lmul_rmul(self):
+    term = 7. * self.term_a
+    self.assertEqual(3. * term, term * 3.)
+    self.assertEqual(7. * self.term_a.coefficient, term.coefficient)
+    self.assertEqual(self.term_a.operators, term.operators)
+
+  def test_imul_scalar(self):
+    term = self.term_a * 1
+    term *= -3.+2j
+    expected = FermionTerm(self.n_qubits, self.coefficient_a * (-3.+2j),
+                           self.operators_a)
+    self.assertEqual(term, expected)
+
+  def test_imul_localterm(self):
+    expected_coeff = self.term_a.coefficient * self.term_b.coefficient
+    expected_ops = self.term_a.operators + self.term_b.operators
+    expected = FermionTerm(self.n_qubits, expected_coeff, expected_ops)
+
+    self.term_a *= self.term_b
+    self.assertEqual(self.term_a, expected)
+
+  def test_mul_by_scalarzero(self):
+    term1 = self.term_a * 0
+    expected = FermionTerm(self.n_qubits, 0, self.term_a.operators)
+    self.assertEqual(term1, expected)
+
+  def test_mul_by_fermiontermzero(self):
+    term0 = FermionTerm(self.n_qubits, 0)
+    term0d = self.term_a * term0
+    self.assertEqual(term0d, term0)
+
+  def test_mul_by_self(self):
+    new_term = self.term_a * self.term_a
+    self.assertEqual(self.term_a.coefficient ** 2.,
+                     new_term.coefficient)
+    self.assertEqual(2 * self.term_a.operators, new_term.operators)
+
+  def test_lmul_identity(self):
+    self.assertEqual(self.term_b,
+                     fermion_identity(self.n_qubits) * self.term_b)
+
+  def test_rmul_identity(self):
+    self.assertEqual(self.term_b,
+                     self.term_b * fermion_identity(self.n_qubits))
+
+  def test_mul_by_multiple_of_identity(self):
+    self.assertEqual(3.0 * self.term_a,
+                     (3.0 * fermion_identity(self.n_qubits)) * self.term_a)
+
+  def test_mul_triple(self):
+    new_term = self.term_a * self.term_a * self.term_a
+    self.assertEqual(self.term_a.coefficient ** 3.,
+                     new_term.coefficient)
+    self.assertEqual(3 * self.term_a.operators, new_term.operators)
+
+  def test_mul_scalar(self):
+    expected = local_terms.LocalTerm(self.n_qubits,
+                                     self.coefficient_a * (-3.+2j),
+                                     self.operators_a)
+    self.assertEqual(self.term_a * (-3. + 2j), expected)
 
   def test_mul_npfloat64(self):
     self.assertEqual(self.term_b * numpy.float64(2.303),
@@ -100,6 +287,58 @@ class FermionTermsTest(unittest.TestCase):
 
   def test_mul_scalar_commute(self):
     self.assertEqual(3.2 * self.term_a, self.term_a * 3.2)
+
+  def test_div(self):
+    new_term = self.term_a / 3
+    self.assertEqual(new_term.coefficient, self.term_a.coefficient / 3)
+    self.assertEqual(new_term.operators, self.term_a.operators)
+
+  def test_idiv(self):
+    self.term_a /= 2
+    self.assertEqual(self.term_a.coefficient, self.coefficient_a / 2)
+    self.assertEqual(self.term_a.operators, self.operators_a)
+
+  def test_pow_square(self):
+    squared = self.term_a ** 2
+    expected = FermionTerm(self.n_qubits,
+                           self.coefficient_a ** 2,
+                           self.operators_a + self.operators_a)
+    self.assertEqual(squared, self.term_a * self.term_a)
+    self.assertEqual(squared, expected)
+
+  def test_pow_zero(self):
+    zerod = self.term_a ** 0
+    expected = FermionTerm(self.n_qubits, 1.0)
+    self.assertEqual(zerod, expected)
+
+  def test_pow_one(self):
+    self.assertEqual(self.term_a, self.term_a ** 1)
+
+  def test_pow_neg_error(self):
+    with self.assertRaises(ValueError):
+      self.term_a ** -1
+
+  def test_pow_nonint_error(self):
+    with self.assertRaises(ValueError):
+      self.term_a ** 0.5
+
+  def test_pow_high(self):
+    high = self.term_a ** 10
+    expected = FermionTerm(self.n_qubits, self.term_a.coefficient ** 10,
+                           self.operators_a * 10)
+    self.assertEqual(high.n_qubits, expected.n_qubits)
+    self.assertAlmostEqual(expected.coefficient, high.coefficient)
+    self.assertEqual(high.operators, expected.operators)
+
+  def test_abs_complex(self):
+    term = FermionTerm(3, 2. + 3j, [(0, 1), (1, 0)])
+    self.assertEqual(abs(term).coefficient, abs(term.coefficient))
+
+  def test_len(self):
+    term = FermionTerm(3, 2. + 3j, [(0, 0), (1, 1)])
+    self.assertEqual(len(term), 2)
+    self.assertEqual(len(self.term_a), 3)
+    self.assertEqual(len(self.term_b), 3)
 
   def test_str(self):
     self.assertEqual(str(self.term_a), '6.7j [3+ 1 4+]')
@@ -365,14 +604,6 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual((c1 * a1).jordan_wigner_transform(),
                      (qo.qubit_identity(5) -
                       (a1 * c1).jordan_wigner_transform()))
-
-  def test_add_terms(self):
-    sum_terms = self.term_a + self.term_b
-    diff_terms = self.term_a - self.term_b
-    self.assertEqual(2. * self.term_a + self.term_b - self.term_b,
-                     sum_terms + diff_terms)
-    self.assertIsInstance(sum_terms, FermionOperator)
-    self.assertIsInstance(diff_terms, FermionOperator)
 
   def test_is_molecular_term_fermion_identity(self):
     term = FermionTerm(self.n_qubits, 1.0)

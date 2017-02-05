@@ -204,16 +204,6 @@ class LocalTermsTest(unittest.TestCase):
   def test_mul_scalar_commute(self):
     self.assertEqual(self.term_a * -3.7j, -3.7j * self.term_a)
 
-  def test_div(self):
-    new_term = self.term_a / 3
-    self.assertEqual(new_term.coefficient, self.term_a.coefficient / 3)
-    self.assertEqual(new_term.operators, self.term_a.operators)
-
-  def test_idiv(self):
-    self.term_a /= 2
-    self.assertEqual(self.term_a.coefficient, self.coefficient_a / 2)
-    self.assertEqual(self.term_a.operators, self.operators_a)
-
   def test_mul_localterm(self):
     term_ab = self.term_a * self.term_b
 
@@ -223,6 +213,16 @@ class LocalTermsTest(unittest.TestCase):
     expected = local_terms.LocalTerm(self.n_qubits, expected_coeff,
                                      expected_ops)
     self.assertEqual(term_ab, expected)
+
+  def test_div(self):
+    new_term = self.term_a / 3
+    self.assertEqual(new_term.coefficient, self.term_a.coefficient / 3)
+    self.assertEqual(new_term.operators, self.term_a.operators)
+
+  def test_idiv(self):
+    self.term_a /= 2
+    self.assertEqual(self.term_a.coefficient, self.coefficient_a / 2)
+    self.assertEqual(self.term_a.operators, self.operators_a)
 
   def test_pow_square(self):
     squared = self.term_a ** 2
