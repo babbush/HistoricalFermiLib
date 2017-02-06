@@ -54,10 +54,11 @@ class QubitTerm(LocalTerm):
   only allow to apply one single Pauli Matrix to each qubit.
 
   Note 1: We assume in this class that indices start from 0 to n_qubits - 1.
+
   Note 2: Always use the abstractions provided here to manipulate the
-      .operators attribute. If ignoring this advice, an important thing to
-      keep in mind is that the operators list is assumed to be sorted in order
-      of the tensor factor on which the operator acts.
+  .operators attribute. If ignoring this advice, an important thing to
+  keep in mind is that the operators list is assumed to be sorted in order
+  of the tensor factor on which the operator acts.
 
   Attributes:
     n_qubits: The total number of qubits in the system.

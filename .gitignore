@@ -3,5 +3,5 @@ src/data/
 data/
 __pycache__/
 .DS_Store
-Ian_todo.txt
+docs/_build
 .ipynb_checkpoints/
