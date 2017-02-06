@@ -60,3 +60,6 @@ Reverse Bravyi-Kitaev representation.
 
 More generalized fermionic mappings.
 - James or Vojtech
+
+Add parser for our Fermion/Qubit language.
+- Jarrod

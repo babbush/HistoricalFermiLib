@@ -860,13 +860,5 @@ class QubitOperatorsTest(unittest.TestCase):
     op12 = term1.reverse_jordan_wigner() - term2.reverse_jordan_wigner()
     self.assertEqual(op12, (term1 - term2).reverse_jordan_wigner())
 
-  @unittest.skip("Should this work? I don't know.")
-  def test_get_molecular_rdm(self):
-    term1 = QubitTerm(4, -0.5, [(0, 'X')])
-    op1 = QubitOperator(4, term1)
-    mol1 = op1.get_molecular_rdm()
-
-    self.assertEqual(op1, mol1.jordan_wigner_transform())
-
 if __name__ == "__main__":
   unittest.main()
