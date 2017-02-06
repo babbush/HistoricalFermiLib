@@ -110,9 +110,8 @@ class LocalTermsTest(unittest.TestCase):
 
   def test_sub(self):
     self.assertEqual(self.term_a - self.term_b,
-                     local_operators.LocalOperator(self.n_qubits,
-                                                   [self.term_a,
-                                                    -self.term_b]))
+                     local_operators.LocalOperator(
+                         self.n_qubits, [self.term_a, -self.term_b]))
 
   def test_sub_cancel(self):
     self.assertEqual(self.term_a - self.term_a,

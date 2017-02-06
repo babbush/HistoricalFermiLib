@@ -74,10 +74,10 @@ class LocalOperatorsTest(unittest.TestCase):
                                        self.operators1)
 
     self.operator1 = local_operators.LocalOperator(self.n_qubits, [self.term1])
-    self.term1 *= 2
+    self.operators1.append(12)
 
     expected_term = local_terms.LocalTerm(self.n_qubits, self.coeff1,
-                                          self.operators1)
+                                          self.operators1[:-1])
     expected_op = local_operators.LocalOperator(self.n_qubits, expected_term)
     self.assertEqual(self.operator1, expected_op)
 

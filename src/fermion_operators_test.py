@@ -714,7 +714,7 @@ class FermionOperatorsTest(unittest.TestCase):
     terms = [FermionTerm(self.n_qubits, coeff1, operators1)]
 
     operator1 = FermionOperator(self.n_qubits, terms)
-    terms *= 2
+    terms.append((3, 1))
 
     expected_term = FermionTerm(self.n_qubits, coeff1, operators1)
     expected_op = FermionOperator(self.n_qubits, expected_term)
