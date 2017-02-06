@@ -6,7 +6,6 @@ Subpackages
 
 .. toctree::
 
-    src.unitary_cc
 
 Submodules
 ----------
@@ -122,87 +121,6 @@ src.sparse_operators module
     :members:
     :undoc-members:
     :show-inheritance:
-
-src.test_chemical_series module
--------------------------------
-
-.. automodule:: src.test_chemical_series
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-src.test_fermion_operators module
----------------------------------
-
-.. automodule:: src.test_fermion_operators
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-src.test_hubbard module
------------------------
-
-.. automodule:: src.test_hubbard
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-src.test_hydrogen_integration module
-------------------------------------
-
-.. automodule:: src.test_hydrogen_integration
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-src.test_import module
-----------------------
-
-.. automodule:: src.test_import
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-src.test_local_operators module
--------------------------------
-
-.. automodule:: src.test_local_operators
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-src.test_local_terms module
----------------------------
-
-.. automodule:: src.test_local_terms
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-src.test_molecular_data module
-------------------------------
-
-.. automodule:: src.test_molecular_data
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-src.test_molecular_operators module
------------------------------------
-
-.. automodule:: src.test_molecular_operators
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-src.test_qubit_operators module
--------------------------------
-
-.. automodule:: src.test_qubit_operators
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------
