@@ -6,6 +6,7 @@ import itertools
 import scipy.misc
 import scipy.sparse
 import scipy.sparse.linalg
+import numpy.linalg
 
 
 # Define error class.
@@ -105,14 +106,28 @@ def get_ground_state(operator):
     operator: A scipy.sparse csc operator to diagonalize.
 
   Returns:
-    eigenvalue: The lowest eigenvalue, a float.
     eigenstate: The lowest eigenstate in scipy.sparse csc format.
+    eigenvalue: The lowest eigenvalue, a float.
   """
   values, vectors = scipy.sparse.linalg.eigsh(
       operator, 2, which="SA", maxiter=1e7)
   eigenstate = scipy.sparse.csc_matrix(vectors[:, 0])
   eigenvalue = values[0]
   return eigenstate.getH(), eigenvalue
+
+
+def get_eigenspectrum(operator):
+  """Perform a dense diagonalization.
+
+  Args:
+    operators: A scipy.sparse csc operator to diagonalize.
+
+  Returns:
+    eigenspectrum: The lowest eigenvalues in a numpy array.
+  """
+  dense_operator = operator.todense()
+  eigenspectrum = numpy.linalg.eigvalsh(dense_operator)
+  return eigenspectrum
 
 
 def expectation(operator, state):
