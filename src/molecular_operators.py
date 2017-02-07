@@ -267,6 +267,34 @@ class MolecularOperator(object):
   def __neq__(self, molecular_operator):
     return not (self == molecular_operator)
 
+  def __str__(self):
+    """Print out the elements of the MolecularOperator in readable fashion."""
+
+    # Start with the constant.
+    string = '[] {}\n\n'.format(self.constant)
+
+    # Loop over one-body terms.
+    for p in range(self.n_qubits):
+      for q in range(self.n_qubits):
+        coefficient = self.one_body_coefficients[p, q]
+        if coefficient:
+          string += '[{} {}] {}\n'.format(p, q, coefficient)
+
+    # Loop over two-body terms.
+    for p in range(self.n_qubits):
+      for q in range(self.n_qubits):
+        for r in range(self.n_qubits):
+          for s in range(self.n_qubits):
+            coefficient = self.two_body_coefficients[p, q, r, s]
+            if coefficient:
+              string += '\n[{} {} {} {}] {}'.format(p, q, r, s, coefficient)
+
+    # Return.
+    return string if string else '0'
+
+  def __repr__(self):
+    return str(self)
+
   def rotate_basis(self, rotation_matrix):
     """Rotate the orbital basis of the MolecularOperator.
 
