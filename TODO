@@ -27,18 +27,20 @@ Finish ipython notebook demo.
 - Ryan
 
 Make the MolecularOperator data structure more integrated with python
-data model. For instance, support the __print__ method to quickly print
+data model. For instance, support the __str__ method to quickly print
 out Hamiltonians in a human readable way.
 - Ryan
-
-
-*************************************************
-* OPTIONAL THINGS THAT ARE PROBABLY A GOOD IDEA *
-*************************************************
 
 Make MolecularOperator two data structures, one for RDMs
 and one for Hamiltonians, which inherit from the same parent class.
 - Ryan
+
+Method of turning operators from FermiLib into gates for ProjectQ.
+- Damian or Thomas
+
+*************************************************
+* OPTIONAL THINGS THAT ARE PROBABLY A GOOD IDEA *
+*************************************************
 
 Make sparse_operators.py encapsulated by a class.
 - Ryan or Jarrod
