@@ -1,24 +1,27 @@
+
+
 class FenwickNode:
   """ Fenwick Tree node """
+
   parent = None    
   children = None 
-  value = None
+  index = None
   
-  def __init__(self, parent, children, value = None):
-    """ Fenwick Tree node
+  def __init__(self, parent, children, index = None):
+    """ Fenwick Tree node. Single parent and multiple children. 
 
     Args: 
-        parent: FenwickTree. A parent node.
-        children: FenwickTree, list. A list of children nodes.
-        value: Int. Currently for debugging purposes only. 
+        parent: FenwickNode. A parent node.
+        children: List. A list of children nodes (FenwickNode).
+        index: Int. Node identifier. [TODO: rename?] 
     """
 
     self.children = children
     self.parent = parent
-    self.value = value        
+    self.index = index        
 
   def get_ancestors(self):
-    """ Returns a list of ancestors of the node. Ordered from the earliest 
+    """ Returns a list of ancestors of the node. Ordered from the earliest.
     
     Returns: 
         ancestor_list: A list of FenwickNodes.
@@ -36,8 +39,9 @@ class FenwickNode:
 class FenwickTree: 
   """ Recursive implementation of the Fenwick tree. 
      
-  Please see Subsection B.2. of Operator Locality in Quantum Simulation of Fermionic Models by
-  Havlicek, Troyer and Whitfiled for a reference to U, P and F sets of the Fenwick. 
+  Please see Subsection B.2. of Operator Locality in Quantum Simulation
+  of Fermionic Models by Havlicek, Troyer and Whitfiled for a reference 
+  to U, P and F sets of the Fenwick. 
   """
 
   root = None # Root node
@@ -51,7 +55,7 @@ class FenwickTree:
 
     self.nodes = [FenwickNode(None, []) for _ in range(n_qubits)] 
     self.root = self.nodes[n_qubits-1]
-    self.root.value = n_qubits-1  # For debug atm
+    self.root.index = n_qubits-1  # For debug atm
 
     def fenwick(left, right, parent): 
       """ This inner function is used to build the Fenwick 
@@ -69,7 +73,7 @@ class FenwickTree:
         pivot = (left + right) >> 1      
         child = self.nodes[pivot] 
         
-        child.value = pivot  # For debug atm
+        child.index = pivot  # For debug atm
         parent.children.append(child)    # Parent -> child
         child.parent = parent            # Child -> parent
 
@@ -122,16 +126,39 @@ class FenwickTree:
 
 
   def get_C(self, j):
-    """ Return the set of children with indices less than j of all ancestors of j"""
+    """ Return the set of children with indices less than j of all ancestors of j
+    
+    Args: 
+        j: Int. Fermionic site index.
+    
+    Returns: 
+        A list of children of j-ancestors with index less than j.
+        
+    """
 
     result = []
     ancestors = self.get_U(j)
 
-    # TODO: Likely suboptimal. Possible bottleneck. Uses c.value!
+    # TODO: Likely suboptimal. Possible bottleneck. Uses c.index!
     for a in ancestors:
         for c in a.children:
-            if c.value < j: 
+            if c.index < j: 
                 result.append(c)
 
     return result
     
+
+  def get_P(self, j):
+      """ Returns the union of C with F. Coincides with the parity set of Tranter et al.
+      
+      Args: 
+          j: Int. Fermionic site index.
+    
+      Returns: 
+          A C union F
+      """
+
+      return self.get_C(j) + self.get_F(j)
+
+
+

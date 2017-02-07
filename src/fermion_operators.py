@@ -2,6 +2,7 @@
 """
 from local_terms import LocalTerm, LocalTermError
 from local_operators import LocalOperator, LocalOperatorError
+from fenwick_tree import FenwickNode, FenwickTree
 import qubit_operators
 import molecular_operators
 import numpy
@@ -225,19 +226,55 @@ class FermionTerm(LocalTerm):
     return normal_ordered_operator
 
   def bravyi_kitaev_transform(self):
-    # TODO Jarrod and Vojta
     """ Apply the Bravyi-Kitaev transform and return qubit operator. 
 
     Returns: 
         transformed_term: An instance of the QubitOperator class.
-    
+
     Warning: 
-        
+        Greedy. At the moment the method builds a Fenwick tree for each operator in the Hamiltonian. 
+        FenwickNodes are not neccessary in this construction, only the indices matter here. This can be optimized.
+    
     """
 
+    fenwick_tree = FenwickTree(self.n_qubits)   # Builds the Fenwick Tree
+
+    # Initialize identity matrix.
+    transformed_term = qubit_operators.QubitOperator(
+        self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits,
+                                                  self.coefficient)])
+    
+    # TODO: implement Majoranas here 
+    for operator in self:
+      index = operator[0]  # Operator index   
+      parity_set        = [node.index for node in fenwick_tree.get_P(index)]  # Parity set to apply Z to. 
+      ancestors         = [node.index for node in fenwick_tree.get_U(index)]  # The update set. Set of ancestors to apply X to
+      ancestor_children = [node.index for node in fenwick_tree.get_C(index)]   
+
+      print("Fenwick Tree U: ", fenwick_tree.get_U(index))
+      print(ancestors)
+      print(parity_set)
+
+      d_coeff = .5j  # coefficient for a fermion lowering operator
+      if operator[1]:
+        d_coeff = -d_coeff  # switches to raising operator 
 
 
-    return None
+      d_majorana_component = qubit_operators.QubitTerm(
+        self.n_qubits, d_coeff, [(operator[0], 'Y')] 
+                          + [(index, 'Z') for index in ancestor_children]    # Z operator applied to P(j)/F(j) = C(j) 
+                          + [(index, 'X') for index in ancestors])           # Bit-flip on the update set
+
+      c_majorana_component = qubit_operators.QubitTerm(
+        self.n_qubits, .5, [(operator[0], 'X')] 
+                          + [(index, 'Z') for index in parity_set]
+                          + [(index, 'X') for index in ancestors])
+
+    transformed_term *= qubit_operators.QubitOperator(
+            self.n_qubits, [c_majorana_component, d_majorana_component])
+
+    return transformed_term
+
 
   def jordan_wigner_transform(self):
     """Apply the Jordan-Wigner transform and return qubit operator.

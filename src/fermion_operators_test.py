@@ -215,6 +215,12 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(n_jw[[]], 0.5)
     self.assertEqual(len(n_jw), 2)
 
+  def test_bravyi_kitaev_transform(self):
+    print("Running Bravyi-Kitaev test")
+    lowering = FermionTerm(self.n_qubits, 1.,
+      [(3, 0)]).bravyi_kitaev_transform()  
+      
+
   def test_add_terms(self):
     sum_terms = self.term_a + self.term_b
     diff_terms = self.term_a - self.term_b
