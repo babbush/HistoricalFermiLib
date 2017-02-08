@@ -12,3 +12,5 @@ To contribute code please adhere to the following very simple rules:
 3. Make sure you adhere to our style guide. Just look at our code for clues.
   Mostly, we follow pep8 and use the pep8 linter with the following
   modifications in the pep8 ~/.config/pep8 file: ignore = E111, E114, E226
+
+Documentation can be found at docs/_build/html/index.html, or online at https://babbush.github.io/fermilib.
