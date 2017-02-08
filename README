@@ -8,7 +8,8 @@ To contribute code please adhere to the following very simple rules:
 
 1. Make sure your new code comes with extensive tests!
 2. Make sure your new code passes all tests by running:
-  ./precommit_tests
+  ./src/precommit_tests
+   from the main directory.
 3. Make sure you adhere to our style guide. Just look at our code for clues.
   Mostly, we follow pep8 and use the pep8 linter with the following
   modifications in the pep8 ~/.config/pep8 file: ignore = E111, E114, E226
