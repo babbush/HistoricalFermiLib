@@ -3,6 +3,5 @@ src/data/
 data/
 __pycache__/
 .DS_Store
-docs/_build
 .ipynb_checkpoints/
 src/for_elie
