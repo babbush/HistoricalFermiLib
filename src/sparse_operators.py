@@ -251,6 +251,7 @@ def configuration_projector(n_orbitals, n_electrons):
     projector = projector + density
   return projector
 
+
 def restrict_particle_manifold(operator, n_electrons):
   """Restrict the support of an operator to a fixed particle-number manifold.
 
