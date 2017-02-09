@@ -239,7 +239,7 @@ def configuration_projector(n_orbitals, n_electrons):
   for state in states:
 
     # Construct computational basis state in Hilbert space.
-    ket = 1
+    ket = 1.
     for qubit in state:
       if qubit:
         ket = scipy.sparse.kron(ket, occupied, "csc")
@@ -250,3 +250,19 @@ def configuration_projector(n_orbitals, n_electrons):
     density = ket * ket.getH()
     projector = projector + density
   return projector
+
+def restrict_particle_manifold(operator, n_electrons):
+  """Restrict the support of an operator to a fixed particle-number manifold.
+
+  Args:
+    operator: A scipy sparse.csc matrix.
+    n_electrons: The particle sector to restrict to.
+
+  Returns:
+    effective_operator: The effective operator which restricts to the correct
+        particle-number manifold.
+  """
+  n_orbitals = int(numpy.rint(numpy.log2(operator.shape[0])))
+  projector = configuration_projector(n_orbitals, n_electrons)
+  effective_operator = projector.getH() * operator * projector
+  return effective_operator
