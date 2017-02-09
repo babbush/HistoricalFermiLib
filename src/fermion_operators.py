@@ -225,6 +225,7 @@ class FermionTerm(LocalTerm):
     normal_ordered_operator += term
     return normal_ordered_operator
 
+
   def bravyi_kitaev_transform(self):
     """ Apply the Bravyi-Kitaev transform and return qubit operator. 
 
@@ -232,10 +233,9 @@ class FermionTerm(LocalTerm):
         transformed_term: An instance of the QubitOperator class.
 
     Warning: 
-        Greedy. At the moment the method gets the node sets for each fermionic operator. 
-        FenwickNodes are not neccessary in this construction, only the indices matter here. This can 
+        Likely greedy. At the moment the method gets the node sets for each fermionic operator. 
+        FenwickNodes are not neccessary in this construction, only the indices matter here. This may 
         be optimized by removing the unnecessary structure. 
-    
     """
 
     # Build the Fenwick Tree
@@ -247,24 +247,21 @@ class FermionTerm(LocalTerm):
                                                   self.coefficient)])
     
     for operator in self:
-      index = operator[0]  # Operator index   
-      parity_set        = [node.index for node in fenwick_tree.get_P(index)]  # Parity set to apply Z to. 
-      ancestors         = [node.index for node in fenwick_tree.get_U(index)]  # The update set. Set of ancestors to apply X to.
-      ancestor_children = [node.index for node in fenwick_tree.get_C(index)]  # This is the C(j) set from the paper.
+      index = operator[0]     
+      parity_set        = [node.index for node in fenwick_tree.get_P(index)]  # Parity set. Set of nodes to apply Z to.
+      ancestors         = [node.index for node in fenwick_tree.get_U(index)]  # Update set. Set of ancestors to apply X to.
+      ancestor_children = [node.index for node in fenwick_tree.get_C(index)]  # The C(j) set.
 
-      print("Fenwick Tree U: ", fenwick_tree.get_U(index))
-      print(ancestors)
-      print(parity_set)
-
-      d_coeff = .5j  # coefficient for a fermion lowering operator
+      # Switch between lowering/raising operators 
+      d_coeff = .5j   
       if operator[1]:
-        d_coeff = -d_coeff  # switches to raising operator if operator[1] is raising 
-
+        d_coeff = -d_coeff  
+      
       #  The fermion lowering operator is given by a = (c+id)/2 where c,d are the majoranas.
       d_majorana_component = qubit_operators.QubitTerm(
         self.n_qubits, d_coeff, [(operator[0], 'Y')] 
-                              + [(index, 'Z') for index in ancestor_children]    # Z operator applied to P(j)/F(j) = C(j) 
-                              + [(index, 'X') for index in ancestors])           # Bit-flip on the update set
+                              + [(index, 'Z') for index in ancestor_children]    
+                              + [(index, 'X') for index in ancestors])          
 
       c_majorana_component = qubit_operators.QubitTerm(
         self.n_qubits, .5, [(operator[0], 'X')] 
