@@ -14,9 +14,9 @@ class FenwickTreeTest(unittest.TestCase):
     """ 
         
     f = FenwickTree(5)
-    self.assertEqual(f.root.children[0].value, 2)
-    self.assertEqual(f.root.children[1].value, 3)
-    self.assertEqual(f.root.children[0].children[0].children[0].value, 0)
+    self.assertEqual(f.root.children[0].index, 2)
+    self.assertEqual(f.root.children[1].index, 3)
+    self.assertEqual(f.root.children[0].children[0].children[0].index, 0)
 
 
   def test_fenwick_tree_ancestors(self):
@@ -59,7 +59,7 @@ class FenwickTreeTest(unittest.TestCase):
     
     # TODO: Possibly too weak.
     f = FenwickTree(16)
-    self.assertEqual(f.get_C(9)[0].value, 7)
+    self.assertEqual(f.get_C(9)[0].index, 7)
 
 if __name__ == '__main__':
   unittest.main()       
