@@ -3,6 +3,7 @@ from fermion_operators import (fermion_identity, number_operator,
                                FermionTerm, FermionOperator,
                                FermionTermError, FermionOperatorError,
                                JordanWignerError)
+from math import log2
 import qubit_operators as qo
 import unittest
 import numpy
@@ -455,6 +456,8 @@ class FermionTermsTest(unittest.TestCase):
     raising = FermionTerm(self.n_qubits, 1.,
                           [(3, 1)]).jordan_wigner_transform()
     self.assertEqual(len(raising), 2)
+    self.assertEqual(len(lowering), 2)
+    self.assertEqual(len(raising), 2)
 
     correct_operators_x = [(0, 'Z'), (1, 'Z'), (2, 'Z'), (3, 'X')]
     correct_operators_y = [(0, 'Z'), (1, 'Z'), (2, 'Z'), (3, 'Y')]
@@ -548,6 +551,51 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(n_jw[[]], 0.5)
     self.assertEqual(len(n_jw), 2)
     self.assertEqual(self.n_qubits, n_jw.n_qubits)
+
+  def test_bravyi_kitaev_transform(self):
+    # Check that the QubitOperators are two-term.
+    lowering = FermionTerm(self.n_qubits, 1.,
+      [(3, 0)]).bravyi_kitaev_transform()
+    raising = FermionTerm(self.n_qubits, 1.,
+      [(3,1)]).bravyi_kitaev_transform()
+    self.assertEqual(len(raising), 2)
+    self.assertEqual(len(lowering), 2)
+
+    #  Test the locality invariant for N=2^d qubits (c_j majorana is always log2N+1 local on qubits)
+    n_qubits = 16
+    invariant = log2(n_qubits) + 1
+
+    for index in range(n_qubits):
+        operator = FermionTerm(n_qubits, 1., [(index,0)]).bravyi_kitaev_transform()
+        qubit_terms = operator.terms.items()  # Get the majorana terms.
+
+        for item in qubit_terms:
+            term = item[1]
+
+            #  Identify the c majorana terms by real coefficients and check their length.
+            if not isinstance(term.coefficient, complex):
+                self.assertEqual(len(term), invariant)
+
+    #  Hardcoded coefficient test on 16 qubits
+    lowering = FermionTerm(n_qubits, 1., [(9, 0)]).bravyi_kitaev_transform()
+    raising = FermionTerm(n_qubits, 1., [(9, 1)]).bravyi_kitaev_transform()
+
+    correct_operators_c = [(7, 'Z'), (8, 'Z'), (9, 'X'), (11, 'X'), (15, 'X')]
+    correct_operators_d = [(7, 'Z'), (9, 'Y'), (11, 'X'), (15, 'X')]
+
+    self.assertEqual(lowering[correct_operators_c], 0.5)
+    self.assertEqual(lowering[correct_operators_d], 0.5j)
+    self.assertEqual(raising[correct_operators_d], -0.5j)
+    self.assertEqual(raising[correct_operators_c], 0.5)
+
+
+  def test_add_terms(self):
+    sum_terms = self.term_a + self.term_b
+    diff_terms = self.term_a - self.term_b
+    self.assertEqual(2. * self.term_a + self.term_b - self.term_b,
+                     sum_terms + diff_terms)
+    self.assertIsInstance(sum_terms, FermionOperator)
+    self.assertIsInstance(diff_terms, FermionOperator)
 
   def test_jw_ccr_offsite_even_ca(self):
     c2 = FermionTerm(5, 1, [(2, 1)])
