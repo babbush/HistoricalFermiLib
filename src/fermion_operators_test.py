@@ -3,8 +3,7 @@ from fermion_operators import (fermion_identity, number_operator,
                                FermionTerm, FermionOperator,
                                FermionTermError, FermionOperatorError,
                                JordanWignerError)
-from math import log2
-import qubit_operators as qo
+from qubit_operators import qubit_identity, QubitTerm, QubitOperator
 import unittest
 import numpy
 import local_terms
@@ -456,8 +455,6 @@ class FermionTermsTest(unittest.TestCase):
     raising = FermionTerm(self.n_qubits, 1.,
                           [(3, 1)]).jordan_wigner_transform()
     self.assertEqual(len(raising), 2)
-    self.assertEqual(len(lowering), 2)
-    self.assertEqual(len(raising), 2)
 
     correct_operators_x = [(0, 'Z'), (1, 'Z'), (2, 'Z'), (3, 'X')]
     correct_operators_y = [(0, 'Z'), (1, 'Z'), (2, 'Z'), (3, 'Y')]
@@ -485,12 +482,12 @@ class FermionTermsTest(unittest.TestCase):
 
     correct_operators_x = [(0, 'Z'), (1, 'Z'), (2, 'Z'), (3, 'X')]
     correct_operators_y = [(0, 'Z'), (1, 'Z'), (2, 'Z'), (3, 'Y')]
-    qtermx = qo.QubitTerm(self.n_qubits, 0.5, correct_operators_x)
-    qtermy = qo.QubitTerm(self.n_qubits, 0.5j, correct_operators_y)
+    qtermx = QubitTerm(self.n_qubits, 0.5, correct_operators_x)
+    qtermy = QubitTerm(self.n_qubits, 0.5j, correct_operators_y)
 
     self.assertEqual(lowering[correct_operators_x], 0.5)
     self.assertEqual(lowering[correct_operators_y], 0.5j)
-    self.assertEqual(lowering, qo.QubitOperator(self.n_qubits,
+    self.assertEqual(lowering, QubitOperator(self.n_qubits,
                                                 [qtermx, qtermy]))
     self.assertEqual(lowering.n_qubits, self.n_qubits)
 
@@ -563,7 +560,7 @@ class FermionTermsTest(unittest.TestCase):
 
     #  Test the locality invariant for N=2^d qubits (c_j majorana is always log2N+1 local on qubits)
     n_qubits = 16
-    invariant = log2(n_qubits) + 1
+    invariant = numpy.log2(n_qubits) + 1
 
     for index in range(n_qubits):
         operator = FermionTerm(n_qubits, 1., [(index,0)]).bravyi_kitaev_transform()
@@ -651,7 +648,7 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual((c1 * a1).normal_ordered(),
                      fermion_identity(5) - (a1 * c1).normal_ordered())
     self.assertEqual((c1 * a1).jordan_wigner_transform(),
-                     (qo.qubit_identity(5) -
+                     (qubit_identity(5) -
                       (a1 * c1).jordan_wigner_transform()))
 
   def test_is_molecular_term_fermion_identity(self):
