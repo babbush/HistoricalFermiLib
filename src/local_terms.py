@@ -18,6 +18,8 @@ class LocalTerm(object):
     coefficient: A complex valued float giving the term coefficient.
     operators: A list of site operators representing the term.
   """
+  __array_priority__ = 0  # this ensures good behavior with numpy scalars
+
   def __init__(self, n_qubits, coefficient=0., operators=None,
                tolerance=1e-12):
     """Inits a LocalTerm.
@@ -36,12 +38,9 @@ class LocalTerm(object):
     if not isinstance(n_qubits, int) or n_qubits < 1:
       raise ValueError('Number of qubits must be a positive integer.')
 
-    # Convert coefficient to complex
-    try:
-      self.coefficient = complex(coefficient)
-    except Exception as err:
-      raise ValueError('coefficient must be numeric or convertible'
-                       'to complex.')
+    # Check that coefficient is a scalar.
+    if not numpy.isscalar(coefficient):
+      raise ValueError('Coefficient must be scalar.')
 
     # Initialize.
     self._tolerance = tolerance
@@ -217,8 +216,6 @@ class LocalTerm(object):
     else:
       # Throw exception for unknown type.
       raise TypeError('Object of invalid type cannot multiply LocalTerm.')
-
-    # Return the product.
     return product
 
   def __rmul__(self, multiplier):
@@ -237,12 +234,21 @@ class LocalTerm(object):
     Raises:
       TypeError: Object of invalid type cannot multiply LocalTerm.
     """
-    if not (isinstance(multiplier, (int, float, complex)) or
-            numpy.isscalar(multiplier)):
+    if not numpy.isscalar(multiplier):
       raise TypeError('Object of invalid type cannot multiply LocalTerm.')
+
     product = copy.deepcopy(self)
     product.coefficient *= multiplier
     return product
+
+  def __div__(self, divisor):
+    if not numpy.isscalar(divisor):
+      raise TypeError('Cannot divide local operator by non-scalar type.')
+    return self * (1.0 / divisor)
+
+  def __idiv__(self, divisor):
+    self *= (1.0 / divisor)
+    return self
 
   def __pow__(self, exponent):
     """Exponentiate the LocalTerm.
@@ -259,14 +265,13 @@ class LocalTerm(object):
     if not isinstance(exponent, int) or exponent < 0:
       raise ValueError('Can only raise LocalTerm to positive integer powers.')
 
-    return LocalTerm(self.n_qubits, self.coefficient ** exponent,
-                     self.operators * exponent)
+    # Initialize identity.
+    exponentiated = self.return_class(self.n_qubits, 1.)
 
-  def is_identity(self):
-    if self.operators:
-      return False
-    else:
-      return True
+    # Handle other exponents.
+    for i in range(exponent):
+      exponentiated *= self
+    return exponentiated
 
   def __abs__(self):
     term_copy = copy.deepcopy(self)
@@ -284,3 +289,17 @@ class LocalTerm(object):
 
   def __repr__(self):
     return str(self)
+
+  def is_identity(self):
+    return len(self.operators) == 0
+
+  def commutator(self, term):
+    """Evaluate commutator of self with LocalTerm or LocalOperator.
+
+    Args:
+      term: Despite the name, this is either a LocalTerm or LocalOperator.
+
+    Returns:
+      commutator: LocalOperator giving self * term - term * self.
+    """
+    return self * term - term * self

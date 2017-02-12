@@ -81,8 +81,7 @@ def unpack_spatial_rdm(one_rdm_a,
     return one_rdm, two_rdm
 
 
-def one_body_basis_change(one_body_operator,
-                          rotation_matrix):
+def one_body_basis_change(one_body_operator, rotation_matrix):
   """Change the basis of 1-body fermionic operators, e.g. the 1-RDM.
 
   M' = R^T.M.R where R is the rotation matrix, M is the fermion operator
@@ -110,8 +109,7 @@ def one_body_basis_change(one_body_operator,
   return transformed_one_body_operator
 
 
-def two_body_basis_change(two_body_operator,
-                          rotation_matrix):
+def two_body_basis_change(two_body_operator, rotation_matrix):
   """Change the basis of 2-body fermionic operators, e.g. the 2-RDM.
 
   Procedure we use is an N^5 transformation which can be expressed as
@@ -144,10 +142,8 @@ def two_body_basis_change(two_body_operator,
   return transformed_two_body_operator
 
 
-def restrict_to_active_space(one_body_integrals,
-                             two_body_integrals,
-                             active_space_start,
-                             active_space_stop):
+def restrict_to_active_space(one_body_integrals, two_body_integrals,
+                             active_space_start, active_space_stop):
   """Restrict the molecule at a spatial orbital level to the active space
   defined by active_space=[start,stop]. Note that one_body_integrals and
   two_body_integrals must be defined in an orthonormal basis set,
@@ -186,15 +182,14 @@ def restrict_to_active_space(one_body_integrals,
   # Restrict integral ranges and change M appropriately
   return (core_constant,
           one_body_integrals_new[active_space_start: active_space_stop,
-                                 active_space_start:active_space_stop],
-          two_body_integrals[active_space_start:active_space_stop,
-                             active_space_start:active_space_stop,
-                             active_space_start:active_space_stop,
-                             active_space_start:active_space_stop])
+                                 active_space_start: active_space_stop],
+          two_body_integrals[active_space_start: active_space_stop,
+                             active_space_start: active_space_stop,
+                             active_space_start: active_space_stop,
+                             active_space_start: active_space_stop])
 
 
 class MolecularOperator(object):
-
   """Class for storing 'molecular operators' which are defined to be
   fermionic operators consisting of one-body and two-body terms which
   conserve particle number and spin. The most common examples of data
@@ -218,10 +213,7 @@ class MolecularOperator(object):
         For instance, the nuclear repulsion energy.
   """
 
-  def __init__(self,
-               constant,
-               one_body_coefficients,
-               two_body_coefficients):
+  def __init__(self, constant, one_body_coefficients, two_body_coefficients):
     """Initialize the MolecularOperator class.
 
     Args:
@@ -258,24 +250,50 @@ class MolecularOperator(object):
       self.one_body_coefficients[p, q] = value
     elif not len(args):
       self.constant = value
+    else:
+      raise ValueError('args must be of length 0, 2, or 4.')
 
   def __eq__(self, molecular_operator):
     tol = 1e-12
-    if abs(self.constant - molecular_operator.constant) > tol:
-      return False
-    elif (numpy.amax(
-        numpy.absolute(self.one_body_coefficients -
-                       molecular_operator.one_body_coefficients)) > tol):
-      return False
-    elif (numpy.amax(
-        numpy.absolute(self.two_body_coefficients -
-                       molecular_operator.two_body_coefficients)) > tol):
-      return False
-    else:
-      return True
+    diff = max(abs(self.constant - molecular_operator.constant),
+               numpy.amax(
+                   numpy.absolute(self.one_body_coefficients -
+                                  molecular_operator.one_body_coefficients)),
+               numpy.amax(
+                   numpy.absolute(self.two_body_coefficients -
+                                  molecular_operator.two_body_coefficients)))
+    return diff < tol
 
   def __neq__(self, molecular_operator):
     return not (self == molecular_operator)
+
+  def __str__(self):
+    """Print out the elements of the MolecularOperator in readable fashion."""
+
+    # Start with the constant.
+    string = '[] {}\n\n'.format(self.constant)
+
+    # Loop over one-body terms.
+    for p in range(self.n_qubits):
+      for q in range(self.n_qubits):
+        coefficient = self.one_body_coefficients[p, q]
+        if coefficient:
+          string += '[{} {}] {}\n'.format(p, q, coefficient)
+
+    # Loop over two-body terms.
+    for p in range(self.n_qubits):
+      for q in range(self.n_qubits):
+        for r in range(self.n_qubits):
+          for s in range(self.n_qubits):
+            coefficient = self.two_body_coefficients[p, q, r, s]
+            if coefficient:
+              string += '\n[{} {} {} {}] {}'.format(p, q, r, s, coefficient)
+
+    # Return.
+    return string if string else '0'
+
+  def __repr__(self):
+    return str(self)
 
   def rotate_basis(self, rotation_matrix):
     """Rotate the orbital basis of the MolecularOperator.
@@ -297,28 +315,23 @@ class MolecularOperator(object):
     """
     # Initialize with identity term.
     identity = fermion_operators.FermionTerm(self.n_qubits, self.constant)
-    fermion_operator = fermion_operators.FermionOperator(self.n_qubits,
-                                                         [identity])
+    fermion_operator = fermion_operators.FermionOperator(
+        self.n_qubits, [identity])
 
-    # Loop through terms.
     for p in range(self.n_qubits):
       for q in range(self.n_qubits):
-
         # Add one-body terms.
         coefficient = self[p, q]
         fermion_operator += fermion_operators.FermionTerm(
             self.n_qubits, coefficient, [(p, 1), (q, 0)])
 
-        # Keep looping.
         for r in range(self.n_qubits):
           for s in range(self.n_qubits):
-
             # Add two-body terms.
             coefficient = self[p, q, r, s]
             fermion_operator += fermion_operators.FermionTerm(
                 self.n_qubits, coefficient, [(p, 1), (q, 1), (r, 0), (s, 0)])
 
-    # Return.
     return fermion_operator
 
   @staticmethod
@@ -334,15 +347,13 @@ class MolecularOperator(object):
       parity_string = [(z, 'Z') for z in range(a + 1, b)]
       for operator in ['X', 'Y']:
         operators = [(a, operator)] + parity_string + [(b, operator)]
-        qubit_operator += qubit_operators.QubitTerm(
-            n_qubits, .5, operators)
+        qubit_operator += qubit_operators.QubitTerm(n_qubits, .5, operators)
 
     # Handle diagonal terms.
     else:
       qubit_operator += qubit_operators.QubitTerm(n_qubits, .5)
       qubit_operator += qubit_operators.QubitTerm(n_qubits, -.5, [(p, 'Z')])
 
-    # Return qubit operator.
     return qubit_operator
 
   @staticmethod
@@ -454,7 +465,6 @@ class MolecularOperator(object):
           n_qubits, coefficient,
           [(min(q, p), 'Z'), (max(q, p), 'Z')])
 
-    # Return.
     return qubit_operator
 
   def jordan_wigner_transform(self):
@@ -506,7 +516,6 @@ class MolecularOperator(object):
             transformed_term *= coefficient
             qubit_operator += transformed_term
 
-    # Return.
     return qubit_operator
 
   def get_qubit_term_expectation(self, qubit_term):
@@ -525,20 +534,18 @@ class MolecularOperator(object):
     expectation = 0.
     reversed_fermion_operators = qubit_term.reverse_jordan_wigner()
     reversed_fermion_operators.normal_order()
-    for fermion_term in reversed_fermion_operators:
 
+    for fermion_term in reversed_fermion_operators:
       # Handle molecular terms.
       if fermion_term.is_molecular_term():
         indices = [operator[0] for operator in fermion_term]
         rdm_element = self[indices]
         expectation += rdm_element * fermion_term.coefficient
-
       # Handle non-molecular terms.
       elif len(fermion_term.operators) > 4:
-        raise MolecularOperatorError(
-            'Observable not contained in 1-RDM or 2-RDM.')
+        raise MolecularOperatorError('Observable not contained '
+                                     'in 1-RDM or 2-RDM.')
 
-    # Return expectation.
     return expectation / qubit_term.coefficient
 
   def get_qubit_expectations(self, qubit_operator):

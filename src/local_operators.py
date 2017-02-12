@@ -17,6 +17,8 @@ class LocalOperator(object):
     _n_qubits: An int giving the number of qubits in simulated Hilbert space.
     terms: Dictionary of LocalTerm objects.
   """
+  __array_priority__ = 0  # this ensures good behavior with numpy scalars
+
   def __init__(self, n_qubits, terms=None, tolerance=1e-12):
     """Inits a LocalOperator object.
 
@@ -212,7 +214,7 @@ class LocalOperator(object):
 
     # Handle LocalTerms. Note that it is necessary to make new dictioanry.
     elif issubclass(type(multiplier), local_terms.LocalTerm):
-      new_operator = self.return_class(self._n_qubits)
+      new_operator = self.return_class(self.n_qubits)
       for term in self:
         term *= multiplier
         new_operator += term
@@ -221,7 +223,7 @@ class LocalOperator(object):
 
     # Handle LocalOperators. It is necessary to make new dictionary.
     elif issubclass(type(multiplier), LocalOperator):
-      new_operator = self.return_class(self._n_qubits)
+      new_operator = self.return_class(self.n_qubits)
       for left_term in self:
         for right_term in multiplier:
           new_operator += left_term * right_term
@@ -261,12 +263,19 @@ class LocalOperator(object):
     Raises:
       TypeError: Invalid typed object cannot multiply LocalOperator.
     """
-    if (isinstance(multiplier, (int, float, complex)) or
-       numpy.isscalar(multiplier)):
-      return self * multiplier
-    else:
-      raise TypeError(
-          'Invalid typed object cannot multiply LocalOperator.')
+    if not numpy.isscalar(multiplier):
+      raise TypeError('Invalid typed object cannot multiply LocalOperator.')
+
+    return self * multiplier
+
+  def __div__(self, divisor):
+    if not numpy.isscalar(divisor):
+      raise TypeError('Cannot divide local operator by non-scalar type.')
+    return self * (1.0 / divisor)
+
+  def __idiv__(self, divisor):
+    self *= (1.0 / divisor)
+    return self
 
   def __pow__(self, exponent):
     """Exponentiate the LocalOperator.
@@ -275,21 +284,23 @@ class LocalOperator(object):
       exponent: An int, giving the exponent with which to raise the operator.
 
     Returns:
-      The exponentiated operator.
+      exponentiated: The exponentiated operator.
 
     Raises:
       ValueError: Can only raise LocalOperator to positive integer powers.
     """
+    # Handle invalid exponents.
     if not isinstance(exponent, int) or exponent < 0:
       raise ValueError('Can only raise LocalTerm to positive integer powers.')
 
-    identity_term = local_terms.LocalTerm(self.n_qubits, 1.0)
-    res = LocalOperator(self.n_qubits, identity_term)
+    # Initialized identity.
+    exponentiated = self.return_class(self.n_qubits)
+    exponentiated += self.list_terms()[0].return_class(self.n_qubits, 1.)
 
+    # Handle other exponents.
     for i in range(exponent):
-      res *= self
-
-    return res
+      exponentiated *= self
+    return exponentiated
 
   def __abs__(self):
     operator_copy = copy.deepcopy(self)
@@ -310,7 +321,19 @@ class LocalOperator(object):
     return len(self.terms)
 
   def __str__(self):
-    return ''.join('{}\n'.format(term) for term in self)
+    s = ''.join('{}\n'.format(term) for term in self)
+    return s if s else '0'
 
   def __repr__(self):
     return str(self)
+
+  def commutator(self, term):
+    """Evaluate commutator of self with LocalTerm or LocalOperator.
+
+    Args:
+      term: Despite the name, this is either a LocalTerm or LocalOperator.
+
+    Returns:
+      commutator: LocalOperator giving self * term - term * self.
+    """
+    return self * term - term * self

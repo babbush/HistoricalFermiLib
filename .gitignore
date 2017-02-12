@@ -2,5 +2,6 @@
 src/data/
 data/
 __pycache__/
-
-Ian_todo.txt
+.DS_Store
+.ipynb_checkpoints/
+src/for_elie

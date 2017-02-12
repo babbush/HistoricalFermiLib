@@ -74,10 +74,10 @@ class LocalOperatorsTest(unittest.TestCase):
                                        self.operators1)
 
     self.operator1 = local_operators.LocalOperator(self.n_qubits, [self.term1])
-    self.term1 *= 2
+    self.operators1.append(12)
 
     expected_term = local_terms.LocalTerm(self.n_qubits, self.coeff1,
-                                          self.operators1)
+                                          self.operators1[:-1])
     expected_op = local_operators.LocalOperator(self.n_qubits, expected_term)
     self.assertEqual(self.operator1, expected_op)
 
@@ -184,9 +184,6 @@ class LocalOperatorsTest(unittest.TestCase):
     identity_op = local_operators.LocalOperator(self.n_qubits, identity_term)
     self.assertEqual(self.operator_abc * identity_op, self.operator_abc)
 
-  @unittest.skip("numpy float64 has strange behaviour: this test fails by "
-                 "converting the result to an array, but the same test "
-                 "with float128 passes.")
   def test_mul_npfloat64(self):
     self.assertEqual(self.operator_abc * numpy.float64(2.303),
                      self.operator_abc * 2.303)
@@ -225,6 +222,15 @@ class LocalOperatorsTest(unittest.TestCase):
     self.assertEqual((self.term_a * self.term_a).coefficient,
                      self.operator_abc[new_term.operators])
 
+  def test_div(self):
+    new_op = self.operator_bc / 3
+    self.assertEqual(new_op, self.operator_bc * (1.0 / 3.0))
+
+  def test_idiv(self):
+    self.operator_bc /= 2
+    self.assertEqual(self.operator_bc[self.term_b], self.coefficient_b / 2)
+    self.assertEqual(self.operator_bc[self.term_c], self.coefficient_c / 2)
+
   def test_abs(self):
     new_operator = abs(self.operator_abc)
     for term in new_operator:
@@ -261,6 +267,9 @@ class LocalOperatorsTest(unittest.TestCase):
   def test_str(self):
     self.assertEqual(str(self.operator_abc),
                      "-88.0 [1, 2]\n2.0 [0, 3, 4]\n6.7j [1, 2, 3, 4]\n")
+
+  def test_str_zero(self):
+    self.assertEqual('0', str(local_operators.LocalOperator(3)))
 
   def test_contains(self):
     self.assertFalse((1, 2, 9) in self.operator_abc)

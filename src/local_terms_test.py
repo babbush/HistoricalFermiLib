@@ -110,9 +110,8 @@ class LocalTermsTest(unittest.TestCase):
 
   def test_sub(self):
     self.assertEqual(self.term_a - self.term_b,
-                     local_operators.LocalOperator(self.n_qubits,
-                                                   [self.term_a,
-                                                    -self.term_b]))
+                     local_operators.LocalOperator(
+                         self.n_qubits, [self.term_a, -self.term_b]))
 
   def test_sub_cancel(self):
     self.assertEqual(self.term_a - self.term_a,
@@ -189,9 +188,6 @@ class LocalTermsTest(unittest.TestCase):
                                      self.operators_a)
     self.assertEqual(self.term_a * (-3. + 2j), expected)
 
-  @unittest.skip("numpy float64 has strange behaviour: this test fails by "
-                 "converting the result to an array, but the same test "
-                 "with float128 passes.")
   def test_mul_npfloat64(self):
     self.assertEqual(self.term_b * numpy.float64(2.303),
                      self.term_b * 2.303)
@@ -204,6 +200,9 @@ class LocalTermsTest(unittest.TestCase):
     self.assertEqual(numpy.float128(2.303) * self.term_b,
                      self.term_b * 2.303)
 
+  def test_mul_scalar_commute(self):
+    self.assertEqual(self.term_a * -3.7j, -3.7j * self.term_a)
+
   def test_mul_localterm(self):
     term_ab = self.term_a * self.term_b
 
@@ -213,6 +212,16 @@ class LocalTermsTest(unittest.TestCase):
     expected = local_terms.LocalTerm(self.n_qubits, expected_coeff,
                                      expected_ops)
     self.assertEqual(term_ab, expected)
+
+  def test_div(self):
+    new_term = self.term_a / 3
+    self.assertEqual(new_term.coefficient, self.term_a.coefficient / 3)
+    self.assertEqual(new_term.operators, self.term_a.operators)
+
+  def test_idiv(self):
+    self.term_a /= 2
+    self.assertEqual(self.term_a.coefficient, self.coefficient_a / 2)
+    self.assertEqual(self.term_a.operators, self.operators_a)
 
   def test_pow_square(self):
     squared = self.term_a ** 2

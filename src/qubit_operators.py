@@ -1,6 +1,6 @@
 """This files has utilities to read and store qubit Hamiltonians.
 """
-from local_terms import LocalTerm
+from local_terms import LocalTerm, LocalTermError
 from local_operators import LocalOperator
 import fermion_operators
 import sparse_operators
@@ -46,18 +46,19 @@ def qubit_identity(n_qubits):
 class QubitTerm(LocalTerm):
   """Single term of a hamiltonian for a system of spin 1/2 particles or qubits.
 
-  A hamiltonian of qubits can be written as a sum of QubitTerm objects.
-  Suppose you have n_qubits = 5 qubits a term of the hamiltonian
-  could be coefficient * X1 Z3 which we call a QubitTerm object. It means
-  coefficient *(1 x PauliX x 1 x PauliZ x 1),
-  where x is the tensor product, 1 the identity matrix, and the others are
-  Pauli matrices. We only allow to apply one single Pauli Matrix to each qubit.
+  A Hamiltonian of qubits can be written as a sum of QubitTerm objects.
+  Suppose you have n_qubits = 5 qubits a term of the Hamiltonian could
+  be coefficient * X1 Z3 which we call a QubitTerm object. It means
+  coefficient * (1 x PauliX x 1 x PauliZ x 1), where x is the tensor
+  product, 1 the identity matrix, and the others are Pauli matrices. We
+  only allow to apply one single Pauli Matrix to each qubit.
 
   Note 1: We assume in this class that indices start from 0 to n_qubits - 1.
+
   Note 2: Always use the abstractions provided here to manipulate the
-      .operators attribute. If ignoring this advice, an important thing to
-      keep in mind is that the operators list is assumed to be sorted in order
-      of the tensor factor on which the operator acts.
+  .operators attribute. If ignoring this advice, an important thing to
+  keep in mind is that the operators list is assumed to be sorted in order
+  of the tensor factor on which the operator acts.
 
   Attributes:
     n_qubits: The total number of qubits in the system.
@@ -89,10 +90,13 @@ class QubitTerm(LocalTerm):
     for operator in self:
       if isinstance(operator, tuple):
         tensor_factor, action = operator
-        if (isinstance(action, str) and
-           (isinstance(tensor_factor, int) and tensor_factor < n_qubits)):
-          continue
-      raise QubitTermError('Invalid operators provided to QubitTerm.')
+        if not isinstance(action, str) or action not in 'XYZ':
+          raise QubitTermError("Invalid action provided: must be string 'X', "
+                               "'Y', or 'Z'.")
+        if not (isinstance(tensor_factor, int) and
+                0 <= tensor_factor < n_qubits):
+          raise QubitTermError('Invalid tensor factor provided to QubitTerm: '
+                               'must be an integer between 0 and n_qubits-1.')
 
     # Make sure operators are sorted by tensor factor.
     self.operators.sort(key=lambda operator: operator[0])
@@ -115,14 +119,14 @@ class QubitTerm(LocalTerm):
     if not issubclass(type(addend), (QubitTerm, QubitOperator)):
       raise TypeError('Cannot add term of invalid type to QubitTerm.')
 
-    if not self.n_qubits == addend.n_qubits:
-      raise QubitTermError('Cannot add terms acting on different'
+    if self.n_qubits != addend.n_qubits:
+      raise LocalTermError('Cannot add terms acting on different '
                            'Hilbert spaces.')
 
     return QubitOperator(self.n_qubits, [self]) + addend
 
   def __imul__(self, multiplier):
-    """Multiply operators with scalar or QubitTerm using *=.
+    """Multiply terms with scalar or QubitTerm using *=.
 
     Note that the "self" term is on the left of the multiply sign.
 
@@ -230,7 +234,7 @@ class QubitTerm(LocalTerm):
           lowering_term = fermion_operators.FermionTerm(
               self.n_qubits, 1., [(operator[0], 0)])
 
-          # Handle Pauli X.
+          # Handle Pauli X, Y, Z.
           if operator[1] == 'Y':
             raising_term *= 1j
             lowering_term *= -1j
@@ -267,7 +271,6 @@ class QubitTerm(LocalTerm):
     # Account for overall coefficient
     transformed_term *= self.coefficient
 
-    # Return.
     return transformed_term
 
   def __str__(self):
@@ -306,8 +309,8 @@ class QubitTerm(LocalTerm):
     # Grow space at end of string unless operator acted on final qubit.
     if tensor_factor < self.n_qubits or not self.operators:
       identity_qubits = self.n_qubits - tensor_factor
-      identity = scipy.sparse.identity(
-          2 ** identity_qubits, dtype=complex, format='csc')
+      identity = scipy.sparse.identity(2 ** identity_qubits,
+                                       dtype=complex, format='csc')
       matrix_form = scipy.sparse.kron(matrix_form, identity, 'csc')
     return matrix_form
 
@@ -335,9 +338,8 @@ class QubitOperator(LocalOperator):
     """
     super(QubitOperator, self).__init__(n_qubits, terms)
     for term in self:
-      if isinstance(term, QubitTerm) and term.n_qubits == n_qubits:
-        continue
-      raise QubitTermError('Invalid QubitTerms provided to QubitOperator.')
+      if not isinstance(term, QubitTerm) or term.n_qubits != n_qubits:
+        raise QubitTermError('Invalid QubitTerms provided to QubitOperator.')
 
   def __setitem__(self, operators, coefficient):
     if operators in self:
@@ -399,8 +401,4 @@ class QubitOperator(LocalOperator):
         if tuple(term.operators) in self.terms:
           two_rdm[i, j, k, l] += term.coefficient * self[term.operators]
 
-    # Return new operator.
-    molecular_operator = molecular_operators.MolecularOperator(1.0,
-                                                               one_rdm,
-                                                               two_rdm)
-    return molecular_operator
+    return molecular_operators.MolecularOperator(1.0, one_rdm, two_rdm)

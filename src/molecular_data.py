@@ -26,6 +26,15 @@ class MissingCalculationError(Exception):
   pass
 
 
+# Functions to change from Bohr to Angstroms and back.
+def bohr_to_angstroms(distance):
+  return 0.529177 * distance
+
+
+def angstroms_to_bohr(distance):
+  return 1.889726 * distance
+
+
 # Molecular data directory.
 _THIS_DIRECTORY = os.path.dirname(os.path.realpath(__file__)) + '/'
 _DATA_DIRECTORY = _THIS_DIRECTORY + 'data/'
