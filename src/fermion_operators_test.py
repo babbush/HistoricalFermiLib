@@ -3,6 +3,9 @@ from fermion_operators import (fermion_identity, number_operator,
                                FermionTerm, FermionOperator,
                                FermionTermError, FermionOperatorError,
                                JordanWignerError)
+
+from math import log2
+
 import unittest
 
 
@@ -222,6 +225,18 @@ class FermionTermsTest(unittest.TestCase):
 
     raising = FermionTerm(self.n_qubits, 1.,
       [(3,1)]).bravyi_kitaev_transform()
+    
+    #  Test the locality invariant for 8 qubits
+    n_qubits = 8  
+    invariant = math.log2(n_qubits) 
+
+    for index in range(n_qubits):
+        term = FermionTerm(n_qubits, 1., [(index,0)]).bravyi_kitaev_transform()
+        self.assertEqual(len(term), invariant)
+
+
+
+
 
   def test_add_terms(self):
     sum_terms = self.term_a + self.term_b
