@@ -569,7 +569,7 @@ class MolecularOperator(object):
       qubit_term.coefficient = self.get_qubit_term_expectation(qubit_term)
     return qubit_operator_expectations
 
-  def get_sparse_matrix(self):
-    qubit_operator = self.jordan_wigner_transform()
-    sparse_operator = qubit_operator.get_sparse_matrix()
+  def get_sparse_operator(self):
+    fermion_operator = self.get_fermion_operator()
+    sparse_operator = fermion_operator.jordan_wigner_sparse()
     return sparse_operator

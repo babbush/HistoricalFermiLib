@@ -2,14 +2,13 @@
 """
 from local_terms import LocalTerm, LocalTermError
 from local_operators import LocalOperator
+from sparse_operators import (qubit_term_sparse,
+                              qubit_operator_sparse)
 import fermion_operators
-import sparse_operators
 import molecular_operators
-import numpy
-import scipy
-import scipy.sparse
-import copy
 import itertools
+import numpy
+import copy
 
 
 class QubitTermError(Exception):
@@ -288,31 +287,9 @@ class QubitTerm(LocalTerm):
         string_representation += ' Z{}'.format(operator[0])
     return string_representation
 
-  def get_sparse_matrix(self):
-    """Map the QubitTerm to a scipy.sparse.csc matrix."""
-    tensor_factor = 0
-    matrix_form = self.coefficient
-    for operator in self:
-
-      # Grow space for missing identity operators.
-      if operator[0] > tensor_factor:
-        identity_qubits = operator[0] - tensor_factor
-        identity = scipy.sparse.identity(
-            2 ** identity_qubits, dtype=complex, format='csc')
-        matrix_form = scipy.sparse.kron(matrix_form, identity, 'csc')
-
-      # Kronecker product the operator.
-      matrix_form = scipy.sparse.kron(
-          matrix_form, sparse_operators._PAULI_MATRIX_MAP[operator[1]], 'csc')
-      tensor_factor = operator[0] + 1
-
-    # Grow space at end of string unless operator acted on final qubit.
-    if tensor_factor < self.n_qubits or not self.operators:
-      identity_qubits = self.n_qubits - tensor_factor
-      identity = scipy.sparse.identity(2 ** identity_qubits,
-                                       dtype=complex, format='csc')
-      matrix_form = scipy.sparse.kron(matrix_form, identity, 'csc')
-    return matrix_form
+  def get_sparse_operator(self):
+    """Map the QubitTerm to a SparseOperator instance."""
+    return qubit_term_sparse(self)
 
 
 class QubitOperator(LocalOperator):
@@ -354,13 +331,8 @@ class QubitOperator(LocalOperator):
       transformed_operator += term.reverse_jordan_wigner()
     return transformed_operator
 
-  def get_sparse_matrix(self):
-    hilbert_dimension = 2 ** self.n_qubits
-    matrix_form = scipy.sparse.csc_matrix(
-        (hilbert_dimension, hilbert_dimension), dtype=complex)
-    for term in self:
-      matrix_form = matrix_form + term.get_sparse_matrix()
-    return matrix_form
+  def get_sparse_operator(self):
+    return qubit_operator_sparse(self)
 
   def expectation(self, qubit_operator):
     """Take the expectation value of self with another qubit operator.

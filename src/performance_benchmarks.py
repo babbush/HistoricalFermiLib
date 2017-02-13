@@ -141,6 +141,26 @@ def benchmark_fermion_math_and_normal_order(n_qubits, term_length, power):
   return runtime_math, runtime_normal_order
 
 
+def benchmark_jordan_wigner_sparse(n_qubits):
+  """Benchmark the speed at which a FermionOperator is mapped to a matrix.
+
+  Args:
+    n_qubits: The number of qubits in the example.
+
+  Returns:
+    runtime: The time in seconds that the benchmark took.
+  """
+  # Initialize a random FermionOperator.
+  molecular_operator = artificial_molecular_operator(n_qubits)
+  fermion_operator = molecular_operator.get_fermion_operator()
+
+  # Map to SparseOperator class.
+  start_time = time.time()
+  sparse_operator = fermion_operator.jordan_wigner_sparse()
+  runtime = time.time() - start_time
+  return runtime
+
+
 # Run benchmarks.
 if __name__ == '__main__':
 
@@ -152,8 +172,8 @@ if __name__ == '__main__':
     print('MolecularOperator.jordan_wigner_transform() ' +
           'takes {} seconds on {} qubits.'.format(runtime, n_qubits))
 
-  # Run MolecularOperator.jordan_wigner_transform() benchmark.
-  if 1:
+  # Run benchmark on FermionOperator math and normal-ordering.
+  if 0:
     n_qubits = 20
     term_length = 5
     power = 15
@@ -162,3 +182,10 @@ if __name__ == '__main__':
         n_qubits, term_length, power)
     print('Math took {} seconds. Normal ordering took {} seconds.'.format(
         runtime_math, runtime_normal))
+
+  # Run FermionOperator.jordan_wigner_sparse() benchmark.
+  if 1:
+    n_qubits = 10
+    print('Starting test on FermionOperator.jordan_wigner_sparse().')
+    runtime = benchmark_jordan_wigner_sparse(n_qubits)
+    print('Construction of SparseOperator took {} seconds.'.format(runtime))

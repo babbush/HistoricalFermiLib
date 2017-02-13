@@ -56,9 +56,9 @@ class LiHIntegrationTest(unittest.TestCase):
         self.fermion_hamiltonian.jordan_wigner_transform())
 
     # Get matrix form.
-    self.hamiltonian_matrix = self.molecular_hamiltonian.get_sparse_matrix()
+    self.hamiltonian_matrix = self.molecular_hamiltonian.get_sparse_operator()
     self.hamiltonian_matrix_no_core = self.molecular_hamiltonian_no_core.\
-        get_sparse_matrix()
+        get_sparse_operator()
 
     # Recore frozen core result from external caluclation.
     self.frozen_core_fci_energy = -7.8807607374168
@@ -88,21 +88,18 @@ class LiHIntegrationTest(unittest.TestCase):
     self.assertAlmostEqual(fci_rdm_energy, self.molecule.fci_energy)
 
     # Test the matrix representation.
-    wavefunction, energy = sparse_operators.get_ground_state(
-        self.hamiltonian_matrix)
+    energy, wavefunction = self.hamiltonian_matrix.get_ground_state()
     self.assertAlmostEqual(energy, self.molecule.fci_energy)
-    expected_energy = sparse_operators.expectation(
-        self.hamiltonian_matrix, wavefunction)
+    expected_energy = self.hamiltonian_matrix.expectation(wavefunction)
     self.assertAlmostEqual(expected_energy, energy)
 
     # Make sure you can reproduce Hartree-Fock energy.
-    hf_state = sparse_operators.hartree_fock_state(
+    hf_state = sparse_operators.jw_hartree_fock_state(
         self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits)
     hf_density = sparse_operators.get_density_matrix([hf_state], [1.])
-    expected_hf_density_energy = sparse_operators.expectation(
-        self.hamiltonian_matrix, hf_density)
-    expected_hf_energy = sparse_operators.expectation(
-        self.hamiltonian_matrix, hf_state)
+    expected_hf_density_energy = self.hamiltonian_matrix.expectation(
+        hf_density)
+    expected_hf_energy = self.hamiltonian_matrix.expectation(hf_state)
     self.assertAlmostEqual(expected_hf_energy, self.molecule.hf_energy)
     self.assertAlmostEqual(expected_hf_density_energy, self.molecule.hf_energy)
 
@@ -122,7 +119,7 @@ class LiHIntegrationTest(unittest.TestCase):
 
     # Check that frozen core result matches frozen core FCI from psi4.
     no_core_fci_energy = scipy. \
-        linalg.eigh(self.hamiltonian_matrix_no_core.todense())[0][0]
+        linalg.eigh(self.hamiltonian_matrix_no_core.matrix.todense())[0][0]
     self.assertAlmostEqual(no_core_fci_energy,
                            self.frozen_core_fci_energy)
 
