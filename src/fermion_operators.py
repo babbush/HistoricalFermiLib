@@ -2,13 +2,13 @@
 """
 from local_terms import LocalTerm, LocalTermError
 from local_operators import LocalOperator, LocalOperatorError
+from sparse_operators import (jordan_wigner_term_sparse,
+                              jordan_wigner_operator_sparse)
 from fenwick_tree import FenwickNode, FenwickTree
-import qubit_operators
 import molecular_operators
+import qubit_operators
 import numpy
 import copy
-import scipy
-import scipy.sparse
 
 
 class JordanWignerError(Exception):
@@ -313,18 +313,9 @@ class FermionTerm(LocalTerm):
           self.n_qubits, [pauli_x_component, pauli_y_component])
     return transformed_term
 
-  def jordan_wigner_sparse(self, sparse_ladder):
-    """Return a sparse matrix representation of the JW transformed term"""
-
-    final_matrix = scipy.sparse.identity(2**self.n_qubits,
-                                         format="csc", dtype=complex)
-    if self.is_identity():
-      return self.coefficient * final_matrix
-
-    for i, operator in enumerate(self):
-      term_matrix = sparse_ladder.get_operator(operator[0], operator[1])
-      final_matrix = final_matrix.dot(term_matrix)
-    return self.coefficient * final_matrix
+  def jordan_wigner_sparse(self):
+    """Return a sparse matrix representation of the JW transformed term."""
+    return jordan_wigner_term_sparse(self)
 
   def is_molecular_term(self):
     """Query whether term has correct form to be from a molecular.
@@ -430,13 +421,9 @@ class FermionOperator(LocalOperator):
       transformed_operator += term.jordan_wigner_transform()
     return transformed_operator
 
-  def jordan_wigner_sparse(self, sparse_ladder):
+  def jordan_wigner_sparse(self):
     """Apply Jordan-Wigner transform directly to sparse matrix form"""
-    final_matrix = scipy.sparse.csc_matrix((2**self.n_qubits, ) * 2,
-                                           dtype=complex)
-    for term in self:
-      final_matrix += term.jordan_wigner_sparse(sparse_ladder)
-    return final_matrix
+    return jordan_wigner_operator_sparse(self)
 
   def get_molecular_operator(self):
     """Convert a 2-body fermionic operator to instance of MolecularOperator.

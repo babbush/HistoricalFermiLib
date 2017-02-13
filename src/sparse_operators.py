@@ -15,7 +15,7 @@ class SparseOperatorError(Exception):
 
 
 # Make global definitions.
-_IDENTITY_CSC = scipy.sparse.identity(2, format="csr", dtype=complex)
+_IDENTITY_CSC = scipy.sparse.identity(2, format='csr', dtype=complex)
 _PAULI_X_CSC = scipy.sparse.csc_matrix([[0., 1.], [1., 0.]], dtype=complex)
 _PAULI_Y_CSC = scipy.sparse.csc_matrix([[0., -1.j], [1.j, 0.]], dtype=complex)
 _PAULI_Z_CSC = scipy.sparse.csc_matrix([[1., 0.], [0., -1.]], dtype=complex)
@@ -25,146 +25,8 @@ _PAULI_MATRIX_MAP = {'I': _IDENTITY_CSC, 'X': _PAULI_X_CSC,
                      'Y': _PAULI_Y_CSC, 'Z': _PAULI_Z_CSC}
 
 
-class SparseLadderOperators(object):
-  """Class to store sparse creation and annihiliation operators
-
-  This class is a convenient numerical intermediate that stores creation and
-  annihilation operators on the full Hilbert space of n_qubits so they may be
-  easily accessed without requiring additional Kronecker products, which are
-  quite expensive due to the method by which they allocate memory.
-
-  Attributes:
-    n_qubits(int): Number of qubits the system acts on
-    sparse_type(str): Scipy sparse matrix format, e.g. csc
-    operators(list): List of sparse operators in the full Hilbert space such
-      that a creation (annihilation) operator on index i is stored at
-      operators[2 * i + 1] (operators[2 * i]).
-  """
-
-  def __init__(self, n_qubits, sparse_type="csc"):
-    """Initialize the operator stores
-
-    Args:
-      n_qubits(int): Number of qubits in the system
-      sparse_type(str): Type of scipy sparse matrix to use in storage
-    """
-    self.n_qubits = n_qubits
-    self.sparse_type = sparse_type
-    self.initialize_operators()
-
-  def get_operator(self, index, type):
-    """Retrieve the sparse operator at index i of given type
-
-    Args:
-      index(int): index the operator acts on
-      type(int): 1 for creation, 0 for annihiliation
-    """
-    return self.operators[2 * index + type]
-
-  def initialize_operators(self):
-    """Build all possible creation and annihilation operators for system."""
-    self.operators = []
-
-    def wrap_kron(operator_1, operator_2):
-      return scipy.sparse.kron(operator_1, operator_2, self.sparse_type)
-
-    for i in range(self.n_qubits):
-      for type in range(2):
-        term_matrix = \
-            reduce(wrap_kron,
-                   ([_IDENTITY_CSC for _ in range(i)] +
-                    [_Q_RAISE_CSC if type == 1 else _Q_LOWER_CSC] +
-                    [_PAULI_Z_CSC for _ in
-                       range(self.n_qubits - i - 1)]))
-        self.operators.append(term_matrix)
-
-
-def is_hermitian(matrix, tolerance=1e-12):
-  """Test if matrix is Hermitian.
-
-  Args:
-    matrix: the operator to test in scipy.sparse 'csc' format.
-    tolerance: a float giving the allowed Hermitian discrepancy.
-      Default value is 1e-12.
-
-  Returns:
-    Boole indicating whether matrix passes test.
-  """
-  conjugate = matrix.getH()
-  difference = matrix - conjugate
-  if difference.nnz:
-    discrepancy = max(map(abs, difference.data))
-    if discrepancy > tolerance:
-      return False
-  return True
-
-
-def get_ground_state(operator):
-  """Compute lowest eigenstate and eigenvalue.
-
-  Args:
-    operator: A scipy.sparse csc operator to diagonalize.
-
-  Returns:
-    eigenstate: The lowest eigenstate in scipy.sparse csc format.
-    eigenvalue: The lowest eigenvalue, a float.
-  """
-  values, vectors = scipy.sparse.linalg.eigsh(
-      operator, 2, which="SA", maxiter=1e7)
-  eigenstate = scipy.sparse.csc_matrix(vectors[:, 0])
-  eigenvalue = values[0]
-  return eigenstate.getH(), eigenvalue
-
-
-def get_eigenspectrum(operator):
-  """Perform a dense diagonalization.
-
-  Args:
-    operators: A scipy.sparse csc operator to diagonalize.
-
-  Returns:
-    eigenspectrum: The lowest eigenvalues in a numpy array.
-  """
-  dense_operator = operator.todense()
-  eigenspectrum = numpy.linalg.eigvalsh(dense_operator)
-  return eigenspectrum
-
-
-def expectation(operator, state):
-  """Compute expectation value of an operator with a state.
-
-  Args:
-    operator: scipy.sparse csc operator.
-    state_vector: scipy.sparse.csc vector representing a pure state,
-      or, a scipy.sparse.csc matrix representing a density matrix.
-
-  Returns:
-    A real float giving expectation value.
-
-  Raises:
-    SparseOperatorError: Input state has invalid format.
-  """
-  n_qubits = operator.shape[0]
-
-  # Handle density matrix.
-  if state.shape == (n_qubits, n_qubits):
-    product = state * operator
-    expectation = numpy.sum(product.diagonal())
-
-  elif state.shape == (n_qubits, 1):
-    # Handle state vector.
-    expectation = state.getH() * operator * state
-    expectation = expectation[0, 0]
-
-  else:
-    # Handle exception.
-    raise SparseOperatorError('Input state has invalid format.')
-
-  # Return.
-  return expectation
-
-
-def hartree_fock_state(n_electrons, n_orbitals):
+# Function to product Hartree-Fock state in Jordan-Wigner representation.
+def jw_hartree_fock_state(n_electrons, n_orbitals):
   occupied = scipy.sparse.csr_matrix([[0], [1]], dtype=float)
   psi = 1.
   unoccupied = scipy.sparse.csr_matrix([[1], [0]], dtype=float)
@@ -175,20 +37,6 @@ def hartree_fock_state(n_electrons, n_orbitals):
   return psi
 
 
-def get_gap(operator):
-  """Compute gap between lowest eigenvalue and first excited state.
-
-  Args:
-    operator: A scipy.sparse csc operator to diagonalize for gap.
-
-  Returns:
-    A real float giving eigenvalue gap.
-  """
-  values, _ = scipy.sparse.linalg.eigsh(operator, 2, which="SA", maxiter=1e7)
-  gap = abs(values[1] - values[0])
-  return gap
-
-
 def get_density_matrix(states, probabilities):
   n_qubits = states[0].shape[0]
   density_matrix = scipy.sparse.csc_matrix((n_qubits, n_qubits), dtype=complex)
@@ -197,73 +45,308 @@ def get_density_matrix(states, probabilities):
   return density_matrix
 
 
-def get_determinants(n_orbitals, n_electrons):
-  """Generate an array of all states on n_orbitals with n_fermions.
+# The functions below help to quickly perform Kronecker products.
+def wrapped_kronecker(operator_1, operator_2):
+  """Return the Kronecker product of two sparse.csc_matrix operators."""
+  return scipy.sparse.kron(operator_1, operator_2, 'csc')
+
+
+def kronecker_operators(*args):
+  """Return the Kronecker product of multiple sparse.csc_matrix operators."""
+  return reduce(wrapped_kronecker, *args)
+
+
+# The functions below help to make common sparse operators.
+def sparse_identity(n_qubits):
+  return SparseOperator(scipy.sparse.identity(
+      2 ** n_qubits, dtype=complex, format='csc'))
+
+
+def jordan_wigner_ladder_sparse(n_qubits, tensor_factor, ladder_type):
+  """Make a matrix representation of a fermion ladder operator.
 
   Args:
-    n_orbitals: an int giving the number of qubits.
-    n_electrons: an int giving the number of electrons:
+    index: This is a nonzero integer. The integer indicates the tensor
+      factor and the sign indicates raising or lowering.
+    n_qubits(int): Number qubits in the system Hilbert space.
 
   Returns:
-    A numpy array where each row is a state on n_orbitals with n_fermions.
+    The corresponding SparseOperator.
   """
-
-  # Initialize vector of states.
-  n_configurations = int(numpy.rint(scipy.misc.comb(n_orbitals, n_electrons)))
-  states = numpy.zeros((n_configurations, n_orbitals), int)
-
-  # Loop over valid states.
-  for i, occupied in enumerate(itertools.combinations(range(n_orbitals),
-                                                      r=n_electrons)):
-    states[i, occupied] = 1
-  return states
+  identities = [scipy.sparse.identity(
+      2 ** tensor_factor, dtype=complex, format='csc')]
+  parities = (n_qubits - tensor_factor - 1) * [_PAULI_Z_CSC]
+  if ladder_type:
+    operator = kronecker_operators(identities + [_Q_RAISE_CSC] + parities)
+  else:
+    operator = kronecker_operators(identities + [_Q_LOWER_CSC] + parities)
+  return SparseOperator(operator)
 
 
-def configuration_projector(n_orbitals, n_electrons):
-  """Construct projector into an n_electron manifold.
+def jordan_wigner_term_sparse(fermion_term):
+  """Initialize a SparseOperator from a FermionTerm.
 
   Args:
-    n_orbitals: This int gives the number of qubits in the Hilbert space.
-    n_electrons: This int gives the number manifold in which to project.
+    fermion_term(FermionTerm): instance of the FermionTerm class.
 
   Returns:
-    A projector matrix is scipy.sparse 'csc' format.
+    The corresponding SparseOperator.
   """
-  # Initialize projector computation.
-  states = get_determinants(n_orbitals, n_electrons)
-  unoccupied = scipy.sparse.csc_matrix([[1], [0]], dtype=int)
-  occupied = scipy.sparse.csc_matrix([[0], [1]], dtype=int)
-
-  # Construct projector.
-  projector = 0
-  for state in states:
-
-    # Construct computational basis state in Hilbert space.
-    ket = 1.
-    for qubit in state:
-      if qubit:
-        ket = scipy.sparse.kron(ket, occupied, "csc")
-      else:
-        ket = scipy.sparse.kron(ket, unoccupied, "csc")
-
-    # Add to projector.
-    density = ket * ket.getH()
-    projector = projector + density
-  return projector
+  sparse_operator = sparse_identity(n_qubits)
+  for ladder_operator in fermion_term:
+    sparse_operator = sparse_operator * jordan_wigner_ladder_sparse(
+        n_qubits, ladder_operator[0], ladder_operator[1])
+  return fermion_term.coefficient * sparse_operator
 
 
-def restrict_particle_manifold(operator, n_electrons):
-  """Restrict the support of an operator to a fixed particle-number manifold.
+def jordan_wigner_operator_sparse(fermion_operator):
+  """Initialize a SparseOperator from a FermionOperator.
 
   Args:
-    operator: A scipy sparse.csc matrix.
-    n_electrons: The particle sector to restrict to.
+    fermion_operator(FermionOperator): instance of the FermionOperator class.
 
   Returns:
-    effective_operator: The effective operator which restricts to the correct
-        particle-number manifold.
+    The corresponding SparseOperator.
   """
-  n_orbitals = int(numpy.rint(numpy.log2(operator.shape[0])))
-  projector = configuration_projector(n_orbitals, n_electrons)
-  effective_operator = projector.getH() * operator * projector
-  return effective_operator
+  # Create a list of raising and lowering operators for each orbital.
+  jw_operators = []
+  for tensor_factor in range(fermion_operator.n_qubits):
+    jw_operators += [(jordan_wigner_ladder_sparse(
+                      fermion_operator.n_qubits, tensor_factor, 0),
+                      jordan_wigner_ladder_sparse(
+                      fermion_operator.n_qubits, tensor_factor, 1))]
+
+  # Construct the SparseOperator.
+  sparse_operator = 0. * sparse_identity(fermion_operator.n_qubits)
+  for term in fermion_operator:
+    sparse_term = term.coefficient * sparse_identity(fermion_operator.n_qubits)
+    for ladder_operator in term:
+      sparse_term = sparse_term * jw_operators[
+          ladder_operator[0]][ladder_operator[1]]
+    sparse_operator = sparse_operator + sparse_term
+  return sparse_operator
+
+
+def qubit_term_sparse(qubit_term):
+  """Initialize a SparseOperator from a QubitTerm.
+
+  Args:
+    qubit_term(QubitTerm): instance of the QubitTerm class.
+
+  Returns:
+    The corresponding SparseOperator.
+  """
+  operators = [qubit_term.coefficient]
+  tensor_factor = 0
+  for operator in qubit_term:
+
+    # Grow space for missing identity operators.
+    if operator[0] > tensor_factor:
+      identity_qubits = operator[0] - tensor_factor
+      identity = scipy.sparse.identity(
+          2 ** identity_qubits, dtype=complex, format='csc')
+      operators += [identity]
+
+    # Add actual operator to the list.
+    operators += [_PAULI_MATRIX_MAP[operator[1]]]
+    tensor_factor = operator[0] + 1
+
+  # Grow space at end of string unless operator acted on final qubit.
+  if tensor_factor < qubit_term.n_qubits or not qubit_term.operators:
+    identity_qubits = qubit_term.n_qubits - tensor_factor
+    identity = scipy.sparse.identity(2 ** identity_qubits,
+                                     dtype=complex, format='csc')
+    operators += [identity]
+
+  # Make matrix and return SparseOperator.
+  matrix = kronecker_operators(operators)
+  return SparseOperator(matrix)
+
+
+def qubit_operator_sparse(qubit_operator):
+  """Initialize a SparseOperator from a QubitOperator.
+
+  Args:
+    qubit_operator(QubitOperator): instance of the QubitOperator class.
+
+  Returns:
+    The corresponding SparseOperator.
+  """
+  sparse_operator = 0. * sparse_identity(qubit_operator.n_qubits)
+  for qubit_term in qubit_operator:
+    sparse_operator = sparse_operator + qubit_term_sparse(qubit_term)
+  return sparse_operator
+
+
+class SparseOperator(object):
+  """ Class to represent sparse operators.
+
+  This class represents operators (usually Hermitian or Unitary) in a
+  scipy.sparse.csc_matrix representation. The custom class gives convenient
+  access to commonly used methods such as "diagonalize", "get_ground_state",
+  "get_hartree_fock_state" and more.
+
+  Attributes:
+    matrix(scipy.sparse.csc_matrix): The sparse matrix.
+    n_qubits(int): Number qubits in the system Hilbert space.
+  """
+  def __init__(self, matrix):
+    """Construct a sparse operator.
+
+    Args:
+      matrix(scipy.sparse.csc_matrix): The sparse matrix.
+    """
+    self.matrix = matrix
+
+  def __iter__(self):
+    return iter(self.matrix)
+
+  def __repr__(self):
+    return repr(self.matrix)
+
+  def __str__(self):
+    return str(self.matrix)
+
+  def __eq__(self, other):
+    return self.matrix == other
+
+  def __ne__(self, other):
+    return self.matrix != other
+
+  def __abs__(self):
+    return SparseOperator(abs(self.matrix))
+
+  def __add__(self, other):
+    if isinstance(other, SparseOperator):
+      other = other.matrix
+    return SparseOperator(self.matrix + other)
+
+  def __radd__(self, other):
+    if isinstance(other, SparseOperator):
+      other = other.matrix
+    return SparseOperator(other + self.matrix)
+
+  def __sub__(self, other):
+    if isinstance(other, SparseOperator):
+      other = other.matrix
+    return SparseOperator(self.matrix - other)
+
+  def __rsub__(self, other):
+    if isinstance(other, SparseOperator):
+      other = other.matrix
+    return SparseOperator(other - self.matrix)
+
+  def __mul__(self, other):
+    if isinstance(other, SparseOperator):
+      other = other.matrix
+    return SparseOperator(self.matrix * other)
+
+  def __rmul__(self, other):
+    if isinstance(other, SparseOperator):
+      other = other.matrix
+    return SparseOperator(other * self.matrix)
+
+  def __div__(self, other):
+    return SparseOperator(self.matrix / other)
+
+  def __neg__(self):
+    return SparseOperator(-self.matrix)
+
+  def __pow__(self, other):
+    return SparseOpoerator(self.matrix ** other)
+
+  def __len__(self):
+    return self.matrix.shape[0]
+
+  def n_qubits(self):
+    return numpy.rint(numpy.log2(len(self)))
+
+  def conjugated(self):
+    return SparseOperator(self.matrix.getH())
+
+  def to_dense(self):
+    return self.matrix.todense()
+
+  def eliminate_zeros(self):
+    self.matrix.eliminate_zeros()
+
+  def is_hermitian(self, tolerance=1e-12):
+    """Test if matrix is Hermitian.
+
+    Args:
+      tolerance: a float giving the allowed Hermitian discrepancy.
+        Default value is 1e-12.
+
+    Returns:
+      Boole indicating whether matrix passes test.
+    """
+    difference = self - self.conjugated()
+    if difference.matrix.nnz:
+      discrepancy = max(map(abs, difference.data))
+      if discrepancy > tolerance:
+        return False
+    return True
+
+  def get_ground_state(self):
+    """Compute lowest eigenvalue and eigenstate.
+
+    Returns:
+      eigenvalue: The lowest eigenvalue, a float.
+      eigenstate: The lowest eigenstate in scipy.sparse csc format.
+    """
+    values, vectors = scipy.sparse.linalg.eigsh(
+        self.matrix, 2, which="SA", maxiter=1e7)
+    eigenstate = scipy.sparse.csc_matrix(vectors[:, 0])
+    eigenvalue = values[0]
+    return eigenvalue, eigenstate.getH()
+
+  def get_eigenspectrum(self):
+    """Perform a dense diagonalization.
+
+    Returns:
+      eigenspectrum: The lowest eigenvalues in a numpy array.
+    """
+    dense_operator = self.to_dense()
+    eigenspectrum = numpy.linalg.eigvalsh(dense_operator)
+    return eigenspectrum
+
+  def expectation(self, state):
+    """Compute expectation value of operator with a state.
+
+    Args:
+      state_vector: scipy.sparse.csc vector representing a pure state,
+        or, a scipy.sparse.csc matrix representing a density matrix.
+
+    Returns:
+      A real float giving expectation value.
+
+    Raises:
+      SparseOperatorError: Input state has invalid format.
+    """
+    # Handle density matrix.
+    if state.shape == (len(self), len(self)):
+      product = state * self.matrix
+      expectation = numpy.sum(product.diagonal())
+
+    elif state.shape == (len(self), 1):
+      # Handle state vector.
+      expectation = state.getH() * self.matrix * state
+      expectation = expectation[0, 0]
+
+    else:
+      # Handle exception.
+      raise SparseOperatorError('Input state has invalid format.')
+
+    # Return.
+    return expectation
+
+  def get_gap(self):
+    """Compute gap between lowest eigenvalue and first excited state.
+
+    Returns:
+      A real float giving eigenvalue gap.
+    """
+    values, _ = scipy.sparse.linalg.eigsh(
+        self.matrix, 2, which="SA", maxiter=1e7)
+    gap = abs(values[1] - values[0])
+    return gap

@@ -3,10 +3,10 @@ import numpy
 import unittest
 import run_psi4
 import molecular_data
-import sparse_operators
 import scipy
 import scipy.linalg
 import molecular_operators
+import sparse_operators
 
 
 class HydrogenIntegrationTest(unittest.TestCase):
@@ -54,7 +54,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
         self.fermion_hamiltonian.jordan_wigner_transform())
 
     # Get matrix form.
-    self.hamiltonian_matrix = self.molecular_hamiltonian.get_sparse_matrix()
+    self.hamiltonian_matrix = self.molecular_hamiltonian.get_sparse_operator()
 
     # Initialize coefficients given in Seeley and Love paper, arXiv: 1208.5986.
     self.g0 = 0.71375
@@ -180,31 +180,18 @@ class HydrogenIntegrationTest(unittest.TestCase):
                                 (2, 'X'), (3, 'Y')]], self.f7, places=4)
 
     # Test the matrix representation.
-    wavefunction, energy = sparse_operators.get_ground_state(
-        self.hamiltonian_matrix)
+    energy, wavefunction = self.hamiltonian_matrix.get_ground_state()
     self.assertAlmostEqual(energy, self.molecule.fci_energy)
-    expected_energy = sparse_operators.expectation(
-        self.hamiltonian_matrix, wavefunction)
+    expected_energy = self.hamiltonian_matrix.expectation(wavefunction)
     self.assertAlmostEqual(expected_energy, energy)
 
-    # Test direct fermion to sparse transformation
-    self.sparse_ladder = \
-        sparse_operators.SparseLadderOperators(self.qubit_hamiltonian.n_qubits)
-    hamiltonian_test_matrix = \
-        self.fermion_hamiltonian.jordan_wigner_sparse(self.sparse_ladder)
-
-    self.assertAlmostEqual(scipy.linalg.norm(
-        (self.hamiltonian_matrix -
-         hamiltonian_test_matrix).todense()), 0.0)
-
     # Make sure you can reproduce Hartree-Fock energy.
-    hf_state = sparse_operators.hartree_fock_state(
+    hf_state = sparse_operators.jw_hartree_fock_state(
         self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits)
     hf_density = sparse_operators.get_density_matrix([hf_state], [1.])
-    expected_hf_density_energy = sparse_operators.expectation(
-        self.hamiltonian_matrix, hf_density)
-    expected_hf_energy = sparse_operators.expectation(
-        self.hamiltonian_matrix, hf_state)
+    expected_hf_density_energy = self.hamiltonian_matrix.expectation(
+        hf_density)
+    expected_hf_energy = self.hamiltonian_matrix.expectation(hf_state)
     self.assertAlmostEqual(expected_hf_energy, self.molecule.hf_energy)
     self.assertAlmostEqual(expected_hf_density_energy, self.molecule.hf_energy)
 
