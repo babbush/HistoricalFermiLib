@@ -283,8 +283,8 @@ class FermionTerm(LocalTerm):
           [(operator[0], 'X')] + [(index, 'Z') for index in parity_set] +
           [(index, 'X') for index in ancestors])
 
-    transformed_term *= qubit_operators.QubitOperator(
-        self.n_qubits, [c_majorana_component, d_majorana_component])
+      transformed_term *= qubit_operators.QubitOperator(
+          self.n_qubits, [c_majorana_component, d_majorana_component])
 
     return transformed_term
 
