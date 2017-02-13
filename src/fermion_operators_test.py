@@ -561,17 +561,16 @@ class FermionTermsTest(unittest.TestCase):
     #  Test the locality invariant for N=2^d qubits (c_j majorana is always log2N+1 local on qubits)
     n_qubits = 16
     invariant = numpy.log2(n_qubits) + 1
-
     for index in range(n_qubits):
-        operator = FermionTerm(n_qubits, 1., [(index,0)]).bravyi_kitaev_transform()
-        qubit_terms = operator.terms.items()  # Get the majorana terms.
+      operator = FermionTerm(n_qubits, 1., [(index,0)]).bravyi_kitaev_transform()
+      qubit_terms = operator.terms.items()  # Get the majorana terms.
 
-        for item in qubit_terms:
-            term = item[1]
+      for item in qubit_terms:
+        term = item[1]
 
-            #  Identify the c majorana terms by real coefficients and check their length.
-            if not isinstance(term.coefficient, complex):
-                self.assertEqual(len(term), invariant)
+        #  Identify the c majorana terms by real coefficients and check their length.
+        if not isinstance(term.coefficient, complex):
+          self.assertEqual(len(term), invariant)
 
     #  Hardcoded coefficient test on 16 qubits
     lowering = FermionTerm(n_qubits, 1., [(9, 0)]).bravyi_kitaev_transform()

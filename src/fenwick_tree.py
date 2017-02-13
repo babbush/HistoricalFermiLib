@@ -2,7 +2,6 @@
 
 class FenwickNode:
   """ Fenwick Tree node """
-
   parent = None    
   children = None 
   index = None
