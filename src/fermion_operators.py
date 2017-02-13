@@ -164,7 +164,6 @@ class FermionTerm(LocalTerm):
           return False
     return True
 
-
   def normal_ordered(self):
     """Compute and return the normal ordered form of a FermionTerm.
 
@@ -228,55 +227,64 @@ class FermionTerm(LocalTerm):
     normal_ordered_operator += term
     return normal_ordered_operator
 
-
   def bravyi_kitaev_transform(self):
     """ Apply the Bravyi-Kitaev transform and return qubit operator.
 
     Returns:
-        transformed_term: An instance of the QubitOperator class.
+      transformed_term: An instance of the QubitOperator class.
 
     Warning:
-        Likely greedy. At the moment the method gets the node sets for each fermionic operator.
-        FenwickNodes are not neccessary in this construction, only the indices matter here. This may
-        be optimized by removing the unnecessary structure.
+      Likely greedy. At the moment the method gets the node sets for
+      each fermionic operator. FenwickNodes are not neccessary in this
+      onstruction, only the indices matter here. This may be optimized
+      by removing the unnecessary structure.
 
     Note:
-        Reference: Operator Locality of Quantum Simulation of Fermionic Models; Havlicek, Troyer, Whitfield.
+        Reference: Operator Locality of Quantum Simulation of Fermionic Models
+            by Havlicek, Troyer, Whitfield.
     """
-
     # Build the Fenwick Tree
     fenwick_tree = FenwickTree(self.n_qubits)
 
     # Initialize identity matrix.
     transformed_term = qubit_operators.QubitOperator(
         self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits,
-                                                  self.coefficient)])
+                        self.coefficient)])
 
     # Build the Bravyi-Kitaev transformed operators.
     for operator in self:
       index = operator[0]
-      parity_set        = [node.index for node in fenwick_tree.get_P(index)]  # Parity set. Set of nodes to apply Z to.
-      ancestors         = [node.index for node in fenwick_tree.get_U(index)]  # Update set. Set of ancestors to apply X to.
-      ancestor_children = [node.index for node in fenwick_tree.get_C(index)]  # The C(j) set.
+
+      # Parity set. Set of nodes to apply Z to.
+      parity_set = [node.index for node in
+                    fenwick_tree.get_P(index)]
+
+      # Update set. Set of ancestors to apply X to.
+      ancestors = [node.index for node in fenwick_tree.get_U(index)]
+
+      # The C(j) set.
+      ancestor_children = [node.index for node in fenwick_tree.get_C(index)]
 
       # Switch between lowering/raising operators.
       d_coeff = .5j
       if operator[1]:
         d_coeff = -d_coeff
 
-      # The fermion lowering operator is given by a = (c+id)/2 where c,d are the majoranas.
+      # The fermion lowering operator is given by
+      # a = (c+id)/2 where c,d are the majoranas.
       d_majorana_component = qubit_operators.QubitTerm(
-        self.n_qubits, d_coeff, [(operator[0], 'Y')]
-                              + [(index, 'Z') for index in ancestor_children]
-                              + [(index, 'X') for index in ancestors])
+          self.n_qubits, d_coeff,
+          [(operator[0], 'Y')] +
+          [(index, 'Z') for index in ancestor_children] +
+          [(index, 'X') for index in ancestors])
 
       c_majorana_component = qubit_operators.QubitTerm(
-        self.n_qubits, .5, [(operator[0], 'X')]
-                         + [(index, 'Z') for index in parity_set]
-                         + [(index, 'X') for index in ancestors])
+          self.n_qubits, .5,
+          [(operator[0], 'X')] + [(index, 'Z') for index in parity_set] +
+          [(index, 'X') for index in ancestors])
 
     transformed_term *= qubit_operators.QubitOperator(
-            self.n_qubits, [c_majorana_component, d_majorana_component])
+        self.n_qubits, [c_majorana_component, d_majorana_component])
 
     return transformed_term
 
@@ -284,7 +292,7 @@ class FermionTerm(LocalTerm):
     """Apply the Jordan-Wigner transform and return qubit operator.
 
     Returns:
-      transformed_term: An instance of the QubitOperator class.
+      transformed_term: An instance of the qubit_operators.QubitOperator class.
 
     Warning:
       Even assuming that each creation or annihilation operator appears
@@ -293,8 +301,8 @@ class FermionTerm(LocalTerm):
     """
     # Initialize identity matrix.
     transformed_term = qubit_operators.QubitOperator(
-        self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits,
-                                                  self.coefficient)])
+        self.n_qubits, [qubit_operators.QubitTerm(
+            self.n_qubits, self.coefficient)])
     # Loop through operators, transform and multiply.
     for operator in self:
       z_factors = [(index, 'Z') for index in range(0, operator[0])]
@@ -419,6 +427,17 @@ class FermionOperator(LocalOperator):
     transformed_operator = qubit_operators.QubitOperator(self.n_qubits)
     for term in self:
       transformed_operator += term.jordan_wigner_transform()
+    return transformed_operator
+
+  def bravyi_kitaev_transform(self):
+    """Apply the Bravyi-Kitaev transform and return qubit operator.
+
+    Returns:
+      transformed_operator: An instance of the QubitOperator class.
+    """
+    transformed_operator = qubit_operators.QubitOperator(self.n_qubits)
+    for term in self:
+      transformed_operator += term.bravyi_kitaev_transform()
     return transformed_operator
 
   def jordan_wigner_sparse(self):
