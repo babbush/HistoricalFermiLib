@@ -292,12 +292,12 @@ class FermionTerm(LocalTerm):
     """Apply the Jordan-Wigner transform and return qubit operator.
 
     Returns:
-      transformed_term: An instance of the qubit_operators.QubitOperator class.
+      transformed_term: An instance of the qubit_operators.QubitOperator
+                        class.
 
     Warning:
-      Even assuming that each creation or annihilation operator appears
-      at most a constant number of times in the original term, the
-      runtime of this method is exponential in the number of qubits.
+      The runtime of this method is exponential in the locality of the
+      original FermionTerm.
     """
     # Initialize identity matrix.
     transformed_term = qubit_operators.QubitOperator(
@@ -417,12 +417,12 @@ class FermionOperator(LocalOperator):
     """Apply the Jordan-Wigner transform and return qubit operator.
 
     Returns:
-      transformed_operator: An instance of the QubitOperator class.
+      transformed_operator: An instance of the 
+                            qubit_operators.QubitOperator class.
 
     Warning:
-      Even assuming that each creation or annihilation operator appears
-      at most a constant number of times in the original operator, the
-      runtime of this method is exponential in the number of qubits.
+      The runtime of this method is exponential in the maximum locality
+      of the FermionTerms in the original FermionOperator.
     """
     transformed_operator = qubit_operators.QubitOperator(self.n_qubits)
     for term in self:
