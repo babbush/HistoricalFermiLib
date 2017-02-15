@@ -417,8 +417,8 @@ class FermionOperator(LocalOperator):
     """Apply the Jordan-Wigner transform and return qubit operator.
 
     Returns:
-      transformed_operator: An instance of the 
-                            qubit_operators.QubitOperator class.
+      transformed_operator: An instance of the
+          qubit_operators.QubitOperator class.
 
     Warning:
       The runtime of this method is exponential in the maximum locality

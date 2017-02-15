@@ -117,14 +117,26 @@ def jordan_wigner_operator_sparse(fermion_operator):
                       fermion_operator.n_qubits, tensor_factor, 1))]
 
   # Construct the SparseOperator.
-  sparse_operator = 0. * sparse_identity(fermion_operator.n_qubits)
+  values_list = []
+  row_list = []
+  column_list = []
   for term in fermion_operator:
     sparse_term = term.coefficient * sparse_identity(fermion_operator.n_qubits)
     for ladder_operator in term:
       sparse_term = sparse_term * jw_operators[
           ladder_operator[0]][ladder_operator[1]]
-    sparse_operator = sparse_operator + sparse_term
-  return sparse_operator
+
+    # Extract triplets from sparse_term.
+    values_list.append(sparse_term.matrix.data)
+    (row, column) = sparse_term.matrix.nonzero()
+    row_list.append(row)
+    column_list.append(column)
+
+  values_list = numpy.concatenate(values_list)
+  row_list = numpy.concatenate(row_list)
+  column_list = numpy.concatenate(column_list)
+  return SparseOperator(scipy.sparse.coo_matrix((
+      values_list, (row_list, column_list))).tocsc())
 
 
 def qubit_term_sparse(qubit_term):
