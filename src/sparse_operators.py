@@ -128,7 +128,7 @@ def jordan_wigner_operator_sparse(fermion_operator):
           ladder_operator[0]][ladder_operator[1]]
 
     # Extract triplets from sparse_term.
-    sparse_term.matrix = sparse_term.matrix.tocoo()
+    sparse_term.matrix = sparse_term.matrix.tocoo(copy=False)
     values_list.append(sparse_term.matrix.data)
     (row, column) = sparse_term.matrix.nonzero()
     row_list.append(row)
@@ -139,7 +139,7 @@ def jordan_wigner_operator_sparse(fermion_operator):
   column_list = numpy.concatenate(column_list)
   operator = SparseOperator(scipy.sparse.coo_matrix((
       values_list, (row_list, column_list)),
-      shape=(n_hilbert, n_hilbert)).tocsc())
+      shape=(n_hilbert, n_hilbert)).tocsc(copy=False))
   operator.matrix.eliminate_zeros()
   return operator
 
@@ -196,7 +196,7 @@ def qubit_operator_sparse(qubit_operator):
   column_list = [[]]
   for qubit_term in qubit_operator:
     sparse_term = qubit_term_sparse(qubit_term)
-    sparse_term.matrix = sparse_term.matrix.tocoo()
+    sparse_term.matrix = sparse_term.matrix.tocoo(copy=False)
 
     # Extract triplets from sparse_term.
     values_list.append(sparse_term.matrix.data)
@@ -209,7 +209,7 @@ def qubit_operator_sparse(qubit_operator):
   column_list = numpy.concatenate(column_list)
   operator = SparseOperator(scipy.sparse.coo_matrix((
       values_list, (row_list, column_list)),
-      shape=(n_hilbert, n_hilbert)).tocsc())
+      shape=(n_hilbert, n_hilbert)).tocsc(copy=False))
   operator.matrix.eliminate_zeros()
   return operator
 
