@@ -117,9 +117,10 @@ def jordan_wigner_operator_sparse(fermion_operator):
                       fermion_operator.n_qubits, tensor_factor, 1))]
 
   # Construct the SparseOperator.
-  values_list = []
-  row_list = []
-  column_list = []
+  n_hilbert = 2 ** fermion_operator.n_qubits
+  values_list = [[]]
+  row_list = [[]]
+  column_list = [[]]
   for term in fermion_operator:
     sparse_term = term.coefficient * sparse_identity(fermion_operator.n_qubits)
     for ladder_operator in term:
@@ -127,6 +128,7 @@ def jordan_wigner_operator_sparse(fermion_operator):
           ladder_operator[0]][ladder_operator[1]]
 
     # Extract triplets from sparse_term.
+    sparse_term.matrix = sparse_term.matrix.tocoo(copy=False)
     values_list.append(sparse_term.matrix.data)
     (row, column) = sparse_term.matrix.nonzero()
     row_list.append(row)
@@ -135,8 +137,11 @@ def jordan_wigner_operator_sparse(fermion_operator):
   values_list = numpy.concatenate(values_list)
   row_list = numpy.concatenate(row_list)
   column_list = numpy.concatenate(column_list)
-  return SparseOperator(scipy.sparse.coo_matrix((
-      values_list, (row_list, column_list))).tocsc())
+  operator = SparseOperator(scipy.sparse.coo_matrix((
+      values_list, (row_list, column_list)),
+      shape=(n_hilbert, n_hilbert)).tocsc(copy=False))
+  operator.matrix.eliminate_zeros()
+  return operator
 
 
 def qubit_term_sparse(qubit_term):
@@ -184,10 +189,29 @@ def qubit_operator_sparse(qubit_operator):
   Returns:
     The corresponding SparseOperator.
   """
-  sparse_operator = 0. * sparse_identity(qubit_operator.n_qubits)
+  # Construct the SparseOperator.
+  n_hilbert = 2 ** qubit_operator.n_qubits
+  values_list = [[]]
+  row_list = [[]]
+  column_list = [[]]
   for qubit_term in qubit_operator:
-    sparse_operator = sparse_operator + qubit_term_sparse(qubit_term)
-  return sparse_operator
+    sparse_term = qubit_term_sparse(qubit_term)
+    sparse_term.matrix = sparse_term.matrix.tocoo(copy=False)
+
+    # Extract triplets from sparse_term.
+    values_list.append(sparse_term.matrix.data)
+    (row, column) = sparse_term.matrix.nonzero()
+    row_list.append(row)
+    column_list.append(column)
+
+  values_list = numpy.concatenate(values_list)
+  row_list = numpy.concatenate(row_list)
+  column_list = numpy.concatenate(column_list)
+  operator = SparseOperator(scipy.sparse.coo_matrix((
+      values_list, (row_list, column_list)),
+      shape=(n_hilbert, n_hilbert)).tocsc(copy=False))
+  operator.matrix.eliminate_zeros()
+  return operator
 
 
 class SparseOperator(object):
