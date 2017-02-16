@@ -26,6 +26,17 @@ class FermionOperatorError(LocalOperatorError):
 def fermion_identity(n_qubits):
   return FermionTerm(n_qubits, 1.)
 
+def hopping_operator(n_qubits, site1, site2, coefficient=1.):
+  """Return a hopping operator.
+
+  Args: 
+    n_qubits: An int giving the number of spin-orbitals in the system.
+    site1, site2: The sites between which the hopping occurs. 
+  """
+  t1 = FermionTerm(n_qubits, coefficient, [(site1, 1), (site2, 0)])
+  t2 = FermionTerm(n_qubits, coefficient, [(site2, 1), (site1, 0)])
+
+  return (t1+t2)
 
 def number_operator(n_qubits, site=None, coefficient=1.):
   """Return a number operator.
@@ -228,6 +239,8 @@ class FermionTerm(LocalTerm):
     return normal_ordered_operator
 
   def bravyi_kitaev_transform(self):
+    # TODO: BROKEN
+
     """ Apply the Bravyi-Kitaev transform and return qubit operator.
 
     Returns:
@@ -266,6 +279,7 @@ class FermionTerm(LocalTerm):
       ancestor_children = [node.index for node in fenwick_tree.get_C(index)]
 
       # Switch between lowering/raising operators.
+      # TODO: Error <- this does not take account of the operator coefficients!
       d_coeff = .5j
       if operator[1]:
         d_coeff = -d_coeff

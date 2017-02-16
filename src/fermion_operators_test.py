@@ -1,5 +1,6 @@
 """Tests for fermion_operators.py"""
 from fermion_operators import (fermion_identity, number_operator,
+                               hopping_operator,
                                FermionTerm, FermionOperator,
                                FermionTermError, FermionOperatorError,
                                JordanWignerError)
@@ -9,6 +10,25 @@ import numpy
 import local_terms
 import local_operators
 
+class HoppingOperatorsTest(unittest.TestCase):
+
+  def setUp(self):
+    self.n_qubits = 5
+
+  def test_hopping_operators(self):
+    n14 = hopping_operator(self.n_qubits, 1, 4)
+    t1 = FermionTerm(self.n_qubits, 1., [(1, 1), (4, 0)])
+    t4 = FermionTerm(self.n_qubits, 1., [(4, 1), (1, 0)])
+    self.assertEqual(n14, t1+t4)
+  
+  def test_hopping_operator_above_range(self):
+    with self.assertRaises(ValueError):
+      n54 = hopping_operator(self.n_qubits, 5, 4)
+  
+  def test_hopping_operator_below_range(self):
+    with self.assertRaises(ValueError):
+      n1m1 = hopping_operator(self.n_qubits, 1, -1)
+  
 
 class NumberOperatorsTest(unittest.TestCase):
 
@@ -1036,16 +1056,91 @@ class FermionOperatorsTest(unittest.TestCase):
     self.operator_c.normal_order()
     self.assertEqual(self.operator_c, fermion_operator)
 
-  def test_bk_jw_integration(self):
+  def test_bk_jw_number_operator(self):
+    # Check if number operator has the same spectrum in both representations
+    n_qubits = 1
+    no = number_operator(1, 0)
+    jw_no = no.jordan_wigner_transform()
+    bk_no = no.bravyi_kitaev_transform()
+    
+    jw_sparse = jw_no.get_sparse_operator()
+    bk_sparse = bk_no.get_sparse_operator()
 
+    # Diagonalize and make sure the spectra are the same.
+    jw_spectrum = jw_sparse.get_eigenspectrum()
+    bk_spectrum = bk_sparse.get_eigenspectrum()
+
+    self.assertAlmostEqual(0., numpy.amax(
+        numpy.absolute(jw_spectrum - bk_spectrum)))
+
+  def test_bk_jw_number_operators(self):
+    # Check if number operator has the same spectrum in both representations
+    n_qubits = 2
+    n1 = number_operator(n_qubits, 0)
+    n2 = number_operator(n_qubits, 1)
+    no = n1 + n2
+
+    jw_no = no.jordan_wigner_transform()
+    bk_no = no.bravyi_kitaev_transform()
+    
+    jw_sparse = jw_no.get_sparse_operator()
+    bk_sparse = bk_no.get_sparse_operator()
+
+    # Diagonalize and make sure the spectra are the same.
+    jw_spectrum = jw_sparse.get_eigenspectrum()
+    bk_spectrum = bk_sparse.get_eigenspectrum()
+
+    self.assertAlmostEqual(0., numpy.amax(
+        numpy.absolute(jw_spectrum - bk_spectrum)))
+
+  def test_bk_jw_number_operator_scaled(self):
+    # Check if number operator has the same spectrum in both representations
+    n_qubits = 1
+    no = number_operator(n_qubits, 0, 2)  # the eigenspectrum is (0,2)
+    jw_no = no.jordan_wigner_transform()
+    bk_no = no.bravyi_kitaev_transform()
+    
+    jw_sparse = jw_no.get_sparse_operator()
+    bk_sparse = bk_no.get_sparse_operator()
+
+    # Diagonalize and make sure the spectra are the same.
+    jw_spectrum = jw_sparse.get_eigenspectrum()
+    bk_spectrum = bk_sparse.get_eigenspectrum()
+
+    self.assertAlmostEqual(0., numpy.amax(
+         numpy.absolute(jw_spectrum - bk_spectrum)))
+
+  def test_bk_jw_hopping_operator(self):
+    # Check if the spectrum fits for a single hoppping operator
+    n_qubits = 5
+    ho = hopping_operator(n_qubits, 1, 4) 
+    jw_ho = ho.jordan_wigner_transform()
+    bk_ho = ho.bravyi_kitaev_transform()
+
+    jw_sparse = jw_ho.get_sparse_operator()
+    bk_sparse = bk_ho.get_sparse_operator()
+
+    jw_spectrum = jw_sparse.get_eigenspectrum()
+    bk_spectrum = bk_sparse.get_eigenspectrum()
+
+
+    self.assertAlmostEqual(0., numpy.amax(
+         numpy.absolute(jw_spectrum - bk_spectrum)))
+
+  def test_bk_jw_integration(self):
     # Initialize a random fermionic operator.
     n_qubits = 5
+
+    #fermion_operator = FermionTerm(
+     #   n_qubits, -4.3, [(3, 1), (2, 1), (1, 0), (0, 0)])
+
+    # Minimal example that fails :
     fermion_operator = FermionTerm(
-        n_qubits, -4.3, [(3, 1), (2, 1), (1, 0), (0, 0)])
-    fermion_operator += FermionTerm(
-        n_qubits, 8.17, [(3, 1), (1, 0)])
-    fermion_operator += 3.2 * fermion_identity(n_qubits)
-    fermion_operator **= 3
+        n_qubits, 1., [(3, 1), (1, 0)])
+    
+      
+    #fermion_operator += 3.2 * fermion_identity(n_qubits)
+    #fermion_operator **= 3
 
     # Map to qubits and compare matrix versions.
     jw_qubit_operator = fermion_operator.jordan_wigner_transform()
@@ -1056,6 +1151,10 @@ class FermionOperatorsTest(unittest.TestCase):
     # Diagonalize and make sure the spectra are the same.
     jw_spectrum = jw_sparse.get_eigenspectrum()
     bk_spectrum = bk_sparse.get_eigenspectrum()
+
+    print("JW: ", jw_spectrum, len(jw_spectrum),  "BK: ", bk_spectrum, len(bk_spectrum))
+
+
     self.assertAlmostEqual(0., numpy.amax(
         numpy.absolute(jw_spectrum - bk_spectrum)))
 
