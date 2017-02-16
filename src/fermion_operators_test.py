@@ -1136,7 +1136,7 @@ class FermionOperatorsTest(unittest.TestCase):
 
     # Minimal example that fails :
     fermion_operator = FermionTerm(
-        n_qubits, 1., [(3, 1), (1, 0)])
+        n_qubits, 1., [(2, 0), (1, 1)])
     
       
     #fermion_operator += 3.2 * fermion_identity(n_qubits)
