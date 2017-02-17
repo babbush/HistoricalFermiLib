@@ -1174,5 +1174,28 @@ class FermionOperatorsTest(unittest.TestCase):
     self.assertAlmostEqual(0., numpy.amax(
                            numpy.absolute(jw_spectrum - bk_spectrum)))
 
+  def test_bk_jw_integration_original(self):
+
+    # Initialize a random fermionic operator.
+    n_qubits = 5
+    fermion_operator = FermionTerm(
+        n_qubits, -4.3, [(3, 1), (2, 1), (1, 0), (0, 0)])
+    fermion_operator += FermionTerm(
+        n_qubits, 8.17, [(3, 1), (1, 0)])
+    fermion_operator += 3.2 * fermion_identity(n_qubits)
+    fermion_operator **= 3
+
+    # Map to qubits and compare matrix versions.
+    jw_qubit_operator = fermion_operator.jordan_wigner_transform()
+    bk_qubit_operator = fermion_operator.bravyi_kitaev_transform()
+    jw_sparse = jw_qubit_operator.get_sparse_operator()
+    bk_sparse = bk_qubit_operator.get_sparse_operator()
+
+    # Diagonalize and make sure the spectra are the same.
+    jw_spectrum = jw_sparse.get_eigenspectrum()
+    bk_spectrum = bk_sparse.get_eigenspectrum()
+    self.assertAlmostEqual(0., numpy.amax(
+        numpy.absolute(jw_spectrum - bk_spectrum)))  
+
 if __name__ == '__main__':
   unittest.main()
