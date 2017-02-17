@@ -272,7 +272,7 @@ class FermionTerm(LocalTerm):
 
       # Parity set. Set of nodes to apply Z to.
       parity_set = [node.index for node in
-                    fenwick_tree.get_P(index)]
+              fenwick_tree.get_P(index)] # TODO: Fails here!
 
       # Update set. Set of ancestors to apply X to.
       ancestors = [node.index for node in fenwick_tree.get_U(index)]
@@ -287,11 +287,11 @@ class FermionTerm(LocalTerm):
         d_coeff = -d_coeff
 
       # The fermion lowering operator is given by
-      # a = (c+id)/2 where c,d are the majoranas.
+      # a = (c+id)/2 where c, d are the majoranas.
       d_majorana_component = qubit_operators.QubitTerm(
           self.n_qubits, d_coeff,
           [(operator[0], 'Y')] +
-          [(index, 'Z') for index in ancestor_children] +
+          [(index, 'Z') for index in parity_set] +
           [(index, 'X') for index in ancestors])
 
       c_majorana_component = qubit_operators.QubitTerm(

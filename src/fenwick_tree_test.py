@@ -10,12 +10,13 @@ class FenwickTreeTest(unittest.TestCase):
     """ A lookup test on 5-qubit fenwick tree
 
     Test:
-       Verifies structure of the Fenwick Tree.
+       Verifies structure of the Fenwick Tree on 5 sites.
     """
 
     f = FenwickTree(5)
     self.assertEqual(f.root.children[0].index, 2)
     self.assertEqual(f.root.children[1].index, 3)
+    self.assertEqual(f.root.children[0].children[0].index, 1)
     self.assertEqual(f.root.children[0].children[0].children[0].index, 0)
 
   def test_fenwick_tree_ancestors(self):
