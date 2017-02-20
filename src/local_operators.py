@@ -19,7 +19,7 @@ class LocalOperator(object):
   """
   __array_priority__ = 0  # this ensures good behavior with numpy scalars
 
-  def __init__(self, n_qubits, terms=None, tolerance=1e-12):
+  def __init__(self, n_qubits, terms=None, tolerance=1e-10):
     """Inits a LocalOperator object.
 
     Args:

@@ -21,7 +21,7 @@ class LocalTerm(object):
   __array_priority__ = 0  # this ensures good behavior with numpy scalars
 
   def __init__(self, n_qubits, coefficient=0., operators=None,
-               tolerance=1e-12):
+               tolerance=1e-10):
     """Inits a LocalTerm.
 
     Args:
