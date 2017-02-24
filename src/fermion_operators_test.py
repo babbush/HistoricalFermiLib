@@ -138,7 +138,7 @@ class FermionTermsTest(unittest.TestCase):
 
   def test_neq_outside_tol(self):
     self.term1 = FermionTerm(2, 1, [(1, 1)])
-    self.term2 = FermionTerm(2, (1+9e-12), [(1, 1)])
+    self.term2 = FermionTerm(2, (1 + 2*self.term1._tolerance), [(1, 1)])
     self.assertNotEqual(self.term1, self.term2)
     self.assertFalse(self.term1 == self.term2)
 
