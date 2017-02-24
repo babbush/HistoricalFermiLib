@@ -272,7 +272,7 @@ class FermionTerm(LocalTerm):
 
       # Parity set. Set of nodes to apply Z to.
       parity_set = [node.index for node in
-              fenwick_tree.get_P(index)] # TODO: Fails here!
+                    fenwick_tree.get_P(index)]  # TODO: Fails here!
 
       # Update set. Set of ancestors to apply X to.
       ancestors = [node.index for node in fenwick_tree.get_U(index)]
