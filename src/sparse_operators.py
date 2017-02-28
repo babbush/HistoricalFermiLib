@@ -340,7 +340,7 @@ class SparseOperator(object):
     eigenvalue = values[0]
     return eigenvalue, eigenstate.getH()
 
-  def get_eigenspectrum(self):
+  def eigenspectrum(self):
     """Perform a dense diagonalization.
 
     Returns:
