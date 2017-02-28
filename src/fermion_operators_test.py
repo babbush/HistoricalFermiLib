@@ -1150,12 +1150,9 @@ class FermionOperatorsTest(unittest.TestCase):
     d_spectrum = [d_sparse[0].get_eigenspectrum(),
                   d_sparse[1].get_eigenspectrum()]
 
-    # print(c_spectrum[0], c_spectrum[1])
     # ^ Majoranas have the same spectra. Fine
     self.assertAlmostEqual(0., numpy.amax(numpy.absolute(d_spectrum[0] -
                                                          d_spectrum[1])))
-
-    # print(d_spins[0], d_spins[1])
 
   def test_bk_jw_integration(self):
     # Initialize a random fermionic operator.
@@ -1170,21 +1167,12 @@ class FermionOperatorsTest(unittest.TestCase):
     jw_sparse = jw.get_sparse_operator()
     bk_sparse = bk.get_sparse_operator()
 
-    print(jw)
-    print(bk)
-
     jw_spectrum = jw_sparse.get_eigenspectrum()
     bk_spectrum = bk_sparse.get_eigenspectrum()
-
-    print("Both of these spectra should be zero")
-
-    print(jw_spectrum)
-    print(bk_spectrum)
 
     self.assertAlmostEqual(0., numpy.amax(numpy.absolute(jw_spectrum -
                                                          bk_spectrum)))
 
-  @unittest.skip("Skipping the full operator example")
   def test_bk_jw_integration_original(self):
     # Initialize a random fermionic operator.
     n_qubits = 5
