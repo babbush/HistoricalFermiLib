@@ -389,7 +389,11 @@ class SparseOperator(object):
     Returns:
       A real float giving eigenvalue gap.
     """
-    values, _ = scipy.sparse.linalg.eigsh(
-        self.matrix, 2, which="SA", maxiter=1e7)
+    if self.is_hermitian():
+      values, _ = scipy.sparse.linalg.eigsh(
+          self.matrix, 2, which="SA", maxiter=1e7)
+    else:
+      values, _ = scipy.sparse.linalg.eigs(
+          self.matrix, 2, which="SA", maxiter=1e7)
     gap = abs(values[1] - values[0])
     return gap
