@@ -318,7 +318,7 @@ class SparseOperator(object):
     """
     difference = self - self.conjugated()
     if difference.matrix.nnz:
-      discrepancy = max(map(abs, difference.data))
+      discrepancy = max(map(abs, difference.matrix.data))
       if discrepancy > tolerance:
         return False
     return True
@@ -330,20 +330,27 @@ class SparseOperator(object):
       eigenvalue: The lowest eigenvalue, a float.
       eigenstate: The lowest eigenstate in scipy.sparse csc format.
     """
-    values, vectors = scipy.sparse.linalg.eigsh(
-        self.matrix, 2, which="SA", maxiter=1e7)
+    if self.is_hermitian():
+      values, vectors = scipy.sparse.linalg.eigsh(
+          self.matrix, 2, which="SA", maxiter=1e7)
+    else:
+      values, vectors = scipy.sparse.linalg.eigs(
+          self.matrix, 2, which="SA", maxiter=1e7)
     eigenstate = scipy.sparse.csc_matrix(vectors[:, 0])
     eigenvalue = values[0]
     return eigenvalue, eigenstate.getH()
 
-  def get_eigenspectrum(self):
+  def eigenspectrum(self):
     """Perform a dense diagonalization.
 
     Returns:
       eigenspectrum: The lowest eigenvalues in a numpy array.
     """
     dense_operator = self.to_dense()
-    eigenspectrum = numpy.linalg.eigvalsh(dense_operator)
+    if self.is_hermitian():
+      eigenspectrum = numpy.linalg.eigvalsh(dense_operator)
+    else:
+      eigenspectrum = numpy.linalg.eigvals(dense_operator)
     return eigenspectrum
 
   def expectation(self, state):
@@ -382,7 +389,11 @@ class SparseOperator(object):
     Returns:
       A real float giving eigenvalue gap.
     """
-    values, _ = scipy.sparse.linalg.eigsh(
-        self.matrix, 2, which="SA", maxiter=1e7)
+    if self.is_hermitian():
+      values, _ = scipy.sparse.linalg.eigsh(
+          self.matrix, 2, which="SA", maxiter=1e7)
+    else:
+      values, _ = scipy.sparse.linalg.eigs(
+          self.matrix, 2, which="SA", maxiter=1e7)
     gap = abs(values[1] - values[0])
     return gap

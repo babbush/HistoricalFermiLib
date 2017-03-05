@@ -241,8 +241,6 @@ class FermionTerm(LocalTerm):
     return normal_ordered_operator
 
   def bravyi_kitaev_transform(self):
-    # TODO: BROKEN
-
     """ Apply the Bravyi-Kitaev transform and return qubit operator.
 
     Returns:
@@ -272,7 +270,7 @@ class FermionTerm(LocalTerm):
 
       # Parity set. Set of nodes to apply Z to.
       parity_set = [node.index for node in
-              fenwick_tree.get_P(index)] # TODO: Fails here!
+                    fenwick_tree.get_P(index)]
 
       # Update set. Set of ancestors to apply X to.
       ancestors = [node.index for node in fenwick_tree.get_U(index)]
@@ -281,7 +279,6 @@ class FermionTerm(LocalTerm):
       ancestor_children = [node.index for node in fenwick_tree.get_C(index)]
 
       # Switch between lowering/raising operators.
-      # TODO: Error <- this does not take account of the operator coefficients!
       d_coeff = .5j
       if operator[1]:
         d_coeff = -d_coeff
@@ -291,7 +288,7 @@ class FermionTerm(LocalTerm):
       d_majorana_component = qubit_operators.QubitTerm(
           self.n_qubits, d_coeff,
           [(operator[0], 'Y')] +
-          [(index, 'Z') for index in parity_set] +
+          [(index, 'Z') for index in ancestor_children] +
           [(index, 'X') for index in ancestors])
 
       c_majorana_component = qubit_operators.QubitTerm(

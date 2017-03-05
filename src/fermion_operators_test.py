@@ -138,7 +138,7 @@ class FermionTermsTest(unittest.TestCase):
 
   def test_neq_outside_tol(self):
     self.term1 = FermionTerm(2, 1, [(1, 1)])
-    self.term2 = FermionTerm(2, (1+9e-12), [(1, 1)])
+    self.term2 = FermionTerm(2, (1 + 2*self.term1._tolerance), [(1, 1)])
     self.assertNotEqual(self.term1, self.term2)
     self.assertFalse(self.term1 == self.term2)
 
@@ -571,9 +571,6 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(self.n_qubits, n_jw.n_qubits)
 
   def test_bravyi_kitaev_transform(self):
-    # TODO: Skip this!
-    return
-
     # Check that the QubitOperators are two-term.
     lowering = FermionTerm(self.n_qubits, 1.,
                            [(3, 0)]).bravyi_kitaev_transform()
@@ -1071,8 +1068,8 @@ class FermionOperatorsTest(unittest.TestCase):
     bk_sparse = bk_no.get_sparse_operator()
 
     # Diagonalize and make sure the spectra are the same.
-    jw_spectrum = jw_sparse.get_eigenspectrum()
-    bk_spectrum = bk_sparse.get_eigenspectrum()
+    jw_spectrum = jw_sparse.eigenspectrum()
+    bk_spectrum = bk_sparse.eigenspectrum()
 
     self.assertAlmostEqual(0., numpy.amax(
         numpy.absolute(jw_spectrum - bk_spectrum)))
@@ -1091,8 +1088,8 @@ class FermionOperatorsTest(unittest.TestCase):
     bk_sparse = bk_no.get_sparse_operator()
 
     # Diagonalize and make sure the spectra are the same.
-    jw_spectrum = jw_sparse.get_eigenspectrum()
-    bk_spectrum = bk_sparse.get_eigenspectrum()
+    jw_spectrum = jw_sparse.eigenspectrum()
+    bk_spectrum = bk_sparse.eigenspectrum()
 
     self.assertAlmostEqual(0., numpy.amax(
         numpy.absolute(jw_spectrum - bk_spectrum)))
@@ -1108,8 +1105,8 @@ class FermionOperatorsTest(unittest.TestCase):
     bk_sparse = bk_no.get_sparse_operator()
 
     # Diagonalize and make sure the spectra are the same.
-    jw_spectrum = jw_sparse.get_eigenspectrum()
-    bk_spectrum = bk_sparse.get_eigenspectrum()
+    jw_spectrum = jw_sparse.eigenspectrum()
+    bk_spectrum = bk_sparse.eigenspectrum()
 
     self.assertAlmostEqual(0., numpy.amax(
                            numpy.absolute(jw_spectrum - bk_spectrum)))
@@ -1124,58 +1121,55 @@ class FermionOperatorsTest(unittest.TestCase):
     jw_sparse = jw_ho.get_sparse_operator()
     bk_sparse = bk_ho.get_sparse_operator()
 
-    jw_spectrum = jw_sparse.get_eigenspectrum()
-    bk_spectrum = bk_sparse.get_eigenspectrum()
+    jw_spectrum = jw_sparse.eigenspectrum()
+    bk_spectrum = bk_sparse.eigenspectrum()
 
     self.assertAlmostEqual(0., numpy.amax(
                            numpy.absolute(jw_spectrum - bk_spectrum)))
 
-  
   def test_bk_jw_majoranas(self):
     n_qubits = 7
-    
-    a = FermionTerm(n_qubits, 1., [(1,0)])
-    a_dag = FermionTerm(n_qubits, 1., [(1,1)])
+
+    a = FermionTerm(n_qubits, 1., [(1, 0)])
+    a_dag = FermionTerm(n_qubits, 1., [(1, 1)])
 
     c = a + a_dag
-    d = (1j)*(a_dag - a)
-    
+    d = 1j * (a_dag - a)
+
     c_spins = [c.jordan_wigner_transform(), c.bravyi_kitaev_transform()]
     d_spins = [d.jordan_wigner_transform(), d.bravyi_kitaev_transform()]
-    
-    c_sparse = [c_spins[0].get_sparse_operator(), c_spins[1].get_sparse_operator()]
-    d_sparse = [d_spins[1].get_sparse_operator(), d_spins[1].get_sparse_operator()]
 
-    c_spectrum = [c_sparse[0].get_eigenspectrum(), c_sparse[1].get_eigenspectrum()]
-    d_spectrum = [d_sparse[0].get_eigenspectrum(), d_sparse[1].get_eigenspectrum()]
+    c_sparse = [c_spins[0].get_sparse_operator(),
+                c_spins[1].get_sparse_operator()]
+    d_sparse = [d_spins[1].get_sparse_operator(),
+                d_spins[1].get_sparse_operator()]
 
-    # print(c_spectrum[0], c_spectrum[1]) # Majoranas have the same spectra. Fine
-    self.assertAlmostEqual(0., numpy.amax(numpy.absolute(d_spectrum[0] - d_spectrum[1])))
+    c_spectrum = [c_sparse[0].eigenspectrum(),
+                  c_sparse[1].eigenspectrum()]
+    d_spectrum = [d_sparse[0].eigenspectrum(),
+                  d_sparse[1].eigenspectrum()]
 
-    # print(d_spins[0], d_spins[1])
+    # ^ Majoranas have the same spectra. Fine
+    self.assertAlmostEqual(0., numpy.amax(numpy.absolute(d_spectrum[0] -
+                                                         d_spectrum[1])))
 
   def test_bk_jw_integration(self):
     # Initialize a random fermionic operator.
-    n_qubits = 8
+    n_qubits = 4
 
-    # Minimal failing example :
-    fo = FermionTerm(
-        n_qubits, 1., [(1, 1), (5, 0)])
-  
-    jw  =  fo.jordan_wigner_transform()
-    bk  =  fo.bravyi_kitaev_transform()
+    # Minimal failing example:
+    fo = FermionTerm(n_qubits, 1., [(3, 1)])
 
-    jw_sparse = jw.get_sparse_operator()
-    bk_sparse = bk.get_sparse_operator()
+    jw = fo.jordan_wigner_transform()
+    bk = fo.bravyi_kitaev_transform()
 
-    jw_spectrum = jw_sparse.get_eigenspectrum()
-    bk_spectrum = bk_sparse.get_eigenspectrum()
+    jw_spectrum = jw.eigenspectrum()
+    bk_spectrum = bk.eigenspectrum()
 
-    self.assertAlmostEqual(0., numpy.amax(
-                           numpy.absolute(jw_spectrum - bk_spectrum)))
+    self.assertAlmostEqual(0., numpy.amax(numpy.absolute(jw_spectrum -
+                                                         bk_spectrum)))
 
   def test_bk_jw_integration_original(self):
-
     # Initialize a random fermionic operator.
     n_qubits = 5
     fermion_operator = FermionTerm(
@@ -1192,10 +1186,10 @@ class FermionOperatorsTest(unittest.TestCase):
     bk_sparse = bk_qubit_operator.get_sparse_operator()
 
     # Diagonalize and make sure the spectra are the same.
-    jw_spectrum = jw_sparse.get_eigenspectrum()
-    bk_spectrum = bk_sparse.get_eigenspectrum()
-    self.assertAlmostEqual(0., numpy.amax(
-        numpy.absolute(jw_spectrum - bk_spectrum)))  
+    jw_spectrum = jw_sparse.eigenspectrum()
+    bk_spectrum = bk_sparse.eigenspectrum()
+    self.assertAlmostEqual(0., numpy.amax(numpy.absolute(jw_spectrum -
+                                                         bk_spectrum)))
 
 if __name__ == '__main__':
   unittest.main()

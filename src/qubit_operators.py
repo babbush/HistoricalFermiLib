@@ -291,6 +291,9 @@ class QubitTerm(LocalTerm):
     """Map the QubitTerm to a SparseOperator instance."""
     return qubit_term_sparse(self)
 
+  def eigenspectrum(self):
+    return self.get_sparse_operator().eigenspectrum()
+
 
 class QubitOperator(LocalOperator):
   """A collection of QubitTerm objects acting on same number of qubits.
@@ -333,6 +336,9 @@ class QubitOperator(LocalOperator):
 
   def get_sparse_operator(self):
     return qubit_operator_sparse(self)
+
+  def eigenspectrum(self):
+    return self.get_sparse_operator().eigenspectrum()
 
   def expectation(self, qubit_operator):
     """Take the expectation value of self with another qubit operator.

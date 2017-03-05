@@ -280,6 +280,22 @@ this defaults to &#8216;H&#8217; for Hydrogen.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="src.fermion_operators.FermionOperator.bravyi_kitaev_transform">
+<code class="descname">bravyi_kitaev_transform</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator.bravyi_kitaev_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the Bravyi-Kitaev transform and return qubit operator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An instance of the QubitOperator class.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">transformed_operator</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="src.fermion_operators.FermionOperator.get_molecular_operator">
 <code class="descname">get_molecular_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator.get_molecular_operator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a 2-body fermionic operator to instance of MolecularOperator.</p>
@@ -319,7 +335,7 @@ runtime of this method is exponential in the number of qubits.</p>
 
 <dl class="method">
 <dt id="src.fermion_operators.FermionOperator.jordan_wigner_sparse">
-<code class="descname">jordan_wigner_sparse</code><span class="sig-paren">(</span><em>sparse_ladder</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator.jordan_wigner_sparse" title="Permalink to this definition">¶</a></dt>
+<code class="descname">jordan_wigner_sparse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator.jordan_wigner_sparse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply Jordan-Wigner transform directly to sparse matrix form</p>
 </dd></dl>
 
@@ -331,7 +347,11 @@ runtime of this method is exponential in the number of qubits.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An instance of the QubitOperator class.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>An instance of the</dt>
+<dd>qubit_operators.QubitOperator class.</dd>
+</dl>
+</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">transformed_operator</td>
 </tr>
@@ -339,9 +359,8 @@ runtime of this method is exponential in the number of qubits.</p>
 </table>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Even assuming that each creation or annihilation operator appears
-at most a constant number of times in the original operator, the
-runtime of this method is exponential in the number of qubits.</p>
+<p class="last">The runtime of this method is exponential in the maximum locality
+of the FermionTerms in the original FermionOperator.</p>
 </div>
 </dd></dl>
 
@@ -424,7 +443,32 @@ term.operators = [(3, 1), (1, 0), (7, 1)]</p>
 <dl class="method">
 <dt id="src.fermion_operators.FermionTerm.bravyi_kitaev_transform">
 <code class="descname">bravyi_kitaev_transform</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionTerm.bravyi_kitaev_transform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Apply the Bravyi-Kitaev transform and return qubit operator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An instance of the QubitOperator class.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">transformed_term</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Likely greedy. At the moment the method gets the node sets for
+each fermionic operator. FenwickNodes are not neccessary in this
+onstruction, only the indices matter here. This may be optimized
+by removing the unnecessary structure.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<dl class="last docutils">
+<dt>Reference: Operator Locality of Quantum Simulation of Fermionic Models</dt>
+<dd>by Havlicek, Troyer, Whitfield.</dd>
+</dl>
+</div>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.fermion_operators.FermionTerm.hermitian_conjugate">
@@ -467,8 +511,8 @@ Also, ladder operators come first.</p>
 
 <dl class="method">
 <dt id="src.fermion_operators.FermionTerm.jordan_wigner_sparse">
-<code class="descname">jordan_wigner_sparse</code><span class="sig-paren">(</span><em>sparse_ladder</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionTerm.jordan_wigner_sparse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a sparse matrix representation of the JW transformed term</p>
+<code class="descname">jordan_wigner_sparse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionTerm.jordan_wigner_sparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a sparse matrix representation of the JW transformed term.</p>
 </dd></dl>
 
 <dl class="method">
@@ -479,7 +523,11 @@ Also, ladder operators come first.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An instance of the QubitOperator class.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>An instance of the qubit_operators.QubitOperator</dt>
+<dd>class.</dd>
+</dl>
+</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">transformed_term</td>
 </tr>
@@ -487,9 +535,8 @@ Also, ladder operators come first.</p>
 </table>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Even assuming that each creation or annihilation operator appears
-at most a constant number of times in the original term, the
-runtime of this method is exponential in the number of qubits.</p>
+<p class="last">The runtime of this method is exponential in the locality of the
+original FermionTerm.</p>
 </div>
 </dd></dl>
 
@@ -535,6 +582,24 @@ runtime of this method is exponential in the number of qubits.</p>
 <dt id="src.fermion_operators.fermion_identity">
 <code class="descclassname">src.fermion_operators.</code><code class="descname">fermion_identity</code><span class="sig-paren">(</span><em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.fermion_identity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="function">
+<dt id="src.fermion_operators.hopping_operator">
+<code class="descclassname">src.fermion_operators.</code><code class="descname">hopping_operator</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>site1</em>, <em>site2</em>, <em>coefficient=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.hopping_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a hopping operator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n_qubits</strong> &#8211; An int giving the number of spin-orbitals in the system.</li>
+<li><strong>site2</strong> (<em>site1</em><em>,</em><em></em>) &#8211; The sites between which the hopping occurs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="src.fermion_operators.number_operator">
@@ -680,7 +745,7 @@ the simplest case.</p>
 <p>Base class for representation of various local operators.</p>
 <dl class="class">
 <dt id="src.local_operators.LocalOperator">
-<em class="property">class </em><code class="descclassname">src.local_operators.</code><code class="descname">LocalOperator</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>terms=None</em>, <em>tolerance=1e-12</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_operators.LocalOperator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.local_operators.</code><code class="descname">LocalOperator</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>terms=None</em>, <em>tolerance=1e-10</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_operators.LocalOperator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>A collection of LocalTerm objects acting on same number of qubits.</p>
 <dl class="attribute">
@@ -753,7 +818,7 @@ the simplest case.</p>
 <p>Base class for representation of various local terms.</p>
 <dl class="class">
 <dt id="src.local_terms.LocalTerm">
-<em class="property">class </em><code class="descclassname">src.local_terms.</code><code class="descname">LocalTerm</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>coefficient=0.0</em>, <em>operators=None</em>, <em>tolerance=1e-12</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_terms.LocalTerm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.local_terms.</code><code class="descname">LocalTerm</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>coefficient=0.0</em>, <em>operators=None</em>, <em>tolerance=1e-10</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_terms.LocalTerm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Represents a term consisting of a product of operators and a coefficient.</p>
 <dl class="attribute">
@@ -1298,8 +1363,8 @@ MolecularOperator representing a reduced density matrix.</td>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.molecular_operators.MolecularOperator.get_sparse_matrix">
-<code class="descname">get_sparse_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.get_sparse_matrix" title="Permalink to this definition">¶</a></dt>
+<dt id="src.molecular_operators.MolecularOperator.get_sparse_operator">
+<code class="descname">get_sparse_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.get_sparse_operator" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
@@ -1539,6 +1604,24 @@ runtime_normal_order: The time it takes to perform</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="src.performance_benchmarks.benchmark_jordan_wigner_sparse">
+<code class="descclassname">src.performance_benchmarks.</code><code class="descname">benchmark_jordan_wigner_sparse</code><span class="sig-paren">(</span><em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.performance_benchmarks.benchmark_jordan_wigner_sparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Benchmark the speed at which a FermionOperator is mapped to a matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n_qubits</strong> &#8211; The number of qubits in the example.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The time in seconds that the benchmark took.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">runtime</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="src.performance_benchmarks.benchmark_molecular_operator_jordan_wigner">
 <code class="descclassname">src.performance_benchmarks.</code><code class="descname">benchmark_molecular_operator_jordan_wigner</code><span class="sig-paren">(</span><em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.performance_benchmarks.benchmark_molecular_operator_jordan_wigner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test speed with which molecular operators transform to qubit operators.</p>
@@ -1586,6 +1669,11 @@ QubitTerm.key() and the dictionary value is the QubitTerm.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="src.qubit_operators.QubitOperator.eigenspectrum">
+<code class="descname">eigenspectrum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator.eigenspectrum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="src.qubit_operators.QubitOperator.expectation">
 <code class="descname">expectation</code><span class="sig-paren">(</span><em>qubit_operator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator.expectation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Take the expectation value of self with another qubit operator.</p>
@@ -1611,8 +1699,8 @@ QubitTerm.key() and the dictionary value is the QubitTerm.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.qubit_operators.QubitOperator.get_sparse_matrix">
-<code class="descname">get_sparse_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator.get_sparse_matrix" title="Permalink to this definition">¶</a></dt>
+<dt id="src.qubit_operators.QubitOperator.get_sparse_operator">
+<code class="descname">get_sparse_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator.get_sparse_operator" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1666,9 +1754,14 @@ acts on that tensor factor. The list is sorted by the first index.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.qubit_operators.QubitTerm.get_sparse_matrix">
-<code class="descname">get_sparse_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitTerm.get_sparse_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Map the QubitTerm to a scipy.sparse.csc matrix.</p>
+<dt id="src.qubit_operators.QubitTerm.eigenspectrum">
+<code class="descname">eigenspectrum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitTerm.eigenspectrum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.qubit_operators.QubitTerm.get_sparse_operator">
+<code class="descname">get_sparse_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitTerm.get_sparse_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map the QubitTerm to a SparseOperator instance.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1812,57 +1905,128 @@ H 0. 0. 0.7414</dd>
 <span id="src-sparse-operators-module"></span><h2>src.sparse_operators module<a class="headerlink" href="#module-src.sparse_operators" title="Permalink to this headline">¶</a></h2>
 <p>This module provides functions which are useful for the study of fermions.</p>
 <dl class="class">
-<dt id="src.sparse_operators.SparseLadderOperators">
-<em class="property">class </em><code class="descclassname">src.sparse_operators.</code><code class="descname">SparseLadderOperators</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>sparse_type='csc'</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseLadderOperators" title="Permalink to this definition">¶</a></dt>
+<dt id="src.sparse_operators.SparseOperator">
+<em class="property">class </em><code class="descclassname">src.sparse_operators.</code><code class="descname">SparseOperator</code><span class="sig-paren">(</span><em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseOperator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Class to store sparse creation and annihiliation operators</p>
-<p>This class is a convenient numerical intermediate that stores creation and
-annihilation operators on the full Hilbert space of n_qubits so they may be
-easily accessed without requiring additional Kronecker products, which are
-quite expensive due to the method by which they allocate memory.</p>
+<p>Class to represent sparse operators.</p>
+<p>This class represents operators (usually Hermitian or Unitary) in a
+scipy.sparse.csc_matrix representation. The custom class gives convenient
+access to commonly used methods such as &#8220;diagonalize&#8221;, &#8220;get_ground_state&#8221;,
+&#8220;get_hartree_fock_state&#8221; and more.</p>
 <dl class="attribute">
-<dt id="src.sparse_operators.SparseLadderOperators.n_qubits">
-<code class="descname">n_qubits</code><a class="headerlink" href="#src.sparse_operators.SparseLadderOperators.n_qubits" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; Number of qubits the system acts on</p>
+<dt id="src.sparse_operators.SparseOperator.matrix">
+<code class="descname">matrix</code><a class="headerlink" href="#src.sparse_operators.SparseOperator.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>scipy.sparse.csc_matrix</em> &#8211; The sparse matrix.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="src.sparse_operators.SparseLadderOperators.sparse_type">
-<code class="descname">sparse_type</code><a class="headerlink" href="#src.sparse_operators.SparseLadderOperators.sparse_type" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em> &#8211; Scipy sparse matrix format, e.g. csc</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.sparse_operators.SparseLadderOperators.operators">
-<code class="descname">operators</code><a class="headerlink" href="#src.sparse_operators.SparseLadderOperators.operators" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>list</em> &#8211; List of sparse operators in the full Hilbert space such
-that a creation (annihilation) operator on index i is stored at
-operators[2 * i + 1] (operators[2 * i]).</p>
+<dt id="src.sparse_operators.SparseOperator.n_qubits">
+<code class="descname">n_qubits</code><a class="headerlink" href="#src.sparse_operators.SparseOperator.n_qubits" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Number qubits in the system Hilbert space.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.sparse_operators.SparseLadderOperators.get_operator">
-<code class="descname">get_operator</code><span class="sig-paren">(</span><em>index</em>, <em>type</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseLadderOperators.get_operator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve the sparse operator at index i of given type</p>
+<dt id="src.sparse_operators.SparseOperator.conjugated">
+<code class="descname">conjugated</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseOperator.conjugated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.sparse_operators.SparseOperator.eigenspectrum">
+<code class="descname">eigenspectrum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseOperator.eigenspectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a dense diagonalization.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>index</strong> (<em>int</em>) &#8211; index the operator acts on</li>
-<li><strong>type</strong> (<em>int</em>) &#8211; 1 for creation, 0 for annihiliation</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The lowest eigenvalues in a numpy array.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.qubit_operators.QubitOperator.eigenspectrum" title="src.qubit_operators.QubitOperator.eigenspectrum">eigenspectrum</a></td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.sparse_operators.SparseLadderOperators.initialize_operators">
-<code class="descname">initialize_operators</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseLadderOperators.initialize_operators" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build all possible creation and annihilation operators for system.</p>
+<dt id="src.sparse_operators.SparseOperator.eliminate_zeros">
+<code class="descname">eliminate_zeros</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseOperator.eliminate_zeros" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.sparse_operators.SparseOperator.expectation">
+<code class="descname">expectation</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseOperator.expectation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute expectation value of operator with a state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state_vector</strong> &#8211; scipy.sparse.csc vector representing a pure state,
+or, a scipy.sparse.csc matrix representing a density matrix.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A real float giving expectation value.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#src.sparse_operators.SparseOperatorError" title="src.sparse_operators.SparseOperatorError"><code class="xref py py-exc docutils literal"><span class="pre">SparseOperatorError</span></code></a> &#8211; Input state has invalid format.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
+
+<dl class="method">
+<dt id="src.sparse_operators.SparseOperator.get_gap">
+<code class="descname">get_gap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseOperator.get_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute gap between lowest eigenvalue and first excited state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A real float giving eigenvalue gap.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.sparse_operators.SparseOperator.get_ground_state">
+<code class="descname">get_ground_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseOperator.get_ground_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute lowest eigenvalue and eigenstate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The lowest eigenvalue, a float.
+eigenstate: The lowest eigenstate in scipy.sparse csc format.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">eigenvalue</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.sparse_operators.SparseOperator.is_hermitian">
+<code class="descname">is_hermitian</code><span class="sig-paren">(</span><em>tolerance=1e-12</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseOperator.is_hermitian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if matrix is Hermitian.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tolerance</strong> &#8211; a float giving the allowed Hermitian discrepancy.
+Default value is 1e-12.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Boole indicating whether matrix passes test.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">n_qubits</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.sparse_operators.SparseOperator.to_dense">
+<code class="descname">to_dense</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseOperator.to_dense" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1873,71 +2037,26 @@ operators[2 * i + 1] (operators[2 * i]).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="src.sparse_operators.configuration_projector">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">configuration_projector</code><span class="sig-paren">(</span><em>n_orbitals</em>, <em>n_electrons</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.configuration_projector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct projector into an n_electron manifold.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>n_orbitals</strong> &#8211; This int gives the number of qubits in the Hilbert space.</li>
-<li><strong>n_electrons</strong> &#8211; This int gives the number manifold in which to project.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A projector matrix is scipy.sparse &#8216;csc&#8217; format.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.sparse_operators.expectation">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">expectation</code><span class="sig-paren">(</span><em>operator</em>, <em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.expectation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute expectation value of an operator with a state.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>operator</strong> &#8211; scipy.sparse csc operator.</li>
-<li><strong>state_vector</strong> &#8211; scipy.sparse.csc vector representing a pure state,
-or, a scipy.sparse.csc matrix representing a density matrix.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A real float giving expectation value.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#src.sparse_operators.SparseOperatorError" title="src.sparse_operators.SparseOperatorError"><code class="xref py py-exc docutils literal"><span class="pre">SparseOperatorError</span></code></a> &#8211; Input state has invalid format.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
 <dt id="src.sparse_operators.get_density_matrix">
 <code class="descclassname">src.sparse_operators.</code><code class="descname">get_density_matrix</code><span class="sig-paren">(</span><em>states</em>, <em>probabilities</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.get_density_matrix" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="src.sparse_operators.get_determinants">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">get_determinants</code><span class="sig-paren">(</span><em>n_orbitals</em>, <em>n_electrons</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.get_determinants" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate an array of all states on n_orbitals with n_fermions.</p>
+<dt id="src.sparse_operators.jordan_wigner_ladder_sparse">
+<code class="descclassname">src.sparse_operators.</code><code class="descname">jordan_wigner_ladder_sparse</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>tensor_factor</em>, <em>ladder_type</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.jordan_wigner_ladder_sparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a matrix representation of a fermion ladder operator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>n_orbitals</strong> &#8211; an int giving the number of qubits.</li>
-<li><strong>n_electrons</strong> &#8211; an int giving the number of electrons:</li>
+<li><strong>index</strong> &#8211; This is a nonzero integer. The integer indicates the tensor
+factor and the sign indicates raising or lowering.</li>
+<li><strong>n_qubits</strong> (<em>int</em>) &#8211; Number qubits in the system Hilbert space.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A numpy array where each row is a state on n_orbitals with n_fermions.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The corresponding SparseOperator.</p>
 </td>
 </tr>
 </tbody>
@@ -1945,83 +2064,89 @@ or, a scipy.sparse.csc matrix representing a density matrix.</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="src.sparse_operators.get_eigenspectrum">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">get_eigenspectrum</code><span class="sig-paren">(</span><em>operator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.get_eigenspectrum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform a dense diagonalization.</p>
+<dt id="src.sparse_operators.jordan_wigner_operator_sparse">
+<code class="descclassname">src.sparse_operators.</code><code class="descname">jordan_wigner_operator_sparse</code><span class="sig-paren">(</span><em>fermion_operator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.jordan_wigner_operator_sparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a SparseOperator from a FermionOperator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>operators</strong> &#8211; A scipy.sparse csc operator to diagonalize.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fermion_operator</strong> (<a class="reference internal" href="#src.fermion_operators.FermionOperator" title="src.fermion_operators.FermionOperator"><em>FermionOperator</em></a>) &#8211; instance of the FermionOperator class.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The lowest eigenvalues in a numpy array.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">eigenspectrum</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The corresponding SparseOperator.</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="function">
-<dt id="src.sparse_operators.get_gap">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">get_gap</code><span class="sig-paren">(</span><em>operator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.get_gap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute gap between lowest eigenvalue and first excited state.</p>
+<dt id="src.sparse_operators.jordan_wigner_term_sparse">
+<code class="descclassname">src.sparse_operators.</code><code class="descname">jordan_wigner_term_sparse</code><span class="sig-paren">(</span><em>fermion_term</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.jordan_wigner_term_sparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a SparseOperator from a FermionTerm.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>operator</strong> &#8211; A scipy.sparse csc operator to diagonalize for gap.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fermion_term</strong> (<a class="reference internal" href="#src.fermion_operators.FermionTerm" title="src.fermion_operators.FermionTerm"><em>FermionTerm</em></a>) &#8211; instance of the FermionTerm class.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A real float giving eigenvalue gap.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The corresponding SparseOperator.</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="function">
-<dt id="src.sparse_operators.get_ground_state">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">get_ground_state</code><span class="sig-paren">(</span><em>operator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.get_ground_state" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute lowest eigenstate and eigenvalue.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>operator</strong> &#8211; A scipy.sparse csc operator to diagonalize.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The lowest eigenstate in scipy.sparse csc format.
-eigenvalue: The lowest eigenvalue, a float.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">eigenstate</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.sparse_operators.hartree_fock_state">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">hartree_fock_state</code><span class="sig-paren">(</span><em>n_electrons</em>, <em>n_orbitals</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.hartree_fock_state" title="Permalink to this definition">¶</a></dt>
+<dt id="src.sparse_operators.jw_hartree_fock_state">
+<code class="descclassname">src.sparse_operators.</code><code class="descname">jw_hartree_fock_state</code><span class="sig-paren">(</span><em>n_electrons</em>, <em>n_orbitals</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.jw_hartree_fock_state" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="src.sparse_operators.is_hermitian">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">is_hermitian</code><span class="sig-paren">(</span><em>matrix</em>, <em>tolerance=1e-12</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.is_hermitian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test if matrix is Hermitian.</p>
+<dt id="src.sparse_operators.kronecker_operators">
+<code class="descclassname">src.sparse_operators.</code><code class="descname">kronecker_operators</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.kronecker_operators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Kronecker product of multiple sparse.csc_matrix operators.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.sparse_operators.qubit_operator_sparse">
+<code class="descclassname">src.sparse_operators.</code><code class="descname">qubit_operator_sparse</code><span class="sig-paren">(</span><em>qubit_operator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.qubit_operator_sparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a SparseOperator from a QubitOperator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>matrix</strong> &#8211; the operator to test in scipy.sparse &#8216;csc&#8217; format.</li>
-<li><strong>tolerance</strong> &#8211; a float giving the allowed Hermitian discrepancy.
-Default value is 1e-12.</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>qubit_operator</strong> (<a class="reference internal" href="#src.qubit_operators.QubitOperator" title="src.qubit_operators.QubitOperator"><em>QubitOperator</em></a>) &#8211; instance of the QubitOperator class.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Boole indicating whether matrix passes test.</p>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The corresponding SparseOperator.</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.sparse_operators.qubit_term_sparse">
+<code class="descclassname">src.sparse_operators.</code><code class="descname">qubit_term_sparse</code><span class="sig-paren">(</span><em>qubit_term</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.qubit_term_sparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a SparseOperator from a QubitTerm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>qubit_term</strong> (<a class="reference internal" href="#src.qubit_operators.QubitTerm" title="src.qubit_operators.QubitTerm"><em>QubitTerm</em></a>) &#8211; instance of the QubitTerm class.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The corresponding SparseOperator.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.sparse_operators.sparse_identity">
+<code class="descclassname">src.sparse_operators.</code><code class="descname">sparse_identity</code><span class="sig-paren">(</span><em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.sparse_identity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.sparse_operators.wrapped_kronecker">
+<code class="descclassname">src.sparse_operators.</code><code class="descname">wrapped_kronecker</code><span class="sig-paren">(</span><em>operator_1</em>, <em>operator_2</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.wrapped_kronecker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Kronecker product of two sparse.csc_matrix operators.</p>
 </dd></dl>
 
 </div>

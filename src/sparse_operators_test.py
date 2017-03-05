@@ -38,9 +38,9 @@ class SparseOperatorTest(unittest.TestCase):
     # Map to qubits and compare matrix versions.
     qubit_operator = fermion_operator.jordan_wigner_transform()
     qubit_sparse = qubit_operator.get_sparse_operator()
-    qubit_spectrum = qubit_sparse.get_eigenspectrum()
+    qubit_spectrum = qubit_sparse.eigenspectrum()
     fermion_sparse = fermion_operator.jordan_wigner_sparse()
-    fermion_spectrum = fermion_sparse.get_eigenspectrum()
+    fermion_spectrum = fermion_sparse.eigenspectrum()
     self.assertAlmostEqual(0., numpy.amax(
         numpy.absolute(fermion_spectrum - qubit_spectrum)))
 
