@@ -206,6 +206,7 @@ class MolecularData(object):
     fci_energy: Exact energy of molecule within given basis.
     fci_one_rdm: Numpy array giving 1-RDM from FCI calculation.
     ccsd_energy: Energy from coupled cluster singles and doubles.
+    ccsd_amplitudes: Molecular operator holding coupled cluster amplitudes
   """
   def __init__(self,
                geometry,
@@ -277,6 +278,7 @@ class MolecularData(object):
 
     # Attributes generated from CCSD calculation.
     self.ccsd_energy = None
+    self.ccsd_amplitudes = None
 
     # Save the new molecule.
     if autosave:
@@ -297,6 +299,14 @@ class MolecularData(object):
       sys.path.append(_THIS_DIRECTORY)
       updated_molecular_data = pickle.load(stream)
       self.__dict__ = updated_molecular_data.__dict__
+
+  def get_n_alpha_electrons(self):
+    """Return number of alpha electrons"""
+    return self.n_electrons / 2 + (self.multiplicity - 1)
+
+  def get_n_beta_electrons(self):
+    """Return number of beta electrons"""
+    return self.n_electrons / 2 - (self.multiplicity - 1)
 
   def get_integrals(self):
     """Method to return 1-electron and 2-electron integrals in MO basis.

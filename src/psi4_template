@@ -6,6 +6,7 @@ import sys
 import numpy
 import molecular_data
 import molecular_operators
+import parser_functions
 
 # Set memory that job can use in megabytes.
 memory &memory mb
@@ -223,4 +224,14 @@ if &run_ccsd:
       raise
   else:
     molecule.ccsd_energy = ccsd_energy
+
+    # Merge CC amplitudes into molecule by parsing
+    psi_filename = outfile_name()
+    ccsd_amplitudes = parser_functions.\
+      parse_psi4_ccsd_amplitudes(2 * molecule.n_orbitals,
+                                 molecule.get_n_alpha_electrons(),
+                                 molecule.get_n_beta_electrons(),
+                                 psi_filename)
+    molecule.ccsd_amplitudes = ccsd_amplitudes
     molecule.save()
+
