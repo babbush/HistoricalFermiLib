@@ -21,7 +21,7 @@ class FenwickTreeTest(unittest.TestCase):
 
   def test_fenwick_tree_ancestors(self):
     """ Ancestor test.
-    Check validity of the get_U(j) method on 8 qubit register.
+    Check validity of the get_update_set(j) method on 8 qubit register.
     Note that root is the last node.
 
     Test:
@@ -29,14 +29,14 @@ class FenwickTreeTest(unittest.TestCase):
     """
 
     f = FenwickTree(8)
-    self.assertEqual(len(f.get_U(7)), 0)
+    self.assertEqual(len(f.get_update_set(7)), 0)
 
     # Is the parent of the middle child the root?
-    self.assertEqual(f.get_U(3)[0], f.root)
+    self.assertEqual(f.get_update_set(3)[0], f.root)
 
     # Are the ancestors chained correctly?
-    self.assertEqual(f.get_U(0)[0], f.get_node(1))
-    self.assertEqual(f.get_U(0)[1], f.get_node(3))
+    self.assertEqual(f.get_update_set(0)[0], f.get_node(1))
+    self.assertEqual(f.get_update_set(0)[1], f.get_node(3))
 
   def test_fenwick_tree_children(self):
     """ Children test.
@@ -53,7 +53,7 @@ class FenwickTreeTest(unittest.TestCase):
 
   def test_fenwick_tree_ancestor_children(self):
     """ Ancestor children test.
-    Checks get_C(j) on 8 qubit register.
+    Checks get_remainder_set(j) on 8 qubit register.
 
     Tests:
        Checks the example given in the paper.
@@ -61,7 +61,7 @@ class FenwickTreeTest(unittest.TestCase):
 
     # TODO: Possibly too weak.
     f = FenwickTree(16)
-    self.assertEqual(f.get_C(9)[0].index, 7)
+    self.assertEqual(f.get_remainder_set(9)[0].index, 7)
 
 if __name__ == '__main__':
   unittest.main()

@@ -93,8 +93,8 @@ class FenwickTree:
 
     return self.nodes[j]
 
-  def get_U(self, j):
-    """ The set of all ancestors of j, (the update set from the paper).
+  def get_update_set(self, j):
+    """ The set of all ancestors of j, (the update set U from the paper).
 
     Args:
         j: Int. Fermionic site index.
@@ -106,7 +106,7 @@ class FenwickTree:
     node = self.get_node(j)
     return node.get_ancestors()
 
-  def get_F(self, j):
+  def get_children_set(self, j):
     """ Returns the set of children of j-th site.
 
     Args:
@@ -120,8 +120,8 @@ class FenwickTree:
     node = self.get_node(j)
     return node.children
 
-  def get_C(self, j):
-    """ Return the set of children with indices less than j of all ancestors of j
+  def get_remainder_set(self, j):
+    """ Return the set of children with indices less than j of all ancestors of j. The set C from the paper. 
 
     Args:
         j: Int. Fermionic site index.
@@ -132,9 +132,9 @@ class FenwickTree:
     """
 
     result = []
-    ancestors = self.get_U(j)
+    ancestors = self.get_update_set(j)
 
-    # TODO: Likely suboptimal. Possible bottleneck. Uses c.index!
+    # TODO: Possible bottleneck.
     for a in ancestors:
         for c in a.children:
             if c.index < j:
@@ -142,8 +142,8 @@ class FenwickTree:
 
     return result
 
-  def get_P(self, j):
-      """ Returns the union of C with F. Coincides with the parity
+  def get_parity_set(self, j):
+      """ Returns the union of the remainder set with children set. Coincides with the parity
       set of Tranter et al.
 
       Args:
@@ -153,4 +153,4 @@ class FenwickTree:
           A C union F
       """
 
-      return self.get_C(j) + self.get_F(j)
+      return self.get_remainder_set(j) + self.get_children_set(j)

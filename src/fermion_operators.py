@@ -270,13 +270,13 @@ class FermionTerm(LocalTerm):
 
       # Parity set. Set of nodes to apply Z to.
       parity_set = [node.index for node in
-                    fenwick_tree.get_P(index)]
+                    fenwick_tree.get_parity_set(index)]
 
       # Update set. Set of ancestors to apply X to.
-      ancestors = [node.index for node in fenwick_tree.get_U(index)]
+      ancestors = [node.index for node in fenwick_tree.get_update_set(index)]
 
       # The C(j) set.
-      ancestor_children = [node.index for node in fenwick_tree.get_C(index)]
+      ancestor_children = [node.index for node in fenwick_tree.get_remainder_set(index)]
 
       # Switch between lowering/raising operators.
       d_coeff = .5j
