@@ -87,7 +87,7 @@ class QubitTerm(LocalTerm):
     Raises:
       QubitTermError: Invalid operators provided to QubitTerm.
     """
-    if operators and not isinstance(operators, (tuple, list, str)):
+    if operators is not None and not isinstance(operators, (tuple, list, str)):
       raise ValueError("Operators specified incorrectly.")
 
     if isinstance(operators, str):

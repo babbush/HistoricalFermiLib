@@ -90,6 +90,21 @@ class FermionTerm(LocalTerm):
       ValueError: Invalid tensor factor provided to FermionTerm.
                   Must be an integer between 0 and n_qubits-1.
     """
+    if operators is not None and not isinstance(operators, (tuple, list, str)):
+      raise ValueError("Operators specified incorrectly.")
+
+    if isinstance(operators, str):
+      list_ops = []
+      for el in operators.split():
+        if el[-1] == '^':
+          list_ops.append((int(el[:-1]), 1))
+        else:
+          try:
+            list_ops.append((int(el), 0))
+          except ValueError:
+            raise ValueError('Invalid action provided to FermionTerm.')
+      operators = list_ops
+
     super(FermionTerm, self).__init__(n_qubits, operators, coefficient)
 
     for operator in self:

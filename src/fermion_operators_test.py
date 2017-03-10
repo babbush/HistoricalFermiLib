@@ -97,9 +97,31 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(self.term_b.coefficient, self.coefficient_b)
     self.assertEqual(self.term_b.operators, self.operators_b)
 
-  def test_init_bad(self):
+  def test_init_badaction(self):
     with self.assertRaises(ValueError):
       term = FermionTerm(4, [(1, 2)])
+
+  def test_init_badqubits(self):
+    with self.assertRaises(ValueError):
+      FermionTerm(self.n_qubits, [(9, 0)])
+
+  def test_init_str(self):
+    str_input_a = FermionTerm(self.n_qubits, '3^ 1 4^') * 6.7j
+    str_input_b = -88 * FermionTerm(self.n_qubits, '2 4 2^')
+    self.assertEqual(self.term_a, str_input_a)
+    self.assertEqual(self.term_b, str_input_b)
+
+  def test_init_str_badaction(self):
+    with self.assertRaises(ValueError):
+      FermionTerm(4, '1!')
+
+  def test_init_str_badqubits(self):
+    with self.assertRaises(ValueError):
+      FermionTerm(self.n_qubits, '9')
+
+  def test_init_str_identity(self):
+    self.assertEqual(fermion_identity(self.n_qubits),
+                     FermionTerm(self.n_qubits, ''))
 
   def test_change_nqubits_error(self):
     with self.assertRaises(local_terms.LocalTermError):
@@ -765,10 +787,6 @@ class FermionOperatorsTest(unittest.TestCase):
     self.assertEqual(0.0, self.operator_a[tuple(self.operators_b)])
     self.assertEqual(0.0, self.operator_a[tuple(self.operators_c)])
 
-  def test_init_badterm(self):
-    with self.assertRaises(TypeError):
-      local_operators.LocalOperator(self.n_qubits, 1)
-
   def test_init_list_protection(self):
     coeff1 = 2.j-3
     operators1 = ((0, 1), (1, 0), (2, 0))
@@ -798,6 +816,10 @@ class FermionOperatorsTest(unittest.TestCase):
     self.assertEqual(self.coefficient_c,
                      op_ac[tuple(self.operators_c)])
     self.assertEqual(0.0, op_ac[tuple(self.operators_b)])
+
+  def test_init_badterm(self):
+    with self.assertRaises(TypeError):
+      FermionOperator(self.n_qubits, 1)
 
   def test_change_nqubits_error(self):
     with self.assertRaises(local_operators.LocalOperatorError):
