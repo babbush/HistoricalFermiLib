@@ -47,12 +47,12 @@ class LocalOperator(object):
     elif isinstance(terms, list):
       self.terms = {}
       for term in terms:
-        self += local_terms.LocalTerm(term.n_qubits, term.coefficient,
-                                      term.operators)
+        self += local_terms.LocalTerm(term.n_qubits, term.operators,
+                                      term.coefficient)
     elif isinstance(terms, local_terms.LocalTerm):
       self.terms = {}
-      self += local_terms.LocalTerm(terms.n_qubits, terms.coefficient,
-                                    terms.operators)
+      self += local_terms.LocalTerm(terms.n_qubits, terms.operators,
+                                    terms.coefficient)
     else:
       raise TypeError('Invalid terms provided to initialization.')
 
@@ -101,7 +101,7 @@ class LocalOperator(object):
       self.terms[tuple(operators)].coefficient = coefficient
     else:
       # TODO: Find better solution than using call to LocalTerm here.
-      new_term = local_terms.LocalTerm(self.n_qubits, coefficient, operators)
+      new_term = local_terms.LocalTerm(self.n_qubits, operators, coefficient)
       self.terms[tuple(operators)] = new_term
 
   def __delitem__(self, operators):
@@ -134,18 +134,17 @@ class LocalOperator(object):
         self[addend.operators] = new_coefficient
       elif addend.operators in self:
         del self[addend.operators]
-      return self
 
     elif issubclass(type(addend), LocalOperator):
       # Handle LocalOperators.
       for term in addend:
         self += term
-      return self
 
     else:
       # Throw exception for unknown type.
-      raise TypeError(
-          'Cannot add term of invalid type to LocalOperator.')
+      raise TypeError('Cannot add term of invalid type to LocalOperator.')
+
+    return self
 
   def __isub__(self, subtrahend):
     """Compute self - subtrahend for a LocalTerm or LocalOperator."""
@@ -210,7 +209,6 @@ class LocalOperator(object):
        numpy.isscalar(multiplier)):
       for term in self:
         term.coefficient *= complex(multiplier)
-      return self
 
     # Handle LocalTerms. Note that it is necessary to make new dictioanry.
     elif issubclass(type(multiplier), local_terms.LocalTerm):
@@ -219,7 +217,6 @@ class LocalOperator(object):
         term *= multiplier
         new_operator += term
       self.terms = new_operator.terms
-      return self
 
     # Handle LocalOperators. It is necessary to make new dictionary.
     elif issubclass(type(multiplier), LocalOperator):
@@ -228,11 +225,12 @@ class LocalOperator(object):
         for right_term in multiplier:
           new_operator += left_term * right_term
       self.terms = new_operator.terms
-      return self
 
     else:
       # Throw exception for wrong type of multiplier.
       raise TypeError('Invalid typed object cannot multiply LocalOperator.')
+
+    return self
 
   def __mul__(self, multiplier):
     """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
@@ -295,7 +293,7 @@ class LocalOperator(object):
 
     # Initialized identity.
     exponentiated = self.return_class(self.n_qubits)
-    exponentiated += self.list_terms()[0].return_class(self.n_qubits, 1.)
+    exponentiated += self.list_terms()[0].return_class(self.n_qubits)
 
     # Handle other exponents.
     for i in range(exponent):

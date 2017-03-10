@@ -18,12 +18,12 @@ class LocalOperatorsTest(unittest.TestCase):
     self.operators_b = [1, 2]
     self.operators_c = [0, 3, 4]
 
-    self.term_a = local_terms.LocalTerm(self.n_qubits, self.coefficient_a,
-                                        self.operators_a)
-    self.term_b = local_terms.LocalTerm(self.n_qubits, self.coefficient_b,
-                                        self.operators_b)
-    self.term_c = local_terms.LocalTerm(self.n_qubits, self.coefficient_c,
-                                        self.operators_c)
+    self.term_a = local_terms.LocalTerm(self.n_qubits, self.operators_a,
+                                        self.coefficient_a)
+    self.term_b = local_terms.LocalTerm(self.n_qubits, self.operators_b,
+                                        self.coefficient_b)
+    self.term_c = local_terms.LocalTerm(self.n_qubits, self.operators_c,
+                                        self.coefficient_c)
 
     self.operator_a = local_operators.LocalOperator(self.n_qubits, self.term_a)
     self.operator_bc = local_operators.LocalOperator(self.n_qubits,
@@ -70,14 +70,14 @@ class LocalOperatorsTest(unittest.TestCase):
   def test_init_list_protection(self):
     self.coeff1 = 2.j-3
     self.operators1 = [6, 7, 8, 11]
-    self.term1 = local_terms.LocalTerm(self.n_qubits, self.coeff1,
-                                       self.operators1)
+    self.term1 = local_terms.LocalTerm(self.n_qubits, self.operators1,
+                                       self.coeff1)
 
     self.operator1 = local_operators.LocalOperator(self.n_qubits, [self.term1])
     self.operators1.append(12)
 
-    expected_term = local_terms.LocalTerm(self.n_qubits, self.coeff1,
-                                          self.operators1[:-1])
+    expected_term = local_terms.LocalTerm(self.n_qubits, self.operators1[:-1],
+                                          self.coeff1,)
     expected_op = local_operators.LocalOperator(self.n_qubits, expected_term)
     self.assertEqual(self.operator1, expected_op)
 
@@ -148,8 +148,8 @@ class LocalOperatorsTest(unittest.TestCase):
     self.assertEqual(self.operator_a - self.term_a, expected)
 
   def test_neg(self):
-    term = local_terms.LocalTerm(self.n_qubits, -self.coefficient_a,
-                                 self.operators_a)
+    term = local_terms.LocalTerm(self.n_qubits, self.operators_a,
+                                 -self.coefficient_a)
     expected = local_operators.LocalOperator(self.n_qubits, term)
     self.assertEqual(-self.operator_a, expected)
 
@@ -166,21 +166,21 @@ class LocalOperatorsTest(unittest.TestCase):
                      new_operator[(self.term_b * self.term_a).operators])
 
   def test_mul_by_zero_localterm(self):
-    zero_term = local_terms.LocalTerm(self.n_qubits, 0.0, [1])
+    zero_term = local_terms.LocalTerm(self.n_qubits, [1], 0.0)
     zero_op = local_operators.LocalOperator(self.n_qubits, zero_term)
     self.assertEqual(self.operator_abc * zero_term, zero_op)
 
   def test_mul_by_zero_op(self):
-    zero_term = local_terms.LocalTerm(self.n_qubits, 0.0, [1])
+    zero_term = local_terms.LocalTerm(self.n_qubits, [1], 0.0)
     zero_op = local_operators.LocalOperator(self.n_qubits, zero_term)
     self.assertEqual(self.operator_abc * zero_op, zero_op)
 
   def test_mul_by_identity_term(self):
-    identity_term = local_terms.LocalTerm(self.n_qubits, 1.0)
+    identity_term = local_terms.LocalTerm(self.n_qubits)
     self.assertEqual(self.operator_abc * identity_term, self.operator_abc)
 
   def test_mul_by_identity_op(self):
-    identity_term = local_terms.LocalTerm(self.n_qubits, 1.0)
+    identity_term = local_terms.LocalTerm(self.n_qubits)
     identity_op = local_operators.LocalOperator(self.n_qubits, identity_term)
     self.assertEqual(self.operator_abc * identity_op, self.operator_abc)
 
@@ -260,7 +260,7 @@ class LocalOperatorsTest(unittest.TestCase):
                      self.operator_abc * self.operator_abc)
 
   def test_pow_zero(self):
-    identity_term = local_terms.LocalTerm(self.n_qubits, 1.0, [])
+    identity_term = local_terms.LocalTerm(self.n_qubits)
     identity_op = local_operators.LocalOperator(self.n_qubits, identity_term)
     self.assertEqual(self.operator_abc ** 0, identity_op)
 

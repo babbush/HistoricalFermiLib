@@ -20,7 +20,7 @@ class LocalTerm(object):
   """
   __array_priority__ = 0  # this ensures good behavior with numpy scalars
 
-  def __init__(self, n_qubits, coefficient=0., operators=None,
+  def __init__(self, n_qubits, operators=None, coefficient=1.,
                tolerance=1e-10):
     """Inits a LocalTerm.
 
@@ -51,8 +51,8 @@ class LocalTerm(object):
     self.operators = list(operators)
 
   @classmethod
-  def return_class(cls, n_qubits, coefficient=0, operators=None):
-    return cls(n_qubits, coefficient, operators)
+  def return_class(cls, n_qubits, operators=None, coefficient=1.):
+    return cls(n_qubits, operators, coefficient)
 
   # The methods below stop users from changing _n_qubits.
   @property
@@ -177,7 +177,7 @@ class LocalTerm(object):
     elif issubclass(type(multiplier), LocalTerm):
       # Handle LocalTerms. Make sure number of qubits is the same.
       if self.n_qubits != multiplier.n_qubits:
-        raise LocalTermError('Cannot multiply terms acting on different'
+        raise LocalTermError('Cannot multiply terms acting on different '
                              'Hilbert spaces.')
 
       # Compute product.
@@ -266,7 +266,7 @@ class LocalTerm(object):
       raise ValueError('Can only raise LocalTerm to positive integer powers.')
 
     # Initialize identity.
-    exponentiated = self.return_class(self.n_qubits, 1.)
+    exponentiated = self.return_class(self.n_qubits)
 
     # Handle other exponents.
     for i in range(exponent):
