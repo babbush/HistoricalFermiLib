@@ -314,7 +314,7 @@ class MolecularOperator(object):
       fermion_operator: An instance of the FermionOperator class.
     """
     # Initialize with identity term.
-    identity = fermion_operators.FermionTerm(self.n_qubits, self.constant)
+    identity = fermion_operators.FermionTerm(self.n_qubits, [], self.constant)
     fermion_operator = fermion_operators.FermionOperator(
         self.n_qubits, [identity])
 
@@ -323,14 +323,14 @@ class MolecularOperator(object):
         # Add one-body terms.
         coefficient = self[p, q]
         fermion_operator += fermion_operators.FermionTerm(
-            self.n_qubits, coefficient, [(p, 1), (q, 0)])
+            self.n_qubits, [(p, 1), (q, 0)], coefficient)
 
         for r in range(self.n_qubits):
           for s in range(self.n_qubits):
             # Add two-body terms.
             coefficient = self[p, q, r, s]
             fermion_operator += fermion_operators.FermionTerm(
-                self.n_qubits, coefficient, [(p, 1), (q, 1), (r, 0), (s, 0)])
+                self.n_qubits, [(p, 1), (q, 1), (r, 0), (s, 0)], coefficient)
 
     return fermion_operator
 
@@ -347,12 +347,12 @@ class MolecularOperator(object):
       parity_string = [(z, 'Z') for z in range(a + 1, b)]
       for operator in ['X', 'Y']:
         operators = [(a, operator)] + parity_string + [(b, operator)]
-        qubit_operator += qubit_operators.QubitTerm(n_qubits, .5, operators)
+        qubit_operator += qubit_operators.QubitTerm(n_qubits, operators, .5)
 
     # Handle diagonal terms.
     else:
-      qubit_operator += qubit_operators.QubitTerm(n_qubits, .5)
-      qubit_operator += qubit_operators.QubitTerm(n_qubits, -.5, [(p, 'Z')])
+      qubit_operator += qubit_operators.QubitTerm(n_qubits, [], .5)
+      qubit_operator += qubit_operators.QubitTerm(n_qubits, [(p, 'Z')], -.5)
 
     return qubit_operator
 
@@ -406,7 +406,7 @@ class MolecularOperator(object):
 
         # Add term.
         qubit_operator += qubit_operators.QubitTerm(
-            n_qubits, coefficient, operators)
+            n_qubits, operators, coefficient)
 
     # Handle case of three unique indices.
     elif len(set([p, q, r, s])) == 3:
@@ -427,7 +427,7 @@ class MolecularOperator(object):
 
       # Get operators.
       parity_string = [(z, 'Z') for z in range(a + 1, b)]
-      pauli_z = qubit_operators.QubitTerm(n_qubits, 1., [(c, 'Z')])
+      pauli_z = qubit_operators.QubitTerm(n_qubits, [(c, 'Z')], 1.)
       for operator in ['X', 'Y']:
         operators = [(a, operator)] + parity_string + [(b, operator)]
 
@@ -439,7 +439,7 @@ class MolecularOperator(object):
 
         # Add term.
         hopping_term = qubit_operators.QubitTerm(
-            n_qubits, coefficient, operators)
+            n_qubits, operators, coefficient)
         qubit_operator -= pauli_z * hopping_term
         qubit_operator += hopping_term
 
@@ -456,14 +456,13 @@ class MolecularOperator(object):
 
       # Add terms.
       qubit_operator -= qubit_operators.QubitTerm(
-          n_qubits, coefficient)
+          n_qubits, [], coefficient)
       qubit_operator += qubit_operators.QubitTerm(
-          n_qubits, coefficient, [(p, 'Z')])
+          n_qubits, [(p, 'Z')], coefficient)
       qubit_operator += qubit_operators.QubitTerm(
-          n_qubits, coefficient, [(q, 'Z')])
+          n_qubits, [(q, 'Z')], coefficient)
       qubit_operator -= qubit_operators.QubitTerm(
-          n_qubits, coefficient,
-          [(min(q, p), 'Z'), (max(q, p), 'Z')])
+          n_qubits, [(min(q, p), 'Z'), (max(q, p), 'Z')], coefficient)
 
     return qubit_operator
 
@@ -480,7 +479,8 @@ class MolecularOperator(object):
     qubit_operator = qubit_operators.QubitOperator(self.n_qubits)
 
     # Add constant.
-    qubit_operator += qubit_operators.QubitTerm(self.n_qubits, self.constant)
+    qubit_operator += qubit_operators.QubitTerm(self.n_qubits, [],
+                                                self.constant)
 
     # Loop through all indices.
     for p in range(self.n_qubits):

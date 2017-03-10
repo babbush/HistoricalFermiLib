@@ -24,7 +24,7 @@ class FermionOperatorError(LocalOperatorError):
 
 
 def fermion_identity(n_qubits):
-  return FermionTerm(n_qubits, 1.)
+  return FermionTerm(n_qubits, [], 1.)
 
 
 def hopping_operator(n_qubits, site1, site2, coefficient=1.):
@@ -34,10 +34,10 @@ def hopping_operator(n_qubits, site1, site2, coefficient=1.):
     n_qubits: An int giving the number of spin-orbitals in the system.
     site1, site2: The sites between which the hopping occurs.
   """
-  t1 = FermionTerm(n_qubits, coefficient, [(site1, 1), (site2, 0)])
-  t2 = FermionTerm(n_qubits, coefficient, [(site2, 1), (site1, 0)])
+  t1 = FermionTerm(n_qubits, [(site1, 1), (site2, 0)], coefficient)
+  t2 = FermionTerm(n_qubits, [(site2, 1), (site1, 0)], coefficient)
 
-  return (t1+t2)
+  return t1 + t2
 
 
 def number_operator(n_qubits, site=None, coefficient=1.):
@@ -53,7 +53,7 @@ def number_operator(n_qubits, site=None, coefficient=1.):
     for spin_orbital in range(n_qubits):
       operator += number_operator(n_qubits, spin_orbital)
   else:
-    operator = FermionTerm(n_qubits, coefficient, [(site, 1), (site, 0)])
+    operator = FermionTerm(n_qubits, [(site, 1), (site, 0)], coefficient)
   return operator
 
 
@@ -73,7 +73,7 @@ class FermionTerm(LocalTerm):
       term.coefficient = 6.7
       term.operators = [(3, 1), (1, 0), (7, 1)]
   """
-  def __init__(self, n_qubits, coefficient=0., operators=None):
+  def __init__(self, n_qubits, operators=None, coefficient=1.):
     """Init a FermionTerm.
 
     Args:
@@ -90,7 +90,7 @@ class FermionTerm(LocalTerm):
       ValueError: Invalid tensor factor provided to FermionTerm.
                   Must be an integer between 0 and n_qubits-1.
     """
-    super(FermionTerm, self).__init__(n_qubits, coefficient, operators)
+    super(FermionTerm, self).__init__(n_qubits, operators, coefficient)
 
     for operator in self:
       if not isinstance(operator, tuple):
@@ -217,8 +217,8 @@ class FermionTerm(LocalTerm):
           if right_operator[0] == left_operator[0]:
             operators_in_new_term = term[:(j - 1)]
             operators_in_new_term += term[(j + 1)::]
-            new_term = FermionTerm(term.n_qubits, -1. * term.coefficient,
-                                   operators_in_new_term)
+            new_term = FermionTerm(term.n_qubits, operators_in_new_term,
+                                   -1. * term.coefficient)
 
             # Recursively add the processed new term.
             normal_ordered_operator += new_term.normal_ordered()
@@ -261,7 +261,7 @@ class FermionTerm(LocalTerm):
 
     # Initialize identity matrix.
     transformed_term = qubit_operators.QubitOperator(
-        self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits,
+        self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits, [],
                         self.coefficient)])
 
     # Build the Bravyi-Kitaev transformed operators.
@@ -287,15 +287,16 @@ class FermionTerm(LocalTerm):
       # The fermion lowering operator is given by
       # a = (c+id)/2 where c, d are the majoranas.
       d_majorana_component = qubit_operators.QubitTerm(
-          self.n_qubits, d_coeff,
-          [(operator[0], 'Y')] +
-          [(index, 'Z') for index in ancestor_children] +
-          [(index, 'X') for index in ancestors])
+          self.n_qubits, ([(operator[0], 'Y')] +
+                          [(index, 'Z') for index in ancestor_children] +
+                          [(index, 'X') for index in ancestors]),
+          d_coeff)
 
       c_majorana_component = qubit_operators.QubitTerm(
-          self.n_qubits, .5,
-          [(operator[0], 'X')] + [(index, 'Z') for index in parity_set] +
-          [(index, 'X') for index in ancestors])
+          self.n_qubits, ([(operator[0], 'X')] +
+                          [(index, 'Z') for index in parity_set] +
+                          [(index, 'X') for index in ancestors]),
+          0.5)
 
       transformed_term *= qubit_operators.QubitOperator(
           self.n_qubits, [c_majorana_component, d_majorana_component])
@@ -315,21 +316,21 @@ class FermionTerm(LocalTerm):
     """
     # Initialize identity matrix.
     transformed_term = qubit_operators.QubitOperator(
-        self.n_qubits, [qubit_operators.QubitTerm(
-            self.n_qubits, self.coefficient)])
+        self.n_qubits, [qubit_operators.QubitTerm(self.n_qubits, [],
+                                                  self.coefficient)])
     # Loop through operators, transform and multiply.
     for operator in self:
       z_factors = [(index, 'Z') for index in range(0, operator[0])]
 
       # Handle identity.
       pauli_x_component = qubit_operators.QubitTerm(
-          self.n_qubits, 0.5, z_factors + [(operator[0], 'X')])
+          self.n_qubits, z_factors + [(operator[0], 'X')], 0.5)
       if operator[1]:
         pauli_y_component = qubit_operators.QubitTerm(
-            self.n_qubits, -0.5j, z_factors + [(operator[0], 'Y')])
+            self.n_qubits, z_factors + [(operator[0], 'Y')], -0.5j)
       else:
         pauli_y_component = qubit_operators.QubitTerm(
-            self.n_qubits, 0.5j, z_factors + [(operator[0], 'Y')])
+            self.n_qubits, z_factors + [(operator[0], 'Y')], 0.5j)
 
       transformed_term *= qubit_operators.QubitOperator(
           self.n_qubits, [pauli_x_component, pauli_y_component])
@@ -386,7 +387,7 @@ class FermionOperator(LocalOperator):
     if operators in self:
       self.terms[tuple(operators)].coefficient = coefficient
     else:
-      new_term = FermionTerm(self.n_qubits, coefficient, operators)
+      new_term = FermionTerm(self.n_qubits, operators, coefficient)
       self.terms[tuple(operators)] = new_term
 
   def normal_order(self):
@@ -516,7 +517,6 @@ class FermionOperator(LocalOperator):
             'FermionOperator is  not a molecular operator.')
 
     # Form MolecularOperator and return.
-    molecular_operator = molecular_operators.MolecularOperator(constant,
-                                                               one_body,
-                                                               two_body)
+    molecular_operator = molecular_operators.MolecularOperator(
+        constant, one_body, two_body)
     return molecular_operator

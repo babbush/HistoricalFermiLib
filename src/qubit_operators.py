@@ -39,7 +39,7 @@ _PAULI_MATRIX_PRODUCTS = {('I', 'I'): (1., 'I'),
 
 
 def qubit_identity(n_qubits):
-  return QubitTerm(n_qubits, 1.)
+  return QubitTerm(n_qubits, [], 1.)
 
 
 class QubitTerm(LocalTerm):
@@ -67,7 +67,7 @@ class QubitTerm(LocalTerm):
       of each tuple is a string, either 'X', 'Y' or 'Z', indicating what
       acts on that tensor factor. The list is sorted by the first index.
   """
-  def __init__(self, n_qubits, coefficient=1., operators=None):
+  def __init__(self, n_qubits, operators=None, coefficient=1.):
     """Inits PauliTerm.
 
     Specify to which qubits a Pauli X, Y, or Z is applied. To all not
@@ -85,7 +85,7 @@ class QubitTerm(LocalTerm):
     Raises:
       QubitTermError: Invalid operators provided to QubitTerm.
     """
-    super(QubitTerm, self).__init__(n_qubits, coefficient, operators)
+    super(QubitTerm, self).__init__(n_qubits, operators, coefficient)
     for operator in self:
       if isinstance(operator, tuple):
         tensor_factor, action = operator
@@ -214,7 +214,7 @@ class QubitTerm(LocalTerm):
     identity = fermion_operators.fermion_identity(self.n_qubits)
     transformed_term = fermion_operators.FermionOperator(self.n_qubits,
                                                          identity)
-    working_term = QubitTerm(self.n_qubits, 1.0, self.operators)
+    working_term = QubitTerm(self.n_qubits, self.operators, 1.0)
 
     # Loop through operators.
     if working_term.operators:
@@ -229,9 +229,9 @@ class QubitTerm(LocalTerm):
 
         else:
           raising_term = fermion_operators.FermionTerm(
-              self.n_qubits, 1., [(operator[0], 1)])
+              self.n_qubits, [(operator[0], 1)])
           lowering_term = fermion_operators.FermionTerm(
-              self.n_qubits, 1., [(operator[0], 0)])
+              self.n_qubits, [(operator[0], 0)])
 
           # Handle Pauli X, Y, Z.
           if operator[1] == 'Y':
@@ -325,7 +325,7 @@ class QubitOperator(LocalOperator):
     if operators in self:
       self.terms[tuple(operators)].coefficient = coefficient
     else:
-      new_term = QubitTerm(self.n_qubits, coefficient, operators)
+      new_term = QubitTerm(self.n_qubits, operators, coefficient)
       self.terms[tuple(operators)] = new_term
 
   def reverse_jordan_wigner(self):
@@ -365,7 +365,7 @@ class QubitOperator(LocalOperator):
     # One-RDM.
     for i, j in itertools.product(range(self.n_qubits), repeat=2):
       transformed_operator = fermion_operators.FermionTerm(
-          self.n_qubits, 1.0, [(i, 1), (j, 0)]).jordan_wigner_transform()
+          self.n_qubits, [(i, 1), (j, 0)]).jordan_wigner_transform()
       for term in transformed_operator:
         if tuple(term.operators) in self.terms:
           one_rdm[i, j] += term.coefficient * self[term.operators]
@@ -373,7 +373,7 @@ class QubitOperator(LocalOperator):
     # Two-RDM.
     for i, j, k, l in itertools.product(range(self.n_qubits), repeat=4):
       transformed_operator = fermion_operators.FermionTerm(
-          self.n_qubits, 1.0,
+          self.n_qubits,
           [(i, 1), (j, 1), (k, 0), (l, 0)]).jordan_wigner_transform()
       for term in transformed_operator:
         if tuple(term.operators) in self.terms:

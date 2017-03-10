@@ -103,7 +103,7 @@ def fermi_hubbard(x_dimension, y_dimension, tunneling, coulomb,
       operators = [(up(site), 1), (up(site), 0),
                    (down(site), 1), (down(site), 0)]
       hubbard_model += fermion_operators.FermionTerm(
-          n_spin_orbitals, coulomb, operators)
+          n_spin_orbitals, operators, coulomb)
 
     # Index coupled orbitals.
     right_neighbor = site + 1
@@ -123,24 +123,24 @@ def fermi_hubbard(x_dimension, y_dimension, tunneling, coulomb,
         operators = [(site, 1), (site, 0),
                      (right_neighbor, 1), (right_neighbor, 0)]
         hubbard_model += fermion_operators.FermionTerm(
-            n_spin_orbitals, coulomb, operators)
+            n_spin_orbitals, operators, coulomb)
 
         # Add hopping term.
         operators = [(site, 1), (right_neighbor, 0)]
         hopping_term = fermion_operators.FermionTerm(
-            n_spin_orbitals, -tunneling, operators)
+            n_spin_orbitals, operators, -tunneling)
         hubbard_model += hopping_term
         hubbard_model += hopping_term.hermitian_conjugated()
       else:
         # Add hopping term.
         operators = [(up(site), 1), (up(right_neighbor), 0)]
         hopping_term = fermion_operators.FermionTerm(
-            n_spin_orbitals, -tunneling, operators)
+            n_spin_orbitals, operators, -tunneling)
         hubbard_model += hopping_term
         hubbard_model += hopping_term.hermitian_conjugated()
         operators = [(down(site), 1), (down(right_neighbor), 0)]
         hopping_term = fermion_operators.FermionTerm(
-            n_spin_orbitals, -tunneling, operators)
+            n_spin_orbitals, operators, -tunneling)
         hubbard_model += hopping_term
         hubbard_model += hopping_term.hermitian_conjugated()
 
@@ -163,12 +163,12 @@ def fermi_hubbard(x_dimension, y_dimension, tunneling, coulomb,
         # Add hopping term.
         operators = [(up(site), 1), (up(bottom_neighbor), 0)]
         hopping_term = fermion_operators.FermionTerm(
-            n_spin_orbitals, -tunneling, operators)
+            n_spin_orbitals, operators, -tunneling)
         hubbard_model += hopping_term
         hubbard_model += hopping_term.hermitian_conjugated()
         operators = [(down(site), 1), (down(bottom_neighbor), 0)]
         hopping_term = fermion_operators.FermionTerm(
-            n_spin_orbitals, -tunneling, operators)
+            n_spin_orbitals, operators, -tunneling)
         hubbard_model += hopping_term
         hubbard_model += hopping_term.hermitian_conjugated()
 
