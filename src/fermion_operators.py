@@ -254,7 +254,7 @@ class FermionTerm(LocalTerm):
 
     Note:
         Reference: Operator Locality of Quantum Simulation of Fermionic Models
-            by Havlicek, Troyer, Whitfield.
+            by Havlicek, Troyer, Whitfield (arXiv:1701.07072).
     """
     # Build the Fenwick Tree
     fenwick_tree = FenwickTree(self.n_qubits)
@@ -276,7 +276,8 @@ class FermionTerm(LocalTerm):
       ancestors = [node.index for node in fenwick_tree.get_update_set(index)]
 
       # The C(j) set.
-      ancestor_children = [node.index for node in fenwick_tree.get_remainder_set(index)]
+      ancestor_children = [node.index for node in
+                           fenwick_tree.get_remainder_set(index)]
 
       # Switch between lowering/raising operators.
       d_coeff = .5j

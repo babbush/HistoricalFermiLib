@@ -121,7 +121,8 @@ class FenwickTree:
     return node.children
 
   def get_remainder_set(self, j):
-    """ Return the set of children with indices less than j of all ancestors of j. The set C from the paper. 
+    """Return the set of children with indices less than j of all
+    ancestors of j. The set C from the paper.
 
     Args:
         j: Int. Fermionic site index.
@@ -143,8 +144,8 @@ class FenwickTree:
     return result
 
   def get_parity_set(self, j):
-      """ Returns the union of the remainder set with children set. Coincides with the parity
-      set of Tranter et al.
+      """ Returns the union of the remainder set with children set.
+      Coincides with the parity set of Tranter et al.
 
       Args:
           j: Int. Fermionic site index.
