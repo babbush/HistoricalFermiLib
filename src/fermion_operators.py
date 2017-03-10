@@ -149,7 +149,7 @@ class FermionTerm(LocalTerm):
     """Return an easy-to-read string representation of the term."""
     string_representation = '{} ['.format(self.coefficient)
     for operator in self:
-      string_representation += str(operator[0]) + '+' * operator[1] + ' '
+      string_representation += str(operator[0]) + '^' * operator[1] + ' '
 
     if self:
       string_representation = string_representation[:-1]
