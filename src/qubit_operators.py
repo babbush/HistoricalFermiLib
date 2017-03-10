@@ -78,24 +78,38 @@ class QubitTerm(LocalTerm):
       n_qubits: The total number of qubits in the system.
       coefficient: A real or complex floating point number.
       operators: A sorted list of tuples. The first element of each tuple is an
-        int indicating the qubit on which operators acts. The second element
-        of each tuple is a string, either 'X', 'Y' or 'Z', indicating what
-        acts on that tensor factor.
+        int indicating the qubit on which operators acts, starting from zero.
+        The second element of each tuple is a string, either 'X', 'Y' or 'Z',
+        indicating what acts on that tensor factor.
+        operators can also be specified by a string of the form '0X 2Z 5Y',
+        indicating an X on qubit 0, Z on qubit 2, and Y on qubit 5.
 
     Raises:
       QubitTermError: Invalid operators provided to QubitTerm.
     """
+    if operators and not isinstance(operators, (tuple, list, str)):
+      raise ValueError("Operators specified incorrectly.")
+
+    if isinstance(operators, str):
+      list_ops = []
+      for el in operators.split():
+        if len(el) < 2:
+          raise ValueError("Operators specified incorrectly.")
+        list_ops.append((int(el[:-1]), el[-1]))
+      operators = list_ops
+
     super(QubitTerm, self).__init__(n_qubits, operators, coefficient)
+
     for operator in self:
-      if isinstance(operator, tuple):
-        tensor_factor, action = operator
-        if not isinstance(action, str) or action not in 'XYZ':
-          raise QubitTermError("Invalid action provided: must be string 'X', "
-                               "'Y', or 'Z'.")
-        if not (isinstance(tensor_factor, int) and
-                0 <= tensor_factor < n_qubits):
-          raise QubitTermError('Invalid tensor factor provided to QubitTerm: '
-                               'must be an integer between 0 and n_qubits-1.')
+      tensor_factor, action = operator
+
+      if not isinstance(action, str) or action not in 'XYZ':
+        raise ValueError("Invalid action provided: must be string 'X', "
+                         "'Y', or 'Z'.")
+      if not (isinstance(tensor_factor, int) and
+              0 <= tensor_factor < n_qubits):
+        raise QubitTermError('Invalid tensor factor provided to QubitTerm: '
+                             'must be an integer between 0 and n_qubits-1.')
 
     # Make sure operators are sorted by tensor factor.
     self.operators.sort(key=lambda operator: operator[0])

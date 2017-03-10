@@ -46,7 +46,7 @@ class QubitTermsTest(unittest.TestCase):
       QubitTerm(n_qubits, operators, 1.0)
 
   def test_init_bad_action(self):
-    with self.assertRaises(QubitTermError):
+    with self.assertRaises(ValueError):
       QubitTerm(1, [(0, 'Q')], 1)
 
   def test_init_sort_equiv(self):
@@ -56,6 +56,27 @@ class QubitTermsTest(unittest.TestCase):
     self.assertEqual(y0x1z2, x1z2y0)
     self.assertEqual(y0x1z2, z2x1y0)
     self.assertEqual(x1z2y0, z2x1y0)
+
+  def test_init_str(self):
+    str_input = self.coefficient_a * QubitTerm(self.n_qubits, '1Y 3Z 4Y')
+    self.assertEqual(self.term_a, str_input)
+
+  def test_init_str_identity(self):
+    self.assertEqual(QubitTerm(self.n_qubits), QubitTerm(self.n_qubits, ''))
+
+  def test_init_str_sort_equiv(self):
+    str_input = self.coefficient_a * QubitTerm(self.n_qubits, '3Z 1Y 4Y')
+    self.assertEqual(self.term_a, str_input)
+
+  def test_init_str_bad_tensor_factors(self):
+    with self.assertRaises(QubitTermError):
+      n_qubits = 3
+      operators = ' '.join(['%iZ' % i for i in range(4)])
+      QubitTerm(n_qubits, operators, 1.0)
+
+  def test_init_str_bad_action(self):
+    with self.assertRaises(ValueError):
+      QubitTerm(1, '0Q', 1)
 
   def test_set_nqubits_protect(self):
     with self.assertRaises(local_terms.LocalTermError):
@@ -513,6 +534,12 @@ class QubitOperatorsTest(unittest.TestCase):
     self.assertEqual(self.coefficient_b,
                      self.qubit_operator[tuple(self.operators_b)])
 
+  def test_init_str_battery(self):
+    str_op_abc = (QubitTerm(self.n_qubits, '1X 3Y 8Z') / 2 +
+                  1.2 * QubitTerm(self.n_qubits, '1Z 3X 8Z') +
+                  1.4j * QubitTerm(self.n_qubits, '1Z 3Y 9Z'))
+    self.assertEqual(self.operator_abc, str_op_abc)
+
   def test_init_list(self):
     self.assertEqual(self.n_qubits, self.operator_a.n_qubits)
     self.assertEqual(self.coefficient_a,
@@ -789,7 +816,7 @@ class QubitOperatorsTest(unittest.TestCase):
     self.assertEqual(zero, QubitOperator(3, 3.7 * qubit_identity(3)))
 
   def test_set_protect_bad_operator(self):
-    with self.assertRaises(QubitTermError):
+    with self.assertRaises(ValueError):
       self.qubit_operator[((1, 'Q'),)] = 1
 
   def test_set_protect_bad_tensor_factor(self):
