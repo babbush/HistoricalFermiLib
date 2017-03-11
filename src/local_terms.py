@@ -25,14 +25,16 @@ class LocalTerm(object):
     """Inits a LocalTerm.
 
     Args:
-      n_qubits: An int giving the number of qubits in simulated Hilbert space.
-      coefficient: A complex valued float giving the term coefficient.
+      n_qubits: An int giving the number of qubits in simulated Hilbert
+                space.
       operators: A list of site operators representing the term.
-      tolerance: A float giving the minimum absolute value below which term is
-                 zero.
+      coefficient: A complex valued float giving the term's coefficient.
+      tolerance: A float giving the minimum absolute value below which
+                 term is zero. Optional, defaults to 1e-10.
 
     Raises:
-      ValueError: Number of qubits needs to be a positive integer.
+      ValueError: Number of qubits must be a positive integer.
+      ValueError: Coefficient must be a scalar.
     """
     # Check that n_qubits is an integer.
     if not isinstance(n_qubits, int) or n_qubits < 1:
@@ -66,7 +68,7 @@ class LocalTerm(object):
                            'on which terms act.')
 
   def __eq__(self, other):
-    """Overload equality comparison == to interact with standard library.
+    """Overload equality comparison ==.
 
     Args:
       other: Another LocalTerm which is to be compared with self.
@@ -80,8 +82,8 @@ class LocalTerm(object):
 
     Notes:
       Two LocalTerms are considered equal either if their coefficients
-      are within _tolerance and their operators are the same, or if both
-      their coefficients are within tolerance of zero.
+      are within _tolerance of the first and their operators are the
+      same, or if both their coefficients are within tolerance of zero.
     """
     if self.n_qubits != other.n_qubits:
       raise LocalTermError('Cannot compare terms acting on '
@@ -95,26 +97,26 @@ class LocalTerm(object):
              abs(other.coefficient) <= self._tolerance))
 
   def __ne__(self, other):
-    """Overload not equals comparison != to interact with standard library."""
+    """Overload not equals comparison !=."""
     return not (self == other)
 
   def __getitem__(self, index):
     try:
       return self.operators[index]
     except IndexError:
-      raise LocalTermError('LocalTerm index out of range')
+      raise LocalTermError('LocalTerm index out of range.')
 
   def __setitem__(self, index, value):
     try:
       self.operators[index] = value
     except IndexError:
-      raise LocalTermError('LocalTerm assignment index out of range')
+      raise LocalTermError('LocalTerm assignment index out of range.')
 
   def __delitem__(self, index):
     try:
       del self.operators[index]
     except IndexError:
-      raise LocalTermError('LocalTerm deletion index out of range')
+      raise LocalTermError('LocalTerm deletion index out of range.')
 
   def __add__(self, addend):
     """Compute self + addend for a LocalTerm or derivative.
@@ -130,7 +132,7 @@ class LocalTerm(object):
                together terms which inherit from LocalTerm.
 
     Raises:
-      TypeError: Object of invalid type cannot be added to LocalTerm.
+      TypeError: Cannot add term of invalid type to LocalTerm.
       LocalTermError: Cannot add terms acting on different Hilbert spaces.
     """
     if not issubclass(type(addend),
@@ -138,7 +140,7 @@ class LocalTerm(object):
       raise TypeError('Cannot add term of invalid type to LocalTerm.')
 
     if not self._n_qubits == addend._n_qubits:
-      raise LocalTermError('Cannot add terms acting on different'
+      raise LocalTermError('Cannot add terms acting on different '
                            'Hilbert spaces.')
 
     return local_operators.LocalOperator(self._n_qubits, [self]) + addend
@@ -159,8 +161,8 @@ class LocalTerm(object):
     """Compute self *= multiplier. Multiplier must be scalar or LocalTerm.
 
     Note that this is actually an in-place method. Method undefined for
-    LocalOperator types on right side of *= because such a multiplication
-    would change the type of self.
+    LocalOperator types on right side of *= because such a
+    multiplication would change the type of self.
 
     Args:
       multiplier: A scalar or LocalTerm.
@@ -172,7 +174,6 @@ class LocalTerm(object):
     # Handle scalars.
     if numpy.isscalar(multiplier):
       self.coefficient *= complex(multiplier)
-      return self
 
     elif issubclass(type(multiplier), LocalTerm):
       # Handle LocalTerms. Make sure number of qubits is the same.
@@ -183,11 +184,11 @@ class LocalTerm(object):
       # Compute product.
       self.coefficient *= multiplier.coefficient
       self.operators += multiplier.operators
-      return self
 
     else:
       # Throw exception for wrong type of multiplier.
       raise TypeError('Can only *= multiply LocalTerm by scalar or LocalTerm.')
+    return self
 
   def __mul__(self, multiplier):
     """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
@@ -226,7 +227,7 @@ class LocalTerm(object):
     is also queried as the default behavior.
 
     Args:
-      multiplier: A scalar.
+      multiplier: A scalar to multiply by..
 
     Returns:
       product: A new instance of LocalTerm.
@@ -242,6 +243,16 @@ class LocalTerm(object):
     return product
 
   def __div__(self, divisor):
+    """Compute self / divisor for a scalar.
+
+    Args:
+      divisor: A scalar to divide by.
+
+    Returns:
+      A new instance of LocalTerm.
+
+    Raises:
+      TypeError: Cannot divide local operator by non-scalar type."""
     if not numpy.isscalar(divisor):
       raise TypeError('Cannot divide local operator by non-scalar type.')
     return self * (1.0 / divisor)
@@ -300,6 +311,6 @@ class LocalTerm(object):
       term: Despite the name, this is either a LocalTerm or LocalOperator.
 
     Returns:
-      commutator: LocalOperator giving self * term - term * self.
+      LocalOperator giving [self, term] = self * term - term * self.
     """
     return self * term - term * self
