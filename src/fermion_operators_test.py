@@ -386,13 +386,16 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(len(self.term_b), 3)
 
   def test_str(self):
-    self.assertEqual(str(self.term_a), '6.7j [3^ 1 4^]')
+    self.assertEqual(str(self.term_a), '+6.7j [3^ 1 4^]')
 
   def test_str_number_site(self):
-    self.assertEqual(str(number_operator(self.n_qubits, 1)), '1.0 [1^ 1]')
+    self.assertEqual(str(number_operator(self.n_qubits, 1)), '+1.0 [1^ 1]')
 
   def test_str_fermion_identity(self):
-    self.assertEqual(str(fermion_identity(self.n_qubits)), '1.0 []')
+    self.assertEqual(str(fermion_identity(self.n_qubits)), '+1.0 []')
+
+  def test_str_negcomplexidentity(self):
+    self.assertEqual(str(FermionTerm(3, [], -3.7j)), '-3.7j []')
 
   def test_hermitian_conjugated(self):
     self.term_a.hermitian_conjugate()
@@ -992,7 +995,7 @@ class FermionOperatorsTest(unittest.TestCase):
 
   def test_str(self):
     self.assertEqual(str(self.operator_abc),
-                     "6.7j [3^ 1 4^]\n-88.0 [2 4 2^]\n3.0 [2^ 3 0 3^]\n")
+                     "+6.7j [3^ 1 4^]\n-88.0 [2 4 2^]\n+3.0 [2^ 3 0 3^]\n")
 
   def test_str_zero(self):
     self.assertEqual('0', str(FermionOperator(3)))

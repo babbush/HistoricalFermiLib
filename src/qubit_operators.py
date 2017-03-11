@@ -288,7 +288,7 @@ class QubitTerm(LocalTerm):
 
   def __str__(self):
     """Return an easy-to-read string representation of the term."""
-    string_representation = '{}'.format(self.coefficient)
+    string_representation = '{:+}'.format(self.coefficient)
     if self.operators == []:
       string_representation += ' I'
     for operator in self:
