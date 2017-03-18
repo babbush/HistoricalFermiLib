@@ -56,6 +56,8 @@ class QubitTermsTest(unittest.TestCase):
   def test_init_str_sort_equiv(self):
     str_input = self.coefficient_a * QubitTerm('3Z 1Y 4Y')
     self.assertEqual(self.term_a, str_input)
+    self.assertEqual(QubitTerm(self.n_qubits, '4Y 3Z 1Y'),
+                     QubitTerm(self.n_qubits, '1Y 4Y 3Z'))
 
   def test_init_str_bad_action(self):
     with self.assertRaises(ValueError):
