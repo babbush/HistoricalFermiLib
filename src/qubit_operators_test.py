@@ -13,7 +13,6 @@ import numpy
 class QubitTermsTest(unittest.TestCase):
 
   def setUp(self):
-    self.n_qubits = 12
     self.coefficient = 0.5
     self.operators = [(1, 'X'), (3, 'Y'), (8, 'Z')]
     self.term = QubitTerm(self.operators, self.coefficient)
@@ -97,7 +96,6 @@ class QubitTermsTest(unittest.TestCase):
     self.assertTrue(sparse_operator.is_hermitian())
 
   def test_sparse_matrix_ZX(self):
-    n_qubits = 2
     coefficient = 2.
     operators = [(0, 'Z'), (1, 'X')]
     term = QubitTerm(operators, coefficient)
@@ -107,7 +105,6 @@ class QubitTermsTest(unittest.TestCase):
     self.assertTrue(sparse_operator.is_hermitian())
 
   def test_sparse_matrix_ZIZ(self):
-    n_qubits = 3
     operators = [(0, 'Z'), (2, 'Z')]
     term = QubitTerm(operators)
     sparse_operator = term.get_sparse_operator()
@@ -375,7 +372,8 @@ class QubitTermsTest(unittest.TestCase):
     self.assertEqual(QubitOperator(pauli_z), retransformed_z)
 
   def test_reverse_jordan_wigner_identity(self):
-    transformed_i = self.identity.reverse_jordan_wigner()
+    n_qubits = 5
+    transformed_i = self.identity.reverse_jordan_wigner(n_qubits)
     expected_i_term = fo.fermion_identity()
     expected_i = fo.FermionOperator([expected_i_term])
     self.assertEqual(transformed_i, expected_i)
@@ -462,7 +460,6 @@ class QubitTermsTest(unittest.TestCase):
 class QubitOperatorsTest(unittest.TestCase):
 
   def setUp(self):
-    self.n_qubits = 12
     self.identity = QubitTerm()
     self.coefficient_a = 0.5
     self.coefficient_b = 1.2
@@ -497,7 +494,6 @@ class QubitOperatorsTest(unittest.TestCase):
     self.assertEqual(self.operator_abc, str_op_abc)
 
   def test_init_list(self):
-    self.assertEqual(self.n_qubits, self.operator_a.n_qubits)
     self.assertEqual(self.coefficient_a,
                      self.operator_a[tuple(self.operators_a)])
     self.assertEqual(self.term_a, self.operator_a.terms.values()[0])
@@ -513,7 +509,6 @@ class QubitOperatorsTest(unittest.TestCase):
     d[tuple(self.operators_c)] = self.term_c
     op_ac = QubitOperator(d)
     self.assertEqual(len(op_ac), 2)
-    self.assertEqual(self.n_qubits, op_ac.n_qubits)
     self.assertEqual(self.coefficient_a,
                      op_ac[tuple(self.operators_a)])
     self.assertEqual(self.coefficient_c,
@@ -545,7 +540,6 @@ class QubitOperatorsTest(unittest.TestCase):
     d[tuple(self.operators_c)] = self.term_c
     op_ac = QubitOperator(d)
     self.assertEqual(len(op_ac), 2)
-    self.assertEqual(self.n_qubits, op_ac.n_qubits)
 
     # add a new element to the old dictionary
     d[tuple(self.operators_b)] = self.term_b
@@ -735,8 +729,8 @@ class QubitOperatorsTest(unittest.TestCase):
   def test_pow_zero(self):
     identity_op = QubitOperator(qubit_identity())
     op = QubitOperator([qubit_identity() * 3,
-                           QubitTerm([(1, 'X')], 1.0),
-                           QubitTerm([(0, 'X'), (1, 'Y')], 2.0)])
+                        QubitTerm([(1, 'X')], 1.0),
+                        QubitTerm([(0, 'X'), (1, 'Y')], 2.0)])
     self.assertEqual(op ** 0, identity_op)
 
   def test_set_in(self):
@@ -791,24 +785,24 @@ class QubitOperatorsTest(unittest.TestCase):
                      [2, 3, 2, 3, 0, 1, 0, 1])
 
   def test_sparse_matrix_zero_1qubit(self):
-    sparse_operator = QubitOperator().get_sparse_operator()
+    sparse_operator = QubitOperator().get_sparse_operator(1)
     sparse_operator.eliminate_zeros()
     self.assertEqual(len(list(sparse_operator.matrix.data)), 0)
     self.assertEqual(sparse_operator.matrix.shape, (2, 2))
 
   def test_sparse_matrix_zero_5qubit(self):
-    sparse_operator = QubitOperator().get_sparse_operator()
+    sparse_operator = QubitOperator().get_sparse_operator(5)
     sparse_operator.eliminate_zeros()
     self.assertEqual(len(list(sparse_operator.matrix.data)), 0)
     self.assertEqual(sparse_operator.matrix.shape, (32, 32))
 
   def test_sparse_matrix_identity_1qubit(self):
-    sparse_operator = QubitOperator(qubit_identity()).get_sparse_operator()
+    sparse_operator = QubitOperator(qubit_identity()).get_sparse_operator(1)
     self.assertEqual(list(sparse_operator.matrix.data), [1] * 2)
     self.assertEqual(sparse_operator.matrix.shape, (2, 2))
 
   def test_sparse_matrix_identity_5qubit(self):
-    sparse_operator = QubitOperator(qubit_identity()).get_sparse_operator()
+    sparse_operator = QubitOperator(qubit_identity()).get_sparse_operator(5)
     self.assertEqual(list(sparse_operator.matrix.data), [1] * 32)
     self.assertEqual(sparse_operator.matrix.shape, (32, 32))
 
@@ -817,7 +811,7 @@ class QubitOperatorsTest(unittest.TestCase):
     zzzz = QubitOperator(QubitTerm([(i, 'Z') for i in range(4)], 1.0))
 
     sparse1 = (identity + zzzz).get_sparse_operator()
-    sparse2 = identity.get_sparse_operator() + zzzz.get_sparse_operator()
+    sparse2 = identity.get_sparse_operator(4) + zzzz.get_sparse_operator()
 
     self.assertEqual(list(sparse1.matrix.data), [2] * 8)
     self.assertEqual(list(sparse1.matrix.indices), [0, 3, 5, 6, 9, 10, 12, 15])

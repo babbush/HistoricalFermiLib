@@ -88,7 +88,8 @@ class LocalTermsTest(unittest.TestCase):
 
   def test_sub(self):
     self.assertEqual(self.term_a - self.term_b,
-                     local_operators.LocalOperator([self.term_a, -self.term_b]))
+                     local_operators.LocalOperator(
+                         [self.term_a, -self.term_b]))
 
   def test_sub_cancel(self):
     self.assertEqual(self.term_a - self.term_a,
@@ -100,7 +101,8 @@ class LocalTermsTest(unittest.TestCase):
 
   def test_rmul(self):
     self.term = self.term_a * -3.
-    expected = local_terms.LocalTerm(self.operators_a, self.coefficient_a * -3.)
+    expected = local_terms.LocalTerm(self.operators_a,
+                                     self.coefficient_a * -3.)
     self.assertEqual(self.term, expected)
 
   def test_lmul_rmul(self):

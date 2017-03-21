@@ -314,56 +314,55 @@ class MolecularOperator(object):
       fermion_operator: An instance of the FermionOperator class.
     """
     # Initialize with identity term.
-    identity = fermion_operators.FermionTerm(self.n_qubits, [], self.constant)
-    fermion_operator = fermion_operators.FermionOperator(
-        self.n_qubits, [identity])
+    identity = fermion_operators.FermionTerm([], self.constant)
+    fermion_operator = fermion_operators.FermionOperator([identity])
 
     for p in range(self.n_qubits):
       for q in range(self.n_qubits):
         # Add one-body terms.
         coefficient = self[p, q]
         fermion_operator += fermion_operators.FermionTerm(
-            self.n_qubits, [(p, 1), (q, 0)], coefficient)
+            [(p, 1), (q, 0)], coefficient)
 
         for r in range(self.n_qubits):
           for s in range(self.n_qubits):
             # Add two-body terms.
             coefficient = self[p, q, r, s]
             fermion_operator += fermion_operators.FermionTerm(
-                self.n_qubits, [(p, 1), (q, 1), (r, 0), (s, 0)], coefficient)
+                [(p, 1), (q, 1), (r, 0), (s, 0)], coefficient)
 
     return fermion_operator
 
   @staticmethod
-  def jordan_wigner_one_body(n_qubits, p, q):
+  def jordan_wigner_one_body(p, q):
     """Map the term a^\dagger_p a_q + a^\dagger_q a_p to a qubit operator.
 
     Note that the diagonal terms are divided by a factor of 2 because they
     are equal to their own Hermitian conjugate."""
     # Handle off-diagonal terms.
-    qubit_operator = qubit_operators.QubitOperator(n_qubits)
+    qubit_operator = qubit_operators.QubitOperator()
     if p != q:
       a, b = sorted([p, q])
       parity_string = [(z, 'Z') for z in range(a + 1, b)]
       for operator in ['X', 'Y']:
         operators = [(a, operator)] + parity_string + [(b, operator)]
-        qubit_operator += qubit_operators.QubitTerm(n_qubits, operators, .5)
+        qubit_operator += qubit_operators.QubitTerm(operators, .5)
 
     # Handle diagonal terms.
     else:
-      qubit_operator += qubit_operators.QubitTerm(n_qubits, [], .5)
-      qubit_operator += qubit_operators.QubitTerm(n_qubits, [(p, 'Z')], -.5)
+      qubit_operator += qubit_operators.QubitTerm([], .5)
+      qubit_operator += qubit_operators.QubitTerm([(p, 'Z')], -.5)
 
     return qubit_operator
 
   @staticmethod
-  def jordan_wigner_two_body(n_qubits, p, q, r, s):
+  def jordan_wigner_two_body(p, q, r, s):
     """Map the term a^\dagger_p a^\dagger_q a_r a_s + h.c. to qubit operator.
 
     Note that the diagonal terms are divided by a factor of two because they
     are equal to their own Hermitian conjugate."""
     # Initialize qubit operator.
-    qubit_operator = qubit_operators.QubitOperator(n_qubits)
+    qubit_operator = qubit_operators.QubitOperator()
 
     # Return zero terms.
     if (p == q) or (r == s):
@@ -405,8 +404,7 @@ class MolecularOperator(object):
           coefficient *= -1.
 
         # Add term.
-        qubit_operator += qubit_operators.QubitTerm(
-            n_qubits, operators, coefficient)
+        qubit_operator += qubit_operators.QubitTerm(operators, coefficient)
 
     # Handle case of three unique indices.
     elif len(set([p, q, r, s])) == 3:
@@ -427,7 +425,7 @@ class MolecularOperator(object):
 
       # Get operators.
       parity_string = [(z, 'Z') for z in range(a + 1, b)]
-      pauli_z = qubit_operators.QubitTerm(n_qubits, [(c, 'Z')], 1.)
+      pauli_z = qubit_operators.QubitTerm([(c, 'Z')], 1.)
       for operator in ['X', 'Y']:
         operators = [(a, operator)] + parity_string + [(b, operator)]
 
@@ -438,8 +436,7 @@ class MolecularOperator(object):
           coefficient = -.25
 
         # Add term.
-        hopping_term = qubit_operators.QubitTerm(
-            n_qubits, operators, coefficient)
+        hopping_term = qubit_operators.QubitTerm(operators, coefficient)
         qubit_operator -= pauli_z * hopping_term
         qubit_operator += hopping_term
 
@@ -455,14 +452,11 @@ class MolecularOperator(object):
         coefficient *= -1.
 
       # Add terms.
+      qubit_operator -= qubit_operators.QubitTerm([], coefficient)
+      qubit_operator += qubit_operators.QubitTerm([(p, 'Z')], coefficient)
+      qubit_operator += qubit_operators.QubitTerm([(q, 'Z')], coefficient)
       qubit_operator -= qubit_operators.QubitTerm(
-          n_qubits, [], coefficient)
-      qubit_operator += qubit_operators.QubitTerm(
-          n_qubits, [(p, 'Z')], coefficient)
-      qubit_operator += qubit_operators.QubitTerm(
-          n_qubits, [(q, 'Z')], coefficient)
-      qubit_operator -= qubit_operators.QubitTerm(
-          n_qubits, [(min(q, p), 'Z'), (max(q, p), 'Z')], coefficient)
+          [(min(q, p), 'Z'), (max(q, p), 'Z')], coefficient)
 
     return qubit_operator
 
@@ -476,11 +470,10 @@ class MolecularOperator(object):
       qubit_operator: An instance of the QubitOperator class.
     """
     # Initialize qubit operator.
-    qubit_operator = qubit_operators.QubitOperator(self.n_qubits)
+    qubit_operator = qubit_operators.QubitOperator()
 
     # Add constant.
-    qubit_operator += qubit_operators.QubitTerm(self.n_qubits, [],
-                                                self.constant)
+    qubit_operator += qubit_operators.QubitTerm([], self.constant)
 
     # Loop through all indices.
     for p in range(self.n_qubits):
@@ -489,8 +482,7 @@ class MolecularOperator(object):
         # Handle one-body terms.
         coefficient = float(self[p, q])
         if coefficient and p >= q:
-          qubit_operator += coefficient * self.jordan_wigner_one_body(
-              self.n_qubits, p, q)
+          qubit_operator += coefficient * self.jordan_wigner_one_body(p, q)
 
         # Keep looping for the two-body terms.
         for r in range(self.n_qubits):
@@ -511,8 +503,7 @@ class MolecularOperator(object):
                   continue
 
             # Handle the two-body terms.
-            transformed_term = self.jordan_wigner_two_body(
-                self.n_qubits, p, q, r, s)
+            transformed_term = self.jordan_wigner_two_body(p, q, r, s)
             transformed_term *= coefficient
             qubit_operator += transformed_term
 
@@ -532,7 +523,8 @@ class MolecularOperator(object):
       MolecularOperatorError: Observable not contained in 1-RDM or 2-RDM.
     """
     expectation = 0.
-    reversed_fermion_operators = qubit_term.reverse_jordan_wigner()
+    reversed_fermion_operators = qubit_term.reverse_jordan_wigner(
+        self.n_qubits)
     reversed_fermion_operators.normal_order()
 
     for fermion_term in reversed_fermion_operators:

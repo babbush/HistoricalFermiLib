@@ -187,7 +187,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
     # Make sure you can reproduce Hartree-Fock energy.
     hf_state = sparse_operators.jw_hartree_fock_state(
-        self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits)
+        self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits())
     hf_density = sparse_operators.get_density_matrix([hf_state], [1.])
     expected_hf_density_energy = self.hamiltonian_matrix.expectation(
         hf_density)

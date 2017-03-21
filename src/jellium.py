@@ -158,8 +158,7 @@ def momentum_kinetic_operator(n_dimensions, grid_length,
   """
   # Initialize.
   n_points = grid_length ** n_dimensions
-  n_orbitals = n_points * 2 ** (not spinless)
-  operator = FermionOperator(n_orbitals)
+  operator = FermionOperator()
   if spinless:
     spins = [None]
   else:
@@ -177,7 +176,7 @@ def momentum_kinetic_operator(n_dimensions, grid_length,
 
       # Add interaction term.
       operators = [(orbital, 1), (orbital, 0)]
-      operator += FermionTerm(n_orbitals, operators, coefficient)
+      operator += FermionTerm(operators, coefficient)
 
   # Return.
   return operator
@@ -208,8 +207,7 @@ def momentum_potential_operator(n_dimensions, grid_length,
   n_points = grid_length ** n_dimensions
   volume = length_scale ** float(n_dimensions)
   prefactor = 2. * numpy.pi / volume
-  n_orbitals = n_points * 2 ** (not spinless)
-  operator = FermionOperator(n_orbitals)
+  operator = FermionOperator()
   if spinless:
     spins = [None]
   else:
@@ -265,7 +263,7 @@ def momentum_potential_operator(n_dimensions, grid_length,
             if (orbital_a != orbital_b) and (orbital_c != orbital_d):
               operators = [(orbital_a, 1), (orbital_b, 1),
                            (orbital_c, 0), (orbital_d, 0)]
-              operator += FermionTerm(n_orbitals, operators, coefficient)
+              operator += FermionTerm(operators, coefficient)
 
   # Return.
   return operator
@@ -286,8 +284,7 @@ def position_kinetic_operator(n_dimensions, grid_length,
   """
   # Initialize.
   n_points = grid_length ** n_dimensions
-  n_orbitals = n_points * 2 ** (not spinless)
-  operator = FermionOperator(n_orbitals)
+  operator = FermionOperator()
   if spinless:
     spins = [None]
   else:
@@ -320,7 +317,7 @@ def position_kinetic_operator(n_dimensions, grid_length,
 
         # Add interaction term.
         operators = [(orbital_a, 1), (orbital_b, 0)]
-        operator += FermionTerm(n_orbitals, operators, coefficient)
+        operator += FermionTerm(operators, coefficient)
 
   # Return.
   return operator
@@ -343,8 +340,7 @@ def position_potential_operator(n_dimensions, grid_length,
   n_points = grid_length ** n_dimensions
   volume = length_scale ** float(n_dimensions)
   prefactor = 2. * numpy.pi / volume
-  n_orbitals = n_points * 2 ** (not spinless)
-  operator = FermionOperator(n_orbitals)
+  operator = FermionOperator()
   if spinless:
     spins = [None]
   else:
@@ -380,7 +376,7 @@ def position_potential_operator(n_dimensions, grid_length,
           if orbital_a != orbital_b:
             operators = [(orbital_a, 1), (orbital_a, 0),
                          (orbital_b, 1), (orbital_b, 0)]
-            operator += FermionTerm(n_orbitals, operators, coefficient)
+            operator += FermionTerm(operators, coefficient)
 
   # Return.
   return operator
@@ -444,7 +440,7 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
   else:
     spins = [0, 1]
     n_qubits = 2 * n_orbitals
-  hamiltonian = qubit_operators.QubitOperator(n_qubits)
+  hamiltonian = qubit_operators.QubitOperator()
 
   # Compute the identity coefficient.
   identity_coefficient = 0.
@@ -458,8 +454,7 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
     identity_coefficient /= 2.
 
   # Add identity term.
-  identity_term = identity_coefficient * qubit_operators.qubit_identity(
-      n_qubits)
+  identity_term = identity_coefficient * qubit_operators.qubit_identity()
   hamiltonian += identity_term
 
   # Compute coefficient of local Z terms.
@@ -472,8 +467,7 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
 
   # Add local Z terms.
   for qubit in range(n_qubits):
-    qubit_term = qubit_operators.QubitTerm(
-        n_qubits, [(qubit, 'Z')], z_coefficient)
+    qubit_term = qubit_operators.QubitTerm([(qubit, 'Z')], z_coefficient)
     hamiltonian += qubit_term
 
   # Add ZZ terms.
@@ -499,7 +493,7 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
 
       # Add term.
       qubit_term = qubit_operators.QubitTerm(
-          n_qubits, [(p, 'Z'), (q, 'Z')], zpzq_coefficient)
+          [(p, 'Z'), (q, 'Z')], zpzq_coefficient)
       hamiltonian += qubit_term
 
   # Add XZX + YZY terms.
@@ -529,10 +523,8 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
       z_string = [(i, 'Z') for i in range(p + 1, q)]
       xzx_operators = [(p, 'X')] + z_string + [(q, 'X')]
       yzy_operators = [(p, 'Y')] + z_string + [(q, 'Y')]
-      hamiltonian += qubit_operators.QubitTerm(
-          n_qubits, xzx_operators, term_coefficient)
-      hamiltonian += qubit_operators.QubitTerm(
-          n_qubits, yzy_operators, term_coefficient)
+      hamiltonian += qubit_operators.QubitTerm(xzx_operators, term_coefficient)
+      hamiltonian += qubit_operators.QubitTerm(yzy_operators, term_coefficient)
 
   # Return Hamiltonian.
   return hamiltonian

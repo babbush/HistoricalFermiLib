@@ -102,20 +102,24 @@ class FermionTerm(LocalTerm):
 
     super(FermionTerm, self).__init__(operators, coefficient)
 
-    self.n_qubits = 0
-    if operators is not None:
-      for operator in operators:
-        if not isinstance(operator, tuple):
-          raise ValueError('Provided incorrect operator in list of operators.')
-        tensor_factor, action = operator
-	if not (isinstance(tensor_factor, int) and tensor_factor >= 0):
-	  raise ValueError('Invalid tensor factor provided to FermionTerm: '
-	                   'must be a non-negative integer.')
-        if action not in (0, 1):
-          raise ValueError('Invalid action provided to FermionTerm. '
-                           'Must be 0 (lowering) or 1 (raising).')
-        if tensor_factor > self.n_qubits:
-          self.n_qubits = tensor_factor
+    for operator in self:
+      if not isinstance(operator, tuple):
+        raise ValueError('Provided incorrect operator in list of operators.')
+      tensor_factor, action = operator
+      if not (isinstance(tensor_factor, int) and tensor_factor >= 0):
+        raise ValueError('Invalid tensor factor provided to FermionTerm: '
+                         'must be a non-negative integer.')
+      if action not in (0, 1):
+        raise ValueError('Invalid action provided to FermionTerm. '
+                         'Must be 0 (lowering) or 1 (raising).')
+
+  def n_qubits(self):
+    n = 0
+    for operator in self.operators:
+      tensor_factor, action = operator
+      if tensor_factor + 1 > n:
+        n = tensor_factor + 1
+    return n
 
   def __add__(self, addend):
     """Compute self + addend for a FermionTerm.
@@ -247,7 +251,7 @@ class FermionTerm(LocalTerm):
     normal_ordered_operator += term
     return normal_ordered_operator
 
-  def bravyi_kitaev_transform(self):
+  def bravyi_kitaev_transform(self, n_qubits=None):
     """ Apply the Bravyi-Kitaev transform and return qubit operator.
 
     Returns:
@@ -263,8 +267,15 @@ class FermionTerm(LocalTerm):
         Reference: Operator Locality of Quantum Simulation of Fermionic Models
             by Havlicek, Troyer, Whitfield (arXiv:1701.07072).
     """
+    if n_qubits is None:
+      n_qubits = self.n_qubits()
+    if n_qubits == 0:
+      raise ValueError("Invalid n_qubits.")
+    if n_qubits < self.n_qubits():
+      n_qubits = self.n_qubits()
+
     # Build the Fenwick Tree
-    fenwick_tree = FenwickTree(self.n_qubits)
+    fenwick_tree = FenwickTree(n_qubits)
 
     # Initialize identity matrix.
     transformed_term = qubit_operators.QubitOperator(
@@ -341,9 +352,15 @@ class FermionTerm(LocalTerm):
           [pauli_x_component, pauli_y_component])
     return transformed_term
 
-  def jordan_wigner_sparse(self):
+  def jordan_wigner_sparse(self, n_qubits=None):
     """Return a sparse matrix representation of the JW transformed term."""
-    return jordan_wigner_term_sparse(self)
+    if n_qubits is None:
+      n_qubits = self.n_qubits()
+    if n_qubits == 0:
+      raise ValueError("Invalid n_qubits.")
+    if n_qubits < self.n_qubits():
+      n_qubits = self.n_qubits()
+    return jordan_wigner_term_sparse(self, n_qubits)
 
   def is_molecular_term(self):
     """Query whether term has correct form to be from a molecular.
@@ -380,26 +397,19 @@ class FermionOperator(LocalOperator):
     Raises:
       FermionOperatorError: Invalid FermionTerms provided to FermionOperator.
     """
-    self.n_qubits = 0
-    if isinstance(terms, FermionTerm):
-      self.n_qubits = terms.n_qubits
-    elif isinstance(terms, dict):
-      for term_key in terms:
-        term = terms[term_key]
-        if not isinstance(term, FermionTerm):
-          raise FermionOperatorError('Invalid FermionTerms provided to '
-                                     'FermionOperator.')
-        if term.n_qubits > self.n_qubits:
-          self.n_qubits = term.n_qubits
-    elif isinstance(terms, list):
-      for term in terms:
-        if not isinstance(term, FermionTerm):
-          raise FermionOperatorError('Invalid FermionTerms provided to '
-                                     'FermionOperator.')
-        if term.n_qubits > self.n_qubits:
-          self.n_qubits = term.n_qubits
-
     super(FermionOperator, self).__init__(terms)
+
+    for term in self:
+      if not isinstance(term, FermionTerm):
+        raise FermionOperatorError('Invalid FermionTerms provided to '
+                                   'FermionOperator.')
+
+  def n_qubits(self):
+    n = 0
+    for term in self:
+      if term.n_qubits() > n:
+        n = term.n_qubits()
+    return n
 
   def __setitem__(self, operators, coefficient):
     if operators in self:
@@ -462,20 +472,33 @@ class FermionOperator(LocalOperator):
       transformed_operator += term.jordan_wigner_transform()
     return transformed_operator
 
-  def bravyi_kitaev_transform(self):
+  def bravyi_kitaev_transform(self, n_qubits=None):
     """Apply the Bravyi-Kitaev transform and return qubit operator.
 
     Returns:
       transformed_operator: An instance of the QubitOperator class.
     """
+    if n_qubits is None:
+      n_qubits = self.n_qubits()
+    if n_qubits == 0:
+      raise ValueError("Invalid n_qubits.")
+    if n_qubits < self.n_qubits():
+      n_qubits = self.n_qubits()
+
     transformed_operator = qubit_operators.QubitOperator()
     for term in self:
-      transformed_operator += term.bravyi_kitaev_transform()
+      transformed_operator += term.bravyi_kitaev_transform(n_qubits)
     return transformed_operator
 
-  def jordan_wigner_sparse(self):
+  def jordan_wigner_sparse(self, n_qubits=None):
     """Apply Jordan-Wigner transform directly to sparse matrix form"""
-    return jordan_wigner_operator_sparse(self)
+    if n_qubits is None:
+      n_qubits = self.n_qubits()
+    if n_qubits == 0:
+      raise ValueError("Invalid n_qubits.")
+    if n_qubits < self.n_qubits():
+      n_qubits = self.n_qubits()
+    return jordan_wigner_operator_sparse(self, n_qubits)
 
   def get_molecular_operator(self):
     """Convert a 2-body fermionic operator to instance of MolecularOperator.
@@ -499,9 +522,10 @@ class FermionOperator(LocalOperator):
     # Normal order the terms and initialize.
     self.normal_order()
     constant = 0.
-    one_body = numpy.zeros((self.n_qubits, self.n_qubits), complex)
+    one_body = numpy.zeros((self.n_qubits(), self.n_qubits()), complex)
     two_body = numpy.zeros((
-        self.n_qubits, self.n_qubits, self.n_qubits, self.n_qubits), complex)
+        self.n_qubits(), self.n_qubits(), self.n_qubits(), self.n_qubits()),
+        complex)
 
     # Loop through terms and assign to matrix.
     for term in self:

@@ -22,7 +22,7 @@ class HoppingOperatorsTest(unittest.TestCase):
     t4 = FermionTerm([(4, 1), (1, 0)])
     self.assertEqual(n14, t1 + t4)
 
-  
+
 class NumberOperatorsTest(unittest.TestCase):
 
   def setUp(self):
@@ -246,7 +246,7 @@ class FermionTermsTest(unittest.TestCase):
 
   def test_mul_by_multiple_of_identity(self):
     self.assertEqual(3.0 * self.term_a,
-	             (3.0 * fermion_identity()) * self.term_a)
+                     (3.0 * fermion_identity()) * self.term_a)
 
   def test_mul_triple(self):
     new_term = self.term_a * self.term_a * self.term_a
@@ -309,7 +309,8 @@ class FermionTermsTest(unittest.TestCase):
 
   def test_pow_high(self):
     high = self.term_a ** 10
-    expected = FermionTerm(self.operators_a * 10, self.term_a.coefficient ** 10)
+    expected = FermionTerm(self.operators_a * 10,
+                           self.term_a.coefficient ** 10)
     self.assertAlmostEqual(expected.coefficient, high.coefficient)
     self.assertEqual(high.operators, expected.operators)
 
@@ -445,7 +446,6 @@ class FermionTermsTest(unittest.TestCase):
 
     self.assertEqual(raising[correct_operators_x], 0.5)
     self.assertEqual(raising[correct_operators_y], -0.5j)
-    self.assertEqual(raising.n_qubits, self.n_qubits)
 
   def test_jordan_wigner_transform_raise1(self):
     raising = FermionTerm([(1, 1)]).jordan_wigner_transform()
@@ -456,7 +456,6 @@ class FermionTermsTest(unittest.TestCase):
 
     self.assertEqual(raising[correct_operators_x], 0.5)
     self.assertEqual(raising[correct_operators_y], -0.5j)
-    self.assertEqual(raising.n_qubits, self.n_qubits)
 
   def test_jordan_wigner_transform_lower3(self):
     lowering = FermionTerm([(3, 0)]).jordan_wigner_transform()
@@ -470,7 +469,6 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(lowering[correct_operators_x], 0.5)
     self.assertEqual(lowering[correct_operators_y], 0.5j)
     self.assertEqual(lowering, QubitOperator([qtermx, qtermy]))
-    self.assertEqual(lowering.n_qubits, self.n_qubits)
 
   def test_jordan_wigner_transform_lower2(self):
     lowering = FermionTerm([(2, 0)]).jordan_wigner_transform()
@@ -481,7 +479,6 @@ class FermionTermsTest(unittest.TestCase):
 
     self.assertEqual(lowering[correct_operators_x], 0.5)
     self.assertEqual(lowering[correct_operators_y], 0.5j)
-    self.assertEqual(lowering.n_qubits, self.n_qubits)
 
   def test_jordan_wigner_transform_lower1(self):
     lowering = FermionTerm([(1, 0)]).jordan_wigner_transform()
@@ -492,7 +489,6 @@ class FermionTermsTest(unittest.TestCase):
 
     self.assertEqual(lowering[correct_operators_x], 0.5)
     self.assertEqual(lowering[correct_operators_y], 0.5j)
-    self.assertEqual(lowering.n_qubits, self.n_qubits)
 
   def test_jordan_wigner_transform_lower0(self):
     lowering = FermionTerm([(0, 0)]).jordan_wigner_transform()
@@ -503,7 +499,6 @@ class FermionTermsTest(unittest.TestCase):
 
     self.assertEqual(lowering[correct_operators_x], 0.5)
     self.assertEqual(lowering[correct_operators_y], 0.5j)
-    self.assertEqual(lowering.n_qubits, self.n_qubits)
 
   def test_jordan_wigner_transform_raise3lower0(self):
     # recall that creation gets -1j on Y and annihilation gets +1j on Y.
@@ -516,7 +511,6 @@ class FermionTermsTest(unittest.TestCase):
                      0.25 * 1j * 1)
     self.assertEqual(term[((0, 'X'), (1, 'Z'), (2, 'Z'), (3, 'X'))],
                      0.25 * 1 * 1)
-    self.assertEqual(self.n_qubits, term.n_qubits)
 
   def test_jordan_wigner_transform_number(self):
     n = number_operator(self.n_qubits, 3)
@@ -524,7 +518,6 @@ class FermionTermsTest(unittest.TestCase):
     self.assertEqual(n_jw[[(3, 'Z')]], -0.5)
     self.assertEqual(n_jw[[]], 0.5)
     self.assertEqual(len(n_jw), 2)
-    self.assertEqual(self.n_qubits, n_jw.n_qubits)
 
   def test_bravyi_kitaev_transform(self):
     # Check that the QubitOperators are two-term.
@@ -538,7 +531,7 @@ class FermionTermsTest(unittest.TestCase):
     n_qubits = 16
     invariant = numpy.log2(n_qubits) + 1
     for index in range(n_qubits):
-      operator = FermionTerm([(index, 0)]).bravyi_kitaev_transform()
+      operator = FermionTerm([(index, 0)]).bravyi_kitaev_transform(n_qubits)
       qubit_terms = operator.terms.items()  # Get the majorana terms.
 
       for item in qubit_terms:
@@ -550,8 +543,8 @@ class FermionTermsTest(unittest.TestCase):
           self.assertEqual(len(term), invariant)
 
     #  Hardcoded coefficient test on 16 qubits
-    lowering = FermionTerm([(9, 0)]).bravyi_kitaev_transform()
-    raising = FermionTerm([(9, 1)]).bravyi_kitaev_transform()
+    lowering = FermionTerm([(9, 0)]).bravyi_kitaev_transform(n_qubits)
+    raising = FermionTerm([(9, 1)]).bravyi_kitaev_transform(n_qubits)
 
     correct_operators_c = [(7, 'Z'), (8, 'Z'), (9, 'X'), (11, 'X'), (15, 'X')]
     correct_operators_d = [(7, 'Z'), (9, 'Y'), (11, 'X'), (15, 'X')]
@@ -675,7 +668,8 @@ class FermionOperatorsTest(unittest.TestCase):
     self.operator = FermionOperator([self.term_a, self.term_b])
     self.operator_a = FermionOperator(self.term_a)
     self.operator_bc = FermionOperator([self.term_b, self.term_c])
-    self.operator_abc = FermionOperator([self.term_a, self.term_b, self.term_c])
+    self.operator_abc = FermionOperator(
+        [self.term_a, self.term_b, self.term_c])
     self.operator_c = FermionOperator(self.term_c)
     self.normal_ordered_a = FermionTerm([(4, 1), (3, 1), (1, 0)],
                                         self.coefficient_a)
@@ -683,7 +677,8 @@ class FermionOperatorsTest(unittest.TestCase):
     self.normal_ordered_b2 = FermionTerm([(2, 1), (4, 0), (2, 0)],
                                          -self.coefficient_b)
     self.normal_ordered_operator = FermionOperator(
-	[self.normal_ordered_a, self.normal_ordered_b1, self.normal_ordered_b2])
+        [self.normal_ordered_a, self.normal_ordered_b1,
+            self.normal_ordered_b2])
 
   def test_init_list(self):
     self.assertEqual(self.term_a, self.operator_a.terms.values()[0])
@@ -732,7 +727,6 @@ class FermionOperatorsTest(unittest.TestCase):
 
     op_ac = local_operators.LocalOperator(d)
     self.assertEqual(len(op_ac), 2)
-    self.assertEqual(self.n_qubits, op_ac.n_qubits)
 
     # add a new element to the old dictionary
     d[tuple(self.operators_b)] = self.term_b
@@ -1047,7 +1041,7 @@ class FermionOperatorsTest(unittest.TestCase):
   def test_bk_jw_hopping_operator(self):
     # Check if the spectrum fits for a single hoppping operator
     n_qubits = 5
-    ho = hopping_operator(n_qubits, 1, 4)
+    ho = hopping_operator(1, 4)
     jw_ho = ho.jordan_wigner_transform()
     bk_ho = ho.bravyi_kitaev_transform()
 
