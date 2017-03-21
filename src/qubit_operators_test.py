@@ -47,17 +47,17 @@ class QubitTermsTest(unittest.TestCase):
     self.assertEqual(x1z2y0, z2x1y0)
 
   def test_init_str(self):
-    str_input = self.coefficient_a * QubitTerm('1Y 3Z 4Y')
+    str_input = self.coefficient_a * QubitTerm('Y1 Z3 Y4')
     self.assertEqual(self.term_a, str_input)
 
   def test_init_str_identity(self):
     self.assertEqual(QubitTerm(), QubitTerm(''))
 
   def test_init_str_sort_equiv(self):
-    str_input = self.coefficient_a * QubitTerm('3Z 1Y 4Y')
+    str_input = self.coefficient_a * QubitTerm('Z3 Y1 Y4')
     self.assertEqual(self.term_a, str_input)
-    self.assertEqual(QubitTerm(self.n_qubits, '4Y 3Z 1Y'),
-                     QubitTerm(self.n_qubits, '1Y 4Y 3Z'))
+    self.assertEqual(QubitTerm('Y4 Z3 Y1'),
+                     QubitTerm('Y1 Y4 Z3'))
 
   def test_init_str_bad_action(self):
     with self.assertRaises(ValueError):
@@ -490,9 +490,9 @@ class QubitOperatorsTest(unittest.TestCase):
                      self.qubit_operator[tuple(self.operators_b)])
 
   def test_init_str_battery(self):
-    str_op_abc = (QubitTerm('1X 3Y 8Z') / 2 +
-                  1.2 * QubitTerm('1Z 3X 8Z') +
-                  1.4j * QubitTerm('1Z 3Y 9Z'))
+    str_op_abc = (QubitTerm('X1 Y3 Z8') / 2 +
+                  1.2 * QubitTerm('Z1 X3 Z8') +
+                  1.4j * QubitTerm('Z1 Y3 Z9'))
     self.assertEqual(self.operator_abc, str_op_abc)
 
   def test_init_list(self):
