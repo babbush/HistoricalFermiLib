@@ -91,7 +91,7 @@ class QubitTerm(LocalTerm):
       for el in operators.split():
         if len(el) < 2:
           raise ValueError("Operators specified incorrectly.")
-        list_ops.append((int(el[-1]), el[:-1]))
+        list_ops.append((int(el[1:]), el[0]))
       operators = list_ops
 
     super(QubitTerm, self).__init__(operators, coefficient)

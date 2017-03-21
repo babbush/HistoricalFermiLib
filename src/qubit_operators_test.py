@@ -50,6 +50,10 @@ class QubitTermsTest(unittest.TestCase):
     str_input = self.coefficient_a * QubitTerm('Y1 Z3 Y4')
     self.assertEqual(self.term_a, str_input)
 
+  def test_init_str_doubledigit(self):
+    str_input = QubitTerm('X11')
+    self.assertEqual(str_input, QubitTerm([(11, 'X')]))
+
   def test_init_str_identity(self):
     self.assertEqual(QubitTerm(), QubitTerm(''))
 
