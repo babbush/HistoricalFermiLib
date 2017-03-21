@@ -77,7 +77,7 @@ class QubitTerm(LocalTerm):
         int indicating the qubit on which operators acts, starting from zero.
         The second element of each tuple is a string, either 'X', 'Y' or 'Z',
         indicating what acts on that tensor factor.
-        operators can also be specified by a string of the form '0X 2Z 5Y',
+        operators can also be specified by a string of the form 'X0 Z2 Y5',
         indicating an X on qubit 0, Z on qubit 2, and Y on qubit 5.
 
     Raises:
@@ -91,7 +91,7 @@ class QubitTerm(LocalTerm):
       for el in operators.split():
         if len(el) < 2:
           raise ValueError("Operators specified incorrectly.")
-        list_ops.append((int(el[:-1]), el[-1]))
+        list_ops.append((int(el[-1]), el[:-1]))
       operators = list_ops
 
     super(QubitTerm, self).__init__(operators, coefficient)
