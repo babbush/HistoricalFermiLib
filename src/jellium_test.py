@@ -199,7 +199,7 @@ class JelliumTest(unittest.TestCase):
     qubit_jellium = qubit_kinetic + qubit_potential
 
     # Check identity.
-    identity = qubit_operators.qubit_identity(n_qubits)
+    identity = qubit_operators.qubit_identity()
     kinetic_coefficient = qubit_kinetic[identity]
     potential_coefficient = qubit_potential[identity]
 
@@ -224,7 +224,7 @@ class JelliumTest(unittest.TestCase):
 
     # Check Zp.
     for p in range(n_qubits):
-      zp = qubit_operators.QubitTerm(n_qubits, [(p, 'Z')])
+      zp = qubit_operators.QubitTerm([(p, 'Z')])
       kinetic_coefficient = qubit_kinetic[zp]
       potential_coefficient = qubit_potential[zp]
 
@@ -278,8 +278,7 @@ class JelliumTest(unittest.TestCase):
             if p == q:
               continue
 
-            zpzq = qubit_operators.QubitTerm(
-                n_qubits, [(p, 'Z'), (q, 'Z')])
+            zpzq = qubit_operators.QubitTerm([(p, 'Z'), (q, 'Z')])
             potential_coefficient = qubit_potential[zpzq]
 
             for indices_c in itertools.product(range(grid_length),
@@ -317,7 +316,7 @@ class JelliumTest(unittest.TestCase):
     self.assertTrue(test_hamiltonian == qubit_hamiltonian)
 
     # Check number of terms.
-    n_qubits = qubit_hamiltonian.n_qubits
+    n_qubits = qubit_hamiltonian.n_qubits()
     if spinless:
       paper_n_terms = 1 - .5 * n_qubits + 1.5 * (n_qubits ** 2)
     else:

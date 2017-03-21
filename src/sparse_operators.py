@@ -83,11 +83,12 @@ def jordan_wigner_ladder_sparse(n_qubits, tensor_factor, ladder_type):
   return SparseOperator(operator)
 
 
-def jordan_wigner_term_sparse(fermion_term):
+def jordan_wigner_term_sparse(fermion_term, n_qubits):
   """Initialize a SparseOperator from a FermionTerm.
 
   Args:
-    fermion_term(FermionTerm): instance of the FermionTerm class.
+    fermion_term(FermionTerm): Instance of the FermionTerm class.
+    n_qubits(int): Number of qubits.
 
   Returns:
     The corresponding SparseOperator.
@@ -99,30 +100,31 @@ def jordan_wigner_term_sparse(fermion_term):
   return fermion_term.coefficient * sparse_operator
 
 
-def jordan_wigner_operator_sparse(fermion_operator):
+def jordan_wigner_operator_sparse(fermion_operator, n_qubits):
   """Initialize a SparseOperator from a FermionOperator.
 
   Args:
     fermion_operator(FermionOperator): instance of the FermionOperator class.
+    n_qubits(int): Number of qubits.
 
   Returns:
     The corresponding SparseOperator.
   """
   # Create a list of raising and lowering operators for each orbital.
   jw_operators = []
-  for tensor_factor in range(fermion_operator.n_qubits):
+  for tensor_factor in range(n_qubits):
     jw_operators += [(jordan_wigner_ladder_sparse(
-                      fermion_operator.n_qubits, tensor_factor, 0),
+                      n_qubits, tensor_factor, 0),
                       jordan_wigner_ladder_sparse(
-                      fermion_operator.n_qubits, tensor_factor, 1))]
+                      n_qubits, tensor_factor, 1))]
 
   # Construct the SparseOperator.
-  n_hilbert = 2 ** fermion_operator.n_qubits
+  n_hilbert = 2 ** n_qubits
   values_list = [[]]
   row_list = [[]]
   column_list = [[]]
   for term in fermion_operator:
-    sparse_term = term.coefficient * sparse_identity(fermion_operator.n_qubits)
+    sparse_term = term.coefficient * sparse_identity(n_qubits)
     for ladder_operator in term:
       sparse_term = sparse_term * jw_operators[
           ladder_operator[0]][ladder_operator[1]]
@@ -144,7 +146,7 @@ def jordan_wigner_operator_sparse(fermion_operator):
   return operator
 
 
-def qubit_term_sparse(qubit_term):
+def qubit_term_sparse(qubit_term, n_qubits):
   """Initialize a SparseOperator from a QubitTerm.
 
   Args:
@@ -169,8 +171,8 @@ def qubit_term_sparse(qubit_term):
     tensor_factor = operator[0] + 1
 
   # Grow space at end of string unless operator acted on final qubit.
-  if tensor_factor < qubit_term.n_qubits or not qubit_term.operators:
-    identity_qubits = qubit_term.n_qubits - tensor_factor
+  if tensor_factor < n_qubits or not qubit_term.operators:
+    identity_qubits = n_qubits - tensor_factor
     identity = scipy.sparse.identity(2 ** identity_qubits,
                                      dtype=complex, format='csc')
     operators += [identity]
@@ -180,7 +182,7 @@ def qubit_term_sparse(qubit_term):
   return SparseOperator(matrix)
 
 
-def qubit_operator_sparse(qubit_operator):
+def qubit_operator_sparse(qubit_operator, n_qubits):
   """Initialize a SparseOperator from a QubitOperator.
 
   Args:
@@ -190,12 +192,12 @@ def qubit_operator_sparse(qubit_operator):
     The corresponding SparseOperator.
   """
   # Construct the SparseOperator.
-  n_hilbert = 2 ** qubit_operator.n_qubits
+  n_hilbert = 2 ** n_qubits
   values_list = [[]]
   row_list = [[]]
   column_list = [[]]
   for qubit_term in qubit_operator:
-    sparse_term = qubit_term_sparse(qubit_term)
+    sparse_term = qubit_term_sparse(qubit_term, n_qubits)
     sparse_term.matrix = sparse_term.matrix.tocoo(copy=False)
 
     # Extract triplets from sparse_term.

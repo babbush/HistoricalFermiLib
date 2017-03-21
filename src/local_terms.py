@@ -14,58 +14,38 @@ class LocalTerm(object):
 
   Attributes:
     _tolerance: A float, the minimum absolute value below which term is zero.
-    _n_qubits: An int giving the number of qubits in simulated Hilbert space.
     coefficient: A complex valued float giving the term coefficient.
     operators: A list of site operators representing the term.
   """
   __array_priority__ = 0  # this ensures good behavior with numpy scalars
 
-  def __init__(self, n_qubits, operators=None, coefficient=1.,
-               tolerance=1e-10):
+  def __init__(self, operators=None, coefficient=1., tolerance=1e-10):
     """Inits a LocalTerm.
 
     Args:
-      n_qubits: An int giving the number of qubits in simulated Hilbert
-                space.
       operators: A list of site operators representing the term.
       coefficient: A complex valued float giving the term's coefficient.
       tolerance: A float giving the minimum absolute value below which
                  term is zero. Optional, defaults to 1e-10.
 
     Raises:
-      ValueError: Number of qubits must be a positive integer.
+      ValueError: Number of qubits must be a non-negative integer.
       ValueError: Coefficient must be a scalar.
     """
-    # Check that n_qubits is an integer.
-    if not isinstance(n_qubits, int) or n_qubits < 1:
-      raise ValueError('Number of qubits must be a positive integer.')
-
     # Check that coefficient is a scalar.
     if not numpy.isscalar(coefficient):
       raise ValueError('Coefficient must be scalar.')
 
     # Initialize.
     self._tolerance = tolerance
-    self._n_qubits = n_qubits
     self.coefficient = coefficient
     if operators is None:
       operators = []
     self.operators = list(operators)
 
   @classmethod
-  def return_class(cls, n_qubits, operators=None, coefficient=1.):
-    return cls(n_qubits, operators, coefficient)
-
-  # The methods below stop users from changing _n_qubits.
-  @property
-  def n_qubits(self):
-    return self._n_qubits
-
-  @n_qubits.setter
-  def n_qubits(self, n_qubits):
-    if hasattr(self, '_n_qubits'):
-      raise LocalTermError('Do not change the size of Hilbert space'
-                           'on which terms act.')
+  def return_class(cls, operators=None, coefficient=1.):
+    return cls(operators, coefficient)
 
   def __eq__(self, other):
     """Overload equality comparison ==.
@@ -85,9 +65,6 @@ class LocalTerm(object):
       are within _tolerance of the first and their operators are the
       same, or if both their coefficients are within tolerance of zero.
     """
-    if self.n_qubits != other.n_qubits:
-      raise LocalTermError('Cannot compare terms acting on '
-                           'different Hilbert spaces.')
 
     # Operators are equal if their coefficients are sufficiently close
     # and they have the same operators, or if they are both close to 0.
@@ -133,17 +110,12 @@ class LocalTerm(object):
 
     Raises:
       TypeError: Cannot add term of invalid type to LocalTerm.
-      LocalTermError: Cannot add terms acting on different Hilbert spaces.
     """
     if not issubclass(type(addend),
                       (LocalTerm, local_operators.LocalOperator)):
       raise TypeError('Cannot add term of invalid type to LocalTerm.')
 
-    if not self._n_qubits == addend._n_qubits:
-      raise LocalTermError('Cannot add terms acting on different '
-                           'Hilbert spaces.')
-
-    return local_operators.LocalOperator(self._n_qubits, [self]) + addend
+    return local_operators.LocalOperator([self]) + addend
 
   def __neg__(self):
     return -1 * self
@@ -168,7 +140,6 @@ class LocalTerm(object):
       multiplier: A scalar or LocalTerm.
 
     Raises:
-      LocalTermError: Cannot multiply terms acting on different Hilbert spaces.
       TypeError: Can only *= multiply LocalTerm by scalar or LocalTerm.
     """
     # Handle scalars.
@@ -176,11 +147,6 @@ class LocalTerm(object):
       self.coefficient *= complex(multiplier)
 
     elif issubclass(type(multiplier), LocalTerm):
-      # Handle LocalTerms. Make sure number of qubits is the same.
-      if self.n_qubits != multiplier.n_qubits:
-        raise LocalTermError('Cannot multiply terms acting on different '
-                             'Hilbert spaces.')
-
       # Compute product.
       self.coefficient *= multiplier.coefficient
       self.operators += multiplier.operators
@@ -201,7 +167,6 @@ class LocalTerm(object):
 
     Raises:
       TypeError: Object of invalid type cannot multiply LocalTerm.
-      LocalTermError: Cannot multiply terms acting on different Hilbert spaces.
     """
     # Handle scalars or LocalTerms.
     if (numpy.isscalar(multiplier) or isinstance(multiplier, LocalTerm)):
@@ -210,7 +175,7 @@ class LocalTerm(object):
 
     # Handle LocalOperator and derivatives.
     elif issubclass(type(multiplier), local_operators.LocalOperator):
-      product = multiplier.return_class(self.n_qubits)
+      product = multiplier.return_class()
       for term in multiplier:
         product += self * term
 
@@ -277,7 +242,7 @@ class LocalTerm(object):
       raise ValueError('Can only raise LocalTerm to positive integer powers.')
 
     # Initialize identity.
-    exponentiated = self.return_class(self.n_qubits)
+    exponentiated = self.return_class()
 
     # Handle other exponents.
     for i in range(exponent):
