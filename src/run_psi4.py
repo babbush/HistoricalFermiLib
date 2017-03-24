@@ -114,7 +114,7 @@ def generate_psi4_input(molecule,
 def clean_up(molecule, delete_input=True, delete_output=False):
   input_file = molecule.data_handle() + '.inp'
   output_file = molecule.data_handle() + '.out'
-  run_directory = os.path.dirname(os.path.realpath(__file__))
+  run_directory = os.getcwd()
   for local_file in os.listdir(run_directory):
     if local_file.endswith('.clean'):
       os.remove(run_directory + '/' + local_file)
