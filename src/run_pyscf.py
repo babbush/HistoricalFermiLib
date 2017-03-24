@@ -107,7 +107,8 @@ def run_pyscf(molecule,
               run_mp2=False,
               run_cisd=False,
               run_ccsd=False,
-              run_fci=False):
+              run_fci=False,
+              verbose=False):
   """This function runs a Psi4 calculation.
 
   Args:
@@ -116,6 +117,7 @@ def run_pyscf(molecule,
     run_cisd: Optional boolean to run CISD calculation.
     run_ccsd: Optional boolean to run CCSD calculation.
     run_fci: Optional boolean to FCI calculation.
+    verbose: Boolean whether to print calculation results to screen.
 
   Returns:
     molecule: The updated MolecularData object.
@@ -127,34 +129,61 @@ def run_pyscf(molecule,
   molecule.nuclear_repulsion = pyscf.gto.energy_nuc(pyscf_molecule)
 
   # Run SCF.
-  if run_scf or run_cisd or run_ccsd or run_fci:
-    pyscf_scf = compute_scf(pyscf_molecule)
-    molecule.hf_energy = pyscf_scf.kernel()
-    one_body_integrals, two_body_integrals = compute_integrals(
-        pyscf_molecule, pyscf_scf)
-    molecule.one_body_integrals = one_body_integrals
-    integrals_name = molecule.data_handle() + '_eri'
-    numpy.save(integrals_name, two_body_integrals)
+  pyscf_scf = compute_scf(pyscf_molecule)
+  pyscf_scf.verbose = 0
+  molecule.hf_energy = pyscf_scf.kernel()
+  if verbose:
+    print('Hartree-Fock energy for {} ({} electrons) is {}.'.format(
+        molecule.name, molecule.n_electrons, molecule.hf_energy))
+
+  # Populate fields.
+  molecule.canonical_orbitals = pyscf_scf.mo_coeff
+  molecule.orbital_energies = pyscf_scf.mo_energy
+
+  # Get integrals.
+  one_body_integrals, two_body_integrals = compute_integrals(
+      pyscf_molecule, pyscf_scf)
+  molecule.one_body_integrals = one_body_integrals
+  integrals_name = molecule.data_handle() + '_eri'
+  numpy.save(integrals_name, two_body_integrals)
 
   # Run MP2.
   if run_mp2:
     pyscf_mp2 = pyscf.mp.MP2(pyscf_scf)
-    molecule.mp2_energy = pyscf_mp2.kernel()
+    pyscf_mp2.verbose = 0
+    molecule.mp2_energy = molecule.hf_energy + pyscf_mp2.kernel()[0]
+    if verbose:
+      print('MP2 energy for {} ({} electrons) is {}.'.format(
+          molecule.name, molecule.n_electrons, molecule.mp2_energy))
 
   # Run CISD.
   if run_cisd:
     pyscf_cisd = pyscf.ci.CISD(pyscf_scf)
-    molecule.cisd_energy = pyscf_cisd.kernel()
+    pyscf_cisd.verbose = 0
+    pyscf_cisd.kernel()
+    molecule.cisd_energy = molecule.hf_energy + pyscf_cisd.e_corr
+    if verbose:
+      print('CISD energy for {} ({} electrons) is {}.'.format(
+          molecule.name, molecule.n_electrons, molecule.cisd_energy))
 
   # Run CCSD.
   if run_ccsd:
     pyscf_ccsd = pyscf.cc.CCSD(pyscf_scf)
-    molecule.ccsd_energy = pyscf_ccsd.kernel()
+    pyscf_ccsd.verbose = 0
+    pyscf_ccsd.kernel()
+    molecule.ccsd_energy = molecule.hf_energy + pyscf_ccsd.e_corr
+    if verbose:
+      print('CCSD energy for {} ({} electrons) is {}.'.format(
+          molecule.name, molecule.n_electrons, molecule.ccsd_energy))
 
   # Run FCI.
   if run_fci:
     pyscf_fci = pyscf.fci.FCI(pyscf_molecule, pyscf_scf.mo_coeff)
+    pyscf_fci.verbose = 0
     molecule.fci_energy = pyscf_fci.kernel()[0]
+    if verbose:
+      print('FCI energy for {} ({} electrons) is {}.'.format(
+          molecule.name, molecule.n_electrons, molecule.fci_energy))
 
   # Return updated molecule instance.
   molecule.save()
@@ -167,8 +196,9 @@ if __name__ == '__main__':
   # Molecule parameters.
   basis = 'sto-3g'
   multiplicity = 1
-  geometry = [['H', (0, 0, 0.7414 * x)] for x in range(2)]
-  description = 'scf_tests'
+  bond_length = 0.7414
+  description = str(bond_length)
+  geometry = [['H', (0, 0, 0)], ['H', (0, 0, bond_length)]]
 
   # Calculation parameters.
   run_scf = 1
@@ -176,17 +206,18 @@ if __name__ == '__main__':
   run_cisd = 1
   run_ccsd = 1
   run_fci = 1
+  verbose = 0
 
   # Get molecule and run calculation.
   molecule = MolecularData(
       geometry, basis, multiplicity, description=description)
   if 1:
     molecule = run_pyscf(
-        molecule, run_scf, run_mp2, run_cisd, run_ccsd, run_fci)
+        molecule, run_scf, run_mp2, run_cisd, run_ccsd, run_fci, verbose)
   else:
-    import run_psi4
-    molecule = run_psi4.run_psi4(
-        molecule, run_scf, run_mp2, run_cisd, run_ccsd, run_fci)
+    from run_psi4 import run_psi4
+    molecule = run_psi4(
+        molecule, run_scf, run_mp2, run_cisd, run_ccsd, run_fci, verbose)
 
   # Get molecular Hamiltonian.
   molecular_hamiltonian = molecule.get_molecular_hamiltonian()

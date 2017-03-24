@@ -250,14 +250,15 @@ class MolecularData(object):
     self.protons = [_PERIODIC_HASH_TABLE[atom] for atom in self.atoms]
     self.n_electrons = sum(self.protons) - charge
 
-    # Attributes generated from SCF calculation.
-    self.hf_energy = None
-    self.nuclear_repulsion = None
-    self.canonical_orbitals = None
+    # Generic attributes from calculations.
     self.n_orbitals = None
     self.n_qubits = None
+    self.nuclear_repulsion = None
+
+    # Attributes generated from SCF calculation.
+    self.hf_energy = None
+    self.canonical_orbitals = None
     self.orbital_energies = None
-    self.fock_matrix = None
 
     # Attributes generated from integrals.
     self.orbital_overlaps = None

@@ -75,11 +75,9 @@ if &run_scf:
     molecule.n_orbitals = molecule.canonical_orbitals.shape[0]
     molecule.n_qubits = 2 * molecule.n_orbitals
     molecule.orbital_energies = numpy.asarray(hf_wavefunction.epsilon_a())
-    molecule.fock_matrix = numpy.asarray(hf_wavefunction.Fa())
 
     # Get integrals using MintsHelper.
     mints = MintsHelper(hf_wavefunction.basisset())
-    molecule.orbital_overlaps = numpy.asarray(mints.ao_overlap())
     molecule.one_body_integrals = molecular_operators.one_body_basis_change(
         numpy.asarray(mints.ao_kinetic()), molecule.canonical_orbitals)
     molecule.one_body_integrals += molecular_operators.one_body_basis_change(
