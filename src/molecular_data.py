@@ -261,8 +261,7 @@ class MolecularData(object):
 
     # Attributes generated from integrals.
     self.orbital_overlaps = None
-    self.kinetic_integrals = None
-    self.potential_integrals = None
+    self.one_body_integrals = None
 
     # Attributes generated from MP2 calculation.
     self.mp2_energy = None
@@ -311,15 +310,14 @@ class MolecularData(object):
       MisissingCalculationError: If the SCF calculation has not been performed.
     """
     # Make sure integrals have been computed.
-    if self.n_orbitals is None:
+    if self.hf_energy is None:
       raise MissingCalculationError(
           'Missing file {}. Run SCF before loading integrals.'.format(
               self.data_handle() + '_eri.npy'))
 
     # Get integrals and return.
-    one_body_integrals = self.kinetic_integrals + self.potential_integrals
     two_body_integrals = numpy.load(self.data_handle() + '_eri.npy')
-    return one_body_integrals, two_body_integrals
+    return self.one_body_integrals, two_body_integrals
 
   def get_molecular_hamiltonian(self,
                                 active_space_start=None,

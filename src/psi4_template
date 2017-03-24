@@ -80,9 +80,9 @@ if &run_scf:
     # Get integrals using MintsHelper.
     mints = MintsHelper(hf_wavefunction.basisset())
     molecule.orbital_overlaps = numpy.asarray(mints.ao_overlap())
-    molecule.kinetic_integrals = molecular_operators.one_body_basis_change(
+    molecule.one_body_integrals = molecular_operators.one_body_basis_change(
         numpy.asarray(mints.ao_kinetic()), molecule.canonical_orbitals)
-    molecule.potential_integrals = molecular_operators.one_body_basis_change(
+    molecule.one_body_integrals += molecular_operators.one_body_basis_change(
         numpy.asarray(mints.ao_potential()), molecule.canonical_orbitals)
     two_body_integrals = numpy.asarray(mints.ao_eri())
     two_body_integrals.reshape((molecule.n_orbitals,
