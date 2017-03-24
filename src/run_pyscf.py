@@ -1,6 +1,6 @@
 """Class and functions to store quantum chemistry data."""
 from molecular_data import MolecularData
-from pyscf import ci, cc, fci
+from pyscf import ci, cc, fci, mp
 import pyscf
 import numpy
 
@@ -53,8 +53,8 @@ def compute_integrals(pyscf_molecule, pyscf_scf):
   # Get one electrons integrals.
   n_orbitals = pyscf_molecule.nbas
   one_electron_compressed = reduce(numpy.dot, (pyscf_scf.mo_coeff.T,
-                                              pyscf_scf.get_hcore(),
-                                              pyscf_scf.mo_coeff))
+                                               pyscf_scf.get_hcore(),
+                                               pyscf_scf.mo_coeff))
   one_electron_integrals = one_electron_compressed.reshape(n_orbitals,
                                                            n_orbitals)
 
@@ -124,6 +124,7 @@ def run_pyscf(molecule,
   pyscf_molecule = prepare_pyscf_molecule(molecule)
   molecule.n_orbitals = pyscf_molecule.nbas
   molecule.n_qubits = 2 * molecule.n_orbitals
+  molecule.nuclear_repulsion = pyscf.gto.energy_nuc(pyscf_molecule)
 
   # Run SCF.
   if run_scf or run_cisd or run_ccsd or run_fci:
@@ -135,9 +136,10 @@ def run_pyscf(molecule,
     integrals_name = molecule.data_handle() + '_eri'
     numpy.save(integrals_name, two_body_integrals)
 
-  # Run MP2. TODO.
+  # Run MP2.
   if run_mp2:
-    molecule.mp2_energy = None
+    pyscf_mp2 = pyscf.mp.MP2(pyscf_scf)
+    molecule.mp2_energy = pyscf_mp2.kernel()
 
   # Run CISD.
   if run_cisd:
@@ -152,7 +154,7 @@ def run_pyscf(molecule,
   # Run FCI.
   if run_fci:
     pyscf_fci = pyscf.fci.FCI(pyscf_molecule, pyscf_scf.mo_coeff)
-    molecule.fci_energy = pyscf_fci.kernel()
+    molecule.fci_energy = pyscf_fci.kernel()[0]
 
   # Return updated molecule instance.
   molecule.save()
@@ -164,26 +166,26 @@ if __name__ == '__main__':
 
   # Molecule parameters.
   basis = 'sto-3g'
-  geometry = [['H', (0, 0, 0.7414 * x )] for x in range(2)]
   multiplicity = 1
-  description = 'scf_test3'
+  geometry = [['H', (0, 0, 0.7414 * x)] for x in range(2)]
+  description = 'scf_tests'
 
   # Calculation parameters.
   run_scf = 1
-  run_mp2 = 0
-  run_cisd = 0
-  run_ccsd = 0
-  run_fci = 0
+  run_mp2 = 1
+  run_cisd = 1
+  run_ccsd = 1
+  run_fci = 1
 
   # Get molecule and run calculation.
   molecule = MolecularData(
       geometry, basis, multiplicity, description=description)
-  if 0:
-    import run_psi4
-    molecule = run_psi4.run_psi4(
+  if 1:
+    molecule = run_pyscf(
         molecule, run_scf, run_mp2, run_cisd, run_ccsd, run_fci)
   else:
-    molecule = run_pyscf(
+    import run_psi4
+    molecule = run_psi4.run_psi4(
         molecule, run_scf, run_mp2, run_cisd, run_ccsd, run_fci)
 
   # Get molecular Hamiltonian.
