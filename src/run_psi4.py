@@ -61,7 +61,7 @@ def generate_psi4_input(molecule,
   geo_string = create_geometry_string(molecule.geometry)
 
   # Parse input template.
-  template_file = molecular_data._THIS_DIRECTORY + 'psi4_template'
+  template_file = molecular_data._THIS_DIRECTORY + '/psi4_template'
   input_template = []
   with open(template_file, 'r') as stream:
     for line in stream:
@@ -114,10 +114,10 @@ def generate_psi4_input(molecule,
 def clean_up(molecule, delete_input=True, delete_output=False):
   input_file = molecule.data_handle() + '.inp'
   output_file = molecule.data_handle() + '.out'
-  files = os.listdir(molecular_data._THIS_DIRECTORY)
-  for local_file in files:
+  run_directory = os.path.dirname(os.path.realpath(__file__))
+  for local_file in os.listdir(run_directory):
     if local_file.endswith('.clean'):
-      os.remove(molecular_data._THIS_DIRECTORY + local_file)
+      os.remove(run_directory + '/' + local_file)
   try:
     os.remove('timer.dat')
   except:

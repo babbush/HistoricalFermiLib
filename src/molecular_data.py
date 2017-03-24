@@ -36,8 +36,9 @@ def angstroms_to_bohr(distance):
 
 
 # Molecular data directory.
-_THIS_DIRECTORY = os.path.dirname(os.path.realpath(__file__)) + '/'
-_DATA_DIRECTORY = _THIS_DIRECTORY + 'data/'
+_THIS_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+_DATA_DIRECTORY = os.path.abspath(
+    os.path.join(_THIS_DIRECTORY, '..', 'data'))
 
 
 # The Periodic Table as a python list and dictionary.
@@ -284,7 +285,7 @@ class MolecularData(object):
 
   def data_handle(self):
     """Method to automatically give file name of molecule."""
-    return _DATA_DIRECTORY + self.name
+    return _DATA_DIRECTORY + '/' + self.name
 
   def save(self):
     """Method to automatically pickle the class under systematic name."""

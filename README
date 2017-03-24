@@ -1,6 +1,6 @@
 To run all files currently included in src/, one should follow these steps:
 
-1. Create an empty directory: 'src/data/'
+1. Create an empty directory: 'data/'
 2. Install the psi4 electronic structure package.
 3. Add fermilib/src to your pypath.
 4. Make sure you have latest version of scipy.
