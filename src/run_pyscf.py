@@ -55,8 +55,8 @@ def compute_integrals(pyscf_molecule, pyscf_scf):
   one_electron_compressed = reduce(numpy.dot, (pyscf_scf.mo_coeff.T,
                                                pyscf_scf.get_hcore(),
                                                pyscf_scf.mo_coeff))
-  one_electron_integrals = one_electron_compressed.reshape(n_orbitals,
-                                                           n_orbitals)
+  one_electron_integrals = one_electron_compressed.reshape(
+      n_orbitals, n_orbitals).astype(float)
 
   # Get two electron integrals in compressed format.
   two_electron_compressed = pyscf.ao2mo.kernel(pyscf_molecule,
@@ -72,12 +72,15 @@ def compute_integrals(pyscf_molecule, pyscf_scf):
     assert(two_electron_compressed.size == n_pairs ** 2)
     pq = 0
     for p in range(n_orbitals):
-      for q in range(0, p + 1):
+      for q in range(p + 1):
         rs = 0
-        for r in range(0, n_orbitals):
-          for s in range(0, r + 1):
+        for r in range(n_orbitals):
+          for s in range(r + 1):
             pqrs_value = two_electron_compressed[pq, rs]
-            two_electron_integrals[p, q, r, s] = pqrs_value
+            two_electron_integrals[p, s, r, q] = float(pqrs_value)
+            two_electron_integrals[q, s, r, p] = float(pqrs_value)
+            two_electron_integrals[p, r, s, q] = float(pqrs_value)
+            two_electron_integrals[q, r, s, p] = float(pqrs_value)
             rs += 1
         pq += 1
   else:
@@ -87,13 +90,20 @@ def compute_integrals(pyscf_molecule, pyscf_scf):
     pq = 0
     pqrs = 0
     for p in range(n_orbitals):
-      for q in range(0, p + 1):
+      for q in range(p + 1):
         rs = 0
-        for r in range(0, p + 1):
-          for s in range(0, r + 1):
+        for r in range(p + 1):
+          for s in range(r + 1):
             if pq >= rs:
               pqrs_value = two_electron_compressed[pqrs]
-              two_electron_integrals[p, q, r, s] = pqrs_value
+              two_electron_integrals[p, s, r, q] = float(pqrs_value)
+              two_electron_integrals[q, s, r, p] = float(pqrs_value)
+              two_electron_integrals[p, r, s, q] = float(pqrs_value)
+              two_electron_integrals[q, r, s, p] = float(pqrs_value)
+              two_electron_integrals[s, p, q, r] = float(pqrs_value)
+              two_electron_integrals[s, q, p, r] = float(pqrs_value)
+              two_electron_integrals[r, p, q, s] = float(pqrs_value)
+              two_electron_integrals[r, q, p, s] = float(pqrs_value)
               pqrs += 1
             rs += 1
         pq += 1
@@ -124,21 +134,21 @@ def run_pyscf(molecule,
   """
   # Prepare pyscf molecule.
   pyscf_molecule = prepare_pyscf_molecule(molecule)
-  molecule.n_orbitals = pyscf_molecule.nbas
+  molecule.n_orbitals = int(pyscf_molecule.nbas)
   molecule.n_qubits = 2 * molecule.n_orbitals
-  molecule.nuclear_repulsion = pyscf.gto.energy_nuc(pyscf_molecule)
+  molecule.nuclear_repulsion = float(pyscf.gto.energy_nuc(pyscf_molecule))
 
   # Run SCF.
   pyscf_scf = compute_scf(pyscf_molecule)
   pyscf_scf.verbose = 0
-  molecule.hf_energy = pyscf_scf.kernel()
+  molecule.hf_energy = float(pyscf_scf.kernel())
   if verbose:
     print('Hartree-Fock energy for {} ({} electrons) is {}.'.format(
         molecule.name, molecule.n_electrons, molecule.hf_energy))
 
   # Populate fields.
-  molecule.canonical_orbitals = pyscf_scf.mo_coeff
-  molecule.orbital_energies = pyscf_scf.mo_energy
+  molecule.canonical_orbitals = pyscf_scf.mo_coeff.astype(float)
+  molecule.orbital_energies = pyscf_scf.mo_energy.astype(float)
 
   # Get integrals.
   one_body_integrals, two_body_integrals = compute_integrals(
