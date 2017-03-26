@@ -1,5 +1,6 @@
 """This module provides functions which are useful for the study of fermions.
 """
+from functools import reduce
 import numpy
 import scipy
 import itertools

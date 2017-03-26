@@ -30,7 +30,7 @@ class LocalOperatorsTest(unittest.TestCase):
   def test_init_list(self):
     self.assertEqual(self.coefficient_a,
                      self.operator_a[tuple(self.operators_a)])
-    self.assertEqual(self.term_a, self.operator_a.terms.values()[0])
+    self.assertEqual(self.term_a, list(self.operator_a.terms.values())[0])
     self.assertEqual(self.coefficient_b,
                      self.operator_abc[self.operators_b])
     self.assertEqual(0.0, self.operator_abc[(1, 2, 9)])
