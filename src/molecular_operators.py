@@ -4,6 +4,7 @@ import qubit_operators
 import itertools
 import numpy
 import copy
+from functools import reduce
 
 
 class MolecularOperatorError(Exception):
