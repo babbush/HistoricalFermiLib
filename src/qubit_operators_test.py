@@ -116,7 +116,7 @@ class QubitTermsTest(unittest.TestCase):
     sparse_operator = term.get_sparse_operator()
     self.assertEqual(list(sparse_operator.matrix.data),
                      [1, -1, 1, -1, -1, 1, -1, 1])
-    self.assertEqual(list(sparse_operator.matrix.indices), range(8))
+    self.assertEqual(list(sparse_operator.matrix.indices), list(range(8)))
     self.assertTrue(sparse_operator.is_hermitian())
 
   def test_slicing(self):
@@ -502,7 +502,7 @@ class QubitOperatorsTest(unittest.TestCase):
   def test_init_list(self):
     self.assertEqual(self.coefficient_a,
                      self.operator_a[tuple(self.operators_a)])
-    self.assertEqual(self.term_a, self.operator_a.terms.values()[0])
+    self.assertEqual(self.term_a, list(self.operator_a.terms.values())[0])
     self.assertEqual(self.coefficient_b,
                      self.operator_abc[self.operators_b])
     self.assertEqual(0.0, self.operator_abc[(0, 'X')])

@@ -30,6 +30,7 @@ These Hamiltonians live a square lattice which has dimensions of
 x_dimension by y_dimension. They can have periodic boundary conditions or not.
 """
 import fermion_operators
+from builtins import range
 
 
 # Function to return up-orbital index given orbital index.
@@ -73,7 +74,7 @@ def fermi_hubbard(x_dimension, y_dimension, tunneling, coulomb,
   hubbard_model = fermion_operators.FermionOperator()
 
   # Loop through sites and add terms.
-  for site in xrange(n_sites):
+  for site in range(n_sites):
 
     # Add chemical potential and magnetic field terms.
     if chemical_potential and spinless:

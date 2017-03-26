@@ -1,5 +1,6 @@
 """This file contains tests of code performance to reveal bottlenecks."""
 from fermion_operators import FermionTerm
+from builtins import range
 import molecular_operators
 import numpy
 import time
@@ -15,8 +16,8 @@ def artificial_molecular_operator(n_qubits):
                                        n_qubits, n_qubits), float)
 
   # Randomly generate the one-body and two-body integrals.
-  for p in xrange(n_qubits):
-    for q in xrange(n_qubits):
+  for p in range(n_qubits):
+    for q in range(n_qubits):
 
       # One-body terms.
       if (p <= p) and (p % 2 == q % 2):
@@ -24,8 +25,8 @@ def artificial_molecular_operator(n_qubits):
         one_body_coefficients[q, p] = one_body_coefficients[p, q]
 
       # Keep looping.
-      for r in xrange(n_qubits):
-        for s in xrange(n_qubits):
+      for r in range(n_qubits):
+        for s in range(n_qubits):
 
           # Skip zero terms.
           if (p == q) or (r == s):
