@@ -145,29 +145,33 @@ class MolecularCoefficients(object):
   def __neq__(self, molecular_coefficients):
     return not (self == molecular_coefficients)
 
-  def __str__(self):
-    """Print out the elements of MolecularCoefficients in readable fashion."""
-
-    # Start with the constant.
-    string = '[] {}\n\n'.format(self.constant)
-
-    # Loop over one-body terms.
-    for p in range(self.n_qubits):
+  def __iter__(self):
+    """Iterate over non-zero elements of MolecularCoefficients."""
+    if self.constant:  # Constant.
+      yield []
+    for p in range(self.n_qubits):  # One-body terms.
       for q in range(self.n_qubits):
-        coefficient = self.one_body_coefficients[p, q]
-        if coefficient:
-          string += '[{} {}] {}\n'.format(p, q, coefficient)
-
-    # Loop over two-body terms.
-    for p in range(self.n_qubits):
+        if self.one_body_coefficients[p, q]:
+          yield [p, q]
+    for p in range(self.n_qubits):  # Two-body terms.
       for q in range(self.n_qubits):
         for r in range(self.n_qubits):
           for s in range(self.n_qubits):
-            coefficient = self.two_body_coefficients[p, q, r, s]
-            if coefficient:
-              string += '\n[{} {} {} {}] {}'.format(p, q, r, s, coefficient)
+            if self.two_body_coefficients[p, q, r, s]:
+              yield [p, q, r, s]
 
-    # Return.
+  def __str__(self):
+    """Print out the non-zero elements of MolecularCoefficients."""
+
+    string = ''
+    for key in self:
+      if len(key) == 0:
+        string += '[] {}\n'.format(self[key])
+      elif len(key) == 2:
+        string += '[{} {}] {}\n'.format(key[0], key[1], self[key])
+      elif len(key) == 4:
+        string += '[{} {} {} {}] {}\n'.format(key[0], key[1], key[2], key[3],
+                                              self[key])
     return string if string else '0'
 
   def __repr__(self):
