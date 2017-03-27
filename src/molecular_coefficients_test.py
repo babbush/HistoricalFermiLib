@@ -9,7 +9,18 @@ class MolecularCoefficientsTest(unittest.TestCase):
 
   def setUp(self):
     self.n_qubits = 2
-    self.constant = 23
+    self.constant = 23.0
+
+  def test_iter_and_str(self):
+    one_body = numpy.zeros((self.n_qubits, self.n_qubits))
+    two_body = numpy.zeros((self.n_qubits, self.n_qubits,
+                            self.n_qubits, self.n_qubits))
+    one_body[0, 1] = 11.0
+    two_body[0, 1, 1, 0] = 22.0
+    molecular_coefficients = MolecularCoefficients(self.constant,
+                                                   one_body, two_body)
+    want_str = '[] 23.0\n[0 1] 11.0\n[0 1 1 0] 22.0\n'
+    self.assertEqual(molecular_coefficients.__str__(), want_str)
 
   def test_rotate_basis_identical(self):
     rotation_matrix_identical = numpy.zeros((self.n_qubits, self.n_qubits))
