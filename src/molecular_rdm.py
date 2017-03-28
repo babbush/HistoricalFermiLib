@@ -96,8 +96,8 @@ class MolecularRDM(MolecularCoefficients):
         For instance, the nuclear repulsion energy.
   """
 
-  #TODO(Wei Sun): Add an additional constructor to initialize by passing
-  #    one_rdm_a, one_rdm_b, two_rdm_aa, two_rdm_ab, two_rdm_bb.
+#TODO(Wei Sun): Add an additional constructor to initialize by passing
+#    one_rdm_a, one_rdm_b, two_rdm_aa, two_rdm_ab, two_rdm_bb.
   def __init__(self, constant, one_body_coefficients, two_body_coefficients):
     """Initialize the MolecularRDM class.
 
