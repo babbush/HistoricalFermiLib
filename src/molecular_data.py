@@ -415,7 +415,7 @@ class MolecularData(object):
         Otherwise use RDM from CISD calculation.
 
     Returns:
-      molecular_opoperators: An instance of the MolecularOperator class.
+      molecular_rdm: An instance of the MolecularRDM class.
 
     Raises:
       MisissingCalculationError: If the CI calculation has not been performed.
@@ -449,9 +449,8 @@ class MolecularData(object):
 
     # Cast to MolecularOperator class.
     constant = 1.
-    molecular_operators = molecular_operators.MolecularOperator(
-        constant, one_rdm, two_rdm)
-    return molecular_operators
+    molecular_rdm = molecular_rdm.MolecularRDM(constant, one_rdm, two_rdm)
+    return molecular_rdm
 
   def get_cc_amplitudes(self):
     # TODO Damian.
