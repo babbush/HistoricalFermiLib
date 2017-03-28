@@ -1,5 +1,6 @@
 """Class and functions to store quantum chemistry data."""
 import molecular_operators
+import molecular_rdm
 import pickle
 import numpy
 import sys
@@ -415,7 +416,7 @@ class MolecularData(object):
         Otherwise use RDM from CISD calculation.
 
     Returns:
-      molecular_rdm: An instance of the MolecularOperator class.
+      rdm: An instance of the MolecularRDM class.
 
     Raises:
       MisissingCalculationError: If the CI calculation has not been performed.
@@ -449,9 +450,8 @@ class MolecularData(object):
 
     # Cast to MolecularOperator class.
     constant = 1.
-    molecular_rdm = molecular_operators.MolecularOperator(
-        constant, one_rdm, two_rdm)
-    return molecular_rdm
+    rdm = molecular_rdm.MolecularRDM(constant, one_rdm, two_rdm)
+    return rdm
 
   def get_cc_amplitudes(self):
     # TODO Damian.
