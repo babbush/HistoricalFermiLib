@@ -187,7 +187,7 @@ class MolecularRDM(MolecularCoefficients):
       # Handle non-molecular terms.
       elif len(fermion_term.operators) > 4:
         raise MolecularRDMError('Observable not contained '
-                                     'in 1-RDM or 2-RDM.')
+                                'in 1-RDM or 2-RDM.')
 
     return expectation / qubit_term.coefficient
 
