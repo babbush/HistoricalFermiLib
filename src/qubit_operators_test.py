@@ -334,18 +334,18 @@ class QubitTermsTest(unittest.TestCase):
 
   def test_str_X(self):
     term = QubitTerm([(0, 'X')])
-    self.assertEqual(str(term), '+1.0 X0')
+    self.assertEqual(str(term), '1.0 X0')
 
   def test_str_YX(self):
     self.assertEqual(str(QubitTerm([(4, 'Y'), (7, 'X')], 2)),
-                     '+2 Y4 X7')
+                     '2 Y4 X7')
 
   def test_str_init_sort(self):
     self.assertEqual(str(QubitTerm([(4, 'Y'), (7, 'X')], 2)),
                      str(QubitTerm([(7, 'X'), (4, 'Y')], 2)))
 
   def test_str_identity(self):
-    self.assertEqual(str(QubitTerm()), '+1.0 I')
+    self.assertEqual(str(QubitTerm()), '1.0 I')
 
   def test_str_negcomplexidentity(self):
     self.assertEqual(str(QubitTerm([], -3.7j)), '-3.7j I')
