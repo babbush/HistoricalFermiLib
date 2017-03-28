@@ -1,5 +1,6 @@
 """Class and functions to store quantum chemistry data."""
 import molecular_operators
+import molecular_rdm
 import pickle
 import numpy
 import sys
@@ -346,7 +347,7 @@ class MolecularData(object):
       if active_space_stop is None:
         active_space_stop = self.n_orbitals
       core_adjustment, one_body_integrals, two_body_integrals = (
-          molecular_operators.restrict_to_active_space(
+          molecular_rdm.restrict_to_active_space(
               one_body_integrals, two_body_integrals,
               active_space_start, active_space_stop))
       constant = self.nuclear_repulsion + core_adjustment
