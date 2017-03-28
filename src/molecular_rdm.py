@@ -5,14 +5,12 @@ import qubit_operators
 import itertools
 import numpy
 import copy
-from functools import reduce
 
 
 class MolecularRDMError(Exception):
   pass
 
 
-# TODO(Wei Sun): Consider make this function a method of MolecularRDM?
 def unpack_spatial_rdm(one_rdm_a,
                        one_rdm_b,
                        two_rdm_aa,
@@ -82,54 +80,6 @@ def unpack_spatial_rdm(one_rdm_a,
     # Map to physicist notation and return.
     two_rdm = numpy.einsum('pqsr', two_rdm)
     return one_rdm, two_rdm
-
-
-# TODO(Wei Sun): Consider make this function a method of MolecularRDM?
-def restrict_to_active_space(one_body_integrals, two_body_integrals,
-                             active_space_start, active_space_stop):
-  """Restrict the molecule at a spatial orbital level to the active space
-  defined by active_space=[start,stop]. Note that one_body_integrals and
-  two_body_integrals must be defined in an orthonormal basis set,
-  which is typically the case when defining an active space.
-
-    Args:
-      one_body_integrals: (N,N) numpy array containing the one-electron
-        spatial integrals for a molecule.
-      two_body_integrals: (N,N,N,N) numpy array containing the two-electron
-        spatial integrals.
-      active_space_start(int): spatial orbital index defining active
-        space start.
-
-    Returns:
-      core_constant: Adjustment to constant shift in Hamiltonian from
-        integrating out core orbitals
-      one_body_integrals_new: New one-electron integrals over active space.
-      two_body_integrals_new: New two-electron integrals over active space.
-  """
-  # Determine core constant
-  core_constant = 0.0
-  for i in range(active_space_start):
-    core_constant += 2 * one_body_integrals[i, i]
-    for j in range(active_space_start):
-      core_constant += (2 * two_body_integrals[i, j, j, i] -
-                        two_body_integrals[i, j, i, j])
-
-  # Modified one electron integrals
-  one_body_integrals_new = numpy.copy(one_body_integrals)
-  for u in range(active_space_start, active_space_stop):
-    for v in range(active_space_start, active_space_stop):
-      for i in range(active_space_start):
-        one_body_integrals_new[u, v] += (2 * two_body_integrals[i, u, v, i] -
-                                         two_body_integrals[i, u, i, v])
-
-  # Restrict integral ranges and change M appropriately
-  return (core_constant,
-          one_body_integrals_new[active_space_start: active_space_stop,
-                                 active_space_start: active_space_stop],
-          two_body_integrals[active_space_start: active_space_stop,
-                             active_space_start: active_space_stop,
-                             active_space_start: active_space_stop,
-                             active_space_start: active_space_stop])
 
 
 class MolecularRDM(MolecularCoefficients):

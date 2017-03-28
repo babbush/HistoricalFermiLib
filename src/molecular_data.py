@@ -1,6 +1,5 @@
 """Class and functions to store quantum chemistry data."""
 import molecular_operators
-import molecular_rdm
 import pickle
 import numpy
 import sys
@@ -347,7 +346,7 @@ class MolecularData(object):
       if active_space_stop is None:
         active_space_stop = self.n_orbitals
       core_adjustment, one_body_integrals, two_body_integrals = (
-          molecular_rdm.restrict_to_active_space(
+          molecular_operators.restrict_to_active_space(
               one_body_integrals, two_body_integrals,
               active_space_start, active_space_stop))
       constant = self.nuclear_repulsion + core_adjustment
@@ -416,7 +415,7 @@ class MolecularData(object):
         Otherwise use RDM from CISD calculation.
 
     Returns:
-      molecular_rdm: An instance of the MolecularOperator class.
+      molecular_opoperators: An instance of the MolecularOperator class.
 
     Raises:
       MisissingCalculationError: If the CI calculation has not been performed.
@@ -450,9 +449,9 @@ class MolecularData(object):
 
     # Cast to MolecularOperator class.
     constant = 1.
-    molecular_rdm = molecular_operators.MolecularOperator(
+    molecular_operators = molecular_operators.MolecularOperator(
         constant, one_rdm, two_rdm)
-    return molecular_rdm
+    return molecular_operators
 
   def get_cc_amplitudes(self):
     # TODO Damian.
