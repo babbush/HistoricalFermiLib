@@ -30,7 +30,6 @@ These Hamiltonians live a square lattice which has dimensions of
 x_dimension by y_dimension. They can have periodic boundary conditions or not.
 """
 import fermion_operators
-from builtins import range
 
 
 # Function to return up-orbital index given orbital index.
