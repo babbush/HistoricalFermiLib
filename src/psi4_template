@@ -5,7 +5,7 @@ sys.path.append('&_THIS_DIRECTORY')
 import sys
 import numpy
 import molecular_data
-import molecular_operators
+import molecular_coefficients
 import molecular_rdm
 
 # Set memory that job can use in megabytes.
@@ -79,9 +79,9 @@ if &run_scf:
 
     # Get integrals using MintsHelper.
     mints = MintsHelper(hf_wavefunction.basisset())
-    molecule.one_body_integrals = molecular_operators.one_body_basis_change(
+    molecule.one_body_integrals = molecular_coefficients.one_body_basis_change(
         numpy.asarray(mints.ao_kinetic()), molecule.canonical_orbitals)
-    molecule.one_body_integrals += molecular_operators.one_body_basis_change(
+    molecule.one_body_integrals += molecular_coefficients.one_body_basis_change(
         numpy.asarray(mints.ao_potential()), molecule.canonical_orbitals)
     two_body_integrals = numpy.asarray(mints.ao_eri())
     two_body_integrals.reshape((molecule.n_orbitals,
@@ -89,7 +89,7 @@ if &run_scf:
                                 molecule.n_orbitals,
                                 molecule.n_orbitals))
     two_body_integrals = numpy.einsum('psqr', two_body_integrals)
-    two_body_integrals = molecular_operators.two_body_basis_change(
+    two_body_integrals = molecular_coefficients.two_body_basis_change(
         two_body_integrals, molecule.canonical_orbitals)
     integrals_name = molecule.data_handle() + '_eri'
     numpy.save(integrals_name, two_body_integrals)

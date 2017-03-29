@@ -1,146 +1,14 @@
-"""Class and functions to store molecular Hamiltonians / density operators."""
+"""Class and functions to store molecular Hamiltonians."""
 import fermion_operators
 import qubit_operators
 import itertools
 import numpy
 import copy
-from functools import reduce
+from molecular_coefficients import MolecularCoefficients
 
 
 class MolecularOperatorError(Exception):
   pass
-
-
-def unpack_spatial_rdm(one_rdm_a,
-                       one_rdm_b,
-                       two_rdm_aa,
-                       two_rdm_ab,
-                       two_rdm_bb):
-    """Covert from spin compact spatial format to spin-orbital format for RDM.
-
-    Note: the compact 2-RDM is stored as follows where A/B are spin up/down:
-    RDM[pqrs] = <| a_{p, A}^\dagger a_{r, A}^\dagger a_{q, A} a_{s, A} |>
-      for 'AA'/'BB' spins.
-    RDM[pqrs] = <| a_{p, A}^\dagger a_{r, B}^\dagger a_{q, B} a_{s, A} |>
-      for 'AB' spins.
-
-    Args:
-      one_rdm_a: 2-index numpy array storing alpha spin
-        sector of 1-electron reduced density matrix.
-      one_rdm_b: 2-index numpy array storing beta spin
-        sector of 1-electron reduced density matrix.
-      two_rdm_aa: 4-index numpy array storing alpha-alpha spin
-        sector of 2-electron reduced density matrix.
-      two_rdm_ab: 4-index numpy array storing alpha-beta spin
-        sector of 2-electron reduced density matrix.
-      two_rdm_bb: 4-index numpy array storing beta-beta spin
-        sector of 2-electron reduced density matrix.
-
-    Returns:
-      one_rdm: 2-index numpy array storing 1-electron density matrix
-        in full spin-orbital space.
-      two_rdm: 4-index numpy array storing 2-electron density matrix
-        in full spin-orbital space.
-    """
-    # Initialize RDMs.
-    n_orbitals = one_rdm_a.shape[0]
-    n_qubits = 2 * n_orbitals
-    one_rdm = numpy.zeros((n_qubits, n_qubits))
-    two_rdm = numpy.zeros((n_qubits, n_qubits,
-                           n_qubits, n_qubits))
-
-    # Unpack compact representation.
-    for p in range(n_orbitals):
-      for q in range(n_orbitals):
-
-        # Populate 1-RDM.
-        one_rdm[2*p, 2*q] = one_rdm_a[p, q]
-        one_rdm[2*p + 1, 2*q + 1] = one_rdm_b[p, q]
-
-        # Continue looping to unpack 2-RDM.
-        for r in range(n_orbitals):
-          for s in range(n_orbitals):
-
-            # Handle case of same spin.
-            two_rdm[2*p, 2*q, 2*r, 2*s] = (
-                two_rdm_aa[p, r, q, s])
-            two_rdm[2*p + 1, 2*q + 1, 2*r + 1, 2*s + 1] = (
-                two_rdm_bb[p, r, q, s])
-
-            # Handle case of mixed spin.
-            two_rdm[2*p, 2*q + 1, 2*r, 2*s + 1] = (
-                two_rdm_ab[p, r, q, s])
-            two_rdm[2*p, 2*q + 1, 2*r + 1, 2*s] = (
-                -1. * two_rdm_ab[p, s, q, r])
-            two_rdm[2*p + 1, 2*q, 2*r + 1, 2*s] = (
-                two_rdm_ab[q, s, p, r])
-            two_rdm[2*p + 1, 2*q, 2*r, 2*s + 1] = (
-                -1. * two_rdm_ab[q, r, p, s])
-
-    # Map to physicist notation and return.
-    two_rdm = numpy.einsum('pqsr', two_rdm)
-    return one_rdm, two_rdm
-
-
-def one_body_basis_change(one_body_operator, rotation_matrix):
-  """Change the basis of 1-body fermionic operators, e.g. the 1-RDM.
-
-  M' = R^T.M.R where R is the rotation matrix, M is the fermion operator
-  and M' is the transformed fermion operator.
-
-  Args:
-    one_body_operator: A square numpy array or matrix containing information
-      about a 1-body operator such as the 1-body integrals or 1-RDM.
-    rotation_matrix: A square numpy array or matrix having dimensions of
-      n_qubits by n_qubits. Assumed to be real and invertible.
-
-  Returns:
-    transformed_one_body_operator: one_body_operator in the rotated basis.
-  """
-  # If operator acts on spin degrees of freedom, enlarge rotation matrix.
-  n_orbitals = rotation_matrix.shape[0]
-  if one_body_operator.shape[0] == 2 * n_orbitals:
-    rotation_matrix = numpy.kron(rotation_matrix, numpy.eye(2))
-
-  # Effect transformation and return.
-  transformed_one_body_operator = numpy.einsum('qp, qr, rs',
-                                               rotation_matrix,
-                                               one_body_operator,
-                                               rotation_matrix)
-  return transformed_one_body_operator
-
-
-def two_body_basis_change(two_body_operator, rotation_matrix):
-  """Change the basis of 2-body fermionic operators, e.g. the 2-RDM.
-
-  Procedure we use is an N^5 transformation which can be expressed as
-  (pq|rs) = \sum_a R^p_a (\sum_b R^q_b (\sum_c R^r_c (\sum_d R^s_d (ab|cd)))).
-
-  Args:
-    two_body_operator: a square rank 4 tensor in a numpy array containing
-      information about a 2-body fermionic operator.
-    rotation_matrix: A square numpy array or matrix having dimensions of
-      n_qubits by n_qubits. Assumed to be real and invertible.
-
-  Returns:
-    transformed_two_body_operator: two_body_operator matrix in rotated basis.
-  """
-  # If operator acts on spin degrees of freedom, enlarge rotation matrix.
-  n_orbitals = rotation_matrix.shape[0]
-  if two_body_operator.shape[0] == 2 * n_orbitals:
-    rotation_matrix = numpy.kron(rotation_matrix, numpy.eye(2))
-
-  # Effect transformation and return.
-  # TODO: Make work without the two lines that perform permutations.
-  two_body_operator = numpy.einsum('prsq', two_body_operator)
-  first_sum = numpy.einsum('ds, abcd', rotation_matrix, two_body_operator)
-  second_sum = numpy.einsum('cr, abcs', rotation_matrix, first_sum)
-  third_sum = numpy.einsum('bq, abrs', rotation_matrix, second_sum)
-  transformed_two_body_operator = numpy.einsum('ap, aqrs',
-                                               rotation_matrix, third_sum)
-  transformed_two_body_operator = numpy.einsum('psqr',
-                                               transformed_two_body_operator)
-  return transformed_two_body_operator
 
 
 def restrict_to_active_space(one_body_integrals, two_body_integrals,
@@ -190,7 +58,7 @@ def restrict_to_active_space(one_body_integrals, two_body_integrals,
                              active_space_start: active_space_stop])
 
 
-class MolecularOperator(object):
+class MolecularOperator(MolecularCoefficients):
   """Class for storing 'molecular operators' which are defined to be
   fermionic operators consisting of one-body and two-body terms which
   conserve particle number and spin. The most common examples of data
@@ -227,86 +95,8 @@ class MolecularOperator(object):
           n_qubits numpy array of floats.
     """
     # Make sure nonzero elements are only for normal ordered terms.
-    self.n_qubits = one_body_coefficients.shape[0]
-    self.constant = constant
-    self.one_body_coefficients = one_body_coefficients
-    self.two_body_coefficients = two_body_coefficients
-
-  def __getitem__(self, args):
-    if len(args) == 4:
-      p, q, r, s = args
-      return self.two_body_coefficients[p, q, r, s]
-    elif len(args) == 2:
-      p, q = args
-      return self.one_body_coefficients[p, q]
-    elif not len(args):
-      return self.constant
-
-  def __setitem__(self, args, value):
-    if len(args) == 4:
-      p, q, r, s = args
-      self.two_body_coefficients[p, q, r, s] = value
-    elif len(args) == 2:
-      p, q = args
-      self.one_body_coefficients[p, q] = value
-    elif not len(args):
-      self.constant = value
-    else:
-      raise ValueError('args must be of length 0, 2, or 4.')
-
-  def __eq__(self, molecular_operator):
-    tol = 1e-12
-    diff = max(abs(self.constant - molecular_operator.constant),
-               numpy.amax(
-                   numpy.absolute(self.one_body_coefficients -
-                                  molecular_operator.one_body_coefficients)),
-               numpy.amax(
-                   numpy.absolute(self.two_body_coefficients -
-                                  molecular_operator.two_body_coefficients)))
-    return diff < tol
-
-  def __neq__(self, molecular_operator):
-    return not (self == molecular_operator)
-
-  def __str__(self):
-    """Print out the elements of the MolecularOperator in readable fashion."""
-
-    # Start with the constant.
-    string = '[] {}\n\n'.format(self.constant)
-
-    # Loop over one-body terms.
-    for p in range(self.n_qubits):
-      for q in range(self.n_qubits):
-        coefficient = self.one_body_coefficients[p, q]
-        if coefficient:
-          string += '[{} {}] {}\n'.format(p, q, coefficient)
-
-    # Loop over two-body terms.
-    for p in range(self.n_qubits):
-      for q in range(self.n_qubits):
-        for r in range(self.n_qubits):
-          for s in range(self.n_qubits):
-            coefficient = self.two_body_coefficients[p, q, r, s]
-            if coefficient:
-              string += '\n[{} {} {} {}] {}'.format(p, q, r, s, coefficient)
-
-    # Return.
-    return string if string else '0'
-
-  def __repr__(self):
-    return str(self)
-
-  def rotate_basis(self, rotation_matrix):
-    """Rotate the orbital basis of the MolecularOperator.
-
-    Args:
-      rotation_matrix: A square numpy array or matrix having dimensions of
-        n_qubits by n_qubits. Assumed to be real and invertible.
-    """
-    self.one_body_coefficients = one_body_basis_change(
-        self.one_body_coefficients, rotation_matrix)
-    self.two_body_coefficients = two_body_basis_change(
-        self.two_body_coefficients, rotation_matrix)
+    super(MolecularOperator, self).__init__(constant, one_body_coefficients,
+                                            two_body_coefficients)
 
   def get_fermion_operator(self):
     """Output MolecularOperator as an instance of FermionOperator class.
@@ -509,58 +299,6 @@ class MolecularOperator(object):
             qubit_operator += transformed_term
 
     return qubit_operator
-
-  def get_qubit_term_expectation(self, qubit_term):
-    """Return expectation value of a QubitTerm with a molecular RDM (self).
-
-    Args:
-      qubit_term: QubitTerm instance to be evaluated on this
-          MolecularOperator representing a reduced density matrix.
-
-    Returns:
-      expectation: A float giving the expectation value.
-
-    Raises:
-      MolecularOperatorError: Observable not contained in 1-RDM or 2-RDM.
-    """
-    expectation = 0.
-    reversed_fermion_operators = qubit_term.reverse_jordan_wigner(
-        self.n_qubits)
-    reversed_fermion_operators.normal_order()
-
-    for fermion_term in reversed_fermion_operators:
-      # Handle molecular terms.
-      if fermion_term.is_molecular_term():
-        indices = [operator[0] for operator in fermion_term]
-        rdm_element = self[indices]
-        expectation += rdm_element * fermion_term.coefficient
-      # Handle non-molecular terms.
-      elif len(fermion_term.operators) > 4:
-        raise MolecularOperatorError('Observable not contained '
-                                     'in 1-RDM or 2-RDM.')
-
-    return expectation / qubit_term.coefficient
-
-  def get_qubit_expectations(self, qubit_operator):
-    """Return expectations of qubit op as coefficients of new qubit op.
-
-    Note that this method is designed to be called on RDM MolecularOperators.
-
-    Args:
-      qubit_operator: QubitOperator instance to be evaluated on this
-          MolecularOperator reduced density matrices.
-
-    Returns:
-      qubit_operator_expectations: QubitOperator with coefficients
-          corresponding to expectation values of those operators.
-
-    Raises:
-      MolecularOperatorError: Observable not contained in 1-RDM or 2-RDM.
-    """
-    qubit_operator_expectations = copy.deepcopy(qubit_operator)
-    for qubit_term in qubit_operator_expectations:
-      qubit_term.coefficient = self.get_qubit_term_expectation(qubit_term)
-    return qubit_operator_expectations
 
   def get_sparse_operator(self):
     fermion_operator = self.get_fermion_operator()
