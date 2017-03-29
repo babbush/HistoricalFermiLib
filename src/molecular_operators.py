@@ -98,6 +98,55 @@ class MolecularOperator(MolecularCoefficients):
     super(MolecularOperator, self).__init__(constant, one_body_coefficients,
                                             two_body_coefficients)
 
+  def __symmetry_iter_helper(self, symmetry):
+    """Iterate all terms that are not in the same symmetry group.
+    Four point symmetry:
+      1. pq = qp.
+      2. pqrs = srqp = qpsr = rspq.
+    Eight point symmetry:
+      1. pq = qp.
+      2. pqrs = rqps = psrq = srqp = qpsr = rspq = spqr = qrsp.
+
+    Args:
+      symmetry: The symmetry, 4 or 8, to represent four point or eight point.
+    """
+    if symmetry != 4 and symmetry != 8:
+      raise ValueError('The symmetry must be one of 4, 8.')
+
+    if self.constant:  # Constant.
+      yield []
+
+    for p in range(self.n_qubits):  # One-body terms.
+      for q in range(p + 1):
+        if self.one_body_coefficients[p, q]:
+          yield [p, q]
+
+    record_map = {}
+    for p in range(self.n_qubits):  # Two-body terms.
+      for q in range(self.n_qubits):
+        for r in range(self.n_qubits):
+          for s in range(self.n_qubits):
+            if self.two_body_coefficients[p, q, r, s] and \
+               (p, q, r, s) not in record_map:
+              yield [p, q, r, s]
+              record_map[(p, q, r, s)] = []
+              record_map[(s, r, q, p)] = []
+              record_map[(q, p, s, r)] = []
+              record_map[(r, s, p, q)] = []
+              if symmetry == 8:
+                record_map[(p, s, r, q)] = []
+                record_map[(s, p, q, r)] = []
+                record_map[(q, r, s, p)] = []
+                record_map[(r, q, p, s)] = []
+
+  def four_point_iter(self):
+    for key in self.__symmetry_iter_helper(4):
+      yield key
+
+  def eight_point_iter(self):
+    for key in self.__symmetry_iter_helper(8):
+      yield key
+
   def get_fermion_operator(self):
     """Output MolecularOperator as an instance of FermionOperator class.
 
