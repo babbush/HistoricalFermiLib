@@ -60,6 +60,50 @@ class MolecularOperatorsTest(unittest.TestCase):
             # Make sure its correct.
             self.assertEqual(test_operator, correct_operator)
 
+  def test_four_point_iter(self):
+    constant = 100.0
+    one_body = numpy.zeros((self.n_qubits, self.n_qubits), float)
+    two_body = numpy.zeros((self.n_qubits, self.n_qubits,
+                            self.n_qubits, self.n_qubits), float)
+    one_body[1, 1] = 10.0
+    one_body[2, 3] = 11.0
+    one_body[3, 2] = 11.0
+    two_body[1, 2, 3, 4] = 12.0
+    two_body[2, 1, 4, 3] = 12.0
+    two_body[3, 4, 1, 2] = 12.0
+    two_body[4, 3, 2, 1] = 12.0
+    molecular_operator = MolecularOperator(constant, one_body, two_body)
+
+    want_str = '100.0\n10.0\n11.0\n12.0\n'
+    got_str = ''
+    for key in molecular_operator.four_point_iter():
+      got_str += '{}\n'.format(molecular_operator[key])
+    self.assertEqual(want_str, got_str)
+
+  def test_eight_point_iter(self):
+    constant = 100.0
+    one_body = numpy.zeros((self.n_qubits, self.n_qubits), float)
+    two_body = numpy.zeros((self.n_qubits, self.n_qubits,
+                            self.n_qubits, self.n_qubits), float)
+    one_body[1, 1] = 10.0
+    one_body[2, 3] = 11.0
+    one_body[3, 2] = 11.0
+    two_body[1, 2, 3, 4] = 12.0
+    two_body[2, 1, 4, 3] = 12.0
+    two_body[3, 4, 1, 2] = 12.0
+    two_body[4, 3, 2, 1] = 12.0
+    two_body[1, 4, 3, 2] = 12.0
+    two_body[2, 3, 4, 1] = 12.0
+    two_body[3, 2, 1, 4] = 12.0
+    two_body[4, 1, 2, 3] = 12.0
+    molecular_operator = MolecularOperator(constant, one_body, two_body)
+
+    want_str = '100.0\n10.0\n11.0\n12.0\n'
+    got_str = ''
+    for key in molecular_operator.eight_point_iter():
+      got_str += '{}\n'.format(molecular_operator[key])
+    self.assertEqual(want_str, got_str)
+
 
 # Test.
 if __name__ == "__main__":
