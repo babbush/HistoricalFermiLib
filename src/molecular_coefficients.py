@@ -1,4 +1,5 @@
 """Base class for representation of various molecule classes."""
+from config import *
 import itertools
 import numpy
 import copy
@@ -134,13 +135,12 @@ class MolecularCoefficients(object):
       raise ValueError('args must be of length 0, 2, or 4.')
 
   def __eq__(self, molecular_coefficients):
-    tol = 1e-12
     diff = max(abs(self.constant - molecular_coefficients.constant),
                numpy.amax(numpy.absolute(self.one_body_coefficients -
                           molecular_coefficients.one_body_coefficients)),
                numpy.amax(numpy.absolute(self.two_body_coefficients -
                           molecular_coefficients.two_body_coefficients)))
-    return diff < tol
+    return diff < EQUALITY_TOLERANCE
 
   def __neq__(self, molecular_coefficients):
     return not (self == molecular_coefficients)

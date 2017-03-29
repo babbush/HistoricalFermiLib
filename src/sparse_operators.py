@@ -1,5 +1,6 @@
 """This module provides functions which are useful for the study of fermions.
 """
+from config import *
 from functools import reduce
 import numpy
 import scipy
@@ -309,12 +310,8 @@ class SparseOperator(object):
   def eliminate_zeros(self):
     self.matrix.eliminate_zeros()
 
-  def is_hermitian(self, tolerance=1e-12):
+  def is_hermitian(self):
     """Test if matrix is Hermitian.
-
-    Args:
-      tolerance: a float giving the allowed Hermitian discrepancy.
-        Default value is 1e-12.
 
     Returns:
       Boole indicating whether matrix passes test.
@@ -322,7 +319,7 @@ class SparseOperator(object):
     difference = self - self.conjugated()
     if difference.matrix.nnz:
       discrepancy = max(map(abs, difference.matrix.data))
-      if discrepancy > tolerance:
+      if discrepancy > EQUALITY_TOLERANCE:
         return False
     return True
 
