@@ -1,7 +1,9 @@
 """Base class for representation of various local terms."""
+import copy
 import local_operators
 import numpy
-import copy
+
+from config import *
 
 
 # Define error classes.
@@ -13,20 +15,17 @@ class LocalTerm(object):
   """Represents a term consisting of a product of operators and a coefficient.
 
   Attributes:
-    _tolerance: A float, the minimum absolute value below which term is zero.
     coefficient: A complex valued float giving the term coefficient.
     operators: A list of site operators representing the term.
   """
   __array_priority__ = 0  # this ensures good behavior with numpy scalars
 
-  def __init__(self, operators=None, coefficient=1., tolerance=1e-10):
+  def __init__(self, operators=None, coefficient=1.):
     """Inits a LocalTerm.
 
     Args:
       operators: A list of site operators representing the term.
       coefficient: A complex valued float giving the term's coefficient.
-      tolerance: A float giving the minimum absolute value below which
-                 term is zero. Optional, defaults to 1e-10.
 
     Raises:
       ValueError: Number of qubits must be a non-negative integer.
@@ -37,7 +36,6 @@ class LocalTerm(object):
       raise ValueError('Coefficient must be scalar.')
 
     # Initialize.
-    self._tolerance = tolerance
     self.coefficient = coefficient
     if operators is None:
       operators = []
@@ -62,16 +60,16 @@ class LocalTerm(object):
 
     Notes:
       Two LocalTerms are considered equal either if their coefficients
-      are within _tolerance of the first and their operators are the
+      are within EQ_TOLERANCE of the first and their operators are the
       same, or if both their coefficients are within tolerance of zero.
     """
 
     # Operators are equal if their coefficients are sufficiently close
     # and they have the same operators, or if they are both close to 0.
     return ((self.operators == other.operators and
-             abs(self.coefficient - other.coefficient) <= self._tolerance) or
-            (abs(self.coefficient) <= self._tolerance and
-             abs(other.coefficient) <= self._tolerance))
+             abs(self.coefficient - other.coefficient) <= EQ_TOLERANCE) or
+            (abs(self.coefficient) <= EQ_TOLERANCE and
+             abs(other.coefficient) <= EQ_TOLERANCE))
 
   def __ne__(self, other):
     """Overload not equals comparison !=."""

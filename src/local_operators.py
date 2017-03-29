@@ -1,7 +1,9 @@
 """Base class for representation of various local operators."""
-import local_terms
-import numpy
 import copy
+import numpy
+import local_terms
+
+from config import *
 
 
 # Define error class.
@@ -13,25 +15,21 @@ class LocalOperator(object):
   """A collection of LocalTerm objects acting on same number of qubits.
 
   Attributes:
-    _tolerance: A float, the minimum absolute value below which term is zero.
     terms: Dictionary of LocalTerm objects.
   """
   __array_priority__ = 0  # this ensures good behavior with numpy scalars
 
-  def __init__(self, terms=None, tolerance=1e-10):
+  def __init__(self, terms=None):
     """Inits a LocalOperator object.
 
     Args:
       terms: Dictionary or list of LocalTerm objects, or LocalTerm
              object.
-      tolerance: A float giving the minimum absolute value below which a
-                 term is zero.
 
     Raises:
       TypeError: Invalid terms provided to initialization.
       ValueError: Number of qubits needs to be a non-negative integer.
     """
-    self._tolerance = tolerance
     if terms is None:
       self.terms = {}
     elif isinstance(terms, dict):
@@ -56,7 +54,7 @@ class LocalOperator(object):
       return False
     for term in self:
       difference = term.coefficient - other[term.operators]
-      if abs(difference) > self._tolerance:
+      if abs(difference) > EQ_TOLERANCE:
         return False
     return True
 
@@ -100,7 +98,7 @@ class LocalOperator(object):
 
       # Compute new coefficient and update self.terms.
       new_coefficient = self[tuple(addend.operators)] + addend.coefficient
-      if abs(new_coefficient) > self._tolerance:
+      if abs(new_coefficient) > EQ_TOLERANCE:
         self[addend.operators] = new_coefficient
       elif addend.operators in self:
         del self[addend.operators]
