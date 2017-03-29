@@ -1,8 +1,9 @@
 """Base class for representation of various molecule classes."""
-from config import *
+import copy
 import itertools
 import numpy
-import copy
+
+from config import *
 
 
 class MolecularCoefficientsError(Exception):
@@ -140,7 +141,7 @@ class MolecularCoefficients(object):
                           molecular_coefficients.one_body_coefficients)),
                numpy.amax(numpy.absolute(self.two_body_coefficients -
                           molecular_coefficients.two_body_coefficients)))
-    return diff < EQUALITY_TOLERANCE
+    return diff < EQ_TOLERANCE
 
   def __neq__(self, molecular_coefficients):
     return not (self == molecular_coefficients)

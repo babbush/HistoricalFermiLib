@@ -1,14 +1,15 @@
 """This module provides functions which are useful for the study of fermions.
 """
-from config import *
-from functools import reduce
-import numpy
-import scipy
 import itertools
+import numpy
+import numpy.linalg
+import scipy
 import scipy.misc
 import scipy.sparse
 import scipy.sparse.linalg
-import numpy.linalg
+
+from config import *
+from functools import reduce
 
 
 # Define error class.
@@ -319,7 +320,7 @@ class SparseOperator(object):
     difference = self - self.conjugated()
     if difference.matrix.nnz:
       discrepancy = max(map(abs, difference.matrix.data))
-      if discrepancy > EQUALITY_TOLERANCE:
+      if discrepancy > EQ_TOLERANCE:
         return False
     return True
 

@@ -1,14 +1,16 @@
 """Tests for fermion_operators.py"""
+import local_operators
+import local_terms
+import numpy
+import unittest
+
+from config import *
 from fermion_operators import (fermion_identity, number_operator,
                                hopping_operator,
                                FermionTerm, FermionOperator,
                                FermionTermError, FermionOperatorError,
                                JordanWignerError)
 from qubit_operators import qubit_identity, QubitTerm, QubitOperator
-import unittest
-import numpy
-import local_terms
-import local_operators
 
 
 class HoppingOperatorsTest(unittest.TestCase):
@@ -124,7 +126,7 @@ class FermionTermsTest(unittest.TestCase):
   def test_neq_outside_tol(self):
     self.term1 = FermionTerm([(1, 1)], coefficient=1.0)
     self.term2 = FermionTerm([(1, 1)],
-                             coefficient=(1 + 2 * self.term1._tolerance))
+                             coefficient=(1 + 2 * EQ_TOLERANCE))
     self.assertNotEqual(self.term1, self.term2)
     self.assertFalse(self.term1 == self.term2)
 
