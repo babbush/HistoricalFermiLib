@@ -113,6 +113,13 @@ class MolecularRDM(MolecularCoefficients):
     super(MolecularRDM, self).__init__(constant, one_body_coefficients,
                                        two_body_coefficients)
 
+  @classmethod
+  def from_spatial_rdm(cls, constant, one_rdm_a, one_rdm_b, two_rdm_aa,
+      two_rdm_ab, two_rdm_bb):
+    one_rdm, two_rdm = unpack_spatial_rdm(one_rdm_a, one_rdm_b, two_rdm_aa,
+        two_rdm_ab, two_rdm_bb)
+    return cls(constant, one_rdm, two_rdm)
+
   def get_qubit_term_expectation(self, qubit_term):
     """Return expectation value of a QubitTerm with a molecular RDM (self).
 
