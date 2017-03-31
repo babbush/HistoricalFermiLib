@@ -1,10 +1,12 @@
 """Class and functions to store quantum chemistry data."""
 import molecular_operators
 import molecular_rdm
-import pickle
 import numpy
-import sys
 import os
+import pickle
+import sys
+
+from config import *
 
 
 """NOTE ON PQRS CONVENTION:
@@ -324,8 +326,7 @@ class MolecularData(object):
 
   def get_molecular_hamiltonian(self,
                                 active_space_start=None,
-                                active_space_stop=None,
-                                tolerance=1e-15):
+                                active_space_stop=None):
     """Output arrays of the second quantized Hamiltonian coefficients.
 
     Args:
@@ -335,8 +336,6 @@ class MolecularData(object):
         in the active space.
       active_space stop: An optional int giving the last orbital
         in the active space.
-      tolerance: An optional float specifying the smallest matrix element in
-        the transformed basis that will be considered nonzero.
 
     Returns:
       molecular_hamiltonian: An instance of the MolecularOperator class.
@@ -389,9 +388,9 @@ class MolecularData(object):
 
     # Truncate.
     one_body_coefficients[
-        numpy.absolute(one_body_coefficients) < tolerance] = 0.
+        numpy.absolute(one_body_coefficients) < EQ_TOLERANCE] = 0.
     two_body_coefficients[
-        numpy.absolute(two_body_coefficients) < tolerance] = 0.
+        numpy.absolute(two_body_coefficients) < EQ_TOLERANCE] = 0.
 
     # Cast to MolecularOperator class and return.
     molecular_hamiltonian = molecular_operators.MolecularOperator(
@@ -401,8 +400,7 @@ class MolecularData(object):
   def get_molecular_rdm(self,
                         use_fci=False,
                         active_space_start=None,
-                        active_space_stop=None,
-                        tolerance=1e-15):
+                        active_space_stop=None):
     """Method to return 1-RDM and 2-RDMs from CISD or FCI.
 
     Args:
@@ -411,9 +409,6 @@ class MolecularData(object):
         in the active space.
       active_space stop: An optional int giving the last orbital
         in the active space.
-      tolerance: An optional float specifying the smallest matrix element in
-        the transformed basis that will be considered nonzero.
-        Otherwise use RDM from CISD calculation.
 
     Returns:
       rdm: An instance of the MolecularRDM class.
@@ -445,8 +440,8 @@ class MolecularData(object):
       pass
 
     # Truncate.
-    one_rdm[numpy.absolute(one_rdm) < tolerance] = 0.
-    two_rdm[numpy.absolute(two_rdm) < tolerance] = 0.
+    one_rdm[numpy.absolute(one_rdm) < EQ_TOLERANCE] = 0.
+    two_rdm[numpy.absolute(two_rdm) < EQ_TOLERANCE] = 0.
 
     # Cast to MolecularOperator class.
     constant = 1.
