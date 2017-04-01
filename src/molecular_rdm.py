@@ -1,10 +1,11 @@
 """Class and functions to store molecular density operators."""
-from molecular_coefficients import MolecularCoefficients
+import copy
 import fermion_operators
-import qubit_operators
 import itertools
 import numpy
-import copy
+import qubit_operators
+
+from molecular_coefficients import MolecularCoefficients
 
 
 class MolecularRDMError(Exception):
@@ -166,3 +167,27 @@ class MolecularRDM(MolecularCoefficients):
     for qubit_term in qubit_operator_expectations:
       qubit_term.coefficient = self.get_qubit_term_expectation(qubit_term)
     return qubit_operator_expectations
+
+  def get_molecular_operator_expectation(self, molecular_operator):
+    """Return expectations of qubit op as coefficients of new qubit op.
+
+    Args:
+      molecular_operator: MolecularOperator instance to be evaluated on this
+          MolecularRDM.
+
+    Returns:
+      molecular_operator_expectation: A float giving the expectation value.
+
+    Raises:
+      MolecularRDMError: Observable not contained in 1-RDM or 2-RDM.
+    """
+    expectation = self.constant * molecular_operator.constant
+    for p in range(self.n_qubits):
+      for q in range(self.n_qubits):
+        expectation += self[p, q] * molecular_operator[p, q]
+    for p in range(self.n_qubits):
+      for q in range(self.n_qubits):
+        for r in range(self.n_qubits):
+          for s in range(self.n_qubits):
+            expectation += self[p, q, r, s] * molecular_operator[p, q, r, s]
+    return expectation
