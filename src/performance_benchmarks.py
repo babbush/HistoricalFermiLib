@@ -1,9 +1,10 @@
 """This file contains tests of code performance to reveal bottlenecks."""
-from fermion_operators import FermionTerm
-from builtins import range
 import molecular_operators
 import numpy
 import time
+
+from builtins import range
+from fermion_operators import FermionTerm
 
 
 def artificial_molecular_operator(n_qubits):

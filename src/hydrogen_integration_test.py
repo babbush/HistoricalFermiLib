@@ -1,12 +1,12 @@
 """Tests many modules to compute energy of hydrogen."""
-import numpy
-import unittest
-import run_psi4
 import molecular_data
+import molecular_operators
+import numpy
+import run_psi4
 import scipy
 import scipy.linalg
-import molecular_operators
 import sparse_operators
+import unittest
 
 
 class HydrogenIntegrationTest(unittest.TestCase):

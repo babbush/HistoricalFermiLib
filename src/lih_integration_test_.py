@@ -1,12 +1,12 @@
 """Tests many modules to compute energy of lih."""
+import molecular_data
+import molecular_operators
 import numpy
+import run_psi4
 import scipy
 import scipy.linalg
-import unittest
-import run_psi4
-import molecular_data
 import sparse_operators
-import molecular_operators
+import unittest
 
 
 class LiHIntegrationTest(unittest.TestCase):

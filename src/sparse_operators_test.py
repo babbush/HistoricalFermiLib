@@ -1,7 +1,8 @@
 """Tests for sparse_operators.py"""
-from sparse_operators import *
 import fermion_operators
 import unittest
+
+from sparse_operators import *
 
 
 # Make copy definitions over from module.
