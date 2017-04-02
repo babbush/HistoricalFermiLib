@@ -6,8 +6,8 @@ from config import *
 import sys
 import numpy
 import molecular_data
-import molecular_coefficients
-import molecular_rdm
+import interaction_tensors
+import interaction_rdms
 
 # Set memory that job can use in megabytes.
 memory &memory mb
@@ -80,9 +80,9 @@ if &run_scf:
 
     # Get integrals using MintsHelper.
     mints = MintsHelper(hf_wavefunction.basisset())
-    molecule.one_body_integrals = molecular_coefficients.one_body_basis_change(
+    molecule.one_body_integrals = interaction_tensors.one_body_basis_change(
         numpy.asarray(mints.ao_kinetic()), molecule.canonical_orbitals)
-    molecule.one_body_integrals += molecular_coefficients.one_body_basis_change(
+    molecule.one_body_integrals += interaction_tensors.one_body_basis_change(
         numpy.asarray(mints.ao_potential()), molecule.canonical_orbitals)
     two_body_integrals = numpy.asarray(mints.ao_eri())
     two_body_integrals.reshape((molecule.n_orbitals,
@@ -90,7 +90,7 @@ if &run_scf:
                                 molecule.n_orbitals,
                                 molecule.n_orbitals))
     two_body_integrals = numpy.einsum('psqr', two_body_integrals)
-    two_body_integrals = molecular_coefficients.two_body_basis_change(
+    two_body_integrals = interaction_tensors.two_body_basis_change(
         two_body_integrals, molecule.canonical_orbitals)
     integrals_name = molecule.data_handle() + '_eri'
     numpy.save(integrals_name, two_body_integrals)
@@ -150,7 +150,7 @@ if &run_cisd:
                               molecule.n_orbitals, molecule.n_orbitals)
 
     # Get overall RDMs.
-    cisd_one_rdm, cisd_two_rdm = molecular_rdm.unpack_spatial_rdm(
+    cisd_one_rdm, cisd_two_rdm = interaction_rdms.unpack_spatial_rdm(
         cisd_one_rdm_a, cisd_one_rdm_b,
         cisd_two_rdm_aa, cisd_two_rdm_ab,
         cisd_two_rdm_bb)
@@ -197,7 +197,7 @@ if &run_fci:
                               molecule.n_orbitals, molecule.n_orbitals)
 
     # Get overall RDMs.
-    fci_one_rdm, fci_two_rdm = molecular_rdm.unpack_spatial_rdm(
+    fci_one_rdm, fci_two_rdm = interaction_rdms.unpack_spatial_rdm(
         fci_one_rdm_a, fci_one_rdm_b,
         fci_two_rdm_aa, fci_two_rdm_ab, fci_two_rdm_bb)
 

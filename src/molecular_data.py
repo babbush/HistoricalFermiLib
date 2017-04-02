@@ -1,6 +1,6 @@
 """Class and functions to store quantum chemistry data."""
-import molecular_operators
-import molecular_rdm
+import interaction_operators
+import interaction_rdms
 import numpy
 import os
 import pickle
@@ -324,6 +324,52 @@ class MolecularData(object):
     two_body_integrals = numpy.load(self.data_handle() + '_eri.npy')
     return self.one_body_integrals, two_body_integrals
 
+  def get_active_space_integrals(active_space_start, active_space_stop):
+    """Restricts a molecule at a spatial orbital level to the active space
+    defined by active_space=[start,stop]. Note that one_body_integrals and
+    two_body_integrals must be defined in an orthonormal basis set,
+    which is typically the case when defining an active space.
+
+      Args:
+        active_space_start(int): spatial orbital index defining active
+          space start.
+        active_space_stop(int): spatial orbital index defining active
+          space stop.
+
+      Returns:
+        core_constant: Adjustment to constant shift in Hamiltonian from
+          integrating out core orbitals
+        one_body_integrals_new: New one-electron integrals over active space.
+        two_body_integrals_new: New two-electron integrals over active space.
+    """
+    # Get integrals.
+    one_body_integrals, two_body_integrals = self.get_integrals()
+
+    # Determine core constant
+    core_constant = 0.0
+    for i in range(active_space_start):
+      core_constant += 2 * one_body_integrals[i, i]
+      for j in range(active_space_start):
+        core_constant += (2 * two_body_integrals[i, j, j, i] -
+                          two_body_integrals[i, j, i, j])
+
+    # Modified one electron integrals
+    one_body_integrals_new = numpy.copy(one_body_integrals)
+    for u in range(active_space_start, active_space_stop):
+      for v in range(active_space_start, active_space_stop):
+        for i in range(active_space_start):
+          one_body_integrals_new[u, v] += (2 * two_body_integrals[i, u, v, i] -
+                                           two_body_integrals[i, u, i, v])
+
+    # Restrict integral ranges and change M appropriately
+    return (core_constant,
+            one_body_integrals_new[active_space_start: active_space_stop,
+                                   active_space_start: active_space_stop],
+            two_body_integrals[active_space_start: active_space_stop,
+                               active_space_start: active_space_stop,
+                               active_space_start: active_space_stop,
+                               active_space_start: active_space_stop])
+
   def get_molecular_hamiltonian(self,
                                 active_space_start=None,
                                 active_space_stop=None):
@@ -341,21 +387,16 @@ class MolecularData(object):
       molecular_hamiltonian: An instance of the MolecularOperator class.
     """
     # Get active space integrals.
-    one_body_integrals, two_body_integrals = self.get_integrals()
-    if active_space_start:
-      if active_space_stop is None:
-        active_space_stop = self.n_orbitals
-      core_adjustment, one_body_integrals, two_body_integrals = (
-          molecular_operators.restrict_to_active_space(
-              one_body_integrals, two_body_integrals,
-              active_space_start, active_space_stop))
-      constant = self.nuclear_repulsion + core_adjustment
-      self.n_orbitals = active_space_stop - active_space_start
-    else:
+    if active_space_start is None:
+      one_body_integrals, two_body_integrals = self.get_integrals()
       constant = self.nuclear_repulsion
+    else:
+      core_adjustment, one_body_integrals, two_body_integrals = self.\
+          get_active_space_integrals(active_space_start, active_space_stop)
+      constant = self.nuclear_repulsion + core_adjustment
+    n_qubits = 2 * one_body_integrals.shape[0]
 
     # Initialize Hamiltonian coefficients.
-    n_qubits = 2 * self.n_orbitals
     one_body_coefficients = numpy.zeros((n_qubits, n_qubits))
     two_body_coefficients = numpy.zeros((n_qubits, n_qubits,
                                          n_qubits, n_qubits))
@@ -392,8 +433,8 @@ class MolecularData(object):
     two_body_coefficients[
         numpy.absolute(two_body_coefficients) < EQ_TOLERANCE] = 0.
 
-    # Cast to MolecularOperator class and return.
-    molecular_hamiltonian = molecular_operators.MolecularOperator(
+    # Cast to InteractionOperator class and return.
+    molecular_hamiltonian = interaction_operators.InteractionOperator(
         constant, one_body_coefficients, two_body_coefficients)
     return molecular_hamiltonian
 
@@ -435,19 +476,19 @@ class MolecularData(object):
         one_rdm = self.cisd_one_rdm
     two_rdm = numpy.load(rdm_name)
 
-    # TODO Jarrod: Restrict to an active space.
-    if active_space_stop:
+    # Restrict to active space.
+    if active_space_start:
+      # TODO Jarrod.
       pass
 
     # Truncate.
     one_rdm[numpy.absolute(one_rdm) < EQ_TOLERANCE] = 0.
     two_rdm[numpy.absolute(two_rdm) < EQ_TOLERANCE] = 0.
 
-    # Cast to MolecularOperator class.
-    constant = 1.
-    rdm = molecular_rdm.MolecularRDM(constant, one_rdm, two_rdm)
+    # Cast to InteractionRDM class.
+    rdm = interaction_rdms.InteractionRDM(one_rdm, two_rdm)
     return rdm
 
   def get_cc_amplitudes(self):
-    # TODO Damian.
+    # TODO Jarrod.
     return None

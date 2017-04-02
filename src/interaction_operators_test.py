@@ -1,12 +1,12 @@
-"""Tests for molecular_operators.py"""
-from molecular_operators import MolecularOperator, MolecularOperatorError
+"""Tests for interaction_operators.py"""
+from interaction_operators import InteractionOperator, InteractionOperatorError
 import fermion_operators
 import itertools
 import unittest
 import numpy
 
 
-class MolecularOperatorsTest(unittest.TestCase):
+class InteractionOperatorsTest(unittest.TestCase):
 
   def setUp(self):
     self.n_qubits = 5
@@ -14,8 +14,9 @@ class MolecularOperatorsTest(unittest.TestCase):
     self.one_body = numpy.zeros((self.n_qubits, self.n_qubits), float)
     self.two_body = numpy.zeros((self.n_qubits, self.n_qubits,
                                  self.n_qubits, self.n_qubits), float)
-    self.molecular_operator = MolecularOperator(self.constant, self.one_body,
-                                                self.two_body)
+    self.interaction_operator = InteractionOperator(self.constant,
+                                                    self.one_body,
+                                                    self.two_body)
 
   def test_jordan_wigner_one_body(self):
 
@@ -24,7 +25,7 @@ class MolecularOperatorsTest(unittest.TestCase):
       for q in range(self.n_qubits):
 
         # Get test qubit operator.
-        test_operator = self.molecular_operator.jordan_wigner_one_body(p, q)
+        test_operator = self.interaction_operator.jordan_wigner_one_body(p, q)
 
         # Get correct qubit operator.
         fermion_term = fermion_operators.FermionTerm(
@@ -46,7 +47,7 @@ class MolecularOperatorsTest(unittest.TestCase):
           for s in range(self.n_qubits):
 
             # Get test qubit operator.
-            test_operator = self.molecular_operator.jordan_wigner_two_body(
+            test_operator = self.interaction_operator.jordan_wigner_two_body(
                 p, q, r, s)
 
             # Get correct qubit operator.
@@ -72,12 +73,12 @@ class MolecularOperatorsTest(unittest.TestCase):
     two_body[2, 1, 4, 3] = 12.0
     two_body[3, 4, 1, 2] = 12.0
     two_body[4, 3, 2, 1] = 12.0
-    molecular_operator = MolecularOperator(constant, one_body, two_body)
+    interaction_operator = InteractionOperator(constant, one_body, two_body)
 
     want_str = '100.0\n10.0\n11.0\n12.0\n'
     got_str = ''
-    for key in molecular_operator.four_point_iter():
-      got_str += '{}\n'.format(molecular_operator[key])
+    for key in interaction_operator.unique_iter(complex_valued=True):
+      got_str += '{}\n'.format(interaction_operator[key])
     self.assertEqual(want_str, got_str)
 
   def test_eight_point_iter(self):
@@ -96,12 +97,12 @@ class MolecularOperatorsTest(unittest.TestCase):
     two_body[2, 3, 4, 1] = 12.0
     two_body[3, 2, 1, 4] = 12.0
     two_body[4, 1, 2, 3] = 12.0
-    molecular_operator = MolecularOperator(constant, one_body, two_body)
+    interaction_operator = InteractionOperator(constant, one_body, two_body)
 
     want_str = '100.0\n10.0\n11.0\n12.0\n'
     got_str = ''
-    for key in molecular_operator.eight_point_iter():
-      got_str += '{}\n'.format(molecular_operator[key])
+    for key in interaction_operator.unique_iter():
+      got_str += '{}\n'.format(interaction_operator[key])
     self.assertEqual(want_str, got_str)
 
 

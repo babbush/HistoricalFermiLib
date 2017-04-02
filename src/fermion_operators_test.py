@@ -6,7 +6,7 @@ import unittest
 
 from config import *
 from fermion_operators import (fermion_identity, number_operator,
-                               hopping_operator,
+                               one_body_term, two_body_term,
                                FermionTerm, FermionOperator,
                                FermionTermError, FermionOperatorError,
                                JordanWignerError)
@@ -18,11 +18,10 @@ class HoppingOperatorsTest(unittest.TestCase):
   def setUp(self):
     self.n_qubits = 5
 
-  def test_hopping_operators(self):
-    n14 = hopping_operator(1, 4)
-    t1 = FermionTerm([(1, 1), (4, 0)])
-    t4 = FermionTerm([(4, 1), (1, 0)])
-    self.assertEqual(n14, t1 + t4)
+  def test_one_body_term(self):
+    n14 = one_body_term(1, 4)
+    t14 = FermionTerm([(1, 1), (4, 0)])
+    self.assertEqual(n14, t14)
 
 
 class NumberOperatorsTest(unittest.TestCase):
@@ -980,7 +979,7 @@ class FermionOperatorsTest(unittest.TestCase):
       self.assertEqual(n_jw[operators], -0.5)
 
   def test_get_molecular_operator(self):
-    molecular_operator = self.operator_c.get_molecular_operator()
+    molecular_operator = self.operator_c.get_interaction_operator()
     fermion_operator = molecular_operator.get_fermion_operator()
     fermion_operator.normal_order()
     self.operator_c.normal_order()
@@ -1043,7 +1042,7 @@ class FermionOperatorsTest(unittest.TestCase):
   def test_bk_jw_hopping_operator(self):
     # Check if the spectrum fits for a single hoppping operator
     n_qubits = 5
-    ho = hopping_operator(1, 4)
+    ho = one_body_term(1, 4) + one_body_term(4, 1)
     jw_ho = ho.jordan_wigner_transform()
     bk_ho = ho.bravyi_kitaev_transform()
 
