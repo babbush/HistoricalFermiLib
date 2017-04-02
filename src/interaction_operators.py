@@ -295,6 +295,7 @@ class InteractionOperator(InteractionTensor):
     return qubit_operator
 
   def get_sparse_operator(self):
+    # TODO: Replace with much faster "direct" routine.
     fermion_operator = self.get_fermion_operator()
     sparse_operator = fermion_operator.jordan_wigner_sparse()
     return sparse_operator

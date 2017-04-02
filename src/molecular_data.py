@@ -324,7 +324,8 @@ class MolecularData(object):
     two_body_integrals = numpy.load(self.data_handle() + '_eri.npy')
     return self.one_body_integrals, two_body_integrals
 
-  def get_active_space_integrals(active_space_start, active_space_stop):
+  def get_active_space_integrals(self, active_space_start,
+                                 active_space_stop=None):
     """Restricts a molecule at a spatial orbital level to the active space
     defined by active_space=[start,stop]. Note that one_body_integrals and
     two_body_integrals must be defined in an orthonormal basis set,
@@ -344,6 +345,9 @@ class MolecularData(object):
     """
     # Get integrals.
     one_body_integrals, two_body_integrals = self.get_integrals()
+    n_orbitals = one_body_integrals.shape[0]
+    if active_space_stop is None:
+      active_space_stop = n_orbitals
 
     # Determine core constant
     core_constant = 0.0

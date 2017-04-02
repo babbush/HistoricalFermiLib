@@ -152,7 +152,11 @@ class InteractionTensor(object):
       raise ValueError('args must be of length 0, 2, or 4.')
 
   def __eq__(self, molecular_tensor):
-    diff = max(abs(self.constant - molecular_tensor.constant),
+    if self.constant is None:
+      constant_diff = 0
+    else:
+      constant_diff = abs(molecular_tensor.constant - self.constant)
+    diff = max(constant_diff,
                numpy.amax(numpy.absolute(self.one_body_tensor -
                           molecular_tensor.one_body_tensor)),
                numpy.amax(numpy.absolute(self.two_body_tensor -

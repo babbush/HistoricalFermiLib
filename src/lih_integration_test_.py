@@ -2,11 +2,12 @@
 import numpy
 import scipy
 import scipy.linalg
+import interaction_operators
+import interaction_rdms
 import unittest
 import run_psi4
 import molecular_data
 import sparse_operators
-import molecular_operators
 
 
 class LiHIntegrationTest(unittest.TestCase):
@@ -43,8 +44,8 @@ class LiHIntegrationTest(unittest.TestCase):
 
     # Get explicit coefficients.
     self.nuclear_repulsion = self.molecular_hamiltonian.constant
-    self.one_body = self.molecular_hamiltonian.one_body_coefficients
-    self.two_body = self.molecular_hamiltonian.two_body_coefficients
+    self.one_body = self.molecular_hamiltonian.one_body_tensor
+    self.two_body = self.molecular_hamiltonian.two_body_tensor
 
     # Get fermion Hamiltonian.
     self.fermion_hamiltonian = (
@@ -75,16 +76,16 @@ class LiHIntegrationTest(unittest.TestCase):
     self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
 
     # Make sure the mapping of FermionOperator to MolecularOperator works.
-    molecular_hamiltonian = self.fermion_hamiltonian.get_molecular_operator()
+    molecular_hamiltonian = self.fermion_hamiltonian.get_interaction_operator()
     fermion_hamiltonian = molecular_hamiltonian.get_fermion_operator()
     self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
 
     # Check that FCI prior has the correct energy.
     fci_rdm_energy = self.nuclear_repulsion
-    fci_rdm_energy += numpy.sum(self.fci_rdm.one_body_coefficients *
-                                molecular_hamiltonian.one_body_coefficients)
-    fci_rdm_energy += numpy.sum(self.fci_rdm.two_body_coefficients *
-                                molecular_hamiltonian.two_body_coefficients)
+    fci_rdm_energy += numpy.sum(self.fci_rdm.one_body_tensor *
+                                molecular_hamiltonian.one_body_tensor)
+    fci_rdm_energy += numpy.sum(self.fci_rdm.two_body_tensor *
+                                molecular_hamiltonian.two_body_tensor)
     self.assertAlmostEqual(fci_rdm_energy, self.molecule.fci_energy)
 
     # Test the matrix representation.
@@ -95,7 +96,7 @@ class LiHIntegrationTest(unittest.TestCase):
 
     # Make sure you can reproduce Hartree-Fock energy.
     hf_state = sparse_operators.jw_hartree_fock_state(
-        self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits)
+        self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits())
     hf_density = sparse_operators.get_density_matrix([hf_state], [1.])
     expected_hf_density_energy = self.hamiltonian_matrix.expectation(
         hf_density)
@@ -109,12 +110,8 @@ class LiHIntegrationTest(unittest.TestCase):
     self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 
     # Confirm fermionic RDMs can be built from measured qubit RDMs.
-    new_fermi_rdm = qubit_rdm.get_molecular_rdm()
-    fci_rdm_energy = self.nuclear_repulsion
-    fci_rdm_energy += numpy.sum(new_fermi_rdm.one_body_coefficients *
-                                molecular_hamiltonian.one_body_coefficients)
-    fci_rdm_energy += numpy.sum(new_fermi_rdm.two_body_coefficients *
-                                molecular_hamiltonian.two_body_coefficients)
+    new_fermi_rdm = qubit_rdm.get_interaction_rdm()
+    fermi_rdm_energy = new_fermi_rdm.expectation(self.molecular_hamiltonian)
     self.assertAlmostEqual(fci_rdm_energy, self.molecule.fci_energy)
 
     # Check that frozen core result matches frozen core FCI from psi4.
