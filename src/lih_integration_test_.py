@@ -1,5 +1,6 @@
 """Tests many modules to compute energy of lih."""
 import numpy
+import run_psi4
 import scipy
 import scipy.linalg
 import interaction_operators
@@ -8,6 +9,7 @@ import unittest
 import run_psi4
 import molecular_data
 import sparse_operators
+import unittest
 
 
 class LiHIntegrationTest(unittest.TestCase):

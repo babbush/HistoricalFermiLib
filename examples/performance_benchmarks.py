@@ -1,9 +1,8 @@
 """This file contains tests of code performance to reveal bottlenecks."""
-from fermion_operators import FermionTerm
 import interaction_operators
 import numpy
 import time
-
+from fermion_operators import FermionTerm
 
 def artificial_molecular_operator(n_qubits):
   """Make an artificial random InteractionOperator for testing purposes."""

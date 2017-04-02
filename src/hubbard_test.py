@@ -1,5 +1,5 @@
-import unittest
 import hubbard
+import unittest
 
 
 class FermiHubbardTest(unittest.TestCase):

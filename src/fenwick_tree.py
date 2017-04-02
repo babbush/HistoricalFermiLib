@@ -1,3 +1,4 @@
+"""Class to represent a Fenwick tree."""
 
 
 class FenwickNode:

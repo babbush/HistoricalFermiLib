@@ -1,5 +1,6 @@
-from fenwick_tree import (FenwickTree, FenwickNode)
 import unittest
+
+from fenwick_tree import (FenwickTree, FenwickNode)
 
 
 class FenwickTreeTest(unittest.TestCase):

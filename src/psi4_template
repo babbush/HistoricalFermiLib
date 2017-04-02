@@ -8,6 +8,11 @@ import numpy
 import molecular_data
 import interaction_tensors
 import interaction_rdms
+import molecular_data
+import numpy
+import sys
+
+from config import *
 
 # Set memory that job can use in megabytes.
 memory &memory mb
