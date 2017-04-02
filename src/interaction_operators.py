@@ -1,104 +1,57 @@
-"""Class and functions to store molecular Hamiltonians."""
+"""Class and functions to store interaction operators."""
 import fermion_operators
 import qubit_operators
 import itertools
 import numpy
 import copy
-from molecular_coefficients import MolecularCoefficients
+from interaction_tensors import InteractionTensor
 
 
-class MolecularOperatorError(Exception):
+class InteractionOperatorError(Exception):
   pass
 
 
-def restrict_to_active_space(one_body_integrals, two_body_integrals,
-                             active_space_start, active_space_stop):
-  """Restrict the molecule at a spatial orbital level to the active space
-  defined by active_space=[start,stop]. Note that one_body_integrals and
-  two_body_integrals must be defined in an orthonormal basis set,
-  which is typically the case when defining an active space.
-
-    Args:
-      one_body_integrals: (N,N) numpy array containing the one-electron
-        spatial integrals for a molecule.
-      two_body_integrals: (N,N,N,N) numpy array containing the two-electron
-        spatial integrals.
-      active_space_start(int): spatial orbital index defining active
-        space start.
-
-    Returns:
-      core_constant: Adjustment to constant shift in Hamiltonian from
-        integrating out core orbitals
-      one_body_integrals_new: New one-electron integrals over active space.
-      two_body_integrals_new: New two-electron integrals over active space.
-  """
-  # Determine core constant
-  core_constant = 0.0
-  for i in range(active_space_start):
-    core_constant += 2 * one_body_integrals[i, i]
-    for j in range(active_space_start):
-      core_constant += (2 * two_body_integrals[i, j, j, i] -
-                        two_body_integrals[i, j, i, j])
-
-  # Modified one electron integrals
-  one_body_integrals_new = numpy.copy(one_body_integrals)
-  for u in range(active_space_start, active_space_stop):
-    for v in range(active_space_start, active_space_stop):
-      for i in range(active_space_start):
-        one_body_integrals_new[u, v] += (2 * two_body_integrals[i, u, v, i] -
-                                         two_body_integrals[i, u, i, v])
-
-  # Restrict integral ranges and change M appropriately
-  return (core_constant,
-          one_body_integrals_new[active_space_start: active_space_stop,
-                                 active_space_start: active_space_stop],
-          two_body_integrals[active_space_start: active_space_stop,
-                             active_space_start: active_space_stop,
-                             active_space_start: active_space_stop,
-                             active_space_start: active_space_stop])
-
-
-class MolecularOperator(MolecularCoefficients):
-  """Class for storing 'molecular operators' which are defined to be
+class InteractionOperator(InteractionTensor):
+  """Class for storing 'interaction operators' which are defined to be
   fermionic operators consisting of one-body and two-body terms which
   conserve particle number and spin. The most common examples of data
-  that will use this structure are molecular Hamiltonians and molecular
-  2-RDM density operators. In principle, everything stored in this class
-  could also be represented as the more general FermionOperator class.
-  However, this class is able to exploit specific properties of molecular
-  operators in order to enable more efficient manipulation of the data.
+  that will use this structure are molecular Hamiltonians. In principle,
+  everything stored in this class could also be represented using the more
+  general FermionOperator class. However, this class is able to exploit
+  specific properties of how fermions interact to enable more
+  numerically efficient manipulation of the data.
   Note that the operators stored in this class take the form:
       constant + \sum_{p, q} h_[p, q] a^\dagger_p a_q +
       \sum_{p, q, r, s} h_[p, q, r, s] a^\dagger_p a^\dagger_q a_r a_s.
 
   Attributes:
     n_qubits: An int giving the number of qubits.
-    one_body_coefficients: The coefficients of the one-body terms (h[p, q]).
-        This is an n_qubits x n_qubits numpy array of floats.
-    two_body_coefficients: The coefficients of the two-body terms
-        (h[p, q, r, s]). This is an n_qubits x n_qubits x n_qubits x
-        n_qubits numpy array of floats.
     constant: A constant term in the operator given as a float.
         For instance, the nuclear repulsion energy.
+    one_body_tensor: The coefficients of the one-body terms (h[p, q]).
+        This is an n_qubits x n_qubits numpy array of floats.
+    two_body_tensor: The coefficients of the two-body terms
+        (h[p, q, r, s]). This is an n_qubits x n_qubits x n_qubits x
+        n_qubits numpy array of floats.
   """
 
-  def __init__(self, constant, one_body_coefficients, two_body_coefficients):
-    """Initialize the MolecularOperator class.
+  def __init__(self, constant, one_body_tensor, two_body_tensor):
+    """Initialize the InteractionOperator class.
 
     Args:
       constant: A constant term in the operator given as a float.
           For instance, the nuclear repulsion energy.
-      one_body_coefficients: The coefficients of the one-body terms (h[p, q]).
+      one_body_tensor: The coefficients of the one-body terms (h[p, q]).
           This is an n_qubits x n_qubits numpy array of floats.
-      two_body_coefficients: The coefficients of the two-body terms
+      two_body_tensor: The coefficients of the two-body terms
           (h[p, q, r, s]). This is an n_qubits x n_qubits x n_qubits x
           n_qubits numpy array of floats.
     """
     # Make sure nonzero elements are only for normal ordered terms.
-    super(MolecularOperator, self).__init__(constant, one_body_coefficients,
-                                            two_body_coefficients)
+    super(InteractionOperator, self).__init__(constant, one_body_tensor,
+                                              two_body_tensor)
 
-  def __symmetry_iter_helper(self, symmetry):
+  def unique_iter(self, complex_valued=False):
     """Iterate all terms that are not in the same symmetry group.
     Four point symmetry:
       1. pq = qp.
@@ -108,47 +61,39 @@ class MolecularOperator(MolecularCoefficients):
       2. pqrs = rqps = psrq = srqp = qpsr = rspq = spqr = qrsp.
 
     Args:
-      symmetry: The symmetry, 4 or 8, to represent four point or eight point.
+      complex_valued: Bool, whether the operator has complex coefficients.
     """
-    if symmetry != 4 and symmetry != 8:
-      raise ValueError('The symmetry must be one of 4, 8.')
-
-    if self.constant:  # Constant.
+    # Constant.
+    if self.constant:
       yield []
 
-    for p in range(self.n_qubits):  # One-body terms.
+    # One-body terms.
+    for p in range(self.n_qubits):
       for q in range(p + 1):
-        if self.one_body_coefficients[p, q]:
+        if self.one_body_tensor[p, q]:
           yield [p, q]
 
+    # Two-body terms.
     record_map = {}
-    for p in range(self.n_qubits):  # Two-body terms.
+    for p in range(self.n_qubits):
       for q in range(self.n_qubits):
         for r in range(self.n_qubits):
           for s in range(self.n_qubits):
-            if self.two_body_coefficients[p, q, r, s] and \
+            if self.two_body_tensor[p, q, r, s] and \
                (p, q, r, s) not in record_map:
               yield [p, q, r, s]
               record_map[(p, q, r, s)] = []
               record_map[(s, r, q, p)] = []
               record_map[(q, p, s, r)] = []
               record_map[(r, s, p, q)] = []
-              if symmetry == 8:
+              if not complex_valued:
                 record_map[(p, s, r, q)] = []
                 record_map[(s, p, q, r)] = []
                 record_map[(q, r, s, p)] = []
                 record_map[(r, q, p, s)] = []
 
-  def four_point_iter(self):
-    for key in self.__symmetry_iter_helper(4):
-      yield key
-
-  def eight_point_iter(self):
-    for key in self.__symmetry_iter_helper(8):
-      yield key
-
   def get_fermion_operator(self):
-    """Output MolecularOperator as an instance of FermionOperator class.
+    """Output InteractionOperator as an instance of FermionOperator class.
 
     Returns:
       fermion_operator: An instance of the FermionOperator class.
@@ -157,16 +102,16 @@ class MolecularOperator(MolecularCoefficients):
     identity = fermion_operators.FermionTerm([], self.constant)
     fermion_operator = fermion_operators.FermionOperator([identity])
 
+    # Add one-body terms.
     for p in range(self.n_qubits):
       for q in range(self.n_qubits):
-        # Add one-body terms.
         coefficient = self[p, q]
         fermion_operator += fermion_operators.FermionTerm(
             [(p, 1), (q, 0)], coefficient)
 
+        # Add two-body terms.
         for r in range(self.n_qubits):
           for s in range(self.n_qubits):
-            # Add two-body terms.
             coefficient = self[p, q, r, s]
             fermion_operator += fermion_operators.FermionTerm(
                 [(p, 1), (q, 1), (r, 0), (s, 0)], coefficient)
@@ -301,7 +246,7 @@ class MolecularOperator(MolecularCoefficients):
     return qubit_operator
 
   def jordan_wigner_transform(self):
-    """Output MolecularOperator as QubitOperator class under JW transform.
+    """Output InteractionOperator as QubitOperator class under JW transform.
 
     One could accomplish this very easily by first mapping to fermions and
     then mapping to qubits. We skip the middle step for the sake of speed.
@@ -350,6 +295,7 @@ class MolecularOperator(MolecularCoefficients):
     return qubit_operator
 
   def get_sparse_operator(self):
+    # TODO: Replace with much faster "direct" routine.
     fermion_operator = self.get_fermion_operator()
     sparse_operator = fermion_operator.jordan_wigner_sparse()
     return sparse_operator

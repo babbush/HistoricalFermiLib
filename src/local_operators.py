@@ -48,6 +48,13 @@ class LocalOperator(object):
   def return_class(cls, terms=None):
     return cls(terms)
 
+  def n_qubits(self):
+    highest_qubit = 0
+    for term in self:
+      if term.n_qubits() > highest_qubit:
+        highest_qubit = term.n_qubits()
+    return highest_qubit
+
   def __eq__(self, other):
     """Compare operators to see if they are the same."""
     if len(self) != len(other):

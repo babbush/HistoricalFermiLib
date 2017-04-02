@@ -1,14 +1,14 @@
-"""Tests for molecular_rdm.py"""
+"""Tests for interaction_rdms.py"""
 import numpy
 import unittest
 
 from config import *
 from molecular_data import MolecularData
-from molecular_rdm import MolecularRDM
+from interaction_rdms import InteractionRDM
 from run_psi4 import run_psi4
 
 
-class MolecularRDMTest(unittest.TestCase):
+class InteractionRDMTest(unittest.TestCase):
 
   def setUp(self):
     geometry = [('H', (0, 0, 0)), ('H', (0, 0, 0.2))]
@@ -28,14 +28,14 @@ class MolecularRDMTest(unittest.TestCase):
   def test_get_qubit_expectations(self):
     qubit_operator = self.hamiltonian.jordan_wigner_transform()
     qubit_expectations = self.rdm.get_qubit_expectations(qubit_operator)
-    got_energy = 0
+    test_energy = qubit_operator[[]]
     for qubit_term in qubit_expectations:
       term_coefficient = qubit_operator[qubit_term]
-      got_energy += term_coefficient * qubit_term.coefficient
-    self.assertLess(abs(got_energy - self.cisd_energy), EQ_TOLERANCE)
+      test_energy += term_coefficient * qubit_term.coefficient
+    self.assertLess(abs(test_energy - self.cisd_energy), EQ_TOLERANCE)
 
   def test_get_molecular_operator_expectation(self):
-    expectation = self.rdm.get_molecular_operator_expectation(self.hamiltonian)
+    expectation = self.rdm.expectation(self.hamiltonian)
     self.assertEqual(expectation, self.cisd_energy)
 
 

@@ -4,8 +4,8 @@ from local_terms import LocalTerm, LocalTermError
 from local_operators import LocalOperator, LocalOperatorError
 from sparse_operators import (jordan_wigner_term_sparse,
                               jordan_wigner_operator_sparse)
-from fenwick_tree import FenwickNode, FenwickTree
-import molecular_operators
+from fenwick_tree import FenwickTree
+import interaction_operators
 import qubit_operators
 import numpy
 import copy
@@ -23,20 +23,28 @@ class FermionOperatorError(LocalOperatorError):
   pass
 
 
-def fermion_identity():
-  return FermionTerm([], 1.)
+def fermion_identity(coefficient=1.):
+  return FermionTerm([], coefficient)
 
 
-def hopping_operator(site1, site2, coefficient=1.):
-  """Return a hopping operator.
+def one_body_term(p, q, coefficient=1.):
+  """Return one-body operator which conserves particle number.
 
   Args:
-    site1, site2: The sites between which the hopping occurs.
+    p, q: The sites between which the hopping occurs.
+    coefficient: Optional float giving coefficient of term.
   """
-  t1 = FermionTerm([(site1, 1), (site2, 0)], coefficient)
-  t2 = FermionTerm([(site2, 1), (site1, 0)], coefficient)
+  return FermionTerm([(p, 1), (q, 0)], coefficient)
 
-  return t1 + t2
+
+def two_body_term(p, q, r, s, coefficient=1.):
+  """Return two-body operator which conserves particle number.
+
+  Args:
+    p, q, r, s: The sites between which the hopping occurs.
+    coefficient: Optional float giving coefficient of term.
+  """
+  return FermionTerm([(p, 1), (q, 1), (r, 0), (s, 0)], coefficient)
 
 
 def number_operator(n_qubits, site=None, coefficient=1.):
@@ -60,10 +68,10 @@ class FermionTerm(LocalTerm):
   """Stores a single term composed of products of fermionic ladder operators.
 
   Attributes:
-    coefficient: A complex valued float giving the term coefficient.
     operators: A list of tuples. The first element of each tuple is an
       int indicating the site on which operators acts. The second element
       of each tuple is boole, indicating whether raising (1) or lowering (0).
+    coefficient: A complex valued float giving the term coefficient.
 
     Example usage:
       Consider the term 6.7 * a_3^\dagger a_1 a_7^\dagger
@@ -74,11 +82,16 @@ class FermionTerm(LocalTerm):
   def __init__(self, operators=None, coefficient=1.):
     """Init a FermionTerm.
 
+    There are two ways to initialize the FermionTerm a^\dagger_2 a_7
+    Way one is to provide the operators list, e.g. [(2, 1), (7, 0)]
+    The other way is to provide a string '2^ 7'
+
     Args:
-      coefficient: A complex valued float giving the term coefficient.
       operators: A list of tuples. The first element of each tuple is an
           int indicating the site on which operators acts. The second element
           of each tuple is an integer indicating raising (1) or lowering (0).
+          Alternatively, a string can be provided.
+      coefficient: A complex valued float giving the term coefficient.
 
     Raises:
       ValueError: Provided incorrect operator in list of operators.
@@ -88,6 +101,7 @@ class FermionTerm(LocalTerm):
     if operators is not None and not isinstance(operators, (tuple, list, str)):
       raise ValueError("Operators specified incorrectly.")
 
+    # Parse string input.
     if isinstance(operators, str):
       list_ops = []
       for el in operators.split():
@@ -100,8 +114,10 @@ class FermionTerm(LocalTerm):
             raise ValueError('Invalid action provided to FermionTerm.')
       operators = list_ops
 
+    # Initialize.
     super(FermionTerm, self).__init__(operators, coefficient)
 
+    # Check type.
     for operator in self:
       if not isinstance(operator, tuple):
         raise ValueError('Provided incorrect operator in list of operators.')
@@ -114,12 +130,11 @@ class FermionTerm(LocalTerm):
                          'Must be 0 (lowering) or 1 (raising).')
 
   def n_qubits(self):
-    n = 0
+    highest_qubit = 0
     for operator in self.operators:
-      tensor_factor, action = operator
-      if tensor_factor + 1 > n:
-        n = tensor_factor + 1
-    return n
+      if operator[0] + 1 > highest_qubit:
+        highest_qubit = operator[0] + 1
+    return highest_qubit
 
   def __add__(self, addend):
     """Compute self + addend for a FermionTerm.
@@ -269,10 +284,8 @@ class FermionTerm(LocalTerm):
     """
     if n_qubits is None:
       n_qubits = self.n_qubits()
-    if n_qubits == 0:
+    if not n_qubits or n_qubits < self.n_qubits():
       raise ValueError("Invalid n_qubits.")
-    if n_qubits < self.n_qubits():
-      n_qubits = self.n_qubits()
 
     # Build the Fenwick Tree
     fenwick_tree = FenwickTree(n_qubits)
@@ -334,6 +347,7 @@ class FermionTerm(LocalTerm):
     # Initialize identity matrix.
     transformed_term = qubit_operators.QubitOperator(
         [qubit_operators.QubitTerm([], self.coefficient)])
+
     # Loop through operators, transform and multiply.
     for operator in self:
       z_factors = [(index, 'Z') for index in range(0, operator[0])]
@@ -398,18 +412,10 @@ class FermionOperator(LocalOperator):
       FermionOperatorError: Invalid FermionTerms provided to FermionOperator.
     """
     super(FermionOperator, self).__init__(terms)
-
     for term in self:
       if not isinstance(term, FermionTerm):
         raise FermionOperatorError('Invalid FermionTerms provided to '
                                    'FermionOperator.')
-
-  def n_qubits(self):
-    n = 0
-    for term in self:
-      if term.n_qubits() > n:
-        n = term.n_qubits()
-    return n
 
   def __setitem__(self, operators, coefficient):
     if operators in self:
@@ -480,11 +486,8 @@ class FermionOperator(LocalOperator):
     """
     if n_qubits is None:
       n_qubits = self.n_qubits()
-    if n_qubits == 0:
+    if not n_qubits or n_qubits < self.n_qubits():
       raise ValueError("Invalid n_qubits.")
-    if n_qubits < self.n_qubits():
-      n_qubits = self.n_qubits()
-
     transformed_operator = qubit_operators.QubitOperator()
     for term in self:
       transformed_operator += term.bravyi_kitaev_transform(n_qubits)
@@ -500,8 +503,8 @@ class FermionOperator(LocalOperator):
       n_qubits = self.n_qubits()
     return jordan_wigner_operator_sparse(self, n_qubits)
 
-  def get_molecular_operator(self):
-    """Convert a 2-body fermionic operator to instance of MolecularOperator.
+  def get_interaction_operator(self):
+    """Convert a 2-body fermionic operator to instance of InteractionOperator.
 
     This function should only be called on fermionic operators which consist
     of only a_p^\dagger a_q and a_p^\dagger a_q^\dagger a_r a_s terms.
@@ -509,10 +512,10 @@ class FermionOperator(LocalOperator):
     two-body terms are stored in a tensor, two_body[p, q, r, s].
 
     Returns:
-      molecular_operator: An instance of the MolecularOperator class.
+      interaction_operator: An instance of the InteractionOperator class.
 
     Raises:
-      ErrorMolecularOperator: FermionOperator is not a molecular operator.
+      ErrorInteractionOperator: FermionOperator is not a molecular operator.
 
     Warning:
       Even assuming that each creation or annihilation operator appears
@@ -541,7 +544,7 @@ class FermionOperator(LocalOperator):
           p, q = [operator[0] for operator in term]
           one_body[p, q] = coefficient
         else:
-          raise molecular_operators.ErrorMolecularOperator(
+          raise interaction_operators.ErrorInteractionOperator(
               'FermionOperator is not a molecular operator.')
 
       elif len(term) == 4:
@@ -550,15 +553,15 @@ class FermionOperator(LocalOperator):
           p, q, r, s = [operator[0] for operator in term]
           two_body[p, q, r, s] = coefficient
         else:
-          raise molecular_operators.ErrorMolecularOperator(
+          raise interaction_operators.ErrorInteractionOperator(
               'FermionOperator is not a molecular operator.')
 
       else:
         # Handle non-molecular Hamiltonian.
-        raise molecular_operators.ErrorMolecularOperator(
+        raise interaction_operators.ErrorInteractionOperator(
             'FermionOperator is  not a molecular operator.')
 
-    # Form MolecularOperator and return.
-    molecular_operator = molecular_operators.MolecularOperator(
+    # Form InteractionOperator and return.
+    interaction_operator = interaction_operators.InteractionOperator(
         constant, one_body, two_body)
-    return molecular_operator
+    return interaction_operator

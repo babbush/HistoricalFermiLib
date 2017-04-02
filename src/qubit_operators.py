@@ -5,7 +5,7 @@ from local_operators import LocalOperator
 from sparse_operators import (qubit_term_sparse,
                               qubit_operator_sparse)
 import fermion_operators
-import molecular_operators
+import interaction_rdms
 import itertools
 import numpy
 import copy
@@ -38,8 +38,8 @@ _PAULI_MATRIX_PRODUCTS = {('I', 'I'): (1., 'I'),
                           ('Z', 'Y'): (-1.j, 'X')}
 
 
-def qubit_identity():
-  return QubitTerm([], 1.)
+def qubit_identity(coefficient=1.):
+  return QubitTerm([], coefficient)
 
 
 class QubitTerm(LocalTerm):
@@ -58,11 +58,11 @@ class QubitTerm(LocalTerm):
   of the tensor factor on which the operator acts.
 
   Attributes:
-    coefficient: A real or complex floating point number.
     operators: A sorted list of tuples. The first element of each tuple is an
       int indicating the qubit on which operators acts. The second element
       of each tuple is a string, either 'X', 'Y' or 'Z', indicating what
       acts on that tensor factor. The list is sorted by the first index.
+    coefficient: A real or complex floating point number.
   """
   def __init__(self, operators=None, coefficient=1.):
     """Inits PauliTerm.
@@ -93,7 +93,6 @@ class QubitTerm(LocalTerm):
           raise ValueError("Operators specified incorrectly.")
         list_ops.append((int(el[1:]), el[0]))
       operators = list_ops
-
     super(QubitTerm, self).__init__(operators, coefficient)
 
     for operator in self:
@@ -109,12 +108,11 @@ class QubitTerm(LocalTerm):
     self.operators.sort(key=lambda operator: operator[0])
 
   def n_qubits(self):
-    n = 0
+    highest_qubit = 0
     for operator in self.operators:
-      tensor_factor, action = operator
-      if tensor_factor + 1 > n:
-        n = tensor_factor + 1
-    return n
+      if operator[0] + 1 > highest_qubit:
+        highest_qubit = operator[0] + 1
+    return highest_qubit
 
   def __add__(self, addend):
     """Compute self + addend for a QubitTerm.
@@ -329,13 +327,6 @@ class QubitOperator(LocalOperator):
       if not isinstance(term, QubitTerm):
         raise QubitTermError('Invalid QubitTerms provided to QubitOperator.')
 
-  def n_qubits(self):
-    n = 0
-    for term in self:
-      if term.n_qubits() > n:
-        n = term.n_qubits()
-    return n
-
   def __setitem__(self, operators, coefficient):
     if operators in self:
       self.terms[tuple(operators)].coefficient = coefficient
@@ -378,13 +369,16 @@ class QubitOperator(LocalOperator):
     """
     expectation = 0.
     for term in qubit_operator:
-      expectation += term.coefficient * self[term.operators]
+      if term.is_identity():
+        expectation += term.coefficient + self[term.operators]
+      else:
+        expectation += term.coefficient * self[term.operators]
     return expectation
 
-  def get_molecular_rdm(self, n_qubits=None):
-    """Build a MolecularOperator from measured qubit operators.
+  def get_interaction_rdm(self, n_qubits=None):
+    """Build a InteractionRDM from measured qubit operators.
 
-    Returns: A MolecularOperator object.
+    Returns: A InteractionRDM object.
     """
     if n_qubits is None:
       n_qubits = self.n_qubits()
@@ -411,4 +405,4 @@ class QubitOperator(LocalOperator):
         if tuple(term.operators) in self.terms:
           two_rdm[i, j, k, l] += term.coefficient * self[term.operators]
 
-    return molecular_operators.MolecularOperator(1.0, one_rdm, two_rdm)
+    return interaction_rdms.InteractionRDM(one_rdm, two_rdm)

@@ -63,7 +63,6 @@ class LocalTerm(object):
       are within EQ_TOLERANCE of the first and their operators are the
       same, or if both their coefficients are within tolerance of zero.
     """
-
     # Operators are equal if their coefficients are sufficiently close
     # and they have the same operators, or if they are both close to 0.
     return ((self.operators == other.operators and

@@ -1,11 +1,11 @@
-"""Tests for molecular_coefficients.py"""
-from molecular_coefficients import MolecularCoefficients
+"""Tests for interaction_tensors.py"""
+from interaction_tensors import InteractionTensor
 import itertools
 import unittest
 import numpy
 
 
-class MolecularCoefficientsTest(unittest.TestCase):
+class InteractionTensorTest(unittest.TestCase):
 
   def setUp(self):
     self.n_qubits = 2
@@ -17,10 +17,10 @@ class MolecularCoefficientsTest(unittest.TestCase):
                             self.n_qubits, self.n_qubits))
     one_body[0, 1] = 11.0
     two_body[0, 1, 1, 0] = 22.0
-    molecular_coefficients = MolecularCoefficients(self.constant,
-                                                   one_body, two_body)
+    interaction_tensor = InteractionTensor(self.constant,
+                                           one_body, two_body)
     want_str = '[] 23.0\n[0 1] 11.0\n[0 1 1 0] 22.0\n'
-    self.assertEqual(molecular_coefficients.__str__(), want_str)
+    self.assertEqual(interaction_tensor.__str__(), want_str)
 
   def test_rotate_basis_identical(self):
     rotation_matrix_identical = numpy.zeros((self.n_qubits, self.n_qubits))
@@ -40,13 +40,13 @@ class MolecularCoefficientsTest(unittest.TestCase):
           for s in range(self.n_qubits):
             two_body[p, q, r, s] = j
             j = j + 1
-    molecular_coefficients = MolecularCoefficients(self.constant,
-                                                   one_body, two_body)
-    want_molecular_coefficients = MolecularCoefficients(self.constant,
-                                                        one_body, two_body)
+    interaction_tensor = InteractionTensor(self.constant,
+                                           one_body, two_body)
+    want_interaction_tensor = InteractionTensor(self.constant,
+                                                one_body, two_body)
 
-    molecular_coefficients.rotate_basis(rotation_matrix_identical)
-    self.assertEqual(molecular_coefficients, want_molecular_coefficients)
+    interaction_tensor.rotate_basis(rotation_matrix_identical)
+    self.assertEqual(interaction_tensor, want_interaction_tensor)
 
   def test_rotate_basis_reverse(self):
     rotation_matrix_reverse = numpy.zeros((self.n_qubits, self.n_qubits))
@@ -75,13 +75,13 @@ class MolecularCoefficientsTest(unittest.TestCase):
             j = j + 1
             two_body_reverse[p, q, r, s] = j_reverse
             j_reverse = j_reverse - 1
-    molecular_coefficients = MolecularCoefficients(self.constant,
-                                                   one_body, two_body)
-    want_molecular_coefficients = MolecularCoefficients(self.constant,
-                                                        one_body_reverse,
-                                                        two_body_reverse)
-    molecular_coefficients.rotate_basis(rotation_matrix_reverse)
-    self.assertEqual(molecular_coefficients, want_molecular_coefficients)
+    interaction_tensor = InteractionTensor(self.constant,
+                                           one_body, two_body)
+    want_interaction_tensor = InteractionTensor(self.constant,
+                                                one_body_reverse,
+                                                two_body_reverse)
+    interaction_tensor.rotate_basis(rotation_matrix_reverse)
+    self.assertEqual(interaction_tensor, want_interaction_tensor)
 
 
 # Test.
