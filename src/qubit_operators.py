@@ -1,14 +1,15 @@
 """This files has utilities to read and store qubit Hamiltonians.
 """
-from local_terms import LocalTerm, LocalTermError
+import copy
+import fermion_operators
+import itertools
+import molecular_operators
+import numpy
+
 from local_operators import LocalOperator
+from local_terms import LocalTerm, LocalTermError
 from sparse_operators import (qubit_term_sparse,
                               qubit_operator_sparse)
-import fermion_operators
-import molecular_operators
-import itertools
-import numpy
-import copy
 
 
 class QubitTermError(Exception):

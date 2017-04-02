@@ -2,12 +2,14 @@
 
 # Import needed libraries.
 sys.path.append('&_THIS_DIRECTORY')
-from config import *
-import sys
-import numpy
-import molecular_data
+
 import molecular_coefficients
+import molecular_data
 import molecular_rdm
+import numpy
+import sys
+
+from config import *
 
 # Set memory that job can use in megabytes.
 memory &memory mb

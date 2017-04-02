@@ -1,9 +1,9 @@
-import sparse_operators
-import qubit_operators
 import itertools
-import unittest
 import jellium
 import numpy
+import qubit_operators
+import sparse_operators
+import unittest
 
 
 class JelliumTest(unittest.TestCase):

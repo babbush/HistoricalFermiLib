@@ -1,8 +1,8 @@
 """Functions to prepare psi4 input and run calculations."""
 import molecular_data
-import subprocess
-import re
 import os
+import re
+import subprocess
 
 
 def create_geometry_string(geometry):

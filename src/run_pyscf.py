@@ -1,9 +1,10 @@
 """Class and functions to store quantum chemistry data."""
+import numpy
+import pyscf
+
+from functools import reduce
 from molecular_data import MolecularData
 from pyscf import ci, cc, fci, mp
-import pyscf
-import numpy
-from functools import reduce
 
 
 def prepare_pyscf_molecule(molecule):
