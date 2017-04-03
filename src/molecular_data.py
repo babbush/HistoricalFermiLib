@@ -442,18 +442,11 @@ class MolecularData(object):
         constant, one_body_coefficients, two_body_coefficients)
     return molecular_hamiltonian
 
-  def get_molecular_rdm(self,
-                        use_fci=False,
-                        active_space_start=None,
-                        active_space_stop=None):
+  def get_molecular_rdm(self, use_fci=False):
     """Method to return 1-RDM and 2-RDMs from CISD or FCI.
 
     Args:
       use_fci: Boolean indicating whether to use RDM from FCI calculation.
-      active_space_start: An optional int giving the first orbital
-        in the active space.
-      active_space stop: An optional int giving the last orbital
-        in the active space.
 
     Returns:
       rdm: An instance of the MolecularRDM class.
@@ -479,11 +472,6 @@ class MolecularData(object):
         rdm_name = self.data_handle() + '_cisd_rdm.npy'
         one_rdm = self.cisd_one_rdm
     two_rdm = numpy.load(rdm_name)
-
-    # Restrict to active space.
-    if active_space_start:
-      # TODO Jarrod.
-      pass
 
     # Truncate.
     one_rdm[numpy.absolute(one_rdm) < EQ_TOLERANCE] = 0.
