@@ -264,15 +264,9 @@ this defaults to &#8216;H&#8217; for Hydrogen.</li>
 <p>Class to store and transform fermion operators.</p>
 <dl class="class">
 <dt id="src.fermion_operators.FermionOperator">
-<em class="property">class </em><code class="descclassname">src.fermion_operators.</code><code class="descname">FermionOperator</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>terms=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.fermion_operators.</code><code class="descname">FermionOperator</code><span class="sig-paren">(</span><em>terms=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.local_operators.LocalOperator" title="src.local_operators.LocalOperator"><code class="xref py py-class docutils literal"><span class="pre">src.local_operators.LocalOperator</span></code></a></p>
 <p>Data structure which stores sums of FermionTerm objects.</p>
-<dl class="attribute">
-<dt id="src.fermion_operators.FermionOperator.n_qubits">
-<code class="descname">n_qubits</code><a class="headerlink" href="#src.fermion_operators.FermionOperator.n_qubits" title="Permalink to this definition">¶</a></dt>
-<dd><p>An int giving the number of spin-orbitals in the system.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="src.fermion_operators.FermionOperator.terms">
 <code class="descname">terms</code><a class="headerlink" href="#src.fermion_operators.FermionOperator.terms" title="Permalink to this definition">¶</a></dt>
@@ -281,7 +275,7 @@ this defaults to &#8216;H&#8217; for Hydrogen.</li>
 
 <dl class="method">
 <dt id="src.fermion_operators.FermionOperator.bravyi_kitaev_transform">
-<code class="descname">bravyi_kitaev_transform</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator.bravyi_kitaev_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bravyi_kitaev_transform</code><span class="sig-paren">(</span><em>n_qubits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator.bravyi_kitaev_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the Bravyi-Kitaev transform and return qubit operator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -296,9 +290,9 @@ this defaults to &#8216;H&#8217; for Hydrogen.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.fermion_operators.FermionOperator.get_molecular_operator">
-<code class="descname">get_molecular_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator.get_molecular_operator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a 2-body fermionic operator to instance of MolecularOperator.</p>
+<dt id="src.fermion_operators.FermionOperator.get_interaction_operator">
+<code class="descname">get_interaction_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator.get_interaction_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a 2-body fermionic operator to instance of InteractionOperator.</p>
 <p>This function should only be called on fermionic operators which consist
 of only a_p^dagger a_q and a_p^dagger a_q^dagger a_r a_s terms.
 The one-body terms are stored in a matrix, one_body[p, q], and the
@@ -307,11 +301,11 @@ two-body terms are stored in a tensor, two_body[p, q, r, s].</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An instance of the MolecularOperator class.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An instance of the InteractionOperator class.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">molecular_operator</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">interaction_operator</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ErrorMolecularOperator</span></code> &#8211; FermionOperator is not a molecular operator.</td>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ErrorInteractionOperator</span></code> &#8211; FermionOperator is not a molecular operator.</td>
 </tr>
 </tbody>
 </table>
@@ -335,7 +329,7 @@ runtime of this method is exponential in the number of qubits.</p>
 
 <dl class="method">
 <dt id="src.fermion_operators.FermionOperator.jordan_wigner_sparse">
-<code class="descname">jordan_wigner_sparse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator.jordan_wigner_sparse" title="Permalink to this definition">¶</a></dt>
+<code class="descname">jordan_wigner_sparse</code><span class="sig-paren">(</span><em>n_qubits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionOperator.jordan_wigner_sparse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply Jordan-Wigner transform directly to sparse matrix form</p>
 </dd></dl>
 
@@ -408,27 +402,21 @@ runtime of this method is exponential in the number of qubits.</p>
 
 <dl class="class">
 <dt id="src.fermion_operators.FermionTerm">
-<em class="property">class </em><code class="descclassname">src.fermion_operators.</code><code class="descname">FermionTerm</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>coefficient=0.0</em>, <em>operators=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionTerm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.fermion_operators.</code><code class="descname">FermionTerm</code><span class="sig-paren">(</span><em>operators=None</em>, <em>coefficient=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionTerm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.local_terms.LocalTerm" title="src.local_terms.LocalTerm"><code class="xref py py-class docutils literal"><span class="pre">src.local_terms.LocalTerm</span></code></a></p>
 <p>Stores a single term composed of products of fermionic ladder operators.</p>
-<dl class="attribute">
-<dt id="src.fermion_operators.FermionTerm.n_qubits">
-<code class="descname">n_qubits</code><a class="headerlink" href="#src.fermion_operators.FermionTerm.n_qubits" title="Permalink to this definition">¶</a></dt>
-<dd><p>An int giving the number of spin-orbitals in the system.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.fermion_operators.FermionTerm.coefficient">
-<code class="descname">coefficient</code><a class="headerlink" href="#src.fermion_operators.FermionTerm.coefficient" title="Permalink to this definition">¶</a></dt>
-<dd><p>A complex valued float giving the term coefficient.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="src.fermion_operators.FermionTerm.operators">
 <code class="descname">operators</code><a class="headerlink" href="#src.fermion_operators.FermionTerm.operators" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of tuples. The first element of each tuple is an
 int indicating the site on which operators acts. The second element
 of each tuple is boole, indicating whether raising (1) or lowering (0).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.fermion_operators.FermionTerm.coefficient">
+<code class="descname">coefficient</code><a class="headerlink" href="#src.fermion_operators.FermionTerm.coefficient" title="Permalink to this definition">¶</a></dt>
+<dd><p>A complex valued float giving the term coefficient.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -442,7 +430,7 @@ term.operators = [(3, 1), (1, 0), (7, 1)]</p>
 
 <dl class="method">
 <dt id="src.fermion_operators.FermionTerm.bravyi_kitaev_transform">
-<code class="descname">bravyi_kitaev_transform</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionTerm.bravyi_kitaev_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bravyi_kitaev_transform</code><span class="sig-paren">(</span><em>n_qubits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionTerm.bravyi_kitaev_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the Bravyi-Kitaev transform and return qubit operator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -465,7 +453,7 @@ by removing the unnecessary structure.</p>
 <p class="first admonition-title">Note</p>
 <dl class="last docutils">
 <dt>Reference: Operator Locality of Quantum Simulation of Fermionic Models</dt>
-<dd>by Havlicek, Troyer, Whitfield.</dd>
+<dd>by Havlicek, Troyer, Whitfield (arXiv:1701.07072).</dd>
 </dl>
 </div>
 </dd></dl>
@@ -511,7 +499,7 @@ Also, ladder operators come first.</p>
 
 <dl class="method">
 <dt id="src.fermion_operators.FermionTerm.jordan_wigner_sparse">
-<code class="descname">jordan_wigner_sparse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionTerm.jordan_wigner_sparse" title="Permalink to this definition">¶</a></dt>
+<code class="descname">jordan_wigner_sparse</code><span class="sig-paren">(</span><em>n_qubits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionTerm.jordan_wigner_sparse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a sparse matrix representation of the JW transformed term.</p>
 </dd></dl>
 
@@ -539,6 +527,11 @@ Also, ladder operators come first.</p>
 original FermionTerm.</p>
 </div>
 </dd></dl>
+
+<dl class="method">
+<dt id="src.fermion_operators.FermionTerm.n_qubits">
+<code class="descname">n_qubits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.FermionTerm.n_qubits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="src.fermion_operators.FermionTerm.normal_ordered">
@@ -580,26 +573,8 @@ runtime of this method is exponential in the number of qubits.</p>
 
 <dl class="function">
 <dt id="src.fermion_operators.fermion_identity">
-<code class="descclassname">src.fermion_operators.</code><code class="descname">fermion_identity</code><span class="sig-paren">(</span><em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.fermion_identity" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">src.fermion_operators.</code><code class="descname">fermion_identity</code><span class="sig-paren">(</span><em>coefficient=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.fermion_identity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="function">
-<dt id="src.fermion_operators.hopping_operator">
-<code class="descclassname">src.fermion_operators.</code><code class="descname">hopping_operator</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>site1</em>, <em>site2</em>, <em>coefficient=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.hopping_operator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a hopping operator.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n_qubits</strong> &#8211; An int giving the number of spin-orbitals in the system.</li>
-<li><strong>site2</strong> (<em>site1</em><em>,</em><em></em>) &#8211; The sites between which the hopping occurs.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
 
 <dl class="function">
 <dt id="src.fermion_operators.number_operator">
@@ -613,6 +588,42 @@ runtime of this method is exponential in the number of qubits.</p>
 <li><strong>n_qubits</strong> &#8211; An int giving the number of spin-orbitals in the system.</li>
 <li><strong>site</strong> &#8211; The site on which to return the number operator.
 If None, return total number operator on all sites.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.fermion_operators.one_body_term">
+<code class="descclassname">src.fermion_operators.</code><code class="descname">one_body_term</code><span class="sig-paren">(</span><em>p</em>, <em>q</em>, <em>coefficient=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.one_body_term" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return one-body operator which conserves particle number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>q</strong> (<em>p</em><em>,</em><em></em>) &#8211; The sites between which the hopping occurs.</li>
+<li><strong>coefficient</strong> &#8211; Optional float giving coefficient of term.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.fermion_operators.two_body_term">
+<code class="descclassname">src.fermion_operators.</code><code class="descname">two_body_term</code><span class="sig-paren">(</span><em>p</em>, <em>q</em>, <em>r</em>, <em>s</em>, <em>coefficient=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fermion_operators.two_body_term" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return two-body operator which conserves particle number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>q</strong><strong>, </strong><strong>r</strong><strong>, </strong><strong>s</strong> (<em>p</em><em>,</em><em></em>) &#8211; The sites between which the hopping occurs.</li>
+<li><strong>coefficient</strong> &#8211; Optional float giving coefficient of term.</li>
 </ul>
 </td>
 </tr>
@@ -745,21 +756,9 @@ the simplest case.</p>
 <p>Base class for representation of various local operators.</p>
 <dl class="class">
 <dt id="src.local_operators.LocalOperator">
-<em class="property">class </em><code class="descclassname">src.local_operators.</code><code class="descname">LocalOperator</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>terms=None</em>, <em>tolerance=1e-10</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_operators.LocalOperator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.local_operators.</code><code class="descname">LocalOperator</code><span class="sig-paren">(</span><em>terms=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_operators.LocalOperator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>A collection of LocalTerm objects acting on same number of qubits.</p>
-<dl class="attribute">
-<dt id="src.local_operators.LocalOperator._tolerance">
-<code class="descname">_tolerance</code><a class="headerlink" href="#src.local_operators.LocalOperator._tolerance" title="Permalink to this definition">¶</a></dt>
-<dd><p>A float, the minimum absolute value below which term is zero.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.local_operators.LocalOperator._n_qubits">
-<code class="descname">_n_qubits</code><a class="headerlink" href="#src.local_operators.LocalOperator._n_qubits" title="Permalink to this definition">¶</a></dt>
-<dd><p>An int giving the number of qubits in simulated Hilbert space.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="src.local_operators.LocalOperator.terms">
 <code class="descname">terms</code><a class="headerlink" href="#src.local_operators.LocalOperator.terms" title="Permalink to this definition">¶</a></dt>
@@ -778,7 +777,7 @@ the simplest case.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">LocalOperator giving self * term - term * self.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.local_operators.LocalOperator.commutator" title="src.local_operators.LocalOperator.commutator">commutator</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.local_terms.LocalTerm.commutator" title="src.local_terms.LocalTerm.commutator">commutator</a></td>
 </tr>
 </tbody>
 </table>
@@ -794,14 +793,14 @@ the simplest case.</p>
 <code class="descname">list_terms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.local_operators.LocalOperator.list_terms" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="src.local_operators.LocalOperator.n_qubits">
-<code class="descname">n_qubits</code><a class="headerlink" href="#src.local_operators.LocalOperator.n_qubits" title="Permalink to this definition">¶</a></dt>
+<code class="descname">n_qubits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.local_operators.LocalOperator.n_qubits" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
 <dt id="src.local_operators.LocalOperator.return_class">
-<em class="property">classmethod </em><code class="descname">return_class</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>terms=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_operators.LocalOperator.return_class" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">return_class</code><span class="sig-paren">(</span><em>terms=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_operators.LocalOperator.return_class" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -818,21 +817,9 @@ the simplest case.</p>
 <p>Base class for representation of various local terms.</p>
 <dl class="class">
 <dt id="src.local_terms.LocalTerm">
-<em class="property">class </em><code class="descclassname">src.local_terms.</code><code class="descname">LocalTerm</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>coefficient=0.0</em>, <em>operators=None</em>, <em>tolerance=1e-10</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_terms.LocalTerm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.local_terms.</code><code class="descname">LocalTerm</code><span class="sig-paren">(</span><em>operators=None</em>, <em>coefficient=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_terms.LocalTerm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Represents a term consisting of a product of operators and a coefficient.</p>
-<dl class="attribute">
-<dt id="src.local_terms.LocalTerm._tolerance">
-<code class="descname">_tolerance</code><a class="headerlink" href="#src.local_terms.LocalTerm._tolerance" title="Permalink to this definition">¶</a></dt>
-<dd><p>A float, the minimum absolute value below which term is zero.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.local_terms.LocalTerm._n_qubits">
-<code class="descname">_n_qubits</code><a class="headerlink" href="#src.local_terms.LocalTerm._n_qubits" title="Permalink to this definition">¶</a></dt>
-<dd><p>An int giving the number of qubits in simulated Hilbert space.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="src.local_terms.LocalTerm.coefficient">
 <code class="descname">coefficient</code><a class="headerlink" href="#src.local_terms.LocalTerm.coefficient" title="Permalink to this definition">¶</a></dt>
@@ -855,9 +842,7 @@ the simplest case.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>term</strong> &#8211; Despite the name, this is either a LocalTerm or LocalOperator.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">LocalOperator giving self * term - term * self.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.local_operators.LocalOperator.commutator" title="src.local_operators.LocalOperator.commutator">commutator</a></td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">LocalOperator giving [self, term] = self * term - term * self.</td>
 </tr>
 </tbody>
 </table>
@@ -868,14 +853,9 @@ the simplest case.</p>
 <code class="descname">is_identity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.local_terms.LocalTerm.is_identity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="src.local_terms.LocalTerm.n_qubits">
-<code class="descname">n_qubits</code><a class="headerlink" href="#src.local_terms.LocalTerm.n_qubits" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="classmethod">
 <dt id="src.local_terms.LocalTerm.return_class">
-<em class="property">classmethod </em><code class="descname">return_class</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>coefficient=0</em>, <em>operators=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_terms.LocalTerm.return_class" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">return_class</code><span class="sig-paren">(</span><em>operators=None</em>, <em>coefficient=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.local_terms.LocalTerm.return_class" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1071,6 +1051,35 @@ for dimers a likely description is the bond length (e.g. 0.7414).</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="src.molecular_data.MolecularData.get_active_space_integrals">
+<code class="descname">get_active_space_integrals</code><span class="sig-paren">(</span><em>active_space_start</em>, <em>active_space_stop=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_data.MolecularData.get_active_space_integrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restricts a molecule at a spatial orbital level to the active space
+defined by active_space=[start,stop]. Note that one_body_integrals and
+two_body_integrals must be defined in an orthonormal basis set,
+which is typically the case when defining an active space.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>active_space_start(int): spatial orbital index defining active</dt>
+<dd>space start.</dd>
+<dt>active_space_stop(int): spatial orbital index defining active</dt>
+<dd>space stop.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first docutils">
+<dt>core_constant: Adjustment to constant shift in Hamiltonian from</dt>
+<dd>integrating out core orbitals</dd>
+</dl>
+<p class="last">one_body_integrals_new: New one-electron integrals over active space.
+two_body_integrals_new: New two-electron integrals over active space.</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
 <dt id="src.molecular_data.MolecularData.get_cc_amplitudes">
 <code class="descname">get_cc_amplitudes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_data.MolecularData.get_cc_amplitudes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1101,7 +1110,7 @@ for dimers a likely description is the bond length (e.g. 0.7414).</p>
 
 <dl class="method">
 <dt id="src.molecular_data.MolecularData.get_molecular_hamiltonian">
-<code class="descname">get_molecular_hamiltonian</code><span class="sig-paren">(</span><em>active_space_start=None</em>, <em>active_space_stop=None</em>, <em>tolerance=1e-15</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_data.MolecularData.get_molecular_hamiltonian" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_molecular_hamiltonian</code><span class="sig-paren">(</span><em>active_space_start=None</em>, <em>active_space_stop=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_data.MolecularData.get_molecular_hamiltonian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Output arrays of the second quantized Hamiltonian coefficients.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1114,8 +1123,6 @@ n_orbitals by n_orbitals. Assumed to be real and invertible.</li>
 in the active space.</li>
 <li><strong>stop</strong> (<em>active_space</em>) &#8211; An optional int giving the last orbital
 in the active space.</li>
-<li><strong>tolerance</strong> &#8211; An optional float specifying the smallest matrix element in
-the transformed basis that will be considered nonzero.</li>
 </ul>
 </td>
 </tr>
@@ -1131,32 +1138,19 @@ the transformed basis that will be considered nonzero.</li>
 
 <dl class="method">
 <dt id="src.molecular_data.MolecularData.get_molecular_rdm">
-<code class="descname">get_molecular_rdm</code><span class="sig-paren">(</span><em>use_fci=False</em>, <em>active_space_start=None</em>, <em>active_space_stop=None</em>, <em>tolerance=1e-15</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_data.MolecularData.get_molecular_rdm" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_molecular_rdm</code><span class="sig-paren">(</span><em>use_fci=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_data.MolecularData.get_molecular_rdm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to return 1-RDM and 2-RDMs from CISD or FCI.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>use_fci</strong> &#8211; Boolean indicating whether to use RDM from FCI calculation.</li>
-<li><strong>active_space_start</strong> &#8211; An optional int giving the first orbital
-in the active space.</li>
-<li><strong>stop</strong> (<em>active_space</em>) &#8211; An optional int giving the last orbital
-in the active space.</li>
-<li><strong>tolerance</strong> &#8211; An optional float specifying the smallest matrix element in
-the transformed basis that will be considered nonzero.
-Otherwise use RDM from CISD calculation.</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>use_fci</strong> &#8211; Boolean indicating whether to use RDM from FCI calculation.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An instance of the MolecularOperator class.</p>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An instance of the MolecularRDM class.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">molecular_rdm</p>
-</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">rdm</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">MisissingCalculationError</span></code> &#8211; If the CI calculation has not been performed.</p>
-</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">MisissingCalculationError</span></code> &#8211; If the CI calculation has not been performed.</td>
 </tr>
 </tbody>
 </table>
@@ -1254,11 +1248,11 @@ for dimers a likely description is the bond length (e.g. 0.7414).</li>
 </div>
 <div class="section" id="module-src.molecular_operators">
 <span id="src-molecular-operators-module"></span><h2>src.molecular_operators module<a class="headerlink" href="#module-src.molecular_operators" title="Permalink to this headline">¶</a></h2>
-<p>Class and functions to store molecular Hamiltonians / density operators.</p>
+<p>Class and functions to store molecular Hamiltonians.</p>
 <dl class="class">
 <dt id="src.molecular_operators.MolecularOperator">
 <em class="property">class </em><code class="descclassname">src.molecular_operators.</code><code class="descname">MolecularOperator</code><span class="sig-paren">(</span><em>constant</em>, <em>one_body_coefficients</em>, <em>two_body_coefficients</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.molecular_coefficients.MolecularCoefficients</span></code></p>
 <p>Class for storing &#8216;molecular operators&#8217; which are defined to be
 fermionic operators consisting of one-body and two-body terms which
 conserve particle number and spin. The most common examples of data
@@ -1300,6 +1294,16 @@ For instance, the nuclear repulsion energy.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="src.molecular_operators.MolecularOperator.eight_point_iter">
+<code class="descname">eight_point_iter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.eight_point_iter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.molecular_operators.MolecularOperator.four_point_iter">
+<code class="descname">four_point_iter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.four_point_iter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="src.molecular_operators.MolecularOperator.get_fermion_operator">
 <code class="descname">get_fermion_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.get_fermion_operator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Output MolecularOperator as an instance of FermionOperator class.</p>
@@ -1316,60 +1320,13 @@ For instance, the nuclear repulsion energy.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.molecular_operators.MolecularOperator.get_qubit_expectations">
-<code class="descname">get_qubit_expectations</code><span class="sig-paren">(</span><em>qubit_operator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.get_qubit_expectations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return expectations of qubit op as coefficients of new qubit op.</p>
-<p>Note that this method is designed to be called on RDM MolecularOperators.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>qubit_operator</strong> &#8211; QubitOperator instance to be evaluated on this
-MolecularOperator reduced density matrices.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>QubitOperator with coefficients</dt>
-<dd>corresponding to expectation values of those operators.</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">qubit_operator_expectations</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#src.molecular_operators.MolecularOperatorError" title="src.molecular_operators.MolecularOperatorError"><code class="xref py py-exc docutils literal"><span class="pre">MolecularOperatorError</span></code></a> &#8211; Observable not contained in 1-RDM or 2-RDM.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.molecular_operators.MolecularOperator.get_qubit_term_expectation">
-<code class="descname">get_qubit_term_expectation</code><span class="sig-paren">(</span><em>qubit_term</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.get_qubit_term_expectation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return expectation value of a QubitTerm with a molecular RDM (self).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>qubit_term</strong> &#8211; QubitTerm instance to be evaluated on this
-MolecularOperator representing a reduced density matrix.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A float giving the expectation value.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.qubit_operators.QubitOperator.expectation" title="src.qubit_operators.QubitOperator.expectation">expectation</a></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#src.molecular_operators.MolecularOperatorError" title="src.molecular_operators.MolecularOperatorError"><code class="xref py py-exc docutils literal"><span class="pre">MolecularOperatorError</span></code></a> &#8211; Observable not contained in 1-RDM or 2-RDM.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="src.molecular_operators.MolecularOperator.get_sparse_operator">
 <code class="descname">get_sparse_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.get_sparse_operator" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="src.molecular_operators.MolecularOperator.jordan_wigner_one_body">
-<em class="property">static </em><code class="descname">jordan_wigner_one_body</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>p</em>, <em>q</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.jordan_wigner_one_body" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">jordan_wigner_one_body</code><span class="sig-paren">(</span><em>p</em>, <em>q</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.jordan_wigner_one_body" title="Permalink to this definition">¶</a></dt>
 <dd><p>Map the term a^dagger_p a_q + a^dagger_q a_p to a qubit operator.</p>
 <p>Note that the diagonal terms are divided by a factor of 2 because they
 are equal to their own Hermitian conjugate.</p>
@@ -1395,25 +1352,10 @@ then mapping to qubits. We skip the middle step for the sake of speed.</p>
 
 <dl class="staticmethod">
 <dt id="src.molecular_operators.MolecularOperator.jordan_wigner_two_body">
-<em class="property">static </em><code class="descname">jordan_wigner_two_body</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>p</em>, <em>q</em>, <em>r</em>, <em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.jordan_wigner_two_body" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">jordan_wigner_two_body</code><span class="sig-paren">(</span><em>p</em>, <em>q</em>, <em>r</em>, <em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.jordan_wigner_two_body" title="Permalink to this definition">¶</a></dt>
 <dd><p>Map the term a^dagger_p a^dagger_q a_r a_s + h.c. to qubit operator.</p>
 <p>Note that the diagonal terms are divided by a factor of two because they
 are equal to their own Hermitian conjugate.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.molecular_operators.MolecularOperator.rotate_basis">
-<code class="descname">rotate_basis</code><span class="sig-paren">(</span><em>rotation_matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.rotate_basis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rotate the orbital basis of the MolecularOperator.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rotation_matrix</strong> &#8211; A square numpy array or matrix having dimensions of
-n_qubits by n_qubits. Assumed to be real and invertible.</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </dd></dl>
@@ -1422,34 +1364,6 @@ n_qubits by n_qubits. Assumed to be real and invertible.</td>
 <dt id="src.molecular_operators.MolecularOperatorError">
 <em class="property">exception </em><code class="descclassname">src.molecular_operators.</code><code class="descname">MolecularOperatorError</code><a class="headerlink" href="#src.molecular_operators.MolecularOperatorError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.molecular_operators.one_body_basis_change">
-<code class="descclassname">src.molecular_operators.</code><code class="descname">one_body_basis_change</code><span class="sig-paren">(</span><em>one_body_operator</em>, <em>rotation_matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.one_body_basis_change" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change the basis of 1-body fermionic operators, e.g. the 1-RDM.</p>
-<p>M&#8217; = R^T.M.R where R is the rotation matrix, M is the fermion operator
-and M&#8217; is the transformed fermion operator.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>one_body_operator</strong> &#8211; A square numpy array or matrix containing information
-about a 1-body operator such as the 1-body integrals or 1-RDM.</li>
-<li><strong>rotation_matrix</strong> &#8211; A square numpy array or matrix having dimensions of
-n_qubits by n_qubits. Assumed to be real and invertible.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">one_body_operator in the rotated basis.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">transformed_one_body_operator</p>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
@@ -1481,82 +1395,6 @@ two_body_integrals_new: New two-electron integrals over active space.</p>
 </dd>
 </dl>
 </div></blockquote>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.molecular_operators.two_body_basis_change">
-<code class="descclassname">src.molecular_operators.</code><code class="descname">two_body_basis_change</code><span class="sig-paren">(</span><em>two_body_operator</em>, <em>rotation_matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.two_body_basis_change" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change the basis of 2-body fermionic operators, e.g. the 2-RDM.</p>
-<p>Procedure we use is an N^5 transformation which can be expressed as
-(pq|rs) = sum_a R^p_a (sum_b R^q_b (sum_c R^r_c (sum_d R^s_d (ab|cd)))).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>two_body_operator</strong> &#8211; a square rank 4 tensor in a numpy array containing
-information about a 2-body fermionic operator.</li>
-<li><strong>rotation_matrix</strong> &#8211; A square numpy array or matrix having dimensions of
-n_qubits by n_qubits. Assumed to be real and invertible.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">two_body_operator matrix in rotated basis.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">transformed_two_body_operator</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.molecular_operators.unpack_spatial_rdm">
-<code class="descclassname">src.molecular_operators.</code><code class="descname">unpack_spatial_rdm</code><span class="sig-paren">(</span><em>one_rdm_a</em>, <em>one_rdm_b</em>, <em>two_rdm_aa</em>, <em>two_rdm_ab</em>, <em>two_rdm_bb</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.unpack_spatial_rdm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Covert from spin compact spatial format to spin-orbital format for RDM.</p>
-<p>Note: the compact 2-RDM is stored as follows where A/B are spin up/down:
-RDM[pqrs] = &lt;| a_{p, A}^dagger a_{r, A}^dagger a_{q, A} a_{s, A} <a href="#id1"><span class="problematic" id="id2">|</span></a>&gt;</p>
-<blockquote>
-<div>for &#8216;AA&#8217;/&#8217;BB&#8217; spins.</div></blockquote>
-<dl class="docutils">
-<dt>RDM[pqrs] = &lt;| a_{p, A}^dagger a_{r, B}^dagger a_{q, B} a_{s, A} <a href="#id3"><span class="problematic" id="id4">|</span></a>&gt;</dt>
-<dd>for &#8216;AB&#8217; spins.</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>one_rdm_a</strong> &#8211; 2-index numpy array storing alpha spin
-sector of 1-electron reduced density matrix.</li>
-<li><strong>one_rdm_b</strong> &#8211; 2-index numpy array storing beta spin
-sector of 1-electron reduced density matrix.</li>
-<li><strong>two_rdm_aa</strong> &#8211; 4-index numpy array storing alpha-alpha spin
-sector of 2-electron reduced density matrix.</li>
-<li><strong>two_rdm_ab</strong> &#8211; 4-index numpy array storing alpha-beta spin
-sector of 2-electron reduced density matrix.</li>
-<li><strong>two_rdm_bb</strong> &#8211; 4-index numpy array storing beta-beta spin
-sector of 2-electron reduced density matrix.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>2-index numpy array storing 1-electron density matrix</dt>
-<dd><p class="first last">in full spin-orbital space.</p>
-</dd>
-<dt>two_rdm: 4-index numpy array storing 2-electron density matrix</dt>
-<dd><p class="first last">in full spin-orbital space.</p>
-</dd>
-</dl>
-</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">one_rdm</p>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </div>
@@ -1650,17 +1488,11 @@ much less than a minute. We are way too slow right now.</td>
 <p>This files has utilities to read and store qubit Hamiltonians.</p>
 <dl class="class">
 <dt id="src.qubit_operators.QubitOperator">
-<em class="property">class </em><code class="descclassname">src.qubit_operators.</code><code class="descname">QubitOperator</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>terms=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.qubit_operators.</code><code class="descname">QubitOperator</code><span class="sig-paren">(</span><em>terms=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.local_operators.LocalOperator" title="src.local_operators.LocalOperator"><code class="xref py py-class docutils literal"><span class="pre">src.local_operators.LocalOperator</span></code></a></p>
 <p>A collection of QubitTerm objects acting on same number of qubits.</p>
 <p>Note that to be a Hamiltonian which is a hermitian operator, the individual
 QubitTerm objects need to have only real valued coefficients.</p>
-<dl class="attribute">
-<dt id="src.qubit_operators.QubitOperator.n_qubits">
-<code class="descname">n_qubits</code><a class="headerlink" href="#src.qubit_operators.QubitOperator.n_qubits" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of qubits on which the operator acts.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="src.qubit_operators.QubitOperator.terms">
 <code class="descname">terms</code><a class="headerlink" href="#src.qubit_operators.QubitOperator.terms" title="Permalink to this definition">¶</a></dt>
@@ -1692,20 +1524,20 @@ QubitTerm.key() and the dictionary value is the QubitTerm.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.qubit_operators.QubitOperator.get_molecular_rdm">
-<code class="descname">get_molecular_rdm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator.get_molecular_rdm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build a MolecularOperator from measured qubit operators.</p>
-<p>Returns: A MolecularOperator object.</p>
+<dt id="src.qubit_operators.QubitOperator.get_interaction_rdm">
+<code class="descname">get_interaction_rdm</code><span class="sig-paren">(</span><em>n_qubits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator.get_interaction_rdm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a InteractionRDM from measured qubit operators.</p>
+<p>Returns: A InteractionRDM object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.qubit_operators.QubitOperator.get_sparse_operator">
-<code class="descname">get_sparse_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator.get_sparse_operator" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_sparse_operator</code><span class="sig-paren">(</span><em>n_qubits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator.get_sparse_operator" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="src.qubit_operators.QubitOperator.reverse_jordan_wigner">
-<code class="descname">reverse_jordan_wigner</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator.reverse_jordan_wigner" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reverse_jordan_wigner</code><span class="sig-paren">(</span><em>n_qubits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitOperator.reverse_jordan_wigner" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1718,7 +1550,7 @@ QubitTerm.key() and the dictionary value is the QubitTerm.</p>
 
 <dl class="class">
 <dt id="src.qubit_operators.QubitTerm">
-<em class="property">class </em><code class="descclassname">src.qubit_operators.</code><code class="descname">QubitTerm</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>coefficient=1.0</em>, <em>operators=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitTerm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.qubit_operators.</code><code class="descname">QubitTerm</code><span class="sig-paren">(</span><em>operators=None</em>, <em>coefficient=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitTerm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.local_terms.LocalTerm" title="src.local_terms.LocalTerm"><code class="xref py py-class docutils literal"><span class="pre">src.local_terms.LocalTerm</span></code></a></p>
 <p>Single term of a hamiltonian for a system of spin 1/2 particles or qubits.</p>
 <p>A Hamiltonian of qubits can be written as a sum of QubitTerm objects.
@@ -1727,23 +1559,10 @@ be coefficient * X1 Z3 which we call a QubitTerm object. It means
 coefficient * (1 x PauliX x 1 x PauliZ x 1), where x is the tensor
 product, 1 the identity matrix, and the others are Pauli matrices. We
 only allow to apply one single Pauli Matrix to each qubit.</p>
-<p>Note 1: We assume in this class that indices start from 0 to n_qubits - 1.</p>
-<p>Note 2: Always use the abstractions provided here to manipulate the
+<p>Note: Always use the abstractions provided here to manipulate the
 .operators attribute. If ignoring this advice, an important thing to
 keep in mind is that the operators list is assumed to be sorted in order
 of the tensor factor on which the operator acts.</p>
-<dl class="attribute">
-<dt id="src.qubit_operators.QubitTerm.n_qubits">
-<code class="descname">n_qubits</code><a class="headerlink" href="#src.qubit_operators.QubitTerm.n_qubits" title="Permalink to this definition">¶</a></dt>
-<dd><p>The total number of qubits in the system.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.qubit_operators.QubitTerm.coefficient">
-<code class="descname">coefficient</code><a class="headerlink" href="#src.qubit_operators.QubitTerm.coefficient" title="Permalink to this definition">¶</a></dt>
-<dd><p>A real or complex floating point number.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="src.qubit_operators.QubitTerm.operators">
 <code class="descname">operators</code><a class="headerlink" href="#src.qubit_operators.QubitTerm.operators" title="Permalink to this definition">¶</a></dt>
@@ -1753,6 +1572,12 @@ of each tuple is a string, either &#8216;X&#8217;, &#8216;Y&#8217; or &#8216;Z&#
 acts on that tensor factor. The list is sorted by the first index.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="src.qubit_operators.QubitTerm.coefficient">
+<code class="descname">coefficient</code><a class="headerlink" href="#src.qubit_operators.QubitTerm.coefficient" title="Permalink to this definition">¶</a></dt>
+<dd><p>A real or complex floating point number.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="src.qubit_operators.QubitTerm.eigenspectrum">
 <code class="descname">eigenspectrum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitTerm.eigenspectrum" title="Permalink to this definition">¶</a></dt>
@@ -1760,13 +1585,18 @@ acts on that tensor factor. The list is sorted by the first index.</p>
 
 <dl class="method">
 <dt id="src.qubit_operators.QubitTerm.get_sparse_operator">
-<code class="descname">get_sparse_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitTerm.get_sparse_operator" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_sparse_operator</code><span class="sig-paren">(</span><em>n_qubits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitTerm.get_sparse_operator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Map the QubitTerm to a SparseOperator instance.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="src.qubit_operators.QubitTerm.n_qubits">
+<code class="descname">n_qubits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitTerm.n_qubits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="src.qubit_operators.QubitTerm.reverse_jordan_wigner">
-<code class="descname">reverse_jordan_wigner</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitTerm.reverse_jordan_wigner" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reverse_jordan_wigner</code><span class="sig-paren">(</span><em>n_qubits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.QubitTerm.reverse_jordan_wigner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms a QubitTerm into an instance of FermionOperator using JW.</p>
 <p>Operators are mapped as follows:
 Z_j -&gt; I - 2 a^dagger_j a_j
@@ -1796,7 +1626,7 @@ Y_j -&gt; i (a^dagger_j - a_j) Z_{j-1} Z_{j-2} .. Z_0</p>
 
 <dl class="function">
 <dt id="src.qubit_operators.qubit_identity">
-<code class="descclassname">src.qubit_operators.</code><code class="descname">qubit_identity</code><span class="sig-paren">(</span><em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.qubit_identity" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">src.qubit_operators.</code><code class="descname">qubit_identity</code><span class="sig-paren">(</span><em>coefficient=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#src.qubit_operators.qubit_identity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -1866,7 +1696,7 @@ H 0. 0. 0.7414</dd>
 
 <dl class="function">
 <dt id="src.run_psi4.run_psi4">
-<code class="descclassname">src.run_psi4.</code><code class="descname">run_psi4</code><span class="sig-paren">(</span><em>molecule</em>, <em>run_scf=True</em>, <em>run_mp2=False</em>, <em>run_cisd=False</em>, <em>run_ccsd=False</em>, <em>run_fci=False</em>, <em>verbose=True</em>, <em>tolerate_error=False</em>, <em>delete_input=True</em>, <em>delete_output=False</em>, <em>memory=8000</em><span class="sig-paren">)</span><a class="headerlink" href="#src.run_psi4.run_psi4" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">src.run_psi4.</code><code class="descname">run_psi4</code><span class="sig-paren">(</span><em>molecule</em>, <em>run_scf=True</em>, <em>run_mp2=False</em>, <em>run_cisd=False</em>, <em>run_ccsd=False</em>, <em>run_fci=False</em>, <em>verbose=False</em>, <em>tolerate_error=False</em>, <em>delete_input=True</em>, <em>delete_output=False</em>, <em>memory=8000</em><span class="sig-paren">)</span><a class="headerlink" href="#src.run_psi4.run_psi4" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function runs a Psi4 calculation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2003,16 +1833,13 @@ eigenstate: The lowest eigenstate in scipy.sparse csc format.</td>
 
 <dl class="method">
 <dt id="src.sparse_operators.SparseOperator.is_hermitian">
-<code class="descname">is_hermitian</code><span class="sig-paren">(</span><em>tolerance=1e-12</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseOperator.is_hermitian" title="Permalink to this definition">¶</a></dt>
+<code class="descname">is_hermitian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.SparseOperator.is_hermitian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test if matrix is Hermitian.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tolerance</strong> &#8211; a float giving the allowed Hermitian discrepancy.
-Default value is 1e-12.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Boole indicating whether matrix passes test.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Boole indicating whether matrix passes test.</td>
 </tr>
 </tbody>
 </table>
@@ -2065,15 +1892,20 @@ factor and the sign indicates raising or lowering.</li>
 
 <dl class="function">
 <dt id="src.sparse_operators.jordan_wigner_operator_sparse">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">jordan_wigner_operator_sparse</code><span class="sig-paren">(</span><em>fermion_operator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.jordan_wigner_operator_sparse" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">src.sparse_operators.</code><code class="descname">jordan_wigner_operator_sparse</code><span class="sig-paren">(</span><em>fermion_operator</em>, <em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.jordan_wigner_operator_sparse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a SparseOperator from a FermionOperator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fermion_operator</strong> (<a class="reference internal" href="#src.fermion_operators.FermionOperator" title="src.fermion_operators.FermionOperator"><em>FermionOperator</em></a>) &#8211; instance of the FermionOperator class.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fermion_operator</strong> (<a class="reference internal" href="#src.fermion_operators.FermionOperator" title="src.fermion_operators.FermionOperator"><em>FermionOperator</em></a>) &#8211; instance of the FermionOperator class.</li>
+<li><strong>n_qubits</strong> (<em>int</em>) &#8211; Number of qubits.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The corresponding SparseOperator.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The corresponding SparseOperator.</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -2081,15 +1913,20 @@ factor and the sign indicates raising or lowering.</li>
 
 <dl class="function">
 <dt id="src.sparse_operators.jordan_wigner_term_sparse">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">jordan_wigner_term_sparse</code><span class="sig-paren">(</span><em>fermion_term</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.jordan_wigner_term_sparse" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">src.sparse_operators.</code><code class="descname">jordan_wigner_term_sparse</code><span class="sig-paren">(</span><em>fermion_term</em>, <em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.jordan_wigner_term_sparse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a SparseOperator from a FermionTerm.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fermion_term</strong> (<a class="reference internal" href="#src.fermion_operators.FermionTerm" title="src.fermion_operators.FermionTerm"><em>FermionTerm</em></a>) &#8211; instance of the FermionTerm class.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fermion_term</strong> (<a class="reference internal" href="#src.fermion_operators.FermionTerm" title="src.fermion_operators.FermionTerm"><em>FermionTerm</em></a>) &#8211; Instance of the FermionTerm class.</li>
+<li><strong>n_qubits</strong> (<em>int</em>) &#8211; Number of qubits.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The corresponding SparseOperator.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The corresponding SparseOperator.</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -2108,7 +1945,7 @@ factor and the sign indicates raising or lowering.</li>
 
 <dl class="function">
 <dt id="src.sparse_operators.qubit_operator_sparse">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">qubit_operator_sparse</code><span class="sig-paren">(</span><em>qubit_operator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.qubit_operator_sparse" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">src.sparse_operators.</code><code class="descname">qubit_operator_sparse</code><span class="sig-paren">(</span><em>qubit_operator</em>, <em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.qubit_operator_sparse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a SparseOperator from a QubitOperator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2124,7 +1961,7 @@ factor and the sign indicates raising or lowering.</li>
 
 <dl class="function">
 <dt id="src.sparse_operators.qubit_term_sparse">
-<code class="descclassname">src.sparse_operators.</code><code class="descname">qubit_term_sparse</code><span class="sig-paren">(</span><em>qubit_term</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.qubit_term_sparse" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">src.sparse_operators.</code><code class="descname">qubit_term_sparse</code><span class="sig-paren">(</span><em>qubit_term</em>, <em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.sparse_operators.qubit_term_sparse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a SparseOperator from a QubitTerm.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
