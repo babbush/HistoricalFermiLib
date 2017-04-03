@@ -18,6 +18,22 @@ src.chemical_series module
     :undoc-members:
     :show-inheritance:
 
+src.onfig module
+----------------
+
+.. automodule:: src.config
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.fenwick_tree module
+-----------------------
+
+.. automodule:: src.fenwick_tree
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 src.fermion_operators module
 ----------------------------
 
@@ -38,6 +54,38 @@ src.hubbard module
 ------------------
 
 .. automodule:: src.hubbard
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.interaction_operators module
+--------------------------------
+
+.. automodule:: src.interaction_operators
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.interaction_rdms module
+---------------------------
+
+.. automodule:: src.interaction_rdms
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.interaction_tensors module
+--------------------------------
+
+.. automodule:: src.interaction_tensors
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.jellium module
+--------------------------------
+
+.. automodule:: src.jellium
     :members:
     :undoc-members:
     :show-inheritance:
@@ -110,6 +158,14 @@ src.run_psi4 module
 -------------------
 
 .. automodule:: src.run_psi4
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.run_pyscf module
+-------------------
+
+.. automodule:: src.run_pyscf
     :members:
     :undoc-members:
     :show-inheritance:

@@ -202,6 +202,8 @@
 </li>
       <li><a href="src.html#src.molecular_data.MolecularData.charge">charge (src.molecular_data.MolecularData attribute)</a>
 </li>
+      <li><a href="src.html#src.fenwick_tree.FenwickNode.children">children (src.fenwick_tree.FenwickNode attribute)</a>
+</li>
       <li><a href="src.html#src.molecular_data.MolecularData.cisd_energy">cisd_energy (src.molecular_data.MolecularData attribute)</a>
 </li>
       <li><a href="src.html#src.molecular_data.MolecularData.cisd_one_rdm">cisd_one_rdm (src.molecular_data.MolecularData attribute)</a>
@@ -226,8 +228,14 @@
       </ul></li>
       <li><a href="src.html#src.sparse_operators.SparseOperator.conjugated">conjugated() (src.sparse_operators.SparseOperator method)</a>
 </li>
-      <li><a href="src.html#src.molecular_operators.MolecularOperator.constant">constant (src.molecular_operators.MolecularOperator attribute)</a>
+      <li><a href="src.html#src.interaction_operators.InteractionOperator.constant">constant (src.interaction_operators.InteractionOperator attribute)</a>
+
+      <ul>
+        <li><a href="src.html#src.interaction_tensors.InteractionTensor.constant">(src.interaction_tensors.InteractionTensor attribute)</a>
 </li>
+        <li><a href="src.html#src.molecular_operators.MolecularOperator.constant">(src.molecular_operators.MolecularOperator attribute)</a>
+</li>
+      </ul></li>
       <li><a href="src.html#src.run_psi4.create_geometry_string">create_geometry_string() (in module src.run_psi4)</a>
 </li>
   </ul></td>
@@ -258,15 +266,17 @@
         <li><a href="src.html#src.sparse_operators.SparseOperator.eigenspectrum">(src.sparse_operators.SparseOperator method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src.html#src.molecular_operators.MolecularOperator.eight_point_iter">eight_point_iter() (src.molecular_operators.MolecularOperator method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src.html#src.sparse_operators.SparseOperator.eliminate_zeros">eliminate_zeros() (src.sparse_operators.SparseOperator method)</a>
 </li>
-      <li><a href="src.html#src.qubit_operators.QubitOperator.expectation">expectation() (src.qubit_operators.QubitOperator method)</a>
+      <li><a href="src.html#src.interaction_rdms.InteractionRDM.expectation">expectation() (src.interaction_rdms.InteractionRDM method)</a>
 
       <ul>
+        <li><a href="src.html#src.qubit_operators.QubitOperator.expectation">(src.qubit_operators.QubitOperator method)</a>
+</li>
         <li><a href="src.html#src.sparse_operators.SparseOperator.expectation">(src.sparse_operators.SparseOperator method)</a>
 </li>
       </ul></li>
@@ -280,14 +290,18 @@
 </li>
       <li><a href="src.html#src.molecular_data.MolecularData.fci_one_rdm">fci_one_rdm (src.molecular_data.MolecularData attribute)</a>
 </li>
+      <li><a href="src.html#src.fenwick_tree.FenwickNode">FenwickNode (class in src.fenwick_tree)</a>
+</li>
+      <li><a href="src.html#src.fenwick_tree.FenwickTree">FenwickTree (class in src.fenwick_tree)</a>
+</li>
       <li><a href="src.html#src.hubbard.fermi_hubbard">fermi_hubbard() (in module src.hubbard)</a>
 </li>
       <li><a href="src.html#src.fermion_operators.fermion_identity">fermion_identity() (in module src.fermion_operators)</a>
 </li>
-      <li><a href="src.html#src.fermion_operators.FermionOperator">FermionOperator (class in src.fermion_operators)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src.html#src.fermion_operators.FermionOperator">FermionOperator (class in src.fermion_operators)</a>
+</li>
       <li><a href="src.html#src.fermion_operators.FermionOperatorError">FermionOperatorError</a>
 </li>
       <li><a href="src.html#src.fermion_operators.FermionTerm">FermionTerm (class in src.fermion_operators)</a>
@@ -297,6 +311,8 @@
       <li><a href="src.html#src.molecular_data.MolecularData.fock_matrix">fock_matrix (src.molecular_data.MolecularData attribute)</a>
 </li>
       <li><a href="src.html#src.molecular_operators.MolecularOperator.four_point_iter">four_point_iter() (src.molecular_operators.MolecularOperator method)</a>
+</li>
+      <li><a href="src.html#src.interaction_rdms.InteractionRDM.from_spatial_rdm">from_spatial_rdm() (src.interaction_rdms.InteractionRDM class method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -312,20 +328,28 @@
 </li>
       <li><a href="src.html#src.molecular_data.MolecularData.get_active_space_integrals">get_active_space_integrals() (src.molecular_data.MolecularData method)</a>
 </li>
+      <li><a href="src.html#src.fenwick_tree.FenwickNode.get_ancestors">get_ancestors() (src.fenwick_tree.FenwickNode method)</a>
+</li>
       <li><a href="src.html#src.molecular_data.MolecularData.get_cc_amplitudes">get_cc_amplitudes() (src.molecular_data.MolecularData method)</a>
+</li>
+      <li><a href="src.html#src.fenwick_tree.FenwickTree.get_children_set">get_children_set() (src.fenwick_tree.FenwickTree method)</a>
 </li>
       <li><a href="src.html#src.sparse_operators.get_density_matrix">get_density_matrix() (in module src.sparse_operators)</a>
 </li>
-      <li><a href="src.html#src.molecular_operators.MolecularOperator.get_fermion_operator">get_fermion_operator() (src.molecular_operators.MolecularOperator method)</a>
+      <li><a href="src.html#src.interaction_operators.InteractionOperator.get_fermion_operator">get_fermion_operator() (src.interaction_operators.InteractionOperator method)</a>
+
+      <ul>
+        <li><a href="src.html#src.molecular_operators.MolecularOperator.get_fermion_operator">(src.molecular_operators.MolecularOperator method)</a>
 </li>
+      </ul></li>
       <li><a href="src.html#src.sparse_operators.SparseOperator.get_gap">get_gap() (src.sparse_operators.SparseOperator method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src.html#src.sparse_operators.SparseOperator.get_ground_state">get_ground_state() (src.sparse_operators.SparseOperator method)</a>
 </li>
       <li><a href="src.html#src.molecular_data.MolecularData.get_integrals">get_integrals() (src.molecular_data.MolecularData method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src.html#src.fermion_operators.FermionOperator.get_interaction_operator">get_interaction_operator() (src.fermion_operators.FermionOperator method)</a>
 </li>
       <li><a href="src.html#src.qubit_operators.QubitOperator.get_interaction_rdm">get_interaction_rdm() (src.qubit_operators.QubitOperator method)</a>
@@ -334,14 +358,28 @@
 </li>
       <li><a href="src.html#src.molecular_data.MolecularData.get_molecular_rdm">get_molecular_rdm() (src.molecular_data.MolecularData method)</a>
 </li>
-      <li><a href="src.html#src.molecular_operators.MolecularOperator.get_sparse_operator">get_sparse_operator() (src.molecular_operators.MolecularOperator method)</a>
+      <li><a href="src.html#src.fenwick_tree.FenwickTree.get_node">get_node() (src.fenwick_tree.FenwickTree method)</a>
+</li>
+      <li><a href="src.html#src.fenwick_tree.FenwickTree.get_parity_set">get_parity_set() (src.fenwick_tree.FenwickTree method)</a>
+</li>
+      <li><a href="src.html#src.interaction_rdms.InteractionRDM.get_qubit_expectations">get_qubit_expectations() (src.interaction_rdms.InteractionRDM method)</a>
+</li>
+      <li><a href="src.html#src.fenwick_tree.FenwickTree.get_remainder_set">get_remainder_set() (src.fenwick_tree.FenwickTree method)</a>
+</li>
+      <li><a href="src.html#src.interaction_operators.InteractionOperator.get_sparse_operator">get_sparse_operator() (src.interaction_operators.InteractionOperator method)</a>
 
       <ul>
+        <li><a href="src.html#src.molecular_operators.MolecularOperator.get_sparse_operator">(src.molecular_operators.MolecularOperator method)</a>
+</li>
         <li><a href="src.html#src.qubit_operators.QubitOperator.get_sparse_operator">(src.qubit_operators.QubitOperator method)</a>
 </li>
         <li><a href="src.html#src.qubit_operators.QubitTerm.get_sparse_operator">(src.qubit_operators.QubitTerm method)</a>
 </li>
       </ul></li>
+      <li><a href="src.html#src.fenwick_tree.FenwickTree.get_update_set">get_update_set() (src.fenwick_tree.FenwickTree method)</a>
+</li>
+      <li><a href="src.html#src.jellium.grid_indices">grid_indices() (in module src.jellium)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -370,12 +408,26 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src.html#src.fenwick_tree.FenwickNode.index">index (src.fenwick_tree.FenwickNode attribute)</a>
+</li>
+      <li><a href="src.html#src.interaction_operators.InteractionOperator">InteractionOperator (class in src.interaction_operators)</a>
+</li>
+      <li><a href="src.html#src.interaction_operators.InteractionOperatorError">InteractionOperatorError</a>
+</li>
+      <li><a href="src.html#src.interaction_rdms.InteractionRDM">InteractionRDM (class in src.interaction_rdms)</a>
+</li>
+      <li><a href="src.html#src.interaction_rdms.InteractionRDMError">InteractionRDMError</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src.html#src.interaction_tensors.InteractionTensor">InteractionTensor (class in src.interaction_tensors)</a>
+</li>
+      <li><a href="src.html#src.interaction_tensors.InteractionTensorError">InteractionTensorError</a>
+</li>
       <li><a href="src.html#src.sparse_operators.SparseOperator.is_hermitian">is_hermitian() (src.sparse_operators.SparseOperator method)</a>
 </li>
       <li><a href="src.html#src.local_terms.LocalTerm.is_identity">is_identity() (src.local_terms.LocalTerm method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src.html#src.fermion_operators.FermionTerm.is_molecular_term">is_molecular_term() (src.fermion_operators.FermionTerm method)</a>
 </li>
       <li><a href="src.html#src.fermion_operators.FermionTerm.is_normal_ordered">is_normal_ordered() (src.fermion_operators.FermionTerm method)</a>
@@ -386,11 +438,19 @@
 <h2 id="J">J</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src.html#src.jellium.jellium_model">jellium_model() (in module src.jellium)</a>
+</li>
       <li><a href="src.html#src.sparse_operators.jordan_wigner_ladder_sparse">jordan_wigner_ladder_sparse() (in module src.sparse_operators)</a>
 </li>
-      <li><a href="src.html#src.molecular_operators.MolecularOperator.jordan_wigner_one_body">jordan_wigner_one_body() (src.molecular_operators.MolecularOperator static method)</a>
+      <li><a href="src.html#src.interaction_operators.InteractionOperator.jordan_wigner_one_body">jordan_wigner_one_body() (src.interaction_operators.InteractionOperator static method)</a>
+
+      <ul>
+        <li><a href="src.html#src.molecular_operators.MolecularOperator.jordan_wigner_one_body">(src.molecular_operators.MolecularOperator static method)</a>
 </li>
+      </ul></li>
       <li><a href="src.html#src.sparse_operators.jordan_wigner_operator_sparse">jordan_wigner_operator_sparse() (in module src.sparse_operators)</a>
+</li>
+      <li><a href="src.html#src.jellium.jordan_wigner_position_jellium">jordan_wigner_position_jellium() (in module src.jellium)</a>
 </li>
       <li><a href="src.html#src.fermion_operators.FermionOperator.jordan_wigner_sparse">jordan_wigner_sparse() (src.fermion_operators.FermionOperator method)</a>
 
@@ -398,20 +458,26 @@
         <li><a href="src.html#src.fermion_operators.FermionTerm.jordan_wigner_sparse">(src.fermion_operators.FermionTerm method)</a>
 </li>
       </ul></li>
-      <li><a href="src.html#src.sparse_operators.jordan_wigner_term_sparse">jordan_wigner_term_sparse() (in module src.sparse_operators)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src.html#src.sparse_operators.jordan_wigner_term_sparse">jordan_wigner_term_sparse() (in module src.sparse_operators)</a>
+</li>
       <li><a href="src.html#src.fermion_operators.FermionOperator.jordan_wigner_transform">jordan_wigner_transform() (src.fermion_operators.FermionOperator method)</a>
 
       <ul>
         <li><a href="src.html#src.fermion_operators.FermionTerm.jordan_wigner_transform">(src.fermion_operators.FermionTerm method)</a>
 </li>
+        <li><a href="src.html#src.interaction_operators.InteractionOperator.jordan_wigner_transform">(src.interaction_operators.InteractionOperator method)</a>
+</li>
         <li><a href="src.html#src.molecular_operators.MolecularOperator.jordan_wigner_transform">(src.molecular_operators.MolecularOperator method)</a>
 </li>
       </ul></li>
-      <li><a href="src.html#src.molecular_operators.MolecularOperator.jordan_wigner_two_body">jordan_wigner_two_body() (src.molecular_operators.MolecularOperator static method)</a>
+      <li><a href="src.html#src.interaction_operators.InteractionOperator.jordan_wigner_two_body">jordan_wigner_two_body() (src.interaction_operators.InteractionOperator static method)</a>
+
+      <ul>
+        <li><a href="src.html#src.molecular_operators.MolecularOperator.jordan_wigner_two_body">(src.molecular_operators.MolecularOperator static method)</a>
 </li>
+      </ul></li>
       <li><a href="src.html#src.fermion_operators.JordanWignerError">JordanWignerError</a>
 </li>
       <li><a href="src.html#src.sparse_operators.jw_hartree_fock_state">jw_hartree_fock_state() (in module src.sparse_operators)</a>
@@ -466,15 +532,21 @@
 </li>
       <li><a href="src.html#src.molecular_data.MolecularData">MolecularData (class in src.molecular_data)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src.html#src.chemical_series.MolecularLatticeError">MolecularLatticeError</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src.html#src.molecular_operators.MolecularOperator">MolecularOperator (class in src.molecular_operators)</a>
 </li>
       <li><a href="src.html#src.molecular_operators.MolecularOperatorError">MolecularOperatorError</a>
 </li>
       <li><a href="src.html#src.molecular_data.MoleculeNameError">MoleculeNameError</a>
+</li>
+      <li><a href="src.html#src.jellium.momentum_kinetic_operator">momentum_kinetic_operator() (in module src.jellium)</a>
+</li>
+      <li><a href="src.html#src.jellium.momentum_potential_operator">momentum_potential_operator() (in module src.jellium)</a>
+</li>
+      <li><a href="src.html#src.jellium.momentum_vector">momentum_vector() (in module src.jellium)</a>
 </li>
       <li><a href="src.html#src.molecular_data.MolecularData.mp2_energy">mp2_energy (src.molecular_data.MolecularData attribute)</a>
 </li>
@@ -492,9 +564,15 @@
 </li>
       <li><a href="src.html#src.molecular_data.MolecularData.n_orbitals">n_orbitals (src.molecular_data.MolecularData attribute)</a>
 </li>
-      <li><a href="src.html#src.molecular_data.MolecularData.n_qubits">n_qubits (src.molecular_data.MolecularData attribute)</a>
+      <li><a href="src.html#src.interaction_operators.InteractionOperator.n_qubits">n_qubits (src.interaction_operators.InteractionOperator attribute)</a>
 
       <ul>
+        <li><a href="src.html#src.interaction_rdms.InteractionRDM.n_qubits">(src.interaction_rdms.InteractionRDM attribute)</a>
+</li>
+        <li><a href="src.html#src.interaction_tensors.InteractionTensor.n_qubits">(src.interaction_tensors.InteractionTensor attribute)</a>
+</li>
+        <li><a href="src.html#src.molecular_data.MolecularData.n_qubits">(src.molecular_data.MolecularData attribute)</a>
+</li>
         <li><a href="src.html#src.molecular_operators.MolecularOperator.n_qubits">(src.molecular_operators.MolecularOperator attribute)</a>
 </li>
         <li><a href="src.html#src.sparse_operators.SparseOperator.n_qubits">(src.sparse_operators.SparseOperator attribute)</a>
@@ -536,10 +614,22 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src.html#src.known_errors.OddNumberElectronBug">OddNumberElectronBug (class in src.known_errors)</a>
 </li>
+      <li><a href="src.html#src.interaction_tensors.one_body_basis_change">one_body_basis_change() (in module src.interaction_tensors)</a>
+</li>
       <li><a href="src.html#src.molecular_operators.MolecularOperator.one_body_coefficients">one_body_coefficients (src.molecular_operators.MolecularOperator attribute)</a>
 </li>
+      <li><a href="src.html#src.interaction_operators.InteractionOperator.one_body_tensor">one_body_tensor (src.interaction_operators.InteractionOperator attribute)</a>
+
+      <ul>
+        <li><a href="src.html#src.interaction_rdms.InteractionRDM.one_body_tensor">(src.interaction_rdms.InteractionRDM attribute)</a>
+</li>
+        <li><a href="src.html#src.interaction_tensors.InteractionTensor.one_body_tensor">(src.interaction_tensors.InteractionTensor attribute)</a>
+</li>
+      </ul></li>
       <li><a href="src.html#src.fermion_operators.one_body_term">one_body_term() (in module src.fermion_operators)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src.html#src.fermion_operators.FermionTerm.operators">operators (src.fermion_operators.FermionTerm attribute)</a>
 
       <ul>
@@ -548,11 +638,13 @@
         <li><a href="src.html#src.qubit_operators.QubitTerm.operators">(src.qubit_operators.QubitTerm attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src.html#src.molecular_data.MolecularData.orbital_energies">orbital_energies (src.molecular_data.MolecularData attribute)</a>
 </li>
+      <li><a href="src.html#src.jellium.orbital_id">orbital_id() (in module src.jellium)</a>
+</li>
       <li><a href="src.html#src.molecular_data.MolecularData.orbital_overlaps">orbital_overlaps (src.molecular_data.MolecularData attribute)</a>
+</li>
+      <li><a href="src.html#src.jellium.OrbitalSpecificationError">OrbitalSpecificationError</a>
 </li>
   </ul></td>
 </tr></table>
@@ -560,10 +652,18 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src.html#src.molecular_data.MolecularData.potential_integrals">potential_integrals (src.molecular_data.MolecularData attribute)</a>
+      <li><a href="src.html#src.fenwick_tree.FenwickNode.parent">parent (src.fenwick_tree.FenwickNode attribute)</a>
+</li>
+      <li><a href="src.html#src.jellium.position_kinetic_operator">position_kinetic_operator() (in module src.jellium)</a>
+</li>
+      <li><a href="src.html#src.jellium.position_potential_operator">position_potential_operator() (in module src.jellium)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src.html#src.jellium.position_vector">position_vector() (in module src.jellium)</a>
+</li>
+      <li><a href="src.html#src.molecular_data.MolecularData.potential_integrals">potential_integrals (src.molecular_data.MolecularData attribute)</a>
+</li>
       <li><a href="src.html#src.molecular_data.MolecularData.protons">protons (src.molecular_data.MolecularData attribute)</a>
 </li>
   </ul></td>
@@ -575,6 +675,8 @@
       <li><a href="src.html#src.qubit_operators.qubit_identity">qubit_identity() (in module src.qubit_operators)</a>
 </li>
       <li><a href="src.html#src.sparse_operators.qubit_operator_sparse">qubit_operator_sparse() (in module src.sparse_operators)</a>
+</li>
+      <li><a href="src.html#src.interaction_rdms.InteractionRDM.qubit_term_expectation">qubit_term_expectation() (src.interaction_rdms.InteractionRDM method)</a>
 </li>
       <li><a href="src.html#src.sparse_operators.qubit_term_sparse">qubit_term_sparse() (in module src.sparse_operators)</a>
 </li>
@@ -612,6 +714,10 @@
         <li><a href="src.html#src.qubit_operators.QubitTerm.reverse_jordan_wigner">(src.qubit_operators.QubitTerm method)</a>
 </li>
       </ul></li>
+      <li><a href="src.html#src.fenwick_tree.FenwickTree.root">root (src.fenwick_tree.FenwickTree attribute)</a>
+</li>
+      <li><a href="src.html#src.interaction_tensors.InteractionTensor.rotate_basis">rotate_basis() (src.interaction_tensors.InteractionTensor method)</a>
+</li>
       <li><a href="src.html#src.run_psi4.run_psi4">run_psi4() (in module src.run_psi4)</a>
 </li>
   </ul></td>
@@ -634,13 +740,25 @@
 </li>
       <li><a href="src.html#module-src.chemical_series">src.chemical_series (module)</a>
 </li>
+      <li><a href="src.html#module-src.config">src.config (module)</a>
+</li>
+      <li><a href="src.html#module-src.fenwick_tree">src.fenwick_tree (module)</a>
+</li>
       <li><a href="src.html#module-src.fermion_operators">src.fermion_operators (module)</a>
 </li>
       <li><a href="src.html#module-src.generate_data">src.generate_data (module)</a>
 </li>
+      <li><a href="src.html#module-src.hubbard">src.hubbard (module)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src.html#module-src.hubbard">src.hubbard (module)</a>
+      <li><a href="src.html#module-src.interaction_operators">src.interaction_operators (module)</a>
+</li>
+      <li><a href="src.html#module-src.interaction_rdms">src.interaction_rdms (module)</a>
+</li>
+      <li><a href="src.html#module-src.interaction_tensors">src.interaction_tensors (module)</a>
+</li>
+      <li><a href="src.html#module-src.jellium">src.jellium (module)</a>
 </li>
       <li><a href="src.html#module-src.known_errors">src.known_errors (module)</a>
 </li>
@@ -676,14 +794,24 @@
       </ul></li>
       <li><a href="src.html#src.known_errors.OddNumberElectronBug.test_molecular_hydrogen">test_molecular_hydrogen() (src.known_errors.OddNumberElectronBug method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src.html#src.known_errors.OddNumberElectronBug.test_qubit_to_molecular_rdm">test_qubit_to_molecular_rdm() (src.known_errors.OddNumberElectronBug method)</a>
 </li>
       <li><a href="src.html#src.sparse_operators.SparseOperator.to_dense">to_dense() (src.sparse_operators.SparseOperator method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src.html#src.interaction_tensors.two_body_basis_change">two_body_basis_change() (in module src.interaction_tensors)</a>
+</li>
       <li><a href="src.html#src.molecular_operators.MolecularOperator.two_body_coefficients">two_body_coefficients (src.molecular_operators.MolecularOperator attribute)</a>
 </li>
+      <li><a href="src.html#src.interaction_operators.InteractionOperator.two_body_tensor">two_body_tensor (src.interaction_operators.InteractionOperator attribute)</a>
+
+      <ul>
+        <li><a href="src.html#src.interaction_rdms.InteractionRDM.two_body_tensor">(src.interaction_rdms.InteractionRDM attribute)</a>
+</li>
+        <li><a href="src.html#src.interaction_tensors.InteractionTensor.two_body_tensor">(src.interaction_tensors.InteractionTensor attribute)</a>
+</li>
+      </ul></li>
       <li><a href="src.html#src.fermion_operators.two_body_term">two_body_term() (in module src.fermion_operators)</a>
 </li>
   </ul></td>
@@ -692,6 +820,12 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src.html#src.interaction_operators.InteractionOperator.unique_iter">unique_iter() (src.interaction_operators.InteractionOperator method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src.html#src.interaction_rdms.unpack_spatial_rdm">unpack_spatial_rdm() (in module src.interaction_rdms)</a>
+</li>
       <li><a href="src.html#src.hubbard.up">up() (in module src.hubbard)</a>
 </li>
   </ul></td>

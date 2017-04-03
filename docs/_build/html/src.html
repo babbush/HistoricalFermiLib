@@ -90,9 +90,15 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.chemical_series">src.chemical_series module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.config">src.onfig module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.fenwick_tree">src.fenwick_tree module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.fermion_operators">src.fermion_operators module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.generate_data">src.generate_data module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.hubbard">src.hubbard module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.interaction_operators">src.interaction_operators module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.interaction_rdms">src.interaction_rdms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.interaction_tensors">src.interaction_tensors module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.jellium">src.jellium module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.known_errors">src.known_errors module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.local_operators">src.local_operators module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.local_terms">src.local_terms module</a></li>
@@ -102,6 +108,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#src-plotter-module">src.plotter module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.qubit_operators">src.qubit_operators module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.run_psi4">src.run_psi4 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#src-run-pyscf-module">src.run_pyscf module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.sparse_operators">src.sparse_operators module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src">Module contents</a></li>
 </ul>
@@ -256,6 +263,148 @@ this defaults to &#8216;H&#8217; for Hydrogen.</li>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.config">
+<span id="src-onfig-module"></span><h2>src.onfig module<a class="headerlink" href="#module-src.config" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-src.fenwick_tree">
+<span id="src-fenwick-tree-module"></span><h2>src.fenwick_tree module<a class="headerlink" href="#module-src.fenwick_tree" title="Permalink to this headline">¶</a></h2>
+<p>Class to represent a Fenwick tree.</p>
+<dl class="class">
+<dt id="src.fenwick_tree.FenwickNode">
+<em class="property">class </em><code class="descclassname">src.fenwick_tree.</code><code class="descname">FenwickNode</code><span class="sig-paren">(</span><em>parent</em>, <em>children</em>, <em>index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fenwick_tree.FenwickNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fenwick Tree node</p>
+<dl class="attribute">
+<dt id="src.fenwick_tree.FenwickNode.children">
+<code class="descname">children</code><em class="property"> = None</em><a class="headerlink" href="#src.fenwick_tree.FenwickNode.children" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.fenwick_tree.FenwickNode.get_ancestors">
+<code class="descname">get_ancestors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.fenwick_tree.FenwickNode.get_ancestors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of ancestors of the node. Ordered from the earliest.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of FenwickNodes.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">ancestor_list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.fenwick_tree.FenwickNode.index">
+<code class="descname">index</code><em class="property"> = None</em><a class="headerlink" href="#src.fenwick_tree.FenwickNode.index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.fenwick_tree.FenwickNode.parent">
+<code class="descname">parent</code><em class="property"> = None</em><a class="headerlink" href="#src.fenwick_tree.FenwickNode.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.fenwick_tree.FenwickTree">
+<em class="property">class </em><code class="descclassname">src.fenwick_tree.</code><code class="descname">FenwickTree</code><span class="sig-paren">(</span><em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fenwick_tree.FenwickTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursive implementation of the Fenwick tree.</p>
+<p>Please see Subsection B.2. of Operator Locality in Quantum Simulation
+of Fermionic Models by Havlicek, Troyer and Whitfiled for a reference
+to U, P and F sets of the Fenwick.</p>
+<dl class="method">
+<dt id="src.fenwick_tree.FenwickTree.get_children_set">
+<code class="descname">get_children_set</code><span class="sig-paren">(</span><em>j</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fenwick_tree.FenwickTree.get_children_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the set of children of j-th site.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>j</strong> &#8211; Int. Fermionic site index.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of children of j. ordered from lowest index.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.fenwick_tree.FenwickTree.get_node">
+<code class="descname">get_node</code><span class="sig-paren">(</span><em>j</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fenwick_tree.FenwickTree.get_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the node at j in the qubit register. Wrapper.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>j</strong> &#8211; Int. Fermionic site index.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the node at j.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.fenwick_tree.FenwickNode" title="src.fenwick_tree.FenwickNode">FenwickNode</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.fenwick_tree.FenwickTree.get_parity_set">
+<code class="descname">get_parity_set</code><span class="sig-paren">(</span><em>j</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fenwick_tree.FenwickTree.get_parity_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the union of the remainder set with children set.
+Coincides with the parity set of Tranter et al.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>j</strong> &#8211; Int. Fermionic site index.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A C union F</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.fenwick_tree.FenwickTree.get_remainder_set">
+<code class="descname">get_remainder_set</code><span class="sig-paren">(</span><em>j</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fenwick_tree.FenwickTree.get_remainder_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of children with indices less than j of all
+ancestors of j. The set C from the paper.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>j</strong> &#8211; Int. Fermionic site index.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of children of j-ancestors with index less than j.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.fenwick_tree.FenwickTree.get_update_set">
+<code class="descname">get_update_set</code><span class="sig-paren">(</span><em>j</em><span class="sig-paren">)</span><a class="headerlink" href="#src.fenwick_tree.FenwickTree.get_update_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>The set of all ancestors of j, (the update set U from the paper).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>j</strong> &#8211; Int. Fermionic site index.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of ancestors of j, ordered from earliest.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.fenwick_tree.FenwickTree.root">
+<code class="descname">root</code><em class="property"> = None</em><a class="headerlink" href="#src.fenwick_tree.FenwickTree.root" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -720,6 +869,699 @@ spin down orbitals. If True, return a spinless Fermi-Hubbard model.</li>
 <dd></dd></dl>
 
 </div>
+<div class="section" id="module-src.interaction_operators">
+<span id="src-interaction-operators-module"></span><h2>src.interaction_operators module<a class="headerlink" href="#module-src.interaction_operators" title="Permalink to this headline">¶</a></h2>
+<p>Class and functions to store interaction operators.</p>
+<dl class="class">
+<dt id="src.interaction_operators.InteractionOperator">
+<em class="property">class </em><code class="descclassname">src.interaction_operators.</code><code class="descname">InteractionOperator</code><span class="sig-paren">(</span><em>constant</em>, <em>one_body_tensor</em>, <em>two_body_tensor</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_operators.InteractionOperator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.interaction_tensors.InteractionTensor" title="src.interaction_tensors.InteractionTensor"><code class="xref py py-class docutils literal"><span class="pre">src.interaction_tensors.InteractionTensor</span></code></a></p>
+<p>Class for storing &#8216;interaction operators&#8217; which are defined to be
+fermionic operators consisting of one-body and two-body terms which
+conserve particle number and spin. The most common examples of data
+that will use this structure are molecular Hamiltonians. In principle,
+everything stored in this class could also be represented using the more
+general FermionOperator class. However, this class is able to exploit
+specific properties of how fermions interact to enable more
+numerically efficient manipulation of the data.
+Note that the operators stored in this class take the form:</p>
+<blockquote>
+<div>constant + sum_{p, q} h_[p, q] a^dagger_p a_q +
+sum_{p, q, r, s} h_[p, q, r, s] a^dagger_p a^dagger_q a_r a_s.</div></blockquote>
+<dl class="attribute">
+<dt id="src.interaction_operators.InteractionOperator.n_qubits">
+<code class="descname">n_qubits</code><a class="headerlink" href="#src.interaction_operators.InteractionOperator.n_qubits" title="Permalink to this definition">¶</a></dt>
+<dd><p>An int giving the number of qubits.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.interaction_operators.InteractionOperator.constant">
+<code class="descname">constant</code><a class="headerlink" href="#src.interaction_operators.InteractionOperator.constant" title="Permalink to this definition">¶</a></dt>
+<dd><p>A constant term in the operator given as a float.
+For instance, the nuclear repulsion energy.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.interaction_operators.InteractionOperator.one_body_tensor">
+<code class="descname">one_body_tensor</code><a class="headerlink" href="#src.interaction_operators.InteractionOperator.one_body_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>The coefficients of the one-body terms (h[p, q]).
+This is an n_qubits x n_qubits numpy array of floats.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.interaction_operators.InteractionOperator.two_body_tensor">
+<code class="descname">two_body_tensor</code><a class="headerlink" href="#src.interaction_operators.InteractionOperator.two_body_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>The coefficients of the two-body terms
+(h[p, q, r, s]). This is an n_qubits x n_qubits x n_qubits x
+n_qubits numpy array of floats.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.interaction_operators.InteractionOperator.get_fermion_operator">
+<code class="descname">get_fermion_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_operators.InteractionOperator.get_fermion_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output InteractionOperator as an instance of FermionOperator class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An instance of the FermionOperator class.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">fermion_operator</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.interaction_operators.InteractionOperator.get_sparse_operator">
+<code class="descname">get_sparse_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_operators.InteractionOperator.get_sparse_operator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.interaction_operators.InteractionOperator.jordan_wigner_one_body">
+<em class="property">static </em><code class="descname">jordan_wigner_one_body</code><span class="sig-paren">(</span><em>p</em>, <em>q</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_operators.InteractionOperator.jordan_wigner_one_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map the term a^dagger_p a_q + a^dagger_q a_p to a qubit operator.</p>
+<p>Note that the diagonal terms are divided by a factor of 2 because they
+are equal to their own Hermitian conjugate.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.interaction_operators.InteractionOperator.jordan_wigner_transform">
+<code class="descname">jordan_wigner_transform</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_operators.InteractionOperator.jordan_wigner_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output InteractionOperator as QubitOperator class under JW transform.</p>
+<p>One could accomplish this very easily by first mapping to fermions and
+then mapping to qubits. We skip the middle step for the sake of speed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An instance of the QubitOperator class.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">qubit_operator</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.interaction_operators.InteractionOperator.jordan_wigner_two_body">
+<em class="property">static </em><code class="descname">jordan_wigner_two_body</code><span class="sig-paren">(</span><em>p</em>, <em>q</em>, <em>r</em>, <em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_operators.InteractionOperator.jordan_wigner_two_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map the term a^dagger_p a^dagger_q a_r a_s + h.c. to qubit operator.</p>
+<p>Note that the diagonal terms are divided by a factor of two because they
+are equal to their own Hermitian conjugate.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.interaction_operators.InteractionOperator.unique_iter">
+<code class="descname">unique_iter</code><span class="sig-paren">(</span><em>complex_valued=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_operators.InteractionOperator.unique_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate all terms that are not in the same symmetry group.
+Four point symmetry:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>pq = qp.</li>
+<li>pqrs = srqp = qpsr = rspq.</li>
+</ol>
+</div></blockquote>
+<dl class="docutils">
+<dt>Eight point symmetry:</dt>
+<dd><ol class="first last arabic simple">
+<li>pq = qp.</li>
+<li>pqrs = rqps = psrq = srqp = qpsr = rspq = spqr = qrsp.</li>
+</ol>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>complex_valued</strong> &#8211; Bool, whether the operator has complex coefficients.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="src.interaction_operators.InteractionOperatorError">
+<em class="property">exception </em><code class="descclassname">src.interaction_operators.</code><code class="descname">InteractionOperatorError</code><a class="headerlink" href="#src.interaction_operators.InteractionOperatorError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.interaction_rdms">
+<span id="src-interaction-rdms-module"></span><h2>src.interaction_rdms module<a class="headerlink" href="#module-src.interaction_rdms" title="Permalink to this headline">¶</a></h2>
+<p>Class and functions to store reduced density matrices.</p>
+<dl class="class">
+<dt id="src.interaction_rdms.InteractionRDM">
+<em class="property">class </em><code class="descclassname">src.interaction_rdms.</code><code class="descname">InteractionRDM</code><span class="sig-paren">(</span><em>one_body_tensor</em>, <em>two_body_tensor</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_rdms.InteractionRDM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.interaction_tensors.InteractionTensor" title="src.interaction_tensors.InteractionTensor"><code class="xref py py-class docutils literal"><span class="pre">src.interaction_tensors.InteractionTensor</span></code></a></p>
+<p>Class for storing 1- and 2-body reduced density matrices.</p>
+<dl class="attribute">
+<dt id="src.interaction_rdms.InteractionRDM.one_body_tensor">
+<code class="descname">one_body_tensor</code><a class="headerlink" href="#src.interaction_rdms.InteractionRDM.one_body_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>The expectation values &lt;a^dagger_p a_q&gt;.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.interaction_rdms.InteractionRDM.two_body_tensor">
+<code class="descname">two_body_tensor</code><a class="headerlink" href="#src.interaction_rdms.InteractionRDM.two_body_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>The expectation values &lt;a^dagger_p a^dagger_q a_r a_s&gt;.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.interaction_rdms.InteractionRDM.n_qubits">
+<code class="descname">n_qubits</code><a class="headerlink" href="#src.interaction_rdms.InteractionRDM.n_qubits" title="Permalink to this definition">¶</a></dt>
+<dd><p>An int giving the number of qubits.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.interaction_rdms.InteractionRDM.expectation">
+<code class="descname">expectation</code><span class="sig-paren">(</span><em>operator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_rdms.InteractionRDM.expectation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return expectation value of an InteractionRDM with an operator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>operator</strong> &#8211; A QubitOperator or InteractionOperator.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A float giving the expectation value.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.qubit_operators.QubitOperator.expectation" title="src.qubit_operators.QubitOperator.expectation">expectation</a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#src.interaction_rdms.InteractionRDMError" title="src.interaction_rdms.InteractionRDMError"><code class="xref py py-exc docutils literal"><span class="pre">InteractionRDMError</span></code></a> &#8211; Invalid operator provided.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="src.interaction_rdms.InteractionRDM.from_spatial_rdm">
+<em class="property">classmethod </em><code class="descname">from_spatial_rdm</code><span class="sig-paren">(</span><em>one_rdm_a</em>, <em>one_rdm_b</em>, <em>two_rdm_aa</em>, <em>two_rdm_ab</em>, <em>two_rdm_bb</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_rdms.InteractionRDM.from_spatial_rdm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.interaction_rdms.InteractionRDM.get_qubit_expectations">
+<code class="descname">get_qubit_expectations</code><span class="sig-paren">(</span><em>qubit_operator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_rdms.InteractionRDM.get_qubit_expectations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return expectations of qubit op as coefficients of new qubit op.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>qubit_operator</strong> &#8211; QubitOperator instance to be evaluated on this
+InteractionRDM.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>QubitOperator with coefficients</dt>
+<dd>corresponding to expectation values of those operators.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">qubit_operator_expectations</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#src.interaction_rdms.InteractionRDMError" title="src.interaction_rdms.InteractionRDMError"><code class="xref py py-exc docutils literal"><span class="pre">InteractionRDMError</span></code></a> &#8211; Observable not contained in 1-RDM or 2-RDM.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.interaction_rdms.InteractionRDM.qubit_term_expectation">
+<code class="descname">qubit_term_expectation</code><span class="sig-paren">(</span><em>qubit_term</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_rdms.InteractionRDM.qubit_term_expectation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return expectation value of a QubitTerm with an InteractionRDM (self).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>qubit_term</strong> &#8211; QubitTerm instance to be evaluated on this InteractionRDM.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="src.interaction_rdms.InteractionRDMError">
+<em class="property">exception </em><code class="descclassname">src.interaction_rdms.</code><code class="descname">InteractionRDMError</code><a class="headerlink" href="#src.interaction_rdms.InteractionRDMError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.interaction_rdms.unpack_spatial_rdm">
+<code class="descclassname">src.interaction_rdms.</code><code class="descname">unpack_spatial_rdm</code><span class="sig-paren">(</span><em>one_rdm_a</em>, <em>one_rdm_b</em>, <em>two_rdm_aa</em>, <em>two_rdm_ab</em>, <em>two_rdm_bb</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_rdms.unpack_spatial_rdm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Covert from spin compact spatial format to spin-orbital format for RDM.</p>
+<p>Note: the compact 2-RDM is stored as follows where A/B are spin up/down:
+RDM[pqrs] = &lt;| a_{p, A}^dagger a_{r, A}^dagger a_{q, A} a_{s, A} <a href="#id1"><span class="problematic" id="id2">|</span></a>&gt;</p>
+<blockquote>
+<div>for &#8216;AA&#8217;/&#8217;BB&#8217; spins.</div></blockquote>
+<dl class="docutils">
+<dt>RDM[pqrs] = &lt;| a_{p, A}^dagger a_{r, B}^dagger a_{q, B} a_{s, A} <a href="#id3"><span class="problematic" id="id4">|</span></a>&gt;</dt>
+<dd>for &#8216;AB&#8217; spins.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>one_rdm_a</strong> &#8211; 2-index numpy array storing alpha spin
+sector of 1-electron reduced density matrix.</li>
+<li><strong>one_rdm_b</strong> &#8211; 2-index numpy array storing beta spin
+sector of 1-electron reduced density matrix.</li>
+<li><strong>two_rdm_aa</strong> &#8211; 4-index numpy array storing alpha-alpha spin
+sector of 2-electron reduced density matrix.</li>
+<li><strong>two_rdm_ab</strong> &#8211; 4-index numpy array storing alpha-beta spin
+sector of 2-electron reduced density matrix.</li>
+<li><strong>two_rdm_bb</strong> &#8211; 4-index numpy array storing beta-beta spin
+sector of 2-electron reduced density matrix.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>2-index numpy array storing 1-electron density matrix</dt>
+<dd><p class="first last">in full spin-orbital space.</p>
+</dd>
+<dt>two_rdm: 4-index numpy array storing 2-electron density matrix</dt>
+<dd><p class="first last">in full spin-orbital space.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">one_rdm</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.interaction_tensors">
+<span id="src-interaction-tensors-module"></span><h2>src.interaction_tensors module<a class="headerlink" href="#module-src.interaction_tensors" title="Permalink to this headline">¶</a></h2>
+<p>Base class for representation for InteractionOperator and InteractionRDM.</p>
+<dl class="class">
+<dt id="src.interaction_tensors.InteractionTensor">
+<em class="property">class </em><code class="descclassname">src.interaction_tensors.</code><code class="descname">InteractionTensor</code><span class="sig-paren">(</span><em>constant</em>, <em>one_body_tensor</em>, <em>two_body_tensor</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_tensors.InteractionTensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class for storing data about the interactions between orbitals. Because
+electrons interact pairwise, in second-quantization, all Hamiltonian terms
+have either the form of a^dagger_p a_q or a^dagger_p a^dagger_q a_r a_s.
+The first of these terms is associated with the one-body Hamiltonian and
+1-RDM and its information is stored in one_body_tensor. The second of these
+terms is associated with the two-body Hamiltonian and 2-RDM and its
+information is stored in two_body_tensor. Much of the functionality of this
+class is redudant with FermionOperator but enables much more efficient
+numerical computations in many cases, such as basis rotations.</p>
+<dl class="attribute">
+<dt id="src.interaction_tensors.InteractionTensor.n_qubits">
+<code class="descname">n_qubits</code><a class="headerlink" href="#src.interaction_tensors.InteractionTensor.n_qubits" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of qubits on which the tensor acts.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.interaction_tensors.InteractionTensor.constant">
+<code class="descname">constant</code><a class="headerlink" href="#src.interaction_tensors.InteractionTensor.constant" title="Permalink to this definition">¶</a></dt>
+<dd><p>A constant term in the operator given as a float.
+For instance, the nuclear repulsion energy.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.interaction_tensors.InteractionTensor.one_body_tensor">
+<code class="descname">one_body_tensor</code><a class="headerlink" href="#src.interaction_tensors.InteractionTensor.one_body_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>The coefficients of the 2D matrix terms. This is an
+n_qubits x n_qubits numpy array of floats.
+For instance, the one body term of MolecularOperator.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.interaction_tensors.InteractionTensor.two_body_tensor">
+<code class="descname">two_body_tensor</code><a class="headerlink" href="#src.interaction_tensors.InteractionTensor.two_body_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>The coefficients of the 4D matrix terms. This is an
+n_qubits x n_qubits x n_qubits x n_qubits numpy array offloats.
+For instance, the two body term of MolecularOperator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.interaction_tensors.InteractionTensor.rotate_basis">
+<code class="descname">rotate_basis</code><span class="sig-paren">(</span><em>rotation_matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_tensors.InteractionTensor.rotate_basis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate the orbital basis of the InteractionTensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rotation_matrix</strong> &#8211; A square numpy array or matrix having dimensions of
+n_qubits by n_qubits. Assumed to be real and invertible.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="src.interaction_tensors.InteractionTensorError">
+<em class="property">exception </em><code class="descclassname">src.interaction_tensors.</code><code class="descname">InteractionTensorError</code><a class="headerlink" href="#src.interaction_tensors.InteractionTensorError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.interaction_tensors.one_body_basis_change">
+<code class="descclassname">src.interaction_tensors.</code><code class="descname">one_body_basis_change</code><span class="sig-paren">(</span><em>one_body_tensor</em>, <em>rotation_matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_tensors.one_body_basis_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the basis of an 1-body interaction tensor such as the 1-RDM.</p>
+<p>M&#8217; = R^T.M.R where R is the rotation matrix, M is the 1-body tensor
+and M&#8217; is the transformed 1-body tensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>one_body_tensor</strong> &#8211; A square numpy array or matrix containing information
+about a 1-body interaction tensor such as the 1-RDM.</li>
+<li><strong>rotation_matrix</strong> &#8211; A square numpy array or matrix having dimensions of
+n_qubits by n_qubits. Assumed to be real and invertible.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">one_body_tensor in the rotated basis.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">transformed_one_body_tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.interaction_tensors.two_body_basis_change">
+<code class="descclassname">src.interaction_tensors.</code><code class="descname">two_body_basis_change</code><span class="sig-paren">(</span><em>two_body_tensor</em>, <em>rotation_matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#src.interaction_tensors.two_body_basis_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the basis of 2-body interaction tensor such as 2-RDM.</p>
+<p>Procedure we use is an N^5 transformation which can be expressed as
+(pq|rs) = sum_a R^p_a (sum_b R^q_b (sum_c R^r_c (sum_d R^s_d (ab|cd)))).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>two_body_tensor</strong> &#8211; a square rank 4 interaction tensor.</li>
+<li><strong>rotation_matrix</strong> &#8211; A square numpy array or matrix having dimensions of
+n_qubits by n_qubits. Assumed to be real and invertible.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">two_body_tensor matrix in rotated basis.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">transformed_two_body_tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.jellium">
+<span id="src-jellium-module"></span><h2>src.jellium module<a class="headerlink" href="#module-src.jellium" title="Permalink to this headline">¶</a></h2>
+<p>This module constructs Hamiltonians for the uniform electron gas (jellium).</p>
+<dl class="exception">
+<dt id="src.jellium.OrbitalSpecificationError">
+<em class="property">exception </em><code class="descclassname">src.jellium.</code><code class="descname">OrbitalSpecificationError</code><a class="headerlink" href="#src.jellium.OrbitalSpecificationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.jellium.grid_indices">
+<code class="descclassname">src.jellium.</code><code class="descname">grid_indices</code><span class="sig-paren">(</span><em>qubit_id</em>, <em>n_dimensions</em>, <em>grid_length</em>, <em>spinless</em><span class="sig-paren">)</span><a class="headerlink" href="#src.jellium.grid_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is the inverse of orbital_id.</p>
+<blockquote>
+<div>qubit_id: The tensor factor to map to grid indices.
+n_dimensions: An int giving the number of dimensions for the model.
+grid_length: Int, the number of points in one dimension of the grid.
+spinless: Boole, whether to use the spinless model or not.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The location of the qubit on the grid.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.jellium.grid_indices" title="src.jellium.grid_indices">grid_indices</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.jellium.jellium_model">
+<code class="descclassname">src.jellium.</code><code class="descname">jellium_model</code><span class="sig-paren">(</span><em>n_dimensions</em>, <em>grid_length</em>, <em>length_scale</em>, <em>spinless=False</em>, <em>momentum_space=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.jellium.jellium_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return jellium Hamiltonian as FermionOperator class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n_dimensions</strong> &#8211; An int giving the number of dimensions for the model.</li>
+<li><strong>grid_length</strong> &#8211; Int, the number of points in one dimension of the grid.</li>
+<li><strong>length_scale</strong> &#8211; Float, the real space length of a box dimension.</li>
+<li><strong>spinless</strong> &#8211; Boole, whether to use the spinless model or not.</li>
+<li><strong>momentum_space</strong> &#8211; Boole, whether to return in momentum space (True)
+or position space (False).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An instance of the FermionOperator class.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">hamiltonian</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.jellium.jordan_wigner_position_jellium">
+<code class="descclassname">src.jellium.</code><code class="descname">jordan_wigner_position_jellium</code><span class="sig-paren">(</span><em>n_dimensions</em>, <em>grid_length</em>, <em>length_scale</em>, <em>spinless=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.jellium.jordan_wigner_position_jellium" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the position space jellium Hamiltonian as QubitOperator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n_dimensions</strong> &#8211; An int giving the number of dimensions for the model.</li>
+<li><strong>grid_length</strong> &#8211; Int, the number of points in one dimension of the grid.</li>
+<li><strong>length_scale</strong> &#8211; Float, the real space length of a box dimension.</li>
+<li><strong>spinless</strong> &#8211; Boole, whether to use the spinless model or not.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An instance of the QubitOperator class.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">hamiltonian</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.jellium.momentum_kinetic_operator">
+<code class="descclassname">src.jellium.</code><code class="descname">momentum_kinetic_operator</code><span class="sig-paren">(</span><em>n_dimensions</em>, <em>grid_length</em>, <em>length_scale</em>, <em>spinless=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.jellium.momentum_kinetic_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the kinetic energy operator in momentum second quantization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n_dimensions</strong> &#8211; An int giving the number of dimensions for the model.</li>
+<li><strong>grid_length</strong> &#8211; Int, the number of points in one dimension of the grid.</li>
+<li><strong>length_scale</strong> &#8211; Float, the real space length of a box dimension.</li>
+<li><strong>spinless</strong> &#8211; Boole, whether to use the spinless model or not.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An instance of the FermionOperator class.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">operator</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.jellium.momentum_potential_operator">
+<code class="descclassname">src.jellium.</code><code class="descname">momentum_potential_operator</code><span class="sig-paren">(</span><em>n_dimensions</em>, <em>grid_length</em>, <em>length_scale</em>, <em>spinless=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.jellium.momentum_potential_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the kinetic energy operator in momentum second quantization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n_dimensions</strong> &#8211; An int giving the number of dimensions for the model.</li>
+<li><strong>grid_length</strong> &#8211; Int, the number of points in one dimension of the grid.</li>
+<li><strong>length_scale</strong> &#8211; Float, the real space length of a box dimension.</li>
+<li><strong>spinless</strong> &#8211; Boole, whether to use the spinless model or not.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An instance of the FermionOperator class.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">operator</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#src.jellium.OrbitalSpecificationError" title="src.jellium.OrbitalSpecificationError"><code class="xref py py-exc docutils literal"><span class="pre">OrbitalSpecificationError</span></code></a> &#8211; &#8216;Must use an odd number of momentum modes.&#8217;</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.jellium.momentum_vector">
+<code class="descclassname">src.jellium.</code><code class="descname">momentum_vector</code><span class="sig-paren">(</span><em>momentum_indices</em>, <em>grid_length</em>, <em>length_scale</em><span class="sig-paren">)</span><a class="headerlink" href="#src.jellium.momentum_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given grid point coordinate, return momentum vector with dimensions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>momentum_indices</strong> &#8211; List or tuple of integers giving momentum indices.
+Allowed values are ints in [0, grid_length).</li>
+<li><strong>grid_length</strong> &#8211; Int, the number of points in one dimension of the grid.</li>
+<li><strong>length_scale</strong> &#8211; Float, the real space length of a box dimension.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A numpy array giving the momentum vector with dimensions.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#src.jellium.momentum_vector" title="src.jellium.momentum_vector">momentum_vector</a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#src.jellium.OrbitalSpecificationError" title="src.jellium.OrbitalSpecificationError"><code class="xref py py-exc docutils literal"><span class="pre">OrbitalSpecificationError</span></code></a> &#8211; Momentum indices must be integers
+in [0, grid_length).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.jellium.orbital_id">
+<code class="descclassname">src.jellium.</code><code class="descname">orbital_id</code><span class="sig-paren">(</span><em>grid_length</em>, <em>grid_coordinates</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.jellium.orbital_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tensor factor of a orbital with given coordinates and spin.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>grid_length</strong> &#8211; Int, the number of points in one dimension of the grid.</li>
+<li><strong>grid_coordinates</strong> &#8211; List or tuple of ints giving coordinates of grid element.
+Acceptable to provide an int (instead of tuple or list) for 1D case.</li>
+<li><strong>spin</strong> &#8211; Boole, 0 means spin down and 1 means spin up.
+If None, assume spinless model.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The tensor factor associated with provided orbital label.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">tensor_factor</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">OrbitalSpecificiationError</span></code> &#8211; Invalid orbital coordinates provided.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.jellium.position_kinetic_operator">
+<code class="descclassname">src.jellium.</code><code class="descname">position_kinetic_operator</code><span class="sig-paren">(</span><em>n_dimensions</em>, <em>grid_length</em>, <em>length_scale</em>, <em>spinless=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.jellium.position_kinetic_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the kinetic operator in position space second quantization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n_dimensions</strong> &#8211; An int giving the number of dimensions for the model.</li>
+<li><strong>grid_length</strong> &#8211; Int, the number of points in one dimension of the grid.</li>
+<li><strong>length_scale</strong> &#8211; Float, the real space length of a box dimension.</li>
+<li><strong>spinless</strong> &#8211; Boole, whether to use the spinless model or not.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An instance of the FermionOperator class.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">operator</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.jellium.position_potential_operator">
+<code class="descclassname">src.jellium.</code><code class="descname">position_potential_operator</code><span class="sig-paren">(</span><em>n_dimensions</em>, <em>grid_length</em>, <em>length_scale</em>, <em>spinless=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.jellium.position_potential_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the potential operator in position space second quantization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n_dimensions</strong> &#8211; An int giving the number of dimensions for the model.</li>
+<li><strong>grid_length</strong> &#8211; Int, the number of points in one dimension of the grid.</li>
+<li><strong>length_scale</strong> &#8211; Float, the real space length of a box dimension.</li>
+<li><strong>spinless</strong> &#8211; Boole, whether to use the spinless model or not.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An instance of the FermionOperator class.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">operator</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.jellium.position_vector">
+<code class="descclassname">src.jellium.</code><code class="descname">position_vector</code><span class="sig-paren">(</span><em>position_indices</em>, <em>grid_length</em>, <em>length_scale</em><span class="sig-paren">)</span><a class="headerlink" href="#src.jellium.position_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given grid point coordinate, return position vector with dimensions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>position_indices</strong> &#8211; List or tuple of integers giving grid point coordinate.
+Allowed values are ints in [0, grid_length).</li>
+<li><strong>grid_length</strong> &#8211; Int, the number of points in one dimension of the grid.</li>
+<li><strong>length_scale</strong> &#8211; Float, the real space length of a box dimension.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A numpy array giving the position vector with dimensions.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#src.jellium.position_vector" title="src.jellium.position_vector">position_vector</a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">orbitalSpecificationError</span></code> &#8211; Position indices must be integers
+in [0, grid_length).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 <div class="section" id="module-src.known_errors">
 <span id="src-known-errors-module"></span><h2>src.known_errors module<a class="headerlink" href="#module-src.known_errors" title="Permalink to this headline">¶</a></h2>
 <p>The purpose of this file is to document and demonstrate known bugs.</p>
@@ -777,7 +1619,7 @@ the simplest case.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">LocalOperator giving self * term - term * self.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.local_terms.LocalTerm.commutator" title="src.local_terms.LocalTerm.commutator">commutator</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.local_operators.LocalOperator.commutator" title="src.local_operators.LocalOperator.commutator">commutator</a></td>
 </tr>
 </tbody>
 </table>
@@ -1730,6 +2572,9 @@ H 0. 0. 0.7414</dd>
 </table>
 </dd></dl>
 
+</div>
+<div class="section" id="src-run-pyscf-module">
+<h2>src.run_pyscf module<a class="headerlink" href="#src-run-pyscf-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-src.sparse_operators">
 <span id="src-sparse-operators-module"></span><h2>src.sparse_operators module<a class="headerlink" href="#module-src.sparse_operators" title="Permalink to this headline">¶</a></h2>
