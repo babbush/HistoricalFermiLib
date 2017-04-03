@@ -1,7 +1,8 @@
 """Tests for sparse_operators.py"""
-from sparse_operators import *
 import fermion_operators
 import unittest
+
+from sparse_operators import *
 
 
 # Make copy definitions over from module.
@@ -27,12 +28,11 @@ class SparseOperatorTest(unittest.TestCase):
   def test_qubit_jw_fermion_integration(self):
 
     # Initialize a random fermionic operator.
-    n_qubits = 5
     fermion_operator = fermion_operators.FermionTerm(
-        n_qubits, -4.3, [(3, 1), (2, 1), (1, 0), (0, 0)])
+        [(3, 1), (2, 1), (1, 0), (0, 0)], -4.3)
     fermion_operator += fermion_operators.FermionTerm(
-        n_qubits, 8.17, [(3, 1), (1, 0)])
-    fermion_operator += 3.2 * fermion_operators.fermion_identity(n_qubits)
+        [(3, 1), (1, 0)], 8.17)
+    fermion_operator += 3.2 * fermion_operators.fermion_identity()
     fermion_operator **= 3
 
     # Map to qubits and compare matrix versions.

@@ -1,17 +1,21 @@
 To run all files currently included in src/, one should follow these steps:
 
-1. Create an empty directory: 'src/data/'
+1. Create an empty directory: 'data/'
 2. Install the psi4 electronic structure package.
 3. Add fermilib/src to your pypath.
+4. Make sure you have latest version of scipy.
 
 To contribute code please adhere to the following very simple rules:
 
 1. Make sure your new code comes with extensive tests!
-2. Make sure your new code passes all tests by running:
-  ./src/precommit_tests
-   from the main directory.
+2. Make sure your new code passes all tests and lint checks by running:
+   ./src/precommit_tests (from the main directory).
 3. Make sure you adhere to our style guide. Just look at our code for clues.
-  Mostly, we follow pep8 and use the pep8 linter with the following
-  modifications in the pep8 ~/.config/pep8 file: ignore = E111, E114, E226
+   Mostly, we follow pep8 and use the pep8 linter with the following
+   modifications in the pep8 ~/.config/pep8 file: ignore = E111, E114, E226
+4. Sort the imports alphabetically, and the 'import foo' block comes before
+   the 'from bar import foo' block.
+5. Put global constants and configuration parameters into src/config.py, and
+   add 'from config import *' in the file that uses the constants/parameters.
 
 Documentation can be found at docs/_build/html/index.html, or online at https://babbush.github.io/fermilib.

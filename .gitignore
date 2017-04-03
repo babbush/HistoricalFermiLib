@@ -4,4 +4,3 @@ data/
 __pycache__/
 .DS_Store
 .ipynb_checkpoints/
-src/for_elie

@@ -1,4 +1,5 @@
 """Tests many modules to compute energy of hydrogen."""
+import molecular_data
 import numpy
 import unittest
 import itertools
@@ -6,10 +7,12 @@ import run_psi4
 import molecular_data
 import scipy
 import scipy.linalg
+import interaction_operators
 import scipy.sparse
 import molecular_operators
 import fermion_operators
 import sparse_operators
+import unittest
 
 
 class HydrogenIntegrationTest(unittest.TestCase):
@@ -46,8 +49,8 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
     # Get explicit coefficients.
     self.nuclear_repulsion = self.molecular_hamiltonian.constant
-    self.one_body = self.molecular_hamiltonian.one_body_coefficients
-    self.two_body = self.molecular_hamiltonian.two_body_coefficients
+    self.one_body = self.molecular_hamiltonian.one_body_tensor
+    self.two_body = self.molecular_hamiltonian.two_body_tensor
 
     # Get fermion Hamiltonian.
     self.fermion_hamiltonian = (
@@ -92,7 +95,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
     self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
 
     # Make sure the mapping of FermionOperator to MolecularOperator works.
-    molecular_hamiltonian = self.fermion_hamiltonian.get_molecular_operator()
+    molecular_hamiltonian = self.fermion_hamiltonian.get_interaction_operator()
     fermion_hamiltonian = molecular_hamiltonian.get_fermion_operator()
     self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
 
@@ -102,10 +105,10 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
     # Check that FCI prior has the correct energy.
     fci_rdm_energy = self.nuclear_repulsion
-    fci_rdm_energy += numpy.sum(self.fci_rdm.one_body_coefficients *
-                                molecular_hamiltonian.one_body_coefficients)
-    fci_rdm_energy += numpy.sum(self.fci_rdm.two_body_coefficients *
-                                molecular_hamiltonian.two_body_coefficients)
+    fci_rdm_energy += numpy.sum(self.fci_rdm.one_body_tensor *
+                                molecular_hamiltonian.one_body_tensor)
+    fci_rdm_energy += numpy.sum(self.fci_rdm.two_body_tensor *
+                                molecular_hamiltonian.two_body_tensor)
     self.assertAlmostEqual(fci_rdm_energy, self.molecule.fci_energy)
 
     # Check the integrals.
@@ -192,7 +195,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
     # Make sure you can reproduce Hartree-Fock energy.
     hf_state = sparse_operators.jw_hartree_fock_state(
-        self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits)
+        self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits())
     hf_density = sparse_operators.get_density_matrix([hf_state], [1.])
     expected_hf_density_energy = self.hamiltonian_matrix.expectation(
         hf_density)
@@ -206,12 +209,8 @@ class HydrogenIntegrationTest(unittest.TestCase):
     self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 
     # Confirm fermionic RDMs can be built from measured qubit RDMs
-    new_fermi_rdm = qubit_rdm.get_molecular_rdm()
-    fci_rdm_energy = self.nuclear_repulsion
-    fci_rdm_energy += numpy.sum(new_fermi_rdm.one_body_coefficients *
-                                molecular_hamiltonian.one_body_coefficients)
-    fci_rdm_energy += numpy.sum(new_fermi_rdm.two_body_coefficients *
-                                molecular_hamiltonian.two_body_coefficients)
+    new_fermi_rdm = qubit_rdm.get_interaction_rdm()
+    new_fermi_rdm.expectation(self.molecular_hamiltonian)
     self.assertAlmostEqual(fci_rdm_energy, self.molecule.fci_energy)
 
     # Test that UCCSD energy matches with parsed amplitudes

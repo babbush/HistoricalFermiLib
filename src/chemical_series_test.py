@@ -1,9 +1,8 @@
 """Tests for molecular_data and run_psi4."""
-
-import os
-import numpy
-import unittest
 import chemical_series
+import numpy
+import os
+import unittest
 
 
 class ChemicalSeries(unittest.TestCase):

@@ -1,7 +1,9 @@
 """Base class for representation of various local operators."""
-import local_terms
-import numpy
 import copy
+import numpy
+import local_terms
+
+from config import *
 
 
 # Define error class.
@@ -13,33 +15,21 @@ class LocalOperator(object):
   """A collection of LocalTerm objects acting on same number of qubits.
 
   Attributes:
-    _tolerance: A float, the minimum absolute value below which term is zero.
-    _n_qubits: An int giving the number of qubits in simulated Hilbert space.
     terms: Dictionary of LocalTerm objects.
   """
   __array_priority__ = 0  # this ensures good behavior with numpy scalars
 
-  def __init__(self, n_qubits, terms=None, tolerance=1e-10):
+  def __init__(self, terms=None):
     """Inits a LocalOperator object.
 
     Args:
-      n_qubits: An int giving the number of qubits in simulated Hilbert
-                space.
       terms: Dictionary or list of LocalTerm objects, or LocalTerm
              object.
-      tolerance: A float giving the minimum absolute value below which a
-                 term is zero.
 
     Raises:
       TypeError: Invalid terms provided to initialization.
-      ValueError: Number of qubits needs to be a positive integer.
+      ValueError: Number of qubits needs to be a non-negative integer.
     """
-    # Check that n_qubits is an integer.
-    if not isinstance(n_qubits, int) or n_qubits < 1:
-      raise ValueError('Number of qubits must be a positive integer.')
-
-    self._tolerance = tolerance
-    self._n_qubits = n_qubits
     if terms is None:
       self.terms = {}
     elif isinstance(terms, dict):
@@ -47,40 +37,31 @@ class LocalOperator(object):
     elif isinstance(terms, list):
       self.terms = {}
       for term in terms:
-        self += local_terms.LocalTerm(term.n_qubits, term.coefficient,
-                                      term.operators)
+        self += local_terms.LocalTerm(term.operators, term.coefficient)
     elif isinstance(terms, local_terms.LocalTerm):
       self.terms = {}
-      self += local_terms.LocalTerm(terms.n_qubits, terms.coefficient,
-                                    terms.operators)
+      self += local_terms.LocalTerm(terms.operators, terms.coefficient)
     else:
       raise TypeError('Invalid terms provided to initialization.')
 
   @classmethod
-  def return_class(cls, n_qubits, terms=None):
-    return cls(n_qubits, terms)
+  def return_class(cls, terms=None):
+    return cls(terms)
 
-  # The methods below stop users from changing _n_qubits.
-  @property
   def n_qubits(self):
-    return self._n_qubits
-
-  @n_qubits.setter
-  def n_qubits(self, n_qubits):
-    if hasattr(self, '_n_qubits'):
-      raise LocalOperatorError(
-          'Do not change the size of Hilbert space on which terms act.')
+    highest_qubit = 0
+    for term in self:
+      if term.n_qubits() > highest_qubit:
+        highest_qubit = term.n_qubits()
+    return highest_qubit
 
   def __eq__(self, other):
     """Compare operators to see if they are the same."""
-    if self.n_qubits != other.n_qubits:
-      raise LocalOperatorError(
-          'Cannot compare operators acting on different Hilbert spaces.')
     if len(self) != len(other):
       return False
     for term in self:
       difference = term.coefficient - other[term.operators]
-      if abs(difference) > self._tolerance:
+      if abs(difference) > EQ_TOLERANCE:
         return False
     return True
 
@@ -101,7 +82,7 @@ class LocalOperator(object):
       self.terms[tuple(operators)].coefficient = coefficient
     else:
       # TODO: Find better solution than using call to LocalTerm here.
-      new_term = local_terms.LocalTerm(self.n_qubits, coefficient, operators)
+      new_term = local_terms.LocalTerm(operators, coefficient)
       self.terms[tuple(operators)] = new_term
 
   def __delitem__(self, operators):
@@ -118,34 +99,27 @@ class LocalOperator(object):
 
     Raises:
       LocalOperatorError: Cannot add terms acting on different Hilbert spaces.
-      TypeError: Cannot add term of invalid type to LocalOperator.
     """
     # Handle LocalTerms.
     if issubclass(type(addend), local_terms.LocalTerm):
 
-      # Make sure number of qubits is the same.
-      if self.n_qubits != addend.n_qubits:
-        raise LocalOperatorError(
-            'Cannot add terms acting on different Hilbert spaces.')
-
       # Compute new coefficient and update self.terms.
       new_coefficient = self[tuple(addend.operators)] + addend.coefficient
-      if abs(new_coefficient) > self._tolerance:
+      if abs(new_coefficient) > EQ_TOLERANCE:
         self[addend.operators] = new_coefficient
       elif addend.operators in self:
         del self[addend.operators]
-      return self
 
     elif issubclass(type(addend), LocalOperator):
       # Handle LocalOperators.
       for term in addend:
         self += term
-      return self
 
     else:
       # Throw exception for unknown type.
-      raise TypeError(
-          'Cannot add term of invalid type to LocalOperator.')
+      raise TypeError('Cannot add term of invalid type to LocalOperator.')
+
+    return self
 
   def __isub__(self, subtrahend):
     """Compute self - subtrahend for a LocalTerm or LocalOperator."""
@@ -210,29 +184,28 @@ class LocalOperator(object):
        numpy.isscalar(multiplier)):
       for term in self:
         term.coefficient *= complex(multiplier)
-      return self
 
     # Handle LocalTerms. Note that it is necessary to make new dictioanry.
     elif issubclass(type(multiplier), local_terms.LocalTerm):
-      new_operator = self.return_class(self.n_qubits)
+      new_operator = self.return_class()
       for term in self:
         term *= multiplier
         new_operator += term
       self.terms = new_operator.terms
-      return self
 
     # Handle LocalOperators. It is necessary to make new dictionary.
     elif issubclass(type(multiplier), LocalOperator):
-      new_operator = self.return_class(self.n_qubits)
+      new_operator = self.return_class()
       for left_term in self:
         for right_term in multiplier:
           new_operator += left_term * right_term
       self.terms = new_operator.terms
-      return self
 
     else:
       # Throw exception for wrong type of multiplier.
       raise TypeError('Invalid typed object cannot multiply LocalOperator.')
+
+    return self
 
   def __mul__(self, multiplier):
     """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
@@ -294,8 +267,8 @@ class LocalOperator(object):
       raise ValueError('Can only raise LocalTerm to positive integer powers.')
 
     # Initialized identity.
-    exponentiated = self.return_class(self.n_qubits)
-    exponentiated += self.list_terms()[0].return_class(self.n_qubits, 1.)
+    exponentiated = self.return_class()
+    exponentiated += self.list_terms()[0].return_class()
 
     # Handle other exponents.
     for i in range(exponent):

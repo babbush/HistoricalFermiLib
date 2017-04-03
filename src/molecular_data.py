@@ -1,9 +1,12 @@
 """Class and functions to store quantum chemistry data."""
-import molecular_operators
-import pickle
+import interaction_operators
+import interaction_rdms
 import numpy
-import sys
 import os
+import pickle
+import sys
+
+from config import *
 
 
 """NOTE ON PQRS CONVENTION:
@@ -36,8 +39,9 @@ def angstroms_to_bohr(distance):
 
 
 # Molecular data directory.
-_THIS_DIRECTORY = os.path.dirname(os.path.realpath(__file__)) + '/'
-_DATA_DIRECTORY = _THIS_DIRECTORY + 'data/'
+_THIS_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+_DATA_DIRECTORY = os.path.abspath(
+    os.path.join(_THIS_DIRECTORY, '..', 'data'))
 
 
 # The Periodic Table as a python list and dictionary.
@@ -251,19 +255,19 @@ class MolecularData(object):
     self.protons = [_PERIODIC_HASH_TABLE[atom] for atom in self.atoms]
     self.n_electrons = sum(self.protons) - charge
 
-    # Attributes generated from SCF calculation.
-    self.hf_energy = None
-    self.nuclear_repulsion = None
-    self.canonical_orbitals = None
+    # Generic attributes from calculations.
     self.n_orbitals = None
     self.n_qubits = None
+    self.nuclear_repulsion = None
+
+    # Attributes generated from SCF calculation.
+    self.hf_energy = None
+    self.canonical_orbitals = None
     self.orbital_energies = None
-    self.fock_matrix = None
 
     # Attributes generated from integrals.
     self.orbital_overlaps = None
-    self.kinetic_integrals = None
-    self.potential_integrals = None
+    self.one_body_integrals = None
 
     # Attributes generated from MP2 calculation.
     self.mp2_energy = None
@@ -286,7 +290,7 @@ class MolecularData(object):
 
   def data_handle(self):
     """Method to automatically give file name of molecule."""
-    return _DATA_DIRECTORY + self.name
+    return _DATA_DIRECTORY + '/' + self.name
 
   def save(self):
     """Method to automatically pickle the class under systematic name."""
@@ -321,20 +325,68 @@ class MolecularData(object):
       MisissingCalculationError: If the SCF calculation has not been performed.
     """
     # Make sure integrals have been computed.
-    if self.n_orbitals is None:
+    if self.hf_energy is None:
       raise MissingCalculationError(
           'Missing file {}. Run SCF before loading integrals.'.format(
               self.data_handle() + '_eri.npy'))
 
     # Get integrals and return.
-    one_body_integrals = self.kinetic_integrals + self.potential_integrals
     two_body_integrals = numpy.load(self.data_handle() + '_eri.npy')
-    return one_body_integrals, two_body_integrals
+    return self.one_body_integrals, two_body_integrals
+
+  def get_active_space_integrals(self, active_space_start,
+                                 active_space_stop=None):
+    """Restricts a molecule at a spatial orbital level to the active space
+    defined by active_space=[start,stop]. Note that one_body_integrals and
+    two_body_integrals must be defined in an orthonormal basis set,
+    which is typically the case when defining an active space.
+
+      Args:
+        active_space_start(int): spatial orbital index defining active
+          space start.
+        active_space_stop(int): spatial orbital index defining active
+          space stop.
+
+      Returns:
+        core_constant: Adjustment to constant shift in Hamiltonian from
+          integrating out core orbitals
+        one_body_integrals_new: New one-electron integrals over active space.
+        two_body_integrals_new: New two-electron integrals over active space.
+    """
+    # Get integrals.
+    one_body_integrals, two_body_integrals = self.get_integrals()
+    n_orbitals = one_body_integrals.shape[0]
+    if active_space_stop is None:
+      active_space_stop = n_orbitals
+
+    # Determine core constant
+    core_constant = 0.0
+    for i in range(active_space_start):
+      core_constant += 2 * one_body_integrals[i, i]
+      for j in range(active_space_start):
+        core_constant += (2 * two_body_integrals[i, j, j, i] -
+                          two_body_integrals[i, j, i, j])
+
+    # Modified one electron integrals
+    one_body_integrals_new = numpy.copy(one_body_integrals)
+    for u in range(active_space_start, active_space_stop):
+      for v in range(active_space_start, active_space_stop):
+        for i in range(active_space_start):
+          one_body_integrals_new[u, v] += (2 * two_body_integrals[i, u, v, i] -
+                                           two_body_integrals[i, u, i, v])
+
+    # Restrict integral ranges and change M appropriately
+    return (core_constant,
+            one_body_integrals_new[active_space_start: active_space_stop,
+                                   active_space_start: active_space_stop],
+            two_body_integrals[active_space_start: active_space_stop,
+                               active_space_start: active_space_stop,
+                               active_space_start: active_space_stop,
+                               active_space_start: active_space_stop])
 
   def get_molecular_hamiltonian(self,
                                 active_space_start=None,
-                                active_space_stop=None,
-                                tolerance=1e-15):
+                                active_space_stop=None):
     """Output arrays of the second quantized Hamiltonian coefficients.
 
     Args:
@@ -344,28 +396,21 @@ class MolecularData(object):
         in the active space.
       active_space stop: An optional int giving the last orbital
         in the active space.
-      tolerance: An optional float specifying the smallest matrix element in
-        the transformed basis that will be considered nonzero.
 
     Returns:
       molecular_hamiltonian: An instance of the MolecularOperator class.
     """
     # Get active space integrals.
-    one_body_integrals, two_body_integrals = self.get_integrals()
-    if active_space_start:
-      if active_space_stop is None:
-        active_space_stop = self.n_orbitals
-      core_adjustment, one_body_integrals, two_body_integrals = (
-          molecular_operators.restrict_to_active_space(
-              one_body_integrals, two_body_integrals,
-              active_space_start, active_space_stop))
-      constant = self.nuclear_repulsion + core_adjustment
-      self.n_orbitals = active_space_stop - active_space_start
-    else:
+    if active_space_start is None:
+      one_body_integrals, two_body_integrals = self.get_integrals()
       constant = self.nuclear_repulsion
+    else:
+      core_adjustment, one_body_integrals, two_body_integrals = self.\
+          get_active_space_integrals(active_space_start, active_space_stop)
+      constant = self.nuclear_repulsion + core_adjustment
+    n_qubits = 2 * one_body_integrals.shape[0]
 
     # Initialize Hamiltonian coefficients.
-    n_qubits = 2 * self.n_orbitals
     one_body_coefficients = numpy.zeros((n_qubits, n_qubits))
     two_body_coefficients = numpy.zeros((n_qubits, n_qubits,
                                          n_qubits, n_qubits))
@@ -398,34 +443,23 @@ class MolecularData(object):
 
     # Truncate.
     one_body_coefficients[
-        numpy.absolute(one_body_coefficients) < tolerance] = 0.
+        numpy.absolute(one_body_coefficients) < EQ_TOLERANCE] = 0.
     two_body_coefficients[
-        numpy.absolute(two_body_coefficients) < tolerance] = 0.
+        numpy.absolute(two_body_coefficients) < EQ_TOLERANCE] = 0.
 
-    # Cast to MolecularOperator class and return.
-    molecular_hamiltonian = molecular_operators.MolecularOperator(
+    # Cast to InteractionOperator class and return.
+    molecular_hamiltonian = interaction_operators.InteractionOperator(
         constant, one_body_coefficients, two_body_coefficients)
     return molecular_hamiltonian
 
-  def get_molecular_rdm(self,
-                        use_fci=False,
-                        active_space_start=None,
-                        active_space_stop=None,
-                        tolerance=1e-15):
+  def get_molecular_rdm(self, use_fci=False):
     """Method to return 1-RDM and 2-RDMs from CISD or FCI.
 
     Args:
       use_fci: Boolean indicating whether to use RDM from FCI calculation.
-      active_space_start: An optional int giving the first orbital
-        in the active space.
-      active_space stop: An optional int giving the last orbital
-        in the active space.
-      tolerance: An optional float specifying the smallest matrix element in
-        the transformed basis that will be considered nonzero.
-        Otherwise use RDM from CISD calculation.
 
     Returns:
-      molecular_rdm: An instance of the MolecularOperator class.
+      rdm: An instance of the MolecularRDM class.
 
     Raises:
       MisissingCalculationError: If the CI calculation has not been performed.
@@ -449,20 +483,14 @@ class MolecularData(object):
         one_rdm = self.cisd_one_rdm
     two_rdm = numpy.load(rdm_name)
 
-    # TODO Jarrod: Restrict to an active space.
-    if active_space_stop:
-      pass
-
     # Truncate.
-    one_rdm[numpy.absolute(one_rdm) < tolerance] = 0.
-    two_rdm[numpy.absolute(two_rdm) < tolerance] = 0.
+    one_rdm[numpy.absolute(one_rdm) < EQ_TOLERANCE] = 0.
+    two_rdm[numpy.absolute(two_rdm) < EQ_TOLERANCE] = 0.
 
-    # Cast to MolecularOperator class.
-    constant = 1.
-    molecular_rdm = molecular_operators.MolecularOperator(
-        constant, one_rdm, two_rdm)
-    return molecular_rdm
+    # Cast to InteractionRDM class.
+    rdm = interaction_rdms.InteractionRDM(one_rdm, two_rdm)
+    return rdm
 
   def get_cc_amplitudes(self):
-    # TODO Damian.
+    # TODO Jarrod.
     return None

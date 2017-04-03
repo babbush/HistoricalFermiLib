@@ -1,14 +1,15 @@
 """This files has utilities to read and store qubit Hamiltonians.
 """
-from local_terms import LocalTerm, LocalTermError
-from local_operators import LocalOperator
-from sparse_operators import (qubit_term_sparse,
-                              qubit_operator_sparse)
+import copy
 import fermion_operators
-import molecular_operators
+import interaction_rdms
 import itertools
 import numpy
-import copy
+
+from local_operators import LocalOperator
+from local_terms import LocalTerm, LocalTermError
+from sparse_operators import (qubit_term_sparse,
+                              qubit_operator_sparse)
 
 
 class QubitTermError(Exception):
@@ -38,8 +39,8 @@ _PAULI_MATRIX_PRODUCTS = {('I', 'I'): (1., 'I'),
                           ('Z', 'Y'): (-1.j, 'X')}
 
 
-def qubit_identity(n_qubits):
-  return QubitTerm(n_qubits, 1.)
+def qubit_identity(coefficient=1.):
+  return QubitTerm([], coefficient)
 
 
 class QubitTerm(LocalTerm):
@@ -52,22 +53,19 @@ class QubitTerm(LocalTerm):
   product, 1 the identity matrix, and the others are Pauli matrices. We
   only allow to apply one single Pauli Matrix to each qubit.
 
-  Note 1: We assume in this class that indices start from 0 to n_qubits - 1.
-
-  Note 2: Always use the abstractions provided here to manipulate the
+  Note: Always use the abstractions provided here to manipulate the
   .operators attribute. If ignoring this advice, an important thing to
   keep in mind is that the operators list is assumed to be sorted in order
   of the tensor factor on which the operator acts.
 
   Attributes:
-    n_qubits: The total number of qubits in the system.
-    coefficient: A real or complex floating point number.
     operators: A sorted list of tuples. The first element of each tuple is an
       int indicating the qubit on which operators acts. The second element
       of each tuple is a string, either 'X', 'Y' or 'Z', indicating what
       acts on that tensor factor. The list is sorted by the first index.
+    coefficient: A real or complex floating point number.
   """
-  def __init__(self, n_qubits, coefficient=1., operators=None):
+  def __init__(self, operators=None, coefficient=1.):
     """Inits PauliTerm.
 
     Specify to which qubits a Pauli X, Y, or Z is applied. To all not
@@ -75,30 +73,47 @@ class QubitTerm(LocalTerm):
     Only one Pauli Matrix can be applied to each qubit.
 
     Args:
-      n_qubits: The total number of qubits in the system.
       coefficient: A real or complex floating point number.
       operators: A sorted list of tuples. The first element of each tuple is an
-        int indicating the qubit on which operators acts. The second element
-        of each tuple is a string, either 'X', 'Y' or 'Z', indicating what
-        acts on that tensor factor.
+        int indicating the qubit on which operators acts, starting from zero.
+        The second element of each tuple is a string, either 'X', 'Y' or 'Z',
+        indicating what acts on that tensor factor.
+        operators can also be specified by a string of the form 'X0 Z2 Y5',
+        indicating an X on qubit 0, Z on qubit 2, and Y on qubit 5.
 
     Raises:
       QubitTermError: Invalid operators provided to QubitTerm.
     """
-    super(QubitTerm, self).__init__(n_qubits, coefficient, operators)
+    if operators is not None and not isinstance(operators, (tuple, list, str)):
+      raise ValueError("Operators specified incorrectly.")
+
+    if isinstance(operators, str):
+      list_ops = []
+      for el in operators.split():
+        if len(el) < 2:
+          raise ValueError("Operators specified incorrectly.")
+        list_ops.append((int(el[1:]), el[0]))
+      operators = list_ops
+    super(QubitTerm, self).__init__(operators, coefficient)
+
     for operator in self:
-      if isinstance(operator, tuple):
-        tensor_factor, action = operator
-        if not isinstance(action, str) or action not in 'XYZ':
-          raise QubitTermError("Invalid action provided: must be string 'X', "
-                               "'Y', or 'Z'.")
-        if not (isinstance(tensor_factor, int) and
-                0 <= tensor_factor < n_qubits):
-          raise QubitTermError('Invalid tensor factor provided to QubitTerm: '
-                               'must be an integer between 0 and n_qubits-1.')
+      tensor_factor, action = operator
+      if not isinstance(action, str) or action not in 'XYZ':
+        raise ValueError("Invalid action provided: must be string 'X', "
+                         "'Y', or 'Z'.")
+      if not (isinstance(tensor_factor, int) and tensor_factor >= 0):
+        raise QubitTermError('Invalid tensor factor provided to QubitTerm: '
+                             'must be a non-negative integer.')
 
     # Make sure operators are sorted by tensor factor.
     self.operators.sort(key=lambda operator: operator[0])
+
+  def n_qubits(self):
+    highest_qubit = 0
+    for operator in self.operators:
+      if operator[0] + 1 > highest_qubit:
+        highest_qubit = operator[0] + 1
+    return highest_qubit
 
   def __add__(self, addend):
     """Compute self + addend for a QubitTerm.
@@ -113,16 +128,10 @@ class QubitTerm(LocalTerm):
 
     Raises:
       TypeError: Object of invalid type cannot be added to QubitTerm.
-      FermionTermError: Cannot add terms acting on different Hilbert spaces.
     """
     if not issubclass(type(addend), (QubitTerm, QubitOperator)):
       raise TypeError('Cannot add term of invalid type to QubitTerm.')
-
-    if self.n_qubits != addend.n_qubits:
-      raise LocalTermError('Cannot add terms acting on different '
-                           'Hilbert spaces.')
-
-    return QubitOperator(self.n_qubits, [self]) + addend
+    return QubitOperator([self]) + addend
 
   def __imul__(self, multiplier):
     """Multiply terms with scalar or QubitTerm using *=.
@@ -131,10 +140,6 @@ class QubitTerm(LocalTerm):
 
     Args:
       multiplier: Another QubitTerm object.
-
-    Raises:
-      QubitTermError: Cannot multiply QubitTerms acting on
-          different Hilbert spaces.
     """
     # Handle scalars.
     if (isinstance(multiplier, (int, float, complex)) or
@@ -144,12 +149,6 @@ class QubitTerm(LocalTerm):
 
     # Handle QubitTerms.
     elif issubclass(type(multiplier), QubitTerm):
-
-      # Make sure terms act on same Hilbert space.
-      if self.n_qubits != multiplier.n_qubits:
-        raise QubitTermError(
-            'Cannot multiply QubitTerms acting on different Hilbert spaces.')
-
       # Relabel self * qubit_term as left_term * right_term.
       left_term = self
       right_term = multiplier
@@ -196,7 +195,7 @@ class QubitTerm(LocalTerm):
       self.operators = product_operators
       return self
 
-  def reverse_jordan_wigner(self):
+  def reverse_jordan_wigner(self, n_qubits=None):
     """Transforms a QubitTerm into an instance of FermionOperator using JW.
 
     Operators are mapped as follows:
@@ -210,11 +209,17 @@ class QubitTerm(LocalTerm):
     Raises:
       QubitTermError: Invalid operator provided: must be 'X', 'Y' or 'Z'.
     """
+    if n_qubits is None:
+      n_qubits = self.n_qubits()
+    if n_qubits == 0:
+      raise QubitTermError("Invalid n_qubits.")
+    if n_qubits < self.n_qubits():
+      n_qubits = self.n_qubits()
+
     # Initialize transformed operator.
-    identity = fermion_operators.fermion_identity(self.n_qubits)
-    transformed_term = fermion_operators.FermionOperator(self.n_qubits,
-                                                         identity)
-    working_term = QubitTerm(self.n_qubits, 1.0, self.operators)
+    identity = fermion_operators.fermion_identity()
+    transformed_term = fermion_operators.FermionOperator(identity)
+    working_term = QubitTerm(self.operators, 1.0)
 
     # Loop through operators.
     if working_term.operators:
@@ -224,14 +229,12 @@ class QubitTerm(LocalTerm):
         # Handle Pauli Z.
         if operator[1] == 'Z':
           number_operator = fermion_operators.number_operator(
-              self.n_qubits, operator[0], -2.)
+              n_qubits, operator[0], -2.)
           transformed_operator = identity + number_operator
 
         else:
-          raising_term = fermion_operators.FermionTerm(
-              self.n_qubits, 1., [(operator[0], 1)])
-          lowering_term = fermion_operators.FermionTerm(
-              self.n_qubits, 1., [(operator[0], 0)])
+          raising_term = fermion_operators.FermionTerm([(operator[0], 1)])
+          lowering_term = fermion_operators.FermionTerm([(operator[0], 0)])
 
           # Handle Pauli X, Y, Z.
           if operator[1] == 'Y':
@@ -245,13 +248,12 @@ class QubitTerm(LocalTerm):
 
           # Account for the phase terms.
           for j in reversed(range(operator[0])):
-            z_term = QubitTerm(self.n_qubits,
-                               coefficient=1.0,
+            z_term = QubitTerm(coefficient=1.0,
                                operators=[(j, 'Z')])
             z_term *= working_term
             working_term = copy.deepcopy(z_term)
           transformed_operator = fermion_operators.FermionOperator(
-              self.n_qubits, [raising_term, lowering_term])
+              [raising_term, lowering_term])
           transformed_operator *= working_term.coefficient
           working_term.coefficient = 1.0
 
@@ -287,9 +289,15 @@ class QubitTerm(LocalTerm):
         string_representation += ' Z{}'.format(operator[0])
     return string_representation
 
-  def get_sparse_operator(self):
+  def get_sparse_operator(self, n_qubits=None):
     """Map the QubitTerm to a SparseOperator instance."""
-    return qubit_term_sparse(self)
+    if n_qubits is None:
+      n_qubits = self.n_qubits()
+    if n_qubits == 0:
+      raise QubitTermError("Invalid n_qubits.")
+    if n_qubits < self.n_qubits():
+      n_qubits = self.n_qubits()
+    return qubit_term_sparse(self, n_qubits)
 
   def eigenspectrum(self):
     return self.get_sparse_operator().eigenspectrum()
@@ -302,40 +310,51 @@ class QubitOperator(LocalOperator):
   QubitTerm objects need to have only real valued coefficients.
 
   Attributes:
-    n_qubits: The number of qubits on which the operator acts.
     terms: Dictionary of QubitTerm objects. The dictionary key is
         QubitTerm.key() and the dictionary value is the QubitTerm.
   """
-  def __init__(self, n_qubits, terms=None):
+  def __init__(self, terms=None):
     """Init a QubitOperator.
 
     Args:
-      n_qubits: Int, the number of qubits in the system.
-      terms: Dictionary or list of QubitTerm objects.
+      terms: An instance or dictionary or list of QubitTerm objects.
 
     Raises:
       QubitOperatorError: Invalid QubitTerms provided to QubitOperator.
     """
-    super(QubitOperator, self).__init__(n_qubits, terms)
+    super(QubitOperator, self).__init__(terms)
+
     for term in self:
-      if not isinstance(term, QubitTerm) or term.n_qubits != n_qubits:
+      if not isinstance(term, QubitTerm):
         raise QubitTermError('Invalid QubitTerms provided to QubitOperator.')
 
   def __setitem__(self, operators, coefficient):
     if operators in self:
       self.terms[tuple(operators)].coefficient = coefficient
     else:
-      new_term = QubitTerm(self.n_qubits, coefficient, operators)
+      new_term = QubitTerm(operators, coefficient)
       self.terms[tuple(operators)] = new_term
 
-  def reverse_jordan_wigner(self):
-    transformed_operator = fermion_operators.FermionOperator(self.n_qubits)
+  def reverse_jordan_wigner(self, n_qubits=None):
+    if n_qubits is None:
+      n_qubits = self.n_qubits()
+    if n_qubits == 0:
+      raise QubitTermError("Invalid n_qubits.")
+    if n_qubits < self.n_qubits():
+      n_qubits = self.n_qubits()
+    transformed_operator = fermion_operators.FermionOperator()
     for term in self:
-      transformed_operator += term.reverse_jordan_wigner()
+      transformed_operator += term.reverse_jordan_wigner(n_qubits)
     return transformed_operator
 
-  def get_sparse_operator(self):
-    return qubit_operator_sparse(self)
+  def get_sparse_operator(self, n_qubits=None):
+    if n_qubits is None:
+      n_qubits = self.n_qubits()
+    if n_qubits == 0:
+      raise QubitTermError("Invalid n_qubits.")
+    if n_qubits < self.n_qubits():
+      n_qubits = self.n_qubits()
+    return qubit_operator_sparse(self, n_qubits)
 
   def eigenspectrum(self):
     return self.get_sparse_operator().eigenspectrum()
@@ -351,32 +370,40 @@ class QubitOperator(LocalOperator):
     """
     expectation = 0.
     for term in qubit_operator:
-      expectation += term.coefficient * self[term.operators]
+      if term.is_identity():
+        expectation += term.coefficient + self[term.operators]
+      else:
+        expectation += term.coefficient * self[term.operators]
     return expectation
 
-  def get_molecular_rdm(self):
-    """Build a MolecularOperator from measured qubit operators.
+  def get_interaction_rdm(self, n_qubits=None):
+    """Build a InteractionRDM from measured qubit operators.
 
-    Returns: A MolecularOperator object.
+    Returns: A InteractionRDM object.
     """
-    one_rdm = numpy.zeros((self.n_qubits,) * 2, dtype=complex)
-    two_rdm = numpy.zeros((self.n_qubits,) * 4, dtype=complex)
+    if n_qubits is None:
+      n_qubits = self.n_qubits()
+    if n_qubits == 0:
+      raise QubitTermError("Invalid n_qubits.")
+    if n_qubits < self.n_qubits():
+      n_qubits = self.n_qubits()
+    one_rdm = numpy.zeros((n_qubits,) * 2, dtype=complex)
+    two_rdm = numpy.zeros((n_qubits,) * 4, dtype=complex)
 
     # One-RDM.
-    for i, j in itertools.product(range(self.n_qubits), repeat=2):
+    for i, j in itertools.product(range(n_qubits), repeat=2):
       transformed_operator = fermion_operators.FermionTerm(
-          self.n_qubits, 1.0, [(i, 1), (j, 0)]).jordan_wigner_transform()
+          [(i, 1), (j, 0)]).jordan_wigner_transform()
       for term in transformed_operator:
         if tuple(term.operators) in self.terms:
           one_rdm[i, j] += term.coefficient * self[term.operators]
 
     # Two-RDM.
-    for i, j, k, l in itertools.product(range(self.n_qubits), repeat=4):
+    for i, j, k, l in itertools.product(range(n_qubits), repeat=4):
       transformed_operator = fermion_operators.FermionTerm(
-          self.n_qubits, 1.0,
           [(i, 1), (j, 1), (k, 0), (l, 0)]).jordan_wigner_transform()
       for term in transformed_operator:
         if tuple(term.operators) in self.terms:
           two_rdm[i, j, k, l] += term.coefficient * self[term.operators]
 
-    return molecular_operators.MolecularOperator(1.0, one_rdm, two_rdm)
+    return interaction_rdms.InteractionRDM(one_rdm, two_rdm)

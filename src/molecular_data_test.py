@@ -96,16 +96,8 @@ class MolecularData(unittest.TestCase):
 
     # Compute total energy from RDM.
     molecular_hamiltonian = self.molecule.get_molecular_hamiltonian()
-    nuclear_repulsion, one_body_coefficients, two_body_coefficients = (
-        molecular_hamiltonian.constant,
-        molecular_hamiltonian.one_body_coefficients,
-        molecular_hamiltonian.two_body_coefficients)
-    total_energy = nuclear_repulsion
     molecular_rdm = self.molecule.get_molecular_rdm()
-    one_rdm, two_rdm = (molecular_rdm.one_body_coefficients,
-                        molecular_rdm.two_body_coefficients)
-    total_energy += numpy.einsum('pq, pq', one_rdm, one_body_coefficients)
-    total_energy += numpy.einsum('pqrs, pqrs', two_rdm, two_body_coefficients)
+    total_energy = molecular_rdm.expectation(molecular_hamiltonian)
     self.assertAlmostEqual(total_energy, self.molecule.cisd_energy)
 
     # Build random rotation with correction dimension.
@@ -117,15 +109,8 @@ class MolecularData(unittest.TestCase):
 
     # Compute total energy from RDM under some arbitrary basis set rotation.
     molecular_rdm.rotate_basis(rotation_matrix)
-    one_rdm, two_rdm = (molecular_rdm.one_body_coefficients,
-                        molecular_rdm.two_body_coefficients)
     molecular_hamiltonian.rotate_basis(rotation_matrix)
-    one_body_coefficients, two_body_coefficients = (
-        molecular_hamiltonian.one_body_coefficients,
-        molecular_hamiltonian.two_body_coefficients)
-    total_energy = nuclear_repulsion
-    total_energy += numpy.einsum('pq, pq', one_rdm, one_body_coefficients)
-    total_energy += numpy.einsum('pqrs, pqrs', two_rdm, two_body_coefficients)
+    total_energy = molecular_rdm.expectation(molecular_hamiltonian)
     self.assertAlmostEqual(total_energy, self.molecule.cisd_energy)
 
 

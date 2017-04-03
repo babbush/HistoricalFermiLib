@@ -2,11 +2,19 @@
 
 # Import needed libraries.
 sys.path.append('&_THIS_DIRECTORY')
+from config import *
 import sys
 import numpy
 import molecular_data
 import molecular_operators
 import parser_functions
+import interaction_tensors
+import interaction_rdms
+import molecular_data
+import numpy
+import sys
+
+from config import *
 
 # Set memory that job can use in megabytes.
 memory &memory mb
@@ -52,7 +60,7 @@ set globals {
   r_convergence 1e-6
   d_convergence 1e-6
   e_convergence 1e-6
-  ints_tolerance 1e-12
+  ints_tolerance EQUALITY_TOLERANCE
   damping_percentage 0
 }
 
@@ -80,10 +88,9 @@ if &run_scf:
 
     # Get integrals using MintsHelper.
     mints = MintsHelper(hf_wavefunction.basisset())
-    molecule.orbital_overlaps = numpy.asarray(mints.ao_overlap())
-    molecule.kinetic_integrals = molecular_operators.one_body_basis_change(
+    molecule.one_body_integrals = interaction_tensors.one_body_basis_change(
         numpy.asarray(mints.ao_kinetic()), molecule.canonical_orbitals)
-    molecule.potential_integrals = molecular_operators.one_body_basis_change(
+    molecule.one_body_integrals += interaction_tensors.one_body_basis_change(
         numpy.asarray(mints.ao_potential()), molecule.canonical_orbitals)
     two_body_integrals = numpy.asarray(mints.ao_eri())
     two_body_integrals.reshape((molecule.n_orbitals,
@@ -91,7 +98,7 @@ if &run_scf:
                                 molecule.n_orbitals,
                                 molecule.n_orbitals))
     two_body_integrals = numpy.einsum('psqr', two_body_integrals)
-    two_body_integrals = molecular_operators.two_body_basis_change(
+    two_body_integrals = interaction_tensors.two_body_basis_change(
         two_body_integrals, molecule.canonical_orbitals)
     integrals_name = molecule.data_handle() + '_eri'
     numpy.save(integrals_name, two_body_integrals)
@@ -151,7 +158,7 @@ if &run_cisd:
                               molecule.n_orbitals, molecule.n_orbitals)
 
     # Get overall RDMs.
-    cisd_one_rdm, cisd_two_rdm = molecular_operators.unpack_spatial_rdm(
+    cisd_one_rdm, cisd_two_rdm = interaction_rdms.unpack_spatial_rdm(
         cisd_one_rdm_a, cisd_one_rdm_b,
         cisd_two_rdm_aa, cisd_two_rdm_ab,
         cisd_two_rdm_bb)
@@ -198,7 +205,7 @@ if &run_fci:
                               molecule.n_orbitals, molecule.n_orbitals)
 
     # Get overall RDMs.
-    fci_one_rdm, fci_two_rdm = molecular_operators.unpack_spatial_rdm(
+    fci_one_rdm, fci_two_rdm = interaction_rdms.unpack_spatial_rdm(
         fci_one_rdm_a, fci_one_rdm_b,
         fci_two_rdm_aa, fci_two_rdm_ab, fci_two_rdm_bb)
 
@@ -234,4 +241,3 @@ if &run_ccsd:
                                  psi_filename)
     molecule.ccsd_amplitudes = ccsd_amplitudes
     molecule.save()
-

@@ -10,7 +10,7 @@ if __name__ == '__main__':
   basis = 'sto-3g'
   max_electrons = 10
   spacing = 0.7414
-  periodic_table = 0
+  periodic_table = 1
 
   # Select calculations.
   force_recompute = 1
@@ -19,6 +19,7 @@ if __name__ == '__main__':
   run_cisd = 1
   run_ccsd = 1
   run_fci = 1
+  verbose = 1
   tolerate_error = 1
 
   # Generate data.
@@ -53,4 +54,5 @@ if __name__ == '__main__':
                                    run_cisd=run_cisd,
                                    run_ccsd=run_ccsd,
                                    run_fci=run_fci,
+                                   verbose=verbose,
                                    tolerate_error=tolerate_error)

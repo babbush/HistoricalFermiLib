@@ -1,1 +1,2 @@
 python -m unittest discover -p "*test.py"
+pep8 *.py --ignore=E111,E114,E226
