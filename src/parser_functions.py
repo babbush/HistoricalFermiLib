@@ -3,6 +3,7 @@
 import molecular_operators
 import numpy
 
+
 def parse_psi4_ccsd_amplitudes(number_orbitals,
                                n_alpha_electrons, n_beta_electrons,
                                psi_filename):
@@ -54,20 +55,23 @@ def parse_psi4_ccsd_amplitudes(number_orbitals,
   if (T1IA_index is not None):
     for line in output_buffer[T1IA_index + 1:]:
       ivals = line.split()
-      if not ivals: break
+      if not ivals:
+        break
       T1IA_Amps.append([int(ivals[0]), int(ivals[1]), float(ivals[2])])
 
   if (T1ia_index is not None):
     for line in output_buffer[T1ia_index + 1:]:
       ivals = line.split()
-      if not ivals: break
+      if not ivals:
+        break
       T1ia_Amps.append([int(ivals[0]), int(ivals[1]), float(ivals[2])])
 
   # Read T2's
   if (T2IJAB_index is not None):
     for line in output_buffer[T2IJAB_index + 1:]:
       ivals = line.split()
-      if not ivals: break
+      if not ivals:
+        break
       T2IJAB_Amps.append([int(ivals[0]), int(ivals[1]),
                           int(ivals[2]), int(ivals[3]),
                           float(ivals[4])])
@@ -75,7 +79,8 @@ def parse_psi4_ccsd_amplitudes(number_orbitals,
   if (T2ijab_index is not None):
     for line in output_buffer[T2ijab_index + 1:]:
       ivals = line.split()
-      if not ivals: break
+      if not ivals:
+        break
       T2ijab_Amps.append([int(ivals[0]), int(ivals[1]),
                           int(ivals[2]), int(ivals[3]),
                           float(ivals[4])])
@@ -83,7 +88,8 @@ def parse_psi4_ccsd_amplitudes(number_orbitals,
   if (T2IjAb_index is not None):
     for line in output_buffer[T2IjAb_index + 1:]:
       ivals = line.split()
-      if not ivals: break
+      if not ivals:
+        break
       T2IjAb_Amps.append([int(ivals[0]), int(ivals[1]),
                           int(ivals[2]), int(ivals[3]),
                           float(ivals[4])])

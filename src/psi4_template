@@ -1,18 +1,13 @@
 """This is a template for psi4 input format."""
 
 # Import needed libraries.
-sys.path.append('&_THIS_DIRECTORY')
-from config import *
 import sys
-import numpy
-import molecular_data
-import molecular_operators
-import parser_functions
+sys.path.append('&_THIS_DIRECTORY')
 import interaction_tensors
 import interaction_rdms
 import molecular_data
 import numpy
-import sys
+import parser_functions
 
 from config import *
 
