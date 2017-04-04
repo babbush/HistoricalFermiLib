@@ -490,7 +490,3 @@ class MolecularData(object):
     # Cast to InteractionRDM class.
     rdm = interaction_rdms.InteractionRDM(one_rdm, two_rdm)
     return rdm
-
-  def get_cc_amplitudes(self):
-    # TODO Jarrod.
-    return None
