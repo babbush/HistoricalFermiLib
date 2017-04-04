@@ -90,7 +90,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.chemical_series">src.chemical_series module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-src.config">src.onfig module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#src-config-module">src.config module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.fenwick_tree">src.fenwick_tree module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.fermion_operators">src.fermion_operators module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.generate_data">src.generate_data module</a></li>
@@ -103,8 +103,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-src.local_operators">src.local_operators module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.local_terms">src.local_terms module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.molecular_data">src.molecular_data module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-src.molecular_operators">src.molecular_operators module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-src.performance_benchmarks">src.performance_benchmarks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#src-performance-benchmarks-module">src.performance_benchmarks module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#src-plotter-module">src.plotter module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.qubit_operators">src.qubit_operators module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.run_psi4">src.run_psi4 module</a></li>
@@ -266,9 +265,9 @@ this defaults to &#8216;H&#8217; for Hydrogen.</li>
 </dd></dl>
 
 </div>
-<div class="section" id="module-src.config">
-<span id="src-onfig-module"></span><h2>src.onfig module<a class="headerlink" href="#module-src.config" title="Permalink to this headline">¶</a></h2>
-</div>
+<div class="section" id="src-config-module">
+<h2>src.config module<a class="headerlink" href="#src-config-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-src.config"></span></div>
 <div class="section" id="module-src.fenwick_tree">
 <span id="src-fenwick-tree-module"></span><h2>src.fenwick_tree module<a class="headerlink" href="#module-src.fenwick_tree" title="Permalink to this headline">¶</a></h2>
 <p>Class to represent a Fenwick tree.</p>
@@ -1047,7 +1046,7 @@ Four point symmetry:</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A float giving the expectation value.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.qubit_operators.QubitOperator.expectation" title="src.qubit_operators.QubitOperator.expectation">expectation</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.sparse_operators.SparseOperator.expectation" title="src.sparse_operators.SparseOperator.expectation">expectation</a></td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#src.interaction_rdms.InteractionRDMError" title="src.interaction_rdms.InteractionRDMError"><code class="xref py py-exc docutils literal"><span class="pre">InteractionRDMError</span></code></a> &#8211; Invalid operator provided.</td>
 </tr>
@@ -1886,6 +1885,12 @@ for dimers a likely description is the bond length (e.g. 0.7414).</p>
 <dd><p>Energy from coupled cluster singles and doubles.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="src.molecular_data.MolecularData.ccsd_amplitudes">
+<code class="descname">ccsd_amplitudes</code><a class="headerlink" href="#src.molecular_data.MolecularData.ccsd_amplitudes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Molecular operator holding coupled cluster amplitudes</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="src.molecular_data.MolecularData.data_handle">
 <code class="descname">data_handle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_data.MolecularData.data_handle" title="Permalink to this definition">¶</a></dt>
@@ -1920,11 +1925,6 @@ two_body_integrals_new: New two-electron integrals over active space.</p>
 </dl>
 </div></blockquote>
 </dd></dl>
-
-<dl class="method">
-<dt id="src.molecular_data.MolecularData.get_cc_amplitudes">
-<code class="descname">get_cc_amplitudes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_data.MolecularData.get_cc_amplitudes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="src.molecular_data.MolecularData.get_integrals">
@@ -1996,6 +1996,18 @@ in the active space.</li>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.molecular_data.MolecularData.get_n_alpha_electrons">
+<code class="descname">get_n_alpha_electrons</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_data.MolecularData.get_n_alpha_electrons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of alpha electrons</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.molecular_data.MolecularData.get_n_beta_electrons">
+<code class="descname">get_n_beta_electrons</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_data.MolecularData.get_n_beta_electrons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of beta electrons</p>
 </dd></dl>
 
 <dl class="method">
@@ -2088,239 +2100,8 @@ for dimers a likely description is the bond length (e.g. 0.7414).</li>
 </dd></dl>
 
 </div>
-<div class="section" id="module-src.molecular_operators">
-<span id="src-molecular-operators-module"></span><h2>src.molecular_operators module<a class="headerlink" href="#module-src.molecular_operators" title="Permalink to this headline">¶</a></h2>
-<p>Class and functions to store molecular Hamiltonians.</p>
-<dl class="class">
-<dt id="src.molecular_operators.MolecularOperator">
-<em class="property">class </em><code class="descclassname">src.molecular_operators.</code><code class="descname">MolecularOperator</code><span class="sig-paren">(</span><em>constant</em>, <em>one_body_coefficients</em>, <em>two_body_coefficients</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">src.molecular_coefficients.MolecularCoefficients</span></code></p>
-<p>Class for storing &#8216;molecular operators&#8217; which are defined to be
-fermionic operators consisting of one-body and two-body terms which
-conserve particle number and spin. The most common examples of data
-that will use this structure are molecular Hamiltonians and molecular
-2-RDM density operators. In principle, everything stored in this class
-could also be represented as the more general FermionOperator class.
-However, this class is able to exploit specific properties of molecular
-operators in order to enable more efficient manipulation of the data.
-Note that the operators stored in this class take the form:</p>
-<blockquote>
-<div>constant + sum_{p, q} h_[p, q] a^dagger_p a_q +
-sum_{p, q, r, s} h_[p, q, r, s] a^dagger_p a^dagger_q a_r a_s.</div></blockquote>
-<dl class="attribute">
-<dt id="src.molecular_operators.MolecularOperator.n_qubits">
-<code class="descname">n_qubits</code><a class="headerlink" href="#src.molecular_operators.MolecularOperator.n_qubits" title="Permalink to this definition">¶</a></dt>
-<dd><p>An int giving the number of qubits.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.molecular_operators.MolecularOperator.one_body_coefficients">
-<code class="descname">one_body_coefficients</code><a class="headerlink" href="#src.molecular_operators.MolecularOperator.one_body_coefficients" title="Permalink to this definition">¶</a></dt>
-<dd><p>The coefficients of the one-body terms (h[p, q]).
-This is an n_qubits x n_qubits numpy array of floats.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.molecular_operators.MolecularOperator.two_body_coefficients">
-<code class="descname">two_body_coefficients</code><a class="headerlink" href="#src.molecular_operators.MolecularOperator.two_body_coefficients" title="Permalink to this definition">¶</a></dt>
-<dd><p>The coefficients of the two-body terms
-(h[p, q, r, s]). This is an n_qubits x n_qubits x n_qubits x
-n_qubits numpy array of floats.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.molecular_operators.MolecularOperator.constant">
-<code class="descname">constant</code><a class="headerlink" href="#src.molecular_operators.MolecularOperator.constant" title="Permalink to this definition">¶</a></dt>
-<dd><p>A constant term in the operator given as a float.
-For instance, the nuclear repulsion energy.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.molecular_operators.MolecularOperator.eight_point_iter">
-<code class="descname">eight_point_iter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.eight_point_iter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.molecular_operators.MolecularOperator.four_point_iter">
-<code class="descname">four_point_iter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.four_point_iter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.molecular_operators.MolecularOperator.get_fermion_operator">
-<code class="descname">get_fermion_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.get_fermion_operator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Output MolecularOperator as an instance of FermionOperator class.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An instance of the FermionOperator class.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">fermion_operator</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.molecular_operators.MolecularOperator.get_sparse_operator">
-<code class="descname">get_sparse_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.get_sparse_operator" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="src.molecular_operators.MolecularOperator.jordan_wigner_one_body">
-<em class="property">static </em><code class="descname">jordan_wigner_one_body</code><span class="sig-paren">(</span><em>p</em>, <em>q</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.jordan_wigner_one_body" title="Permalink to this definition">¶</a></dt>
-<dd><p>Map the term a^dagger_p a_q + a^dagger_q a_p to a qubit operator.</p>
-<p>Note that the diagonal terms are divided by a factor of 2 because they
-are equal to their own Hermitian conjugate.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.molecular_operators.MolecularOperator.jordan_wigner_transform">
-<code class="descname">jordan_wigner_transform</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.jordan_wigner_transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Output MolecularOperator as QubitOperator class under JW transform.</p>
-<p>One could accomplish this very easily by first mapping to fermions and
-then mapping to qubits. We skip the middle step for the sake of speed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An instance of the QubitOperator class.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">qubit_operator</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="src.molecular_operators.MolecularOperator.jordan_wigner_two_body">
-<em class="property">static </em><code class="descname">jordan_wigner_two_body</code><span class="sig-paren">(</span><em>p</em>, <em>q</em>, <em>r</em>, <em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.MolecularOperator.jordan_wigner_two_body" title="Permalink to this definition">¶</a></dt>
-<dd><p>Map the term a^dagger_p a^dagger_q a_r a_s + h.c. to qubit operator.</p>
-<p>Note that the diagonal terms are divided by a factor of two because they
-are equal to their own Hermitian conjugate.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="exception">
-<dt id="src.molecular_operators.MolecularOperatorError">
-<em class="property">exception </em><code class="descclassname">src.molecular_operators.</code><code class="descname">MolecularOperatorError</code><a class="headerlink" href="#src.molecular_operators.MolecularOperatorError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.molecular_operators.restrict_to_active_space">
-<code class="descclassname">src.molecular_operators.</code><code class="descname">restrict_to_active_space</code><span class="sig-paren">(</span><em>one_body_integrals</em>, <em>two_body_integrals</em>, <em>active_space_start</em>, <em>active_space_stop</em><span class="sig-paren">)</span><a class="headerlink" href="#src.molecular_operators.restrict_to_active_space" title="Permalink to this definition">¶</a></dt>
-<dd><p>Restrict the molecule at a spatial orbital level to the active space
-defined by active_space=[start,stop]. Note that one_body_integrals and
-two_body_integrals must be defined in an orthonormal basis set,
-which is typically the case when defining an active space.</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>one_body_integrals: (N,N) numpy array containing the one-electron</dt>
-<dd>spatial integrals for a molecule.</dd>
-<dt>two_body_integrals: (N,N,N,N) numpy array containing the two-electron</dt>
-<dd>spatial integrals.</dd>
-<dt>active_space_start(int): spatial orbital index defining active</dt>
-<dd>space start.</dd>
-</dl>
-</dd>
-<dt>Returns:</dt>
-<dd><dl class="first docutils">
-<dt>core_constant: Adjustment to constant shift in Hamiltonian from</dt>
-<dd>integrating out core orbitals</dd>
-</dl>
-<p class="last">one_body_integrals_new: New one-electron integrals over active space.
-two_body_integrals_new: New two-electron integrals over active space.</p>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-</div>
-<div class="section" id="module-src.performance_benchmarks">
-<span id="src-performance-benchmarks-module"></span><h2>src.performance_benchmarks module<a class="headerlink" href="#module-src.performance_benchmarks" title="Permalink to this headline">¶</a></h2>
-<p>This file contains tests of code performance to reveal bottlenecks.</p>
-<dl class="function">
-<dt id="src.performance_benchmarks.artificial_molecular_operator">
-<code class="descclassname">src.performance_benchmarks.</code><code class="descname">artificial_molecular_operator</code><span class="sig-paren">(</span><em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.performance_benchmarks.artificial_molecular_operator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make an artificial random MolecularOperator for testing purposes.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.performance_benchmarks.benchmark_fermion_math_and_normal_order">
-<code class="descclassname">src.performance_benchmarks.</code><code class="descname">benchmark_fermion_math_and_normal_order</code><span class="sig-paren">(</span><em>n_qubits</em>, <em>term_length</em>, <em>power</em><span class="sig-paren">)</span><a class="headerlink" href="#src.performance_benchmarks.benchmark_fermion_math_and_normal_order" title="Permalink to this definition">¶</a></dt>
-<dd><p>Benchmark both arithmetic operators and normal ordering on fermions.</p>
-<p>The idea is we generate two random FermionTerms, A and B, each acting
-on n_qubits with term_length operators. We then compute
-(A + B) ** power. This is costly that is the first benchmark. The second
-benchmark is in normal ordering whatever comes out.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>n_qubits</strong> &#8211; The number of qubits on which these terms act.</li>
-<li><strong>term_length</strong> &#8211; The number of operators in each term.</li>
-<li><strong>power</strong> &#8211; Int, the exponent to which to raise sum of the two terms.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>The time it takes to perform (A + B) ** power
-runtime_normal_order: The time it takes to perform</p>
-<blockquote>
-<div><p>FermionOperator.normal_order()</p>
-</div></blockquote>
-</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">runtime_math</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.performance_benchmarks.benchmark_jordan_wigner_sparse">
-<code class="descclassname">src.performance_benchmarks.</code><code class="descname">benchmark_jordan_wigner_sparse</code><span class="sig-paren">(</span><em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.performance_benchmarks.benchmark_jordan_wigner_sparse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Benchmark the speed at which a FermionOperator is mapped to a matrix.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n_qubits</strong> &#8211; The number of qubits in the example.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The time in seconds that the benchmark took.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">runtime</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="src.performance_benchmarks.benchmark_molecular_operator_jordan_wigner">
-<code class="descclassname">src.performance_benchmarks.</code><code class="descname">benchmark_molecular_operator_jordan_wigner</code><span class="sig-paren">(</span><em>n_qubits</em><span class="sig-paren">)</span><a class="headerlink" href="#src.performance_benchmarks.benchmark_molecular_operator_jordan_wigner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test speed with which molecular operators transform to qubit operators.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n_qubits</strong> &#8211; The size of the molecular operator instance. Ideally, we would
-be able to transform to a qubit operator for 50 qubit instances in
-much less than a minute. We are way too slow right now.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The number of seconds required to make the conversion.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">runtime</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
+<div class="section" id="src-performance-benchmarks-module">
+<h2>src.performance_benchmarks module<a class="headerlink" href="#src-performance-benchmarks-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="src-plotter-module">
 <h2>src.plotter module<a class="headerlink" href="#src-plotter-module" title="Permalink to this headline">¶</a></h2>
@@ -2359,7 +2140,7 @@ QubitTerm.key() and the dictionary value is the QubitTerm.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A float, giving the expectation value.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.qubit_operators.QubitOperator.expectation" title="src.qubit_operators.QubitOperator.expectation">expectation</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#src.sparse_operators.SparseOperator.expectation" title="src.sparse_operators.SparseOperator.expectation">expectation</a></td>
 </tr>
 </tbody>
 </table>

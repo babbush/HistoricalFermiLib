@@ -18,7 +18,7 @@ src.chemical_series module
     :undoc-members:
     :show-inheritance:
 
-src.onfig module
+src.config module
 ----------------
 
 .. automodule:: src.config
@@ -118,14 +118,6 @@ src.molecular_data module
 -------------------------
 
 .. automodule:: src.molecular_data
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-src.molecular_operators module
-------------------------------
-
-.. automodule:: src.molecular_operators
     :members:
     :undoc-members:
     :show-inheritance:
