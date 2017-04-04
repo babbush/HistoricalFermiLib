@@ -1,11 +1,14 @@
 """Tests many modules to compute energy of hydrogen."""
+import fermion_operators
+import itertools
 import molecular_data
 import numpy
 import run_psi4
 import scipy
 import scipy.linalg
-import interaction_operators
+import scipy.sparse
 import sparse_operators
+import unitary_cc
 import unittest
 
 
@@ -22,12 +25,14 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
     # Run calculations.
     run_scf = 1
+    run_ccsd = 1
     run_fci = 1
     verbose = 0
     delete_input = 1
-    delete_output = 1
+    delete_output = 0
     self.molecule = run_psi4.run_psi4(self.molecule,
                                       run_scf=run_scf,
+                                      run_ccsd=run_ccsd,
                                       run_fci=run_fci,
                                       verbose=verbose,
                                       delete_input=delete_input,
@@ -204,6 +209,44 @@ class HydrogenIntegrationTest(unittest.TestCase):
     new_fermi_rdm = qubit_rdm.get_interaction_rdm()
     new_fermi_rdm.expectation(self.molecular_hamiltonian)
     self.assertAlmostEqual(fci_rdm_energy, self.molecule.fci_energy)
+
+    # Test UCCSD for reasonable accuracy against FCI using loaded t amplitudes
+    uccsd_operator = unitary_cc.\
+        uccsd_operator(self.molecule.ccsd_amplitudes.one_body_tensor,
+                       self.molecule.ccsd_amplitudes.two_body_tensor)
+
+    uccsd_sparse = sparse_operators.\
+        jordan_wigner_operator_sparse(uccsd_operator,
+                                      self.qubit_hamiltonian.n_qubits())
+    uccsd_state = scipy.sparse.linalg.expm_multiply(uccsd_sparse.matrix,
+                                                    hf_state)
+    expected_uccsd_energy = self.hamiltonian_matrix.expectation(uccsd_state)
+    self.assertAlmostEqual(expected_uccsd_energy, self.molecule.fci_energy,
+                           places=4)
+
+    # print("UCCSD Energy: {}".format(expected_uccsd_energy))
+
+    # Test CCSD for precise match against FCI using loaded t amplitudes
+    ccsd_operator = unitary_cc.\
+        uccsd_operator(self.molecule.ccsd_amplitudes.one_body_tensor,
+                       self.molecule.ccsd_amplitudes.two_body_tensor,
+                       anti_hermitian=False)
+
+    ccsd_sparse_r = sparse_operators.\
+        jordan_wigner_operator_sparse(ccsd_operator,
+                                      self.qubit_hamiltonian.n_qubits())
+    ccsd_sparse_l = sparse_operators.\
+        jordan_wigner_operator_sparse(-ccsd_operator.hermitian_conjugated(),
+                                      self.qubit_hamiltonian.n_qubits())
+    ccsd_state_r = scipy.sparse.linalg.expm_multiply(ccsd_sparse_r.matrix,
+                                                     hf_state)
+    ccsd_state_l = scipy.sparse.linalg.expm_multiply(ccsd_sparse_l.matrix,
+                                                     hf_state)
+    expected_ccsd_energy = ccsd_state_l.getH().dot(
+        self.hamiltonian_matrix.matrix.dot(ccsd_state_r))[0, 0]
+    self.assertAlmostEqual(expected_ccsd_energy, self.molecule.fci_energy)
+
+    # print("CCSD Energy: {}".format(expected_ccsd_energy))
 
 
 if __name__ == '__main__':

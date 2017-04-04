@@ -1,16 +1,13 @@
 """This is a template for psi4 input format."""
 
 # Import needed libraries.
-sys.path.append('&_THIS_DIRECTORY')
-from config import *
 import sys
-import numpy
-import molecular_data
+sys.path.append('&_THIS_DIRECTORY')
 import interaction_tensors
 import interaction_rdms
 import molecular_data
 import numpy
-import sys
+import parser_functions
 
 from config import *
 
@@ -82,6 +79,7 @@ if &run_scf:
     molecule.n_orbitals = molecule.canonical_orbitals.shape[0]
     molecule.n_qubits = 2 * molecule.n_orbitals
     molecule.orbital_energies = numpy.asarray(hf_wavefunction.epsilon_a())
+    molecule.fock_matrix = numpy.asarray(hf_wavefunction.Fa())
 
     # Get integrals using MintsHelper.
     mints = MintsHelper(hf_wavefunction.basisset())
@@ -228,4 +226,13 @@ if &run_ccsd:
       raise
   else:
     molecule.ccsd_energy = ccsd_energy
+
+    # Merge CC amplitudes into molecule by parsing
+    psi_filename = outfile_name()
+    ccsd_amplitudes = parser_functions.\
+      parse_psi4_ccsd_amplitudes(2 * molecule.n_orbitals,
+                                 molecule.get_n_alpha_electrons(),
+                                 molecule.get_n_beta_electrons(),
+                                 psi_filename)
+    molecule.ccsd_amplitudes = ccsd_amplitudes
     molecule.save()
