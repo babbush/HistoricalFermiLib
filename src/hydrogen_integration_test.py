@@ -212,8 +212,8 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
     # Test UCCSD for reasonable accuracy against FCI using loaded t amplitudes
     uccsd_operator = unitary_cc.\
-        uccsd_operator(self.molecule.ccsd_amplitudes.one_body_coefficients,
-                       self.molecule.ccsd_amplitudes.two_body_coefficients)
+        uccsd_operator(self.molecule.ccsd_amplitudes.one_body_tensor,
+                       self.molecule.ccsd_amplitudes.two_body_tensor)
 
     uccsd_sparse = sparse_operators.\
         jordan_wigner_operator_sparse(uccsd_operator,
@@ -228,8 +228,8 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
     # Test CCSD for precise match against FCI using loaded t amplitudes
     ccsd_operator = unitary_cc.\
-        ccsd_operator(self.molecule.ccsd_amplitudes.one_body_coefficients,
-                      self.molecule.ccsd_amplitudes.two_body_coefficients)
+        ccsd_operator(self.molecule.ccsd_amplitudes.one_body_tensor,
+                      self.molecule.ccsd_amplitudes.two_body_tensor)
 
     ccsd_sparse_r = sparse_operators.\
         jordan_wigner_operator_sparse(ccsd_operator,

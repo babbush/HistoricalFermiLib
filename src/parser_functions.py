@@ -1,6 +1,6 @@
 """Helper functions for parsing data files of different types"""
 
-import molecular_operators
+import interaction_operators
 import numpy
 
 
@@ -16,7 +16,7 @@ def parse_psi4_ccsd_amplitudes(number_orbitals,
     psi_filename(str): Filename of psi4 output file
 
   Returns:
-    molecule(MolecularOperator): Molecular Operator instance holding ccsd
+    molecule(InteractionOperator): Molecular Operator instance holding ccsd
       amplitudes
   """
   output_buffer = [line for line in open(psi_filename)]
@@ -162,7 +162,7 @@ def parse_psi4_ccsd_amplitudes(number_orbitals,
                         alpha_unoccupied(b)] = -value / 2.
 
   # Package into molecular operator
-  molecule = molecular_operators.MolecularOperator(0.0,
-                                                   single_amplitudes,
-                                                   double_amplitudes)
+  molecule = interaction_operators.InteractionOperator(0.0,
+                                                       single_amplitudes,
+                                                       double_amplitudes)
   return molecule
