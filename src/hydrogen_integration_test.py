@@ -1,8 +1,8 @@
 """Tests many modules to compute energy of hydrogen."""
-import numpy
 import fermion_operators
 import itertools
 import molecular_data
+import numpy
 import run_psi4
 import scipy
 import scipy.linalg
@@ -228,8 +228,9 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
     # Test CCSD for precise match against FCI using loaded t amplitudes
     ccsd_operator = unitary_cc.\
-        ccsd_operator(self.molecule.ccsd_amplitudes.one_body_tensor,
-                      self.molecule.ccsd_amplitudes.two_body_tensor)
+        uccsd_operator(self.molecule.ccsd_amplitudes.one_body_tensor,
+                       self.molecule.ccsd_amplitudes.two_body_tensor,
+                       anti_hermitian=False)
 
     ccsd_sparse_r = sparse_operators.\
         jordan_wigner_operator_sparse(ccsd_operator,

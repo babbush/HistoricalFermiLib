@@ -36,7 +36,7 @@ class InteractionRDMTest(unittest.TestCase):
 
   def test_get_molecular_operator_expectation(self):
     expectation = self.rdm.expectation(self.hamiltonian)
-    self.assertAlmostEqual(expectation, self.cisd_energy)
+    self.assertAlmostEqual(expectation, self.cisd_energy, places=7)
 
 
 # Test.
