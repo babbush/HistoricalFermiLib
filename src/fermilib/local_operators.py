@@ -1,9 +1,12 @@
 """Base class for representation of various local operators."""
-import copy
-import numpy
-import local_terms
+from __future__ import absolute_import
 
-from config import *
+import copy
+
+import numpy
+
+from fermilib import local_terms
+from fermilib.config import *
 
 
 # Define error class.

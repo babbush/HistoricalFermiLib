@@ -1,8 +1,11 @@
 """Tests for interaction_tensors.py"""
-from interaction_tensors import InteractionTensor
-import itertools
+from __future__ import absolute_import
+
 import unittest
+
 import numpy
+
+from fermilib.interaction_tensors import InteractionTensor
 
 
 class InteractionTensorTest(unittest.TestCase):

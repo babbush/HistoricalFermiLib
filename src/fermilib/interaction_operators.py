@@ -1,10 +1,10 @@
 """Class and functions to store interaction operators."""
-import fermion_operators
-import qubit_operators
+from __future__ import absolute_import
+
 import itertools
-import numpy
-import copy
-from interaction_tensors import InteractionTensor
+
+from fermilib import qubit_operators
+from fermilib.interaction_tensors import InteractionTensor
 
 
 class InteractionOperatorError(Exception):

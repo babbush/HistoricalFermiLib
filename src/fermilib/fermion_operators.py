@@ -1,14 +1,17 @@
 """Class to store and transform fermion operators.
 """
-from local_terms import LocalTerm, LocalTermError
-from local_operators import LocalOperator, LocalOperatorError
-from sparse_operators import (jordan_wigner_term_sparse,
-                              jordan_wigner_operator_sparse)
-from fenwick_tree import FenwickTree
-import interaction_operators
-import qubit_operators
-import numpy
+from __future__ import absolute_import
+
 import copy
+
+import numpy
+
+from fermilib import qubit_operators
+from fermilib.fenwick_tree import FenwickTree
+from fermilib.local_terms import LocalTerm, LocalTermError
+from fermilib.local_operators import LocalOperator, LocalOperatorError
+from fermilib.sparse_operators import (jordan_wigner_term_sparse,
+                                       jordan_wigner_operator_sparse)
 
 
 class JordanWignerError(Exception):
@@ -522,6 +525,9 @@ class FermionOperator(LocalOperator):
       at most a constant number of times in the original operator, the
       runtime of this method is exponential in the number of qubits.
     """
+    # Import here to avoid circular dependency.
+    from fermilib import interation_operators
+
     # Normal order the terms and initialize.
     self.normal_order()
     constant = 0.
@@ -544,7 +550,7 @@ class FermionOperator(LocalOperator):
           p, q = [operator[0] for operator in term]
           one_body[p, q] = coefficient
         else:
-          raise interaction_operators.ErrorInteractionOperator(
+          raise interaction_operators.InteractionOperatorError(
               'FermionOperator is not a molecular operator.')
 
       elif len(term) == 4:
@@ -553,12 +559,12 @@ class FermionOperator(LocalOperator):
           p, q, r, s = [operator[0] for operator in term]
           two_body[p, q, r, s] = coefficient
         else:
-          raise interaction_operators.ErrorInteractionOperator(
+          raise interaction_operators.InteractionOperatorError(
               'FermionOperator is not a molecular operator.')
 
       else:
         # Handle non-molecular Hamiltonian.
-        raise interaction_operators.ErrorInteractionOperator(
+        raise interaction_operators.InteractionOperatorError(
             'FermionOperator is  not a molecular operator.')
 
     # Form InteractionOperator and return.

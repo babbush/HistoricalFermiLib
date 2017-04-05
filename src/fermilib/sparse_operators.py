@@ -1,6 +1,9 @@
 """This module provides functions which are useful for the study of fermions.
 """
-import itertools
+from __future__ import absolute_import
+
+from functools import reduce
+
 import numpy
 import numpy.linalg
 import scipy
@@ -8,8 +11,7 @@ import scipy.misc
 import scipy.sparse
 import scipy.sparse.linalg
 
-from config import *
-from functools import reduce
+from fermilib.config import *
 
 
 # Define error class.

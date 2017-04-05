@@ -1,11 +1,11 @@
 """Tests for interaction_rdms.py"""
-import numpy
+from __future__ import absolute_import
+
 import unittest
 
-from config import *
-from molecular_data import MolecularData
-from interaction_rdms import InteractionRDM
-from run_psi4 import run_psi4
+from fermilib.config import *
+from fermilib.molecular_data import MolecularData
+from fermilib.run_psi4 import run_psi4
 
 
 class InteractionRDMTest(unittest.TestCase):

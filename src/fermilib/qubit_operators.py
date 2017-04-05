@@ -1,15 +1,15 @@
-"""This files has utilities to read and store qubit Hamiltonians.
-"""
+"""This files has utilities to read and store qubit Hamiltonians."""
+from __future__ import absolute_import
+
 import copy
-import fermion_operators
-import interaction_rdms
 import itertools
+
 import numpy
 
-from local_operators import LocalOperator
-from local_terms import LocalTerm, LocalTermError
-from sparse_operators import (qubit_term_sparse,
-                              qubit_operator_sparse)
+from fermilib import interaction_rdms
+from fermilib.local_operators import LocalOperator
+from fermilib.local_terms import LocalTerm
+from fermilib.sparse_operators import qubit_term_sparse, qubit_operator_sparse
 
 
 class QubitTermError(Exception):
@@ -209,6 +209,9 @@ class QubitTerm(LocalTerm):
     Raises:
       QubitTermError: Invalid operator provided: must be 'X', 'Y' or 'Z'.
     """
+    # Import here to avoid circular dependency.
+    from fermilib import fermion_operators
+
     if n_qubits is None:
       n_qubits = self.n_qubits()
     if n_qubits == 0:
@@ -336,6 +339,9 @@ class QubitOperator(LocalOperator):
       self.terms[tuple(operators)] = new_term
 
   def reverse_jordan_wigner(self, n_qubits=None):
+    # Import here to avoid circular dependency.
+    from fermilib import fermion_operators
+
     if n_qubits is None:
       n_qubits = self.n_qubits()
     if n_qubits == 0:

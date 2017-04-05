@@ -1,16 +1,19 @@
 """Tests for fermion_operators.py"""
-import local_operators
-import local_terms
-import numpy
+from __future__ import absolute_import
+
 import unittest
 
-from config import *
-from fermion_operators import (fermion_identity, number_operator,
-                               one_body_term, two_body_term,
-                               FermionTerm, FermionOperator,
-                               FermionTermError, FermionOperatorError,
-                               JordanWignerError)
-from qubit_operators import qubit_identity, QubitTerm, QubitOperator
+import numpy
+
+from fermilib import local_operators
+from fermilib import local_terms
+from fermilib.config import *
+from fermilib.fermion_operators import (fermion_identity, number_operator,
+                                        one_body_term, two_body_term,
+                                        FermionTerm, FermionOperator,
+                                        FermionTermError, FermionOperatorError,
+                                        JordanWignerError)
+from fermilib.qubit_operators import qubit_identity, QubitTerm, QubitOperator
 
 
 class HoppingOperatorsTest(unittest.TestCase):

@@ -1,9 +1,12 @@
 """Tests for interaction_operators.py"""
-from interaction_operators import InteractionOperator, InteractionOperatorError
-import fermion_operators
-import itertools
+from __future__ import absolute_import
+
 import unittest
+
 import numpy
+
+from fermilib import fermion_operators
+from fermilib.interaction_operators import InteractionOperator
 
 
 class InteractionOperatorsTest(unittest.TestCase):

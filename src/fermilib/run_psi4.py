@@ -1,8 +1,11 @@
 """Functions to prepare psi4 input and run calculations."""
-import molecular_data
+from __future__ import absolute_import
+
 import os
 import re
 import subprocess
+
+from fermilib import molecular_data
 
 
 def create_geometry_string(geometry):

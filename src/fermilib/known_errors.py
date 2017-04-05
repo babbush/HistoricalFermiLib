@@ -1,9 +1,12 @@
 """The purpose of this file is to document and demonstrate known bugs."""
-import molecular_data
-import numpy
-import run_psi4
-import sparse_operators
+from __future__ import absolute_import
+
 import unittest
+
+import numpy
+
+from fermilib import molecular_data
+from fermilib import run_psi4
 
 
 class OddNumberElectronBug(unittest.TestCase):

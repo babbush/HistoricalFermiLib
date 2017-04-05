@@ -1,9 +1,9 @@
 """Base class for representation for InteractionOperator and InteractionRDM."""
-import copy
-import itertools
+from __future__ import absolute_import
+
 import numpy
 
-from config import *
+from fermilib.config import *
 
 
 class InteractionTensorError(Exception):

@@ -1,15 +1,14 @@
 """Tests many modules to compute energy of lih."""
+from __future__ import absolute_import
+
+import unittest
+
 import numpy
-import run_psi4
-import scipy
 import scipy.linalg
-import interaction_operators
-import interaction_rdms
-import unittest
-import run_psi4
-import molecular_data
-import sparse_operators
-import unittest
+
+from fermilib import molecular_data
+from fermilib import run_psi4
+from fermilib import sparse_operators
 
 
 class LiHIntegrationTest(unittest.TestCase):

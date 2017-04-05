@@ -1,7 +1,9 @@
 """Module to create and manipulate unitary coupled cluster operators"""
+from __future__ import absolute_import
 
 import itertools
-import fermion_operators
+
+from fermilib import fermion_operators
 
 
 def uccsd_operator(single_amplitudes, double_amplitudes, anti_hermitian=True):

@@ -1,9 +1,11 @@
 """Base class for representation of various local terms."""
+from __future__ import absolute_import
+
 import copy
-import local_operators
+
 import numpy
 
-from config import *
+from fermilib.config import *
 
 
 # Define error classes.
@@ -108,6 +110,9 @@ class LocalTerm(object):
     Raises:
       TypeError: Cannot add term of invalid type to LocalTerm.
     """
+    # Import here to avoid circular dependency.
+    from fermilib import local_operators
+
     if not issubclass(type(addend),
                       (LocalTerm, local_operators.LocalOperator)):
       raise TypeError('Cannot add term of invalid type to LocalTerm.')

@@ -1,10 +1,13 @@
 """This module constructs Hamiltonians for the uniform electron gas (jellium).
 """
-import itertools
-import numpy
-import qubit_operators
+from __future__ import absolute_import
 
-from fermion_operators import FermionTerm, FermionOperator
+import itertools
+
+import numpy
+
+from fermilib import qubit_operators
+from fermilib.fermion_operators import FermionTerm, FermionOperator
 
 
 # Exceptions.

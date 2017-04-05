@@ -1,5 +1,8 @@
-import hubbard
+from __future__ import absolute_import
+
 import unittest
+
+from fermilib import hubbard
 
 
 class FermiHubbardTest(unittest.TestCase):

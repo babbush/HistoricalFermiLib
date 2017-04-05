@@ -1,12 +1,11 @@
 """Class and functions to store reduced density matrices."""
-import copy
-import fermion_operators
-import interaction_operators
-import itertools
-import numpy
-import qubit_operators
+from __future__ import absolute_import
 
-from interaction_tensors import InteractionTensor
+import copy
+
+import numpy
+
+from fermilib.interaction_tensors import InteractionTensor
 
 
 class InteractionRDMError(Exception):
@@ -149,6 +148,9 @@ class InteractionRDM(InteractionTensor):
     Raises:
       InteractionRDMError: Invalid operator provided.
     """
+    # Import here to avoid circular dependency.
+    from fermilib import interaction_operators, qubit_operators
+
     if isinstance(operator, qubit_operators.QubitOperator):
       expectation_value = 0.
       for qubit_term in operator:

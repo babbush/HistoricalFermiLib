@@ -1,6 +1,9 @@
 """Functions to create chemical series data sets."""
-import molecular_data
+from __future__ import absolute_import
+
 import numpy
+
+from fermilib import molecular_data
 
 
 # Define error objects which inherit from Exception.

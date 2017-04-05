@@ -1,8 +1,12 @@
 """Tests for local_operators.py"""
-import local_operators
-import local_terms
+from __future__ import absolute_import
+
 import unittest
+
 import numpy
+
+from fermilib import local_operators
+from fermilib import local_terms
 
 
 class LocalOperatorsTest(unittest.TestCase):

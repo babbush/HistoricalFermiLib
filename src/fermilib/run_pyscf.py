@@ -1,10 +1,13 @@
 """Class and functions to store quantum chemistry data."""
-import numpy
-import pyscf
+from __future__ import absolute_import
 
 from functools import reduce
-from molecular_data import MolecularData
+
+import numpy
+import pyscf
 from pyscf import ci, cc, fci, mp
+
+from fermilib.molecular_data import MolecularData
 
 
 def prepare_pyscf_molecule(molecule):

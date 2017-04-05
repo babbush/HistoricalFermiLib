@@ -1,15 +1,15 @@
 """Tests many modules to compute energy of hydrogen."""
-import fermion_operators
-import itertools
-import molecular_data
-import numpy
-import run_psi4
-import scipy
-import scipy.linalg
-import scipy.sparse
-import sparse_operators
-import unitary_cc
+from __future__ import absolute_import
+
 import unittest
+
+import numpy
+import scipy.sparse
+
+from fermilib import molecular_data
+from fermilib import run_psi4
+from fermilib import sparse_operators
+from fermilib import unitary_cc
 
 
 class HydrogenIntegrationTest(unittest.TestCase):

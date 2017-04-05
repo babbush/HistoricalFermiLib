@@ -1,9 +1,13 @@
+from __future__ import absolute_import
+
 import itertools
-import jellium
-import numpy
-import qubit_operators
-import sparse_operators
 import unittest
+
+import numpy
+
+from fermilib import jellium
+from fermilib import qubit_operators
+from fermilib import sparse_operators
 
 
 class JelliumTest(unittest.TestCase):

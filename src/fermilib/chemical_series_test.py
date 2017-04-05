@@ -1,8 +1,12 @@
 """Tests for molecular_data and run_psi4."""
-import chemical_series
-import numpy
+from __future__ import absolute_import
+
 import os
 import unittest
+
+import numpy
+
+from fermilib import chemical_series
 
 
 class ChemicalSeries(unittest.TestCase):

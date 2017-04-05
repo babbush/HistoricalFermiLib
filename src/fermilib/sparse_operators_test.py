@@ -1,8 +1,12 @@
 """Tests for sparse_operators.py"""
-import fermion_operators
+from __future__ import absolute_import
+
 import unittest
 
-from sparse_operators import *
+import scipy.sparse
+
+from fermilib import fermion_operators
+from fermilib.sparse_operators import *
 
 
 # Make copy definitions over from module.

@@ -1,13 +1,13 @@
 """Tests for molecular_data and run_psi4."""
+from __future__ import absolute_import
 
-import os
-import numpy
-import numpy.random
-import scipy
-import scipy.linalg
-import run_psi4
-import molecular_data
 import unittest
+
+import numpy.random
+import scipy.linalg
+
+from fermilib import molecular_data
+from fermilib import run_psi4
 
 
 class MolecularData(unittest.TestCase):

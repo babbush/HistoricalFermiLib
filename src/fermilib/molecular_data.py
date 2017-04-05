@@ -1,12 +1,15 @@
 """Class and functions to store quantum chemistry data."""
-import interaction_operators
-import interaction_rdms
-import numpy
+from __future__ import absolute_import
+
 import os
 import pickle
 import sys
 
-from config import *
+import numpy
+
+from fermilib import interaction_operators
+from fermilib import interaction_rdms
+from fermilib.config import *
 
 
 """NOTE ON PQRS CONVENTION:

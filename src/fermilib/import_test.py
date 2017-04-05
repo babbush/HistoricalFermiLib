@@ -1,35 +1,37 @@
 """Tests of different circular dependency errors."""
+from __future__ import absolute_import
+
 import unittest
 
 
 class ImportTest(unittest.TestCase):
   def test_fqmll_from(self):
-    from fermion_operators import FermionOperator
-    from qubit_operators import QubitOperator
-    from interaction_operators import InteractionOperator
-    from local_terms import LocalTerm
-    from local_operators import LocalOperator
+    from fermilib.fermion_operators import FermionOperator
+    from fermilib.qubit_operators import QubitOperator
+    from fermilib.interaction_operators import InteractionOperator
+    from fermilib.local_terms import LocalTerm
+    from fermilib.local_operators import LocalOperator
 
   def test_lmqfl_from1(self):
-    from local_terms import LocalTerm
-    from interaction_operators import InteractionOperator
-    from qubit_operators import QubitOperator
-    from fermion_operators import FermionOperator
-    from local_operators import LocalOperator
+    from fermilib.local_terms import LocalTerm
+    from fermilib.interaction_operators import InteractionOperator
+    from fermilib.qubit_operators import QubitOperator
+    from fermilib.fermion_operators import FermionOperator
+    from fermilib.local_operators import LocalOperator
 
   def test_lmqfl_from2(self):
-    from local_operators import LocalOperator
-    from interaction_operators import InteractionOperator
-    from qubit_operators import QubitOperator
-    from fermion_operators import FermionOperator
-    from local_terms import LocalTerm
+    from fermilib.local_operators import LocalOperator
+    from fermilib.interaction_operators import InteractionOperator
+    from fermilib.qubit_operators import QubitOperator
+    from fermilib.fermion_operators import FermionOperator
+    from fermilib.local_terms import LocalTerm
 
   def test_llqmf_from(self):
-    from local_operators import LocalOperator
-    from local_terms import LocalTerm
-    from interaction_operators import InteractionOperator
-    from qubit_operators import QubitOperator
-    from fermion_operators import FermionOperator
+    from fermilib.local_operators import LocalOperator
+    from fermilib.local_terms import LocalTerm
+    from fermilib.interaction_operators import InteractionOperator
+    from fermilib.qubit_operators import QubitOperator
+    from fermilib.fermion_operators import FermionOperator
 
   def test_empty(self):
     with self.assertRaises(NameError):

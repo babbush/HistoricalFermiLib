@@ -1,7 +1,9 @@
 """Helper functions for parsing data files of different types"""
+from __future__ import absolute_import
 
-import interaction_operators
 import numpy
+
+from fermilib import interaction_operators
 
 
 def parse_psi4_ccsd_amplitudes(number_orbitals,

@@ -29,7 +29,9 @@ H = - tunneling sum_{k=1}^{N-1} (a_k^dagger a_{k + 1} + a_{k+1}^dagger a_k)
 These Hamiltonians live a square lattice which has dimensions of
 x_dimension by y_dimension. They can have periodic boundary conditions or not.
 """
-import fermion_operators
+from __future__ import absolute_import
+
+from fermilib import fermion_operators
 
 
 # Function to return up-orbital index given orbital index.

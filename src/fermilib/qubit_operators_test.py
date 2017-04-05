@@ -1,14 +1,14 @@
 """Tests for qubit_operators.py"""
+from __future__ import absolute_import
+
 import copy
-import fermion_operators as fo
-import local_terms
-import local_operators
-import numpy
-import sparse_operators
 import unittest
 
-from qubit_operators import (QubitTerm, QubitOperator, qubit_identity,
-                             QubitTermError, QubitOperatorError)
+import numpy
+
+from fermilib import fermion_operators as fo
+from fermilib import local_terms
+from fermilib.qubit_operators import QubitTerm, QubitOperator, qubit_identity
 
 
 class QubitTermsTest(unittest.TestCase):
