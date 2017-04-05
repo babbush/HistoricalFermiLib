@@ -387,6 +387,7 @@ class QubitOperator(LocalOperator):
 
     Returns: A InteractionRDM object.
     """
+    from fermilib import fermion_operators
     if n_qubits is None:
       n_qubits = self.n_qubits()
     if n_qubits == 0:

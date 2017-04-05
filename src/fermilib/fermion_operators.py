@@ -526,7 +526,7 @@ class FermionOperator(LocalOperator):
       runtime of this method is exponential in the number of qubits.
     """
     # Import here to avoid circular dependency.
-    from fermilib import interation_operators
+    from fermilib import interaction_operators
 
     # Normal order the terms and initialize.
     self.normal_order()

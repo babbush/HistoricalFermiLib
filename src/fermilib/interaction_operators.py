@@ -4,6 +4,7 @@ from __future__ import absolute_import
 import itertools
 
 from fermilib import qubit_operators
+from fermilib.fermion_operators import FermionTerm, FermionOperator
 from fermilib.interaction_tensors import InteractionTensor
 
 
@@ -99,21 +100,20 @@ class InteractionOperator(InteractionTensor):
       fermion_operator: An instance of the FermionOperator class.
     """
     # Initialize with identity term.
-    identity = fermion_operators.FermionTerm([], self.constant)
-    fermion_operator = fermion_operators.FermionOperator([identity])
+    identity = FermionTerm([], self.constant)
+    fermion_operator = FermionOperator([identity])
 
     # Add one-body terms.
     for p in range(self.n_qubits):
       for q in range(self.n_qubits):
         coefficient = self[p, q]
-        fermion_operator += fermion_operators.FermionTerm(
-            [(p, 1), (q, 0)], coefficient)
+        fermion_operator += FermionTerm([(p, 1), (q, 0)], coefficient)
 
         # Add two-body terms.
         for r in range(self.n_qubits):
           for s in range(self.n_qubits):
             coefficient = self[p, q, r, s]
-            fermion_operator += fermion_operators.FermionTerm(
+            fermion_operator += FermionTerm(
                 [(p, 1), (q, 1), (r, 0), (s, 0)], coefficient)
 
     return fermion_operator

@@ -2,7 +2,7 @@
 
 # Import needed libraries.
 import sys
-sys.path.append('&_THIS_DIRECTORY')
+sys.path.append('&THIS_DIRECTORY')
 import interaction_tensors
 import interaction_rdms
 import molecular_data

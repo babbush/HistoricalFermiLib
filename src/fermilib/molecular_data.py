@@ -41,12 +41,6 @@ def angstroms_to_bohr(distance):
   return 1.889726 * distance
 
 
-# Molecular data directory.
-_THIS_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-_DATA_DIRECTORY = os.path.abspath(
-    os.path.join(_THIS_DIRECTORY, '..', 'data'))
-
-
 # The Periodic Table as a python list and dictionary.
 _PERIODIC_TABLE = [
     '?',
@@ -293,7 +287,7 @@ class MolecularData(object):
 
   def data_handle(self):
     """Method to automatically give file name of molecule."""
-    return _DATA_DIRECTORY + '/' + self.name
+    return DATA_DIRECTORY + '/' + self.name
 
   def save(self):
     """Method to automatically pickle the class under systematic name."""
@@ -303,7 +297,7 @@ class MolecularData(object):
   def refresh(self):
     """Method to automatically unPickle the class under systematic name."""
     with open(self.data_handle() + '.pkl', 'rb') as stream:
-      sys.path.append(_THIS_DIRECTORY)
+      sys.path.append(THIS_DIRECTORY)
       updated_molecular_data = pickle.load(stream)
       self.__dict__ = updated_molecular_data.__dict__
 

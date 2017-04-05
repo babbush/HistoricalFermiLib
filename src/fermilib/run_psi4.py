@@ -5,7 +5,7 @@ import os
 import re
 import subprocess
 
-from fermilib import molecular_data
+from fermilib.config import *
 
 
 def create_geometry_string(geometry):
@@ -64,15 +64,15 @@ def generate_psi4_input(molecule,
   geo_string = create_geometry_string(molecule.geometry)
 
   # Parse input template.
-  template_file = molecular_data._THIS_DIRECTORY + '/psi4_template'
+  template_file = THIS_DIRECTORY + '/psi4_template'
   input_template = []
   with open(template_file, 'r') as stream:
     for line in stream:
       input_template += [line]
 
   # Populate contents of input file based on automatic parameters.
-  input_content = [re.sub('&_THIS_DIRECTORY',
-                   molecular_data._THIS_DIRECTORY, line)
+  input_content = [re.sub('&THIS_DIRECTORY',
+                   THIS_DIRECTORY, line)
                    for line in input_template]
 
   # Populate contents of input file based on MolecularData parameters.

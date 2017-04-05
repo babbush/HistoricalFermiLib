@@ -7,7 +7,7 @@ import numpy
 import pyscf
 from pyscf import ci, cc, fci, mp
 
-from fermilib.molecular_data import MolecularData
+from fermilib.config import *
 
 
 def prepare_pyscf_molecule(molecule):
@@ -224,6 +224,7 @@ if __name__ == '__main__':
   verbose = 0
 
   # Get molecule and run calculation.
+  from fermilib.molecular_data import MolecularData
   molecule = MolecularData(
       geometry, basis, multiplicity, description=description)
   if 1:
