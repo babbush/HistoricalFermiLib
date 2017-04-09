@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 import unittest
 
+import copy
 import numpy
 
 from fermilib.interaction_tensors import InteractionTensor
@@ -13,6 +14,87 @@ class InteractionTensorTest(unittest.TestCase):
   def setUp(self):
     self.n_qubits = 2
     self.constant = 23.0
+
+    one_body_a = numpy.zeros((self.n_qubits, self.n_qubits))
+    two_body_a = numpy.zeros((self.n_qubits, self.n_qubits,
+                              self.n_qubits, self.n_qubits))
+    one_body_a[0, 1] = 2
+    one_body_a[1, 0] = 3
+    two_body_a[0, 1, 0, 1] = 4
+    two_body_a[1, 1, 0, 0] = 5
+    self.interaction_tensor_a = InteractionTensor(self.constant,
+                                                  one_body_a, two_body_a)
+
+    one_body_na = numpy.zeros((self.n_qubits, self.n_qubits))
+    two_body_na = numpy.zeros((self.n_qubits, self.n_qubits,
+                               self.n_qubits, self.n_qubits))
+    one_body_na[0, 1] = -2
+    one_body_na[1, 0] = -3
+    two_body_na[0, 1, 0, 1] = -4
+    two_body_na[1, 1, 0, 0] = -5
+    self.interaction_tensor_na = InteractionTensor(-self.constant,
+                                                   one_body_na, two_body_na)
+
+    one_body_b = numpy.zeros((self.n_qubits, self.n_qubits))
+    two_body_b = numpy.zeros((self.n_qubits, self.n_qubits,
+                              self.n_qubits, self.n_qubits))
+    one_body_b[0, 1] = 1
+    one_body_b[1, 0] = 2
+    two_body_b[0, 1, 0, 1] = 3
+    two_body_b[1, 0, 0, 1] = 4
+    self.interaction_tensor_b = InteractionTensor(self.constant,
+                                                  one_body_b, two_body_b)
+
+    one_body_ab = numpy.zeros((self.n_qubits, self.n_qubits))
+    two_body_ab = numpy.zeros((self.n_qubits, self.n_qubits,
+                               self.n_qubits, self.n_qubits))
+    one_body_ab[0, 1] = 3
+    one_body_ab[1, 0] = 5
+    two_body_ab[0, 1, 0, 1] = 7
+    two_body_ab[1, 0, 0, 1] = 4
+    two_body_ab[1, 1, 0, 0] = 5
+    self.interaction_tensor_ab = InteractionTensor(2.0 * self.constant,
+                                                   one_body_ab, two_body_ab)
+
+    constant_axb = self.constant * self.constant
+    one_body_axb = numpy.zeros((self.n_qubits, self.n_qubits))
+    two_body_axb = numpy.zeros((self.n_qubits, self.n_qubits,
+                               self.n_qubits, self.n_qubits))
+    one_body_axb[0, 1] = 2
+    one_body_axb[1, 0] = 6
+    two_body_axb[0, 1, 0, 1] = 12
+    self.interaction_tensor_axb = InteractionTensor(constant_axb,
+                                                    one_body_axb, two_body_axb)
+
+  def test_add(self):
+    new_tensor = self.interaction_tensor_a + self.interaction_tensor_b
+    self.assertEqual(new_tensor, self.interaction_tensor_ab)
+
+  def test_iadd(self):
+    new_tensor = copy.deepcopy(self.interaction_tensor_a)
+    new_tensor += self.interaction_tensor_b
+    self.assertEqual(new_tensor, self.interaction_tensor_ab)
+
+  def test_neg(self):
+    self.assertEqual(-self.interaction_tensor_a, self.interaction_tensor_na)
+
+  def test_sub(self):
+    new_tensor = self.interaction_tensor_ab - self.interaction_tensor_b
+    self.assertEqual(new_tensor, self.interaction_tensor_a)
+
+  def test_isub(self):
+    new_tensor = copy.deepcopy(self.interaction_tensor_ab)
+    new_tensor -= self.interaction_tensor_b
+    self.assertEqual(new_tensor, self.interaction_tensor_a)
+
+  def test_mul(self):
+    new_tensor = self.interaction_tensor_a * self.interaction_tensor_b
+    self.assertEqual(new_tensor, self.interaction_tensor_axb)
+
+  def test_imul(self):
+    new_tensor = copy.deepcopy(self.interaction_tensor_a)
+    new_tensor *= self.interaction_tensor_b
+    self.assertEqual(new_tensor, self.interaction_tensor_axb)
 
   def test_iter_and_str(self):
     one_body = numpy.zeros((self.n_qubits, self.n_qubits))

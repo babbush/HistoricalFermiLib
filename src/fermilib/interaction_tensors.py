@@ -1,6 +1,7 @@
 """Base class for representation for InteractionOperator and InteractionRDM."""
 from __future__ import absolute_import
 
+import copy
 import numpy
 
 from fermilib.config import *
@@ -165,6 +166,56 @@ class InteractionTensor(object):
 
   def __neq__(self, molecular_tensor):
     return not (self == molecular_tensor)
+
+  def __add__(self, addend):
+    if not issubclass(type(addend), InteractionTensor):
+      raise TypeError('Invalid type.')
+
+    if self.n_qubits != addend.n_qubits:
+      raise TypeError('Invalid tensor shape.')
+
+    summand = copy.deepcopy(self)
+    summand.constant += addend.constant
+    summand.one_body_tensor = numpy.add(self.one_body_tensor,
+                                        addend.one_body_tensor)
+    summand.two_body_tensor = numpy.add(self.two_body_tensor,
+                                        addend.two_body_tensor)
+    return summand
+
+  def __iadd__(self, addend):
+    self = self + addend
+    return self
+
+  def __neg__(self):
+    return InteractionTensor(-self.constant,
+                             numpy.negative(self.one_body_tensor),
+                             numpy.negative(self.two_body_tensor))
+
+  def __sub__(self, subtrahend):
+    return (-subtrahend) + self
+
+  def __isub__(self, subtrahend):
+    self += (-subtrahend)
+    return self
+
+  def __mul__(self, multiplier):
+    if not issubclass(type(multiplier), InteractionTensor):
+      raise TypeError('Invalid type.')
+
+    if self.n_qubits != multiplier.n_qubits:
+      raise TypeError('Invalid tensor shape.')
+
+    product = copy.deepcopy(self)
+    product.constant *= multiplier.constant
+    product.one_body_tensor = numpy.multiply(self.one_body_tensor,
+                                             multiplier.one_body_tensor)
+    product.two_body_tensor = numpy.multiply(self.two_body_tensor,
+                                             multiplier.two_body_tensor)
+    return product
+
+  def __imul__(self, multiplier):
+    self = self * multiplier
+    return self
 
   def __iter__(self):
     """Iterate over non-zero elements of InteractionTensor."""
