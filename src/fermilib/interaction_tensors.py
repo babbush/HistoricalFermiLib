@@ -167,55 +167,67 @@ class InteractionTensor(object):
   def __neq__(self, molecular_tensor):
     return not (self == molecular_tensor)
 
-  def __add__(self, addend):
+  def __iadd__(self, addend):
     if not issubclass(type(addend), InteractionTensor):
       raise TypeError('Invalid type.')
 
     if self.n_qubits != addend.n_qubits:
       raise TypeError('Invalid tensor shape.')
 
-    summand = copy.deepcopy(self)
-    summand.constant += addend.constant
-    summand.one_body_tensor = numpy.add(self.one_body_tensor,
-                                        addend.one_body_tensor)
-    summand.two_body_tensor = numpy.add(self.two_body_tensor,
-                                        addend.two_body_tensor)
-    return summand
-
-  def __iadd__(self, addend):
-    self = self + addend
+    self.constant += addend.constant
+    self.one_body_tensor = numpy.add(self.one_body_tensor,
+                                     addend.one_body_tensor)
+    self.two_body_tensor = numpy.add(self.two_body_tensor,
+                                     addend.two_body_tensor)
     return self
+
+  def __add__(self, addend):
+    summand = copy.deepcopy(self)
+    summand += addend
+    return summand
 
   def __neg__(self):
     return InteractionTensor(-self.constant,
                              numpy.negative(self.one_body_tensor),
                              numpy.negative(self.two_body_tensor))
 
-  def __sub__(self, subtrahend):
-    return (-subtrahend) + self
-
   def __isub__(self, subtrahend):
-    self += (-subtrahend)
+    if not issubclass(type(subtrahend), InteractionTensor):
+      raise TypeError('Invalid type.')
+
+    if self.n_qubits != subtrahend.n_qubits:
+      raise TypeError('Invalid tensor shape.')
+
+    self.constant -= subtrahend.constant
+    self.one_body_tensor = numpy.subtract(self.one_body_tensor,
+                                          subtrahend.one_body_tensor)
+    self.two_body_tensor = numpy.subtract(self.two_body_tensor,
+                                          subtrahend.two_body_tensor)
     return self
 
-  def __mul__(self, multiplier):
+  def __sub__(self, subtrahend):
+    r = copy.deepcopy(self)
+    r -= subtrahend
+    return r
+
+  def __imul__(self, multiplier):
     if not issubclass(type(multiplier), InteractionTensor):
       raise TypeError('Invalid type.')
 
     if self.n_qubits != multiplier.n_qubits:
       raise TypeError('Invalid tensor shape.')
 
-    product = copy.deepcopy(self)
-    product.constant *= multiplier.constant
-    product.one_body_tensor = numpy.multiply(self.one_body_tensor,
-                                             multiplier.one_body_tensor)
-    product.two_body_tensor = numpy.multiply(self.two_body_tensor,
-                                             multiplier.two_body_tensor)
-    return product
-
-  def __imul__(self, multiplier):
-    self = self * multiplier
+    self.constant *= multiplier.constant
+    self.one_body_tensor = numpy.multiply(self.one_body_tensor,
+                                          multiplier.one_body_tensor)
+    self.two_body_tensor = numpy.multiply(self.two_body_tensor,
+                                          multiplier.two_body_tensor)
     return self
+
+  def __mul__(self, multiplier):
+    product = copy.deepcopy(self)
+    product *= multiplier
+    return product
 
   def __iter__(self):
     """Iterate over non-zero elements of InteractionTensor."""
