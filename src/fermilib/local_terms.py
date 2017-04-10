@@ -10,274 +10,288 @@ from fermilib.config import *
 
 # Define error classes.
 class LocalTermError(Exception):
-  pass
+    pass
 
 
 class LocalTerm(object):
-  """Represents a term consisting of a product of operators and a coefficient.
+    """Represents a term consisting of a product of operators and a
+    coefficient.
 
-  Attributes:
-    coefficient: A complex valued float giving the term coefficient.
-    operators: A list of site operators representing the term.
-  """
-  __array_priority__ = 0  # this ensures good behavior with numpy scalars
+    Attributes:   coefficient: A complex valued float giving the term
+    coefficient.   operators: A list of site operators representing the
+    term.
 
-  def __init__(self, operators=None, coefficient=1.):
-    """Inits a LocalTerm.
-
-    Args:
-      operators: A list of site operators representing the term.
-      coefficient: A complex valued float giving the term's coefficient.
-
-    Raises:
-      ValueError: Number of qubits must be a non-negative integer.
-      ValueError: Coefficient must be a scalar.
     """
-    # Check that coefficient is a scalar.
-    if not numpy.isscalar(coefficient):
-      raise ValueError('Coefficient must be scalar.')
+    __array_priority__ = 0  # this ensures good behavior with numpy scalars
 
-    # Initialize.
-    self.coefficient = coefficient
-    if operators is None:
-      operators = []
-    self.operators = list(operators)
+    def __init__(self, operators=None, coefficient=1.):
+        """Inits a LocalTerm.
 
-  @classmethod
-  def return_class(cls, operators=None, coefficient=1.):
-    return cls(operators, coefficient)
+        Args:
+          operators: A list of site operators representing the term.
+          coefficient: A complex valued float giving the term's coefficient.
 
-  def __eq__(self, other):
-    """Overload equality comparison ==.
+        Raises:
+          ValueError: Number of qubits must be a non-negative integer.
+          ValueError: Coefficient must be a scalar.
 
-    Args:
-      other: Another LocalTerm which is to be compared with self.
+        """
+        # Check that coefficient is a scalar.
+        if not numpy.isscalar(coefficient):
+            raise ValueError('Coefficient must be scalar.')
 
-    Returns:
-      True or False, whether objects are the same.
+        # Initialize.
+        self.coefficient = coefficient
+        if operators is None:
+            operators = []
+        self.operators = list(operators)
 
-    Raises:
-      LocalTermError: Cannot compare terms acting on different Hilbert
-                      spaces.
+    @classmethod
+    def return_class(cls, operators=None, coefficient=1.):
+        return cls(operators, coefficient)
 
-    Notes:
-      Two LocalTerms are considered equal either if their coefficients
-      are within EQ_TOLERANCE of the first and their operators are the
-      same, or if both their coefficients are within tolerance of zero.
-    """
-    # Operators are equal if their coefficients are sufficiently close
-    # and they have the same operators, or if they are both close to 0.
-    return ((self.operators == other.operators and
-             abs(self.coefficient - other.coefficient) <= EQ_TOLERANCE) or
-            (abs(self.coefficient) <= EQ_TOLERANCE and
-             abs(other.coefficient) <= EQ_TOLERANCE))
+    def __eq__(self, other):
+        """Overload equality comparison ==.
 
-  def __ne__(self, other):
-    """Overload not equals comparison !=."""
-    return not (self == other)
+        Args:
+          other: Another LocalTerm which is to be compared with self.
 
-  def __getitem__(self, index):
-    try:
-      return self.operators[index]
-    except IndexError:
-      raise LocalTermError('LocalTerm index out of range.')
+        Returns:
+          True or False, whether objects are the same.
 
-  def __setitem__(self, index, value):
-    try:
-      self.operators[index] = value
-    except IndexError:
-      raise LocalTermError('LocalTerm assignment index out of range.')
+        Raises:
+          LocalTermError: Cannot compare terms acting on different Hilbert
+                          spaces.
 
-  def __delitem__(self, index):
-    try:
-      del self.operators[index]
-    except IndexError:
-      raise LocalTermError('LocalTerm deletion index out of range.')
+        Notes:
+          Two LocalTerms are considered equal either if their coefficients
+          are within EQ_TOLERANCE of the first and their operators are the
+          same, or if both their coefficients are within tolerance of zero.
 
-  def __add__(self, addend):
-    """Compute self + addend for a LocalTerm or derivative.
+        """
+        # Operators are equal if their coefficients are sufficiently close
+        # and they have the same operators, or if they are both close to 0.
+        return ((self.operators == other.operators and
+                 abs(self.coefficient - other.coefficient) <= EQ_TOLERANCE) or
+                (abs(self.coefficient) <= EQ_TOLERANCE and
+                 abs(other.coefficient) <= EQ_TOLERANCE))
 
-    Args:
-      addend: A LocalTerm or LocalTerm derivative.
+    def __ne__(self, other):
+        """Overload not equals comparison !=."""
+        return not (self == other)
 
-    Returns:
-      summand: A new instance of LocalOperator. The reason for returning
-               LocalOperator is that there are ambiguities when
-               LocalTerms sum to zero and also because it is difficult
-               to determine what class the output should be when adding
-               together terms which inherit from LocalTerm.
+    def __getitem__(self, index):
+        try:
+            return self.operators[index]
+        except IndexError:
+            raise LocalTermError('LocalTerm index out of range.')
 
-    Raises:
-      TypeError: Cannot add term of invalid type to LocalTerm.
-    """
-    # Import here to avoid circular dependency.
-    from fermilib import local_operators
+    def __setitem__(self, index, value):
+        try:
+            self.operators[index] = value
+        except IndexError:
+            raise LocalTermError('LocalTerm assignment index out of range.')
 
-    if not issubclass(type(addend),
-                      (LocalTerm, local_operators.LocalOperator)):
-      raise TypeError('Cannot add term of invalid type to LocalTerm.')
+    def __delitem__(self, index):
+        try:
+            del self.operators[index]
+        except IndexError:
+            raise LocalTermError('LocalTerm deletion index out of range.')
 
-    return local_operators.LocalOperator([self]) + addend
+    def __add__(self, addend):
+        """Compute self + addend for a LocalTerm or derivative.
 
-  def __neg__(self):
-    return -1 * self
+        Args:
+          addend: A LocalTerm or LocalTerm derivative.
 
-  def __sub__(self, subtrahend):
-    """Compute self - subtrahend for a LocalTerm or derivative."""
-    return self + (-1. * subtrahend)
+        Returns:
+          summand: A new instance of LocalOperator. The reason for returning
+                   LocalOperator is that there are ambiguities when
+                   LocalTerms sum to zero and also because it is difficult
+                   to determine what class the output should be when adding
+                   together terms which inherit from LocalTerm.
 
-  def __isub__(self, subtrahend):
-    """Compute self - subtrahend for a LocalTerm or derivative."""
-    self += (-1. * subtrahend)
-    return self
+        Raises:
+          TypeError: Cannot add term of invalid type to LocalTerm.
 
-  def __imul__(self, multiplier):
-    """Compute self *= multiplier. Multiplier must be scalar or LocalTerm.
+        """
+        # Import here to avoid circular dependency.
+        from fermilib import local_operators
 
-    Note that this is actually an in-place method. Method undefined for
-    LocalOperator types on right side of *= because such a
-    multiplication would change the type of self.
+        if not issubclass(type(addend),
+                          (LocalTerm, local_operators.LocalOperator)):
+            raise TypeError('Cannot add term of invalid type to LocalTerm.')
 
-    Args:
-      multiplier: A scalar or LocalTerm.
+        return local_operators.LocalOperator([self]) + addend
 
-    Raises:
-      TypeError: Can only *= multiply LocalTerm by scalar or LocalTerm.
-    """
-    # Handle scalars.
-    if numpy.isscalar(multiplier):
-      self.coefficient *= complex(multiplier)
+    def __neg__(self):
+        return -1 * self
 
-    elif issubclass(type(multiplier), LocalTerm):
-      # Compute product.
-      self.coefficient *= multiplier.coefficient
-      self.operators += multiplier.operators
+    def __sub__(self, subtrahend):
+        """Compute self - subtrahend for a LocalTerm or derivative."""
+        return self + (-1. * subtrahend)
 
-    else:
-      # Throw exception for wrong type of multiplier.
-      raise TypeError('Can only *= multiply LocalTerm by scalar or LocalTerm.')
-    return self
+    def __isub__(self, subtrahend):
+        """Compute self - subtrahend for a LocalTerm or derivative."""
+        self += (-1. * subtrahend)
+        return self
 
-  def __mul__(self, multiplier):
-    """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
+    def __imul__(self, multiplier):
+        """Compute self *= multiplier. Multiplier must be scalar or LocalTerm.
 
-    Args:
-      multiplier: A scalar, LocalTerm or LocalOperator.
+        Note that this is actually an in-place method. Method undefined for
+        LocalOperator types on right side of *= because such a
+        multiplication would change the type of self.
 
-    Returns:
-      product: A new instance of LocalTerm or LocalOperator.
+        Args:
+          multiplier: A scalar or LocalTerm.
 
-    Raises:
-      TypeError: Object of invalid type cannot multiply LocalTerm.
-    """
-    # Handle scalars or LocalTerms.
-    if (numpy.isscalar(multiplier) or isinstance(multiplier, LocalTerm)):
-      product = copy.deepcopy(self)
-      product *= multiplier
+        Raises:
+          TypeError: Can only *= multiply LocalTerm by scalar or LocalTerm.
 
-    # Handle LocalOperator and derivatives.
-    elif issubclass(type(multiplier), local_operators.LocalOperator):
-      product = multiplier.return_class()
-      for term in multiplier:
-        product += self * term
+        """
+        # Handle scalars.
+        if numpy.isscalar(multiplier):
+            self.coefficient *= complex(multiplier)
 
-    else:
-      # Throw exception for unknown type.
-      raise TypeError('Object of invalid type cannot multiply LocalTerm.')
-    return product
+        elif issubclass(type(multiplier), LocalTerm):
+            # Compute product.
+            self.coefficient *= multiplier.coefficient
+            self.operators += multiplier.operators
 
-  def __rmul__(self, multiplier):
-    """Compute multiplier * self for a scalar.
+        else:
+            # Throw exception for wrong type of multiplier.
+            raise TypeError(
+                'Can only *= multiply LocalTerm by scalar or LocalTerm.')
+        return self
 
-    We only define __rmul__ for scalars because the left multiply
-    should exist for LocalTerms and LocalOperators and left multiply
-    is also queried as the default behavior.
+    def __mul__(self, multiplier):
+        """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
 
-    Args:
-      multiplier: A scalar to multiply by..
+        Args:
+          multiplier: A scalar, LocalTerm or LocalOperator.
 
-    Returns:
-      product: A new instance of LocalTerm.
+        Returns:
+          product: A new instance of LocalTerm or LocalOperator.
 
-    Raises:
-      TypeError: Object of invalid type cannot multiply LocalTerm.
-    """
-    if not numpy.isscalar(multiplier):
-      raise TypeError('Object of invalid type cannot multiply LocalTerm.')
+        Raises:
+          TypeError: Object of invalid type cannot multiply LocalTerm.
+        """
+        # Handle scalars or LocalTerms.
+        if (numpy.isscalar(multiplier) or isinstance(multiplier, LocalTerm)):
+            product = copy.deepcopy(self)
+            product *= multiplier
 
-    product = copy.deepcopy(self)
-    product.coefficient *= multiplier
-    return product
+        # Handle LocalOperator and derivatives.
+        elif issubclass(type(multiplier), local_operators.LocalOperator):
+            product = multiplier.return_class()
+            for term in multiplier:
+                product += self * term
 
-  def __div__(self, divisor):
-    """Compute self / divisor for a scalar.
+        else:
+            # Throw exception for unknown type.
+            raise TypeError(
+                'Object of invalid type cannot multiply LocalTerm.')
+        return product
 
-    Args:
-      divisor: A scalar to divide by.
+    def __rmul__(self, multiplier):
+        """Compute multiplier * self for a scalar.
 
-    Returns:
-      A new instance of LocalTerm.
+        We only define __rmul__ for scalars because the left multiply
+        should exist for LocalTerms and LocalOperators and left multiply
+        is also queried as the default behavior.
 
-    Raises:
-      TypeError: Cannot divide local operator by non-scalar type."""
-    if not numpy.isscalar(divisor):
-      raise TypeError('Cannot divide local operator by non-scalar type.')
-    return self * (1.0 / divisor)
+        Args:
+          multiplier: A scalar to multiply by..
 
-  def __idiv__(self, divisor):
-    self *= (1.0 / divisor)
-    return self
+        Returns:
+          product: A new instance of LocalTerm.
 
-  def __pow__(self, exponent):
-    """Exponentiate the LocalTerm.
+        Raises:
+          TypeError: Object of invalid type cannot multiply LocalTerm.
+        """
+        if not numpy.isscalar(multiplier):
+            raise TypeError(
+                'Object of invalid type cannot multiply LocalTerm.')
 
-    Args:
-      exponent: An int, giving the exponent with which to raise the term.
+        product = copy.deepcopy(self)
+        product.coefficient *= multiplier
+        return product
 
-    Returns:
-      exponentiated_term: The exponentiated term.
+    def __div__(self, divisor):
+        """Compute self / divisor for a scalar.
 
-    Raises:
-      ValueError: Can only raise LocalTerm to positive integer powers.
-    """
-    if not isinstance(exponent, int) or exponent < 0:
-      raise ValueError('Can only raise LocalTerm to positive integer powers.')
+        Args:
+          divisor: A scalar to divide by.
 
-    # Initialize identity.
-    exponentiated = self.return_class()
+        Returns:
+          A new instance of LocalTerm.
 
-    # Handle other exponents.
-    for i in range(exponent):
-      exponentiated *= self
-    return exponentiated
+        Raises:
+          TypeError: Cannot divide local operator by non-scalar type.
 
-  def __abs__(self):
-    term_copy = copy.deepcopy(self)
-    term_copy.coefficient = abs(self.coefficient)
-    return term_copy
+        """
+        if not numpy.isscalar(divisor):
+            raise TypeError('Cannot divide local operator by non-scalar type.')
+        return self * (1.0 / divisor)
 
-  def __iter__(self):
-    return iter(self.operators)
+    def __idiv__(self, divisor):
+        self *= (1.0 / divisor)
+        return self
 
-  def __len__(self):
-    return len(self.operators)
+    def __pow__(self, exponent):
+        """Exponentiate the LocalTerm.
 
-  def __str__(self):
-    return '{} {}'.format(self.coefficient, self.operators)
+        Args:
+          exponent: An int, giving the exponent with which to raise the term.
 
-  def __repr__(self):
-    return str(self)
+        Returns:
+          exponentiated_term: The exponentiated term.
 
-  def is_identity(self):
-    return len(self.operators) == 0
+        Raises:
+          ValueError: Can only raise LocalTerm to positive integer powers.
 
-  def commutator(self, term):
-    """Evaluate commutator of self with LocalTerm or LocalOperator.
+        """
+        if not isinstance(exponent, int) or exponent < 0:
+            raise ValueError(
+                'Can only raise LocalTerm to positive integer powers.')
 
-    Args:
-      term: Despite the name, this is either a LocalTerm or LocalOperator.
+        # Initialize identity.
+        exponentiated = self.return_class()
 
-    Returns:
-      LocalOperator giving [self, term] = self * term - term * self.
-    """
-    return self * term - term * self
+        # Handle other exponents.
+        for i in range(exponent):
+            exponentiated *= self
+        return exponentiated
+
+    def __abs__(self):
+        term_copy = copy.deepcopy(self)
+        term_copy.coefficient = abs(self.coefficient)
+        return term_copy
+
+    def __iter__(self):
+        return iter(self.operators)
+
+    def __len__(self):
+        return len(self.operators)
+
+    def __str__(self):
+        return '{} {}'.format(self.coefficient, self.operators)
+
+    def __repr__(self):
+        return str(self)
+
+    def is_identity(self):
+        return len(self.operators) == 0
+
+    def commutator(self, term):
+        """Evaluate commutator of self with LocalTerm or LocalOperator.
+
+        Args:
+          term: Despite the name, this is either a LocalTerm or LocalOperator.
+
+        Returns:
+          LocalOperator giving [self, term] = self * term - term * self.
+
+        """
+        return self * term - term * self
