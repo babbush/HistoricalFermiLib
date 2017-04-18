@@ -1,5 +1,6 @@
 import projectq
 
+
 def error_operator(terms):
     """Determine the operator giving the error in the ground state
     energy for the second order Trotter-Suzuki expansion and the triangle
@@ -13,6 +14,7 @@ def error_operator(terms):
       energy."""
 
     raise NotImplementedError
+
 
 def error_bound(terms):
     """Numerically upper bound the error in the ground state energy
@@ -29,5 +31,5 @@ def error_bound(terms):
     Required for Accurate Quantum Simulation of Quantum Chemistry".
     See Equation 16 in particular.
     """
-    
+
     raise NotImplementedError

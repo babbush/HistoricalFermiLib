@@ -14,6 +14,7 @@ from transformations import (reverse_jordan_wigner_term, reverse_jordan_wigner,
                              jordan_wigner_transform, bravyi_kitaev_transform,
                              eigenspectrum)
 
+
 class ReverseJWTermTest(unittest.TestCase):
 
     def setUp(self):
@@ -256,7 +257,7 @@ class JordanWignerTransformTest(unittest.TestCase):
         self.assertEqual(n_jw[[(3, 'Z')]], -0.5)
         self.assertEqual(n_jw[[]], 0.5)
         self.assertEqual(len(n_jw), 2)
-        
+
     def test_ccr_offsite_even_ca(self):
         c2 = FermionTerm([(2, 1)])
         a4 = FermionTerm([(4, 0)])

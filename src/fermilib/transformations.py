@@ -15,8 +15,10 @@ from fermilib.qubit_operators import (QubitTerm, QubitTermError,
 from fermilib.sparse_operators import (jordan_wigner_term_sparse,
                                        jordan_wigner_operator_sparse)
 
+
 def eigenspectrum(op):
     return op.get_sparse_operator().eigenspectrum()
+
 
 def reverse_jordan_wigner_term(term, n_qubits=None):
     """Transforms a QubitTerm into an instance of FermionOperator using JW.
@@ -106,6 +108,7 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
 
     return transformed_term
 
+
 def reverse_jordan_wigner(op, n_qubits=None):
     """Transforms a QubitTerm or QubitOperator into an instance of
     FermionOperator using the Jordan-Wigner transform.
@@ -125,7 +128,7 @@ def reverse_jordan_wigner(op, n_qubits=None):
 
     Raises:
       QubitTermError: Invalid operator provided: must be 'X', 'Y' or 'Z'.
-      
+
     """
     if isinstance(op, QubitTerm):
         op = QubitOperator(op)
@@ -143,6 +146,7 @@ def reverse_jordan_wigner(op, n_qubits=None):
         transformed_operator += reverse_jordan_wigner_term(term, n_qubits)
     return transformed_operator
 
+
 def get_sparse_operator_term(term, n_qubits=None):
     """Map the QubitTerm to a SparseOperator instance."""
     if n_qubits is None:
@@ -153,6 +157,7 @@ def get_sparse_operator_term(term, n_qubits=None):
         n_qubits = term.n_qubits()
     return qubit_term_sparse(term, n_qubits)
 
+
 def get_sparse_operator(op, n_qubits=None):
     """Map the QubitOperator to a SparseOperator instance."""
     if n_qubits is None:
@@ -162,7 +167,6 @@ def get_sparse_operator(op, n_qubits=None):
     if n_qubits < op.n_qubits():
         n_qubits = op.n_qubits()
     return qubit_operator_sparse(op, n_qubits)
-
 
 
 def bravyi_kitaev_transform_term(term, n_qubits=None):
@@ -234,6 +238,7 @@ def bravyi_kitaev_transform_term(term, n_qubits=None):
 
     return transformed_term
 
+
 def jordan_wigner_transform_term(term):
     """Jordan-Wigner transform term and return the resulting qubit operator.
 
@@ -264,6 +269,7 @@ def jordan_wigner_transform_term(term):
         transformed_term *= QubitOperator([pauli_x_component,
                                            pauli_y_component])
     return transformed_term
+
 
 def jordan_wigner_transform_interaction_op(iop):
     """Output InteractionOperator as QubitOperator class under JW
@@ -318,6 +324,7 @@ def jordan_wigner_transform_interaction_op(iop):
 
     return qubit_operator
 
+
 def bravyi_kitaev_transform(op, n_qubits=None):
     """Apply the Bravyi-Kitaev transform and return qubit operator.
 
@@ -335,6 +342,7 @@ def bravyi_kitaev_transform(op, n_qubits=None):
     for term in op:
         transformed_operator += bravyi_kitaev_transform_term(term, n_qubits)
     return transformed_operator
+
 
 def jordan_wigner_transform(op):
     """Apply the Jordan-Wigner transform the FermionOperator op and
@@ -378,8 +386,6 @@ def jordan_wigner_sparse(op, n_qubits=None):
     raise TypeError("op should be either a FermionTerm or FermionOperator.")
 
 
-
-
 def get_interaction_rdm(self, n_qubits=None):
     """Build a InteractionRDM from measured qubit operators.
 
@@ -413,4 +419,3 @@ def get_interaction_rdm(self, n_qubits=None):
                                         self[term.operators])
 
     return interaction_rdms.InteractionRDM(one_rdm, two_rdm)
-

@@ -6,7 +6,6 @@ import itertools
 from fermilib import qubit_operators
 from fermilib.fermion_operators import FermionTerm, FermionOperator
 from fermilib.interaction_tensors import InteractionTensor
-#from fermilib.transformations import jordan_wigner_sparse
 
 
 class InteractionOperatorError(Exception):
@@ -257,7 +256,7 @@ class InteractionOperator(InteractionTensor):
                 [(min(q, p), 'Z'), (max(q, p), 'Z')], coefficient)
 
         return qubit_operator
-    
+
     def get_sparse_operator(self):
         from fermilib.transformations import jordan_wigner_sparse
         # TODO: Replace with much faster "direct" routine.
