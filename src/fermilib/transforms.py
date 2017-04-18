@@ -170,7 +170,7 @@ def get_sparse_operator(op, n_qubits=None):
     return qubit_operator_sparse(op, n_qubits)
 
 
-def bravyi_kitaev_transform_term(term, n_qubits=None):
+def bravyi_kitaev_term(term, n_qubits=None):
     """Apply the Bravyi-Kitaev transform and return qubit operator.
 
     Returns:
@@ -240,7 +240,7 @@ def bravyi_kitaev_transform_term(term, n_qubits=None):
     return transformed_term
 
 
-def jordan_wigner_transform_term(term):
+def jordan_wigner_term(term):
     """Jordan-Wigner transform term and return the resulting qubit operator.
 
     Returns:
@@ -272,7 +272,7 @@ def jordan_wigner_transform_term(term):
     return transformed_term
 
 
-def jordan_wigner_transform_interaction_op(iop):
+def jordan_wigner_interaction_op(iop):
     """Output InteractionOperator as QubitOperator class under JW
     transform.
 
@@ -326,7 +326,7 @@ def jordan_wigner_transform_interaction_op(iop):
     return qubit_operator
 
 
-def bravyi_kitaev_transform(op, n_qubits=None):
+def bravyi_kitaev(op, n_qubits=None):
     """Apply the Bravyi-Kitaev transform and return qubit operator.
 
     Returns:   transformed_operator: An instance of the
@@ -338,14 +338,14 @@ def bravyi_kitaev_transform(op, n_qubits=None):
     if not n_qubits or n_qubits < op.n_qubits():
         raise ValueError('Invalid n_qubits.')
     if isinstance(op, FermionTerm):
-        return bravyi_kitaev_transform_term(op, n_qubits)
+        return bravyi_kitaev_term(op, n_qubits)
     transformed_operator = QubitOperator()
     for term in op:
-        transformed_operator += bravyi_kitaev_transform_term(term, n_qubits)
+        transformed_operator += bravyi_kitaev_term(term, n_qubits)
     return transformed_operator
 
 
-def jordan_wigner_transform(op):
+def jordan_wigner(op):
     """Apply the Jordan-Wigner transform the FermionOperator op and
     return qubit operator.
 
@@ -360,13 +360,13 @@ def jordan_wigner_transform(op):
     if isinstance(op, FermionTerm):
         op = FermionOperator(op)
     elif isinstance(op, InteractionOperator):
-        return jordan_wigner_transform_interaction_op(op)
+        return jordan_wigner_interaction_op(op)
     if not isinstance(op, FermionOperator):
         raise TypeError("op must be a QubitTerm or QubitOperator.")
 
     transformed_operator = QubitOperator()
     for term in op:
-        transformed_operator += jordan_wigner_transform_term(term)
+        transformed_operator += jordan_wigner_term(term)
     return transformed_operator
 
 
@@ -387,37 +387,35 @@ def jordan_wigner_sparse(op, n_qubits=None):
     raise TypeError("op should be either a FermionTerm or FermionOperator.")
 
 
-def get_interaction_rdm(self, n_qubits=None):
+def get_interaction_rdm(qop, n_qubits=None):
     """Build a InteractionRDM from measured qubit operators.
 
     Returns: A InteractionRDM object.
 
     """
     if n_qubits is None:
-        n_qubits = self.n_qubits()
+        n_qubits = qop.n_qubits()
     if n_qubits == 0:
         raise QubitTermError('Invalid n_qubits.')
-    if n_qubits < self.n_qubits():
-        n_qubits = self.n_qubits()
+    if n_qubits < qop.n_qubits():
+        n_qubits = qop.n_qubits()
     one_rdm = numpy.zeros((n_qubits,) * 2, dtype=complex)
     two_rdm = numpy.zeros((n_qubits,) * 4, dtype=complex)
 
     # One-RDM.
     for i, j in itertools.product(range(n_qubits), repeat=2):
-        transformed_operator = jordan_wigner_transform(FermionTerm([(i, 1),
-                                                                    (j, 0)]))
+        transformed_operator = jordan_wigner(FermionTerm([(i, 1), (j, 0)]))
         for term in transformed_operator:
-            if tuple(term.operators) in self.terms:
-                one_rdm[i, j] += term.coefficient * self[term.operators]
+            if tuple(term.operators) in qop.terms:
+                one_rdm[i, j] += term.coefficient * qop[term.operators]
 
     # Two-RDM.
     for i, j, k, l in itertools.product(range(n_qubits), repeat=4):
-        transformed_operator = jordan_wigner_transform(
-            FermionTerm([(i, 1), (j, 1), (k, 0), (l, 0)]))
+        transformed_operator = jordan_wigner(FermionTerm([(i, 1), (j, 1),
+                                                          (k, 0), (l, 0)]))
         for term in transformed_operator:
-            if tuple(term.operators) in self.terms:
-                two_rdm[i, j, k, l] += (term.coefficient *
-                                        self[term.operators])
+            if tuple(term.operators) in qop.terms:
+                two_rdm[i, j, k, l] += term.coefficient * qop[term.operators]
 
     return interaction_rdms.InteractionRDM(one_rdm, two_rdm)
 

@@ -6,7 +6,7 @@ import unittest
 from fermilib.config import *
 from fermilib.molecular_data import MolecularData
 from fermilib.run_psi4 import run_psi4
-from fermilib.transformations import jordan_wigner_transform
+from fermilib.transforms import jordan_wigner
 
 
 class InteractionRDMTest(unittest.TestCase):
@@ -27,7 +27,7 @@ class InteractionRDMTest(unittest.TestCase):
         self.hamiltonian = molecule.get_molecular_hamiltonian()
 
     def test_get_qubit_expectations(self):
-        qubit_operator = jordan_wigner_transform(self.hamiltonian)
+        qubit_operator = jordan_wigner(self.hamiltonian)
         qubit_expectations = self.rdm.get_qubit_expectations(qubit_operator)
         test_energy = qubit_operator[[]]
         for qubit_term in qubit_expectations:

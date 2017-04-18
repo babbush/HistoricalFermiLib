@@ -258,7 +258,9 @@ class InteractionOperator(InteractionTensor):
         return qubit_operator
 
     def get_sparse_operator(self):
-        from fermilib.transformations import jordan_wigner_sparse
+        # to avoid circular imports
+        from fermilib.transforms import jordan_wigner_sparse
+
         # TODO: Replace with much faster "direct" routine.
         fermion_operator = self.get_fermion_operator()
         sparse_operator = jordan_wigner_sparse(fermion_operator)

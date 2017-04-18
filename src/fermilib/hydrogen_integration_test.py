@@ -10,10 +10,8 @@ from fermilib import molecular_data
 from fermilib import run_psi4
 from fermilib import sparse_operators
 from fermilib import unitary_cc
-from fermilib.transformations import (jordan_wigner_transform,
-                                      reverse_jordan_wigner,
-                                      get_interaction_rdm,
-                                      get_interaction_operator)
+from fermilib.transforms import (jordan_wigner, reverse_jordan_wigner,
+                                 get_interaction_rdm, get_interaction_operator)
 
 
 class HydrogenIntegrationTest(unittest.TestCase):
@@ -59,8 +57,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
         self.fermion_hamiltonian.normal_order()
 
         # Get qubit Hamiltonian.
-        self.qubit_hamiltonian = jordan_wigner_transform(
-            self.fermion_hamiltonian)
+        self.qubit_hamiltonian = jordan_wigner(self.fermion_hamiltonian)
 
         # Get matrix form.
         self.hamiltonian_matrix = (
@@ -89,7 +86,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
     def test_molecular_hydrogen(self):
 
         # Check that all the transforms work.
-        qubit_hamiltonian = jordan_wigner_transform(self.fermion_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(self.fermion_hamiltonian)
         self.assertTrue(self.qubit_hamiltonian == qubit_hamiltonian)
 
         # Check reverse transform.
@@ -104,7 +101,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
         self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
 
         # Make sure mapping of MolecularOperator to QubitOperator works.
-        qubit_hamiltonian = jordan_wigner_transform(self.molecular_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(self.molecular_hamiltonian)
         self.assertEqual(self.qubit_hamiltonian, qubit_hamiltonian)
 
         # Check that FCI prior has the correct energy.

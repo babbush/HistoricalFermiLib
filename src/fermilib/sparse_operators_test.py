@@ -8,8 +8,7 @@ import scipy.sparse
 
 from fermilib import fermion_operators
 from fermilib.sparse_operators import kronecker_operators
-from fermilib.transformations import (jordan_wigner_transform,
-                                      jordan_wigner_sparse)
+from fermilib.transforms import (jordan_wigner, jordan_wigner_sparse)
 
 
 # Make copy definitions over from module.
@@ -43,7 +42,7 @@ class SparseOperatorTest(unittest.TestCase):
         fermion_operator **= 3
 
         # Map to qubits and compare matrix versions.
-        qubit_operator = jordan_wigner_transform(fermion_operator)
+        qubit_operator = jordan_wigner(fermion_operator)
         qubit_sparse = qubit_operator.get_sparse_operator()
         qubit_spectrum = qubit_sparse.eigenspectrum()
         fermion_sparse = jordan_wigner_sparse(fermion_operator)

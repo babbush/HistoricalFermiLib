@@ -8,7 +8,7 @@ import numpy
 from fermilib import jellium
 from fermilib import qubit_operators
 from fermilib import sparse_operators
-from fermilib.transformations import jordan_wigner_transform, eigenspectrum
+from fermilib.transforms import jordan_wigner, eigenspectrum
 
 
 class JelliumTest(unittest.TestCase):
@@ -117,8 +117,8 @@ class JelliumTest(unittest.TestCase):
             n_dimensions, grid_length, length_scale, spinless)
 
         # Diagonalize and confirm the same energy.
-        jw_momentum = jordan_wigner_transform(momentum_kinetic)
-        jw_position = jordan_wigner_transform(position_kinetic)
+        jw_momentum = jordan_wigner(momentum_kinetic)
+        jw_position = jordan_wigner(position_kinetic)
         momentum_spectrum = eigenspectrum(jw_momentum)
         position_spectrum = eigenspectrum(jw_position)
 
@@ -141,8 +141,8 @@ class JelliumTest(unittest.TestCase):
             n_dimensions, grid_length, length_scale, spinless)
 
         # Diagonalize and confirm the same energy.
-        jw_momentum = jordan_wigner_transform(momentum_potential)
-        jw_position = jordan_wigner_transform(position_potential)
+        jw_momentum = jordan_wigner(momentum_potential)
+        jw_position = jordan_wigner(position_potential)
         momentum_spectrum = eigenspectrum(jw_momentum)
         position_spectrum = eigenspectrum(jw_position)
 
@@ -164,8 +164,8 @@ class JelliumTest(unittest.TestCase):
             n_dimensions, grid_length, length_scale, spinless, 0)
 
         # Diagonalize and confirm the same energy.
-        jw_momentum = jordan_wigner_transform(momentum_hamiltonian)
-        jw_position = jordan_wigner_transform(position_hamiltonian)
+        jw_momentum = jordan_wigner(momentum_hamiltonian)
+        jw_position = jordan_wigner(position_hamiltonian)
         momentum_spectrum = eigenspectrum(jw_momentum)
         position_spectrum = eigenspectrum(jw_position)
 
@@ -188,12 +188,12 @@ class JelliumTest(unittest.TestCase):
         # Kinetic operator.
         kinetic = jellium.position_kinetic_operator(
             n_dimensions, grid_length, length_scale, spinless)
-        qubit_kinetic = jordan_wigner_transform(kinetic)
+        qubit_kinetic = jordan_wigner(kinetic)
 
         # Potential operator.
         potential = jellium.position_potential_operator(
             n_dimensions, grid_length, length_scale, spinless)
-        qubit_potential = jordan_wigner_transform(potential)
+        qubit_potential = jordan_wigner(potential)
 
         # Total.
         qubit_jellium = qubit_kinetic + qubit_potential
@@ -308,7 +308,7 @@ class JelliumTest(unittest.TestCase):
         # Compute fermionic jellium Hamiltonian.
         fermion_hamiltonian = jellium.jellium_model(
             n_dimensions, grid_length, length_scale, spinless, 0)
-        qubit_hamiltonian = jordan_wigner_transform(fermion_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(fermion_hamiltonian)
 
         # Compute Jordan-Wigner jellium Hamiltonian.
         test_hamiltonian = jellium.jordan_wigner_position_jellium(

@@ -176,7 +176,7 @@ class InteractionRDM(InteractionTensor):
 
         """
         # to avoid circular imports
-        from fermilib.transformations import reverse_jordan_wigner
+        from fermilib.transforms import reverse_jordan_wigner
 
         expectation = 0.
         reversed_fermion_operators = reverse_jordan_wigner(qubit_term,
