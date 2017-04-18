@@ -7,12 +7,13 @@ import unittest
 import numpy
 
 from fermilib import fermion_operators as fo
-from fermilib.fermion_operators import (FermionTerm, number_operator,
-                                        one_body_term, two_body_term)
+from fermilib.fermion_operators import (FermionTerm, FermionOperator,
+                                        number_operator, one_body_term,
+                                        two_body_term)
 from fermilib.qubit_operators import QubitTerm, QubitOperator, qubit_identity
-from transformations import (reverse_jordan_wigner_term, reverse_jordan_wigner,
-                             jordan_wigner_transform, bravyi_kitaev_transform,
-                             eigenspectrum)
+from transformations import (bravyi_kitaev_transform, eigenspectrum,
+                             get_interaction_operator, jordan_wigner_transform,
+                             reverse_jordan_wigner, reverse_jordan_wigner_term)
 
 
 class ReverseJWTermTest(unittest.TestCase):
@@ -490,6 +491,20 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         self.assertAlmostEqual(0., numpy.amax(numpy.absolute(jw_spectrum -
                                                              bk_spectrum)))
 
+
+class GetInteractionOperatorTest(unittest.TestCase):
+
+    def test_get_molecular_operator(self):
+        coefficient = 3.
+        operators = [(2, 1), (3, 0), (0, 0), (3, 1)]
+        term = FermionTerm(operators, coefficient)
+        op = FermionOperator(term)
+
+        molecular_operator = get_interaction_operator(op)
+        fermion_operator = molecular_operator.get_fermion_operator()
+        fermion_operator.normal_order()
+        op.normal_order()
+        self.assertEqual(op, fermion_operator)
 
 if __name__ == '__main__':
     unittest.main()

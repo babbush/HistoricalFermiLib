@@ -9,7 +9,8 @@ from fermilib import interaction_rdms
 from fermilib.fenwick_tree import FenwickTree
 from fermilib.fermion_operators import (FermionTerm, FermionOperator,
                                         fermion_identity, number_operator)
-from fermilib.interaction_operators import InteractionOperator
+from fermilib.interaction_operators import (InteractionOperator,
+                                            InteractionOperatorError)
 from fermilib.qubit_operators import (QubitTerm, QubitTermError,
                                       QubitOperator, QubitOperatorError)
 from fermilib.sparse_operators import (jordan_wigner_term_sparse,
@@ -419,3 +420,73 @@ def get_interaction_rdm(self, n_qubits=None):
                                         self[term.operators])
 
     return interaction_rdms.InteractionRDM(one_rdm, two_rdm)
+
+
+def get_interaction_operator(iop):
+    """Convert a 2-body fermionic operator to instance of
+    InteractionOperator.
+
+    This function should only be called on fermionic operators which
+    consist of only a_p^\dagger a_q and a_p^\dagger a_q^\dagger a_r a_s
+    terms. The one-body terms are stored in a matrix, one_body[p, q], and
+    the two-body terms are stored in a tensor, two_body[p, q, r, s].
+
+    Returns:
+      interaction_operator: An instance of the InteractionOperator class.
+
+    Raises:
+      ErrorInteractionOperator: FermionOperator is not a molecular
+        operator.
+
+    Warning:
+      Even assuming that each creation or annihilation operator appears
+      at most a constant number of times in the original operator, the
+      runtime of this method is exponential in the number of qubits.
+
+    """
+    # Import here to avoid circular dependency.
+    # from fermilib import interaction_operators
+
+    # Normal order the terms and initialize.
+    iop.normal_order()
+    constant = 0.
+    one_body = numpy.zeros((iop.n_qubits(), iop.n_qubits()), complex)
+    two_body = numpy.zeros((
+        iop.n_qubits(), iop.n_qubits(), iop.n_qubits(),
+        iop.n_qubits()),
+        complex)
+
+    # Loop through terms and assign to matrix.
+    for term in iop:
+        coefficient = term.coefficient
+
+        # Handle constant shift.
+        if len(term) == 0:
+            constant = coefficient
+
+        elif len(term) == 2:
+            # Handle one-body terms.
+            if [operator[1] for operator in term] == [1, 0]:
+                p, q = [operator[0] for operator in term]
+                one_body[p, q] = coefficient
+            else:
+                raise InteractionOperatorError('FermionOperator is not a '
+                                               'molecular operator.')
+
+        elif len(term) == 4:
+            # Handle two-body terms.
+            if [operator[1] for operator in term] == [1, 1, 0, 0]:
+                p, q, r, s = [operator[0] for operator in term]
+                two_body[p, q, r, s] = coefficient
+            else:
+                raise InteractionOperatorError('FermionOperator is not '
+                                               'a molecular operator.')
+
+        else:
+            # Handle non-molecular Hamiltonian.
+            raise InteractionOperatorError('FermionOperator is not '
+                                           'a molecular operator.')
+
+    # Form InteractionOperator and return.
+    interaction_operator = InteractionOperator(constant, one_body, two_body)
+    return interaction_operator

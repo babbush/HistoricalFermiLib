@@ -806,13 +806,6 @@ class FermionOperatorsTest(unittest.TestCase):
         op_123 = FermionOperator(term_123)
         self.assertEqual(op_123.normal_ordered(), -op_132.normal_ordered())
 
-    def test_get_molecular_operator(self):
-        molecular_operator = self.operator_c.get_interaction_operator()
-        fermion_operator = molecular_operator.get_fermion_operator()
-        fermion_operator.normal_order()
-        self.operator_c.normal_order()
-        self.assertEqual(self.operator_c, fermion_operator)
-
 
 if __name__ == '__main__':
     unittest.main()

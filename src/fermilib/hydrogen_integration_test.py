@@ -12,7 +12,8 @@ from fermilib import sparse_operators
 from fermilib import unitary_cc
 from fermilib.transformations import (jordan_wigner_transform,
                                       reverse_jordan_wigner,
-                                      get_interaction_rdm)
+                                      get_interaction_rdm,
+                                      get_interaction_operator)
 
 
 class HydrogenIntegrationTest(unittest.TestCase):
@@ -97,8 +98,8 @@ class HydrogenIntegrationTest(unittest.TestCase):
         self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
 
         # Make sure the mapping of FermionOperator to MolecularOperator works.
-        molecular_hamiltonian = (
-            self.fermion_hamiltonian.get_interaction_operator())
+        molecular_hamiltonian = get_interaction_operator(
+            self.fermion_hamiltonian)
         fermion_hamiltonian = molecular_hamiltonian.get_fermion_operator()
         self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
 
