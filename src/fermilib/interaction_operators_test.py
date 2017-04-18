@@ -7,6 +7,7 @@ import numpy
 
 from fermilib import fermion_operators
 from fermilib.interaction_operators import InteractionOperator
+from fermilib.transformations import jordan_wigner_transform
 
 
 class InteractionOperatorsTest(unittest.TestCase):
@@ -23,7 +24,7 @@ class InteractionOperatorsTest(unittest.TestCase):
 
     def test_jordan_wigner_one_body(self):
 
-        # Make sure it agrees with FermionTerm.jordan_wigner_transform().
+        # Make sure it agrees with jordan_wigner_transform(FermionTerm).
         for p in range(self.n_qubits):
             for q in range(self.n_qubits):
 
@@ -34,18 +35,17 @@ class InteractionOperatorsTest(unittest.TestCase):
                 # Get correct qubit operator.
                 fermion_term = fermion_operators.FermionTerm(
                     [(p, 1), (q, 0)], 1.)
-                correct_operator = fermion_term.jordan_wigner_transform()
+                correct_op = jordan_wigner_transform(fermion_term)
                 hermitian_conjugate = fermion_term.hermitian_conjugated()
                 if fermion_term != hermitian_conjugate:
-                    correct_operator += (
-                        hermitian_conjugate.jordan_wigner_transform())
+                    correct_op += jordan_wigner_transform(hermitian_conjugate)
 
                 # Make sure its correct.
-                self.assertEqual(test_operator, correct_operator)
+                self.assertEqual(test_operator, correct_op)
 
     def test_jordan_wigner_two_body(self):
 
-        # Make sure it agrees with FermionTerm.jordan_wigner_transform().
+        # Make sure it agrees with jordan_wigner_transform(FermionTerm).
         for p in range(self.n_qubits):
             for q in range(self.n_qubits):
                 for r in range(self.n_qubits):
@@ -59,16 +59,15 @@ class InteractionOperatorsTest(unittest.TestCase):
                         # Get correct qubit operator.
                         fermion_term = fermion_operators.FermionTerm(
                             [(p, 1), (q, 1), (r, 0), (s, 0)], 1.)
-                        correct_operator = (
-                            fermion_term.jordan_wigner_transform())
+                        correct_op = jordan_wigner_transform(fermion_term)
                         hermitian_conjugate = (
                             fermion_term.hermitian_conjugated())
                         if fermion_term != hermitian_conjugate:
-                            correct_operator += (
-                                hermitian_conjugate.jordan_wigner_transform())
+                            correct_op += jordan_wigner_transform(
+                                hermitian_conjugate)
 
                         # Make sure its correct.
-                        self.assertEqual(test_operator, correct_operator)
+                        self.assertEqual(test_operator, correct_op)
 
     def test_four_point_iter(self):
         constant = 100.0

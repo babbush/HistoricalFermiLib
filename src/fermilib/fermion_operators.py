@@ -5,16 +5,9 @@ import copy
 
 import numpy
 
-from fermilib import qubit_operators
 from fermilib.fenwick_tree import FenwickTree
 from fermilib.local_terms import LocalTerm, LocalTermError
 from fermilib.local_operators import LocalOperator, LocalOperatorError
-from fermilib.sparse_operators import (jordan_wigner_term_sparse,
-                                       jordan_wigner_operator_sparse)
-
-
-class JordanWignerError(Exception):
-    pass
 
 
 class FermionTermError(LocalTermError):
@@ -281,118 +274,6 @@ class FermionTerm(LocalTerm):
         normal_ordered_operator += term
         return normal_ordered_operator
 
-    def bravyi_kitaev_transform(self, n_qubits=None):
-        """Apply the Bravyi-Kitaev transform and return qubit operator.
-
-        Returns:
-          transformed_term: An instance of the QubitOperator class.
-
-        Warning:
-          Likely greedy. At the moment the method gets the node sets for
-          each fermionic operator. FenwickNodes are not neccessary in this
-          onstruction, only the indices matter here. This may be optimized
-          by removing the unnecessary structure.
-
-        Note:
-          Reference: Operator Locality of Quantum Simulation of Fermionic
-            Models by Havlicek, Troyer, Whitfield (arXiv:1701.07072).
-        """
-        if n_qubits is None:
-            n_qubits = self.n_qubits()
-        if not n_qubits or n_qubits < self.n_qubits():
-            raise ValueError('Invalid n_qubits.')
-
-        # Build the Fenwick Tree
-        fenwick_tree = FenwickTree(n_qubits)
-
-        # Initialize identity matrix.
-        transformed_term = qubit_operators.QubitOperator(
-            [qubit_operators.QubitTerm([], self.coefficient)])
-
-        # Build the Bravyi-Kitaev transformed operators.
-        for operator in self:
-            index = operator[0]
-
-            # Parity set. Set of nodes to apply Z to.
-            parity_set = [node.index for node in
-                          fenwick_tree.get_parity_set(index)]
-
-            # Update set. Set of ancestors to apply X to.
-            ancestors = [
-                node.index for node in fenwick_tree.get_update_set(index)]
-
-            # The C(j) set.
-            ancestor_children = [node.index for node in
-                                 fenwick_tree.get_remainder_set(index)]
-
-            # Switch between lowering/raising operators.
-            d_coeff = .5j
-            if operator[1]:
-                d_coeff = -d_coeff
-
-            # The fermion lowering operator is given by
-            # a = (c+id)/2 where c, d are the majoranas.
-            d_majorana_component = qubit_operators.QubitTerm(
-                ([(operator[0], 'Y')] +
-                 [(index, 'Z') for index in ancestor_children] +
-                 [(index, 'X') for index in ancestors]),
-                d_coeff)
-
-            c_majorana_component = qubit_operators.QubitTerm(
-                ([(operator[0], 'X')] +
-                 [(index, 'Z') for index in parity_set] +
-                 [(index, 'X') for index in ancestors]),
-                0.5)
-
-            transformed_term *= qubit_operators.QubitOperator(
-                [c_majorana_component, d_majorana_component])
-
-        return transformed_term
-
-    def jordan_wigner_transform(self):
-        """Apply the Jordan-Wigner transform and return qubit operator.
-
-        Returns:
-          transformed_term: An instance of the qubit_operators.QubitOperator
-                            class.
-
-        Warning:
-          The runtime of this method is exponential in the locality of the
-          original FermionTerm.
-
-        """
-        # Initialize identity matrix.
-        transformed_term = qubit_operators.QubitOperator(
-            [qubit_operators.QubitTerm([], self.coefficient)])
-
-        # Loop through operators, transform and multiply.
-        for operator in self:
-            z_factors = [(index, 'Z') for index in range(0, operator[0])]
-
-            # Handle identity.
-            pauli_x_component = qubit_operators.QubitTerm(
-                z_factors + [(operator[0], 'X')], 0.5)
-            if operator[1]:
-                pauli_y_component = qubit_operators.QubitTerm(
-                    z_factors + [(operator[0], 'Y')], -0.5j)
-            else:
-                pauli_y_component = qubit_operators.QubitTerm(
-                    z_factors + [(operator[0], 'Y')], 0.5j)
-
-            transformed_term *= qubit_operators.QubitOperator(
-                [pauli_x_component, pauli_y_component])
-        return transformed_term
-
-    def jordan_wigner_sparse(self, n_qubits=None):
-        """Return a sparse matrix representation of the JW transformed term."""
-        if n_qubits is None:
-            n_qubits = self.n_qubits()
-        if n_qubits == 0:
-            raise ValueError('Invalid n_qubits.')
-        if n_qubits < self.n_qubits():
-            n_qubits = self.n_qubits()
-        return jordan_wigner_term_sparse(self, n_qubits)
-
     def is_molecular_term(self):
         """Query whether term has correct form to be from a molecular.
 
@@ -483,49 +364,6 @@ class FermionOperator(LocalOperator):
         new = copy.deepcopy(self)
         new.hermitian_conjugate()
         return new
-
-    def jordan_wigner_transform(self):
-        """Apply the Jordan-Wigner transform and return qubit operator.
-
-        Returns:
-          transformed_operator: An instance of the
-              qubit_operators.QubitOperator class.
-
-        Warning:
-          The runtime of this method is exponential in the maximum locality
-          of the FermionTerms in the original FermionOperator.
-
-        """
-        transformed_operator = qubit_operators.QubitOperator()
-        for term in self:
-            transformed_operator += term.jordan_wigner_transform()
-        return transformed_operator
-
-    def bravyi_kitaev_transform(self, n_qubits=None):
-        """Apply the Bravyi-Kitaev transform and return qubit operator.
-
-        Returns:   transformed_operator: An instance of the
-        QubitOperator class.
-
-        """
-        if n_qubits is None:
-            n_qubits = self.n_qubits()
-        if not n_qubits or n_qubits < self.n_qubits():
-            raise ValueError('Invalid n_qubits.')
-        transformed_operator = qubit_operators.QubitOperator()
-        for term in self:
-            transformed_operator += term.bravyi_kitaev_transform(n_qubits)
-        return transformed_operator
-
-    def jordan_wigner_sparse(self, n_qubits=None):
-        """Apply Jordan-Wigner transform directly to sparse matrix form."""
-        if n_qubits is None:
-            n_qubits = self.n_qubits()
-        if n_qubits == 0:
-            raise ValueError('Invalid n_qubits.')
-        if n_qubits < self.n_qubits():
-            n_qubits = self.n_qubits()
-        return jordan_wigner_operator_sparse(self, n_qubits)
 
     def get_interaction_operator(self):
         """Convert a 2-body fermionic operator to instance of

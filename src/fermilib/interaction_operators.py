@@ -6,6 +6,7 @@ import itertools
 from fermilib import qubit_operators
 from fermilib.fermion_operators import FermionTerm, FermionOperator
 from fermilib.interaction_tensors import InteractionTensor
+#from fermilib.transformations import jordan_wigner_sparse
 
 
 class InteractionOperatorError(Exception):
@@ -197,8 +198,8 @@ class InteractionOperator(InteractionTensor):
                     coefficient *= -1.
 
                 # Add term.
-                qubit_operator += qubit_operators.QubitTerm(
-                    operators, coefficient)
+                qubit_operator += qubit_operators.QubitTerm(operators,
+                                                            coefficient)
 
         # Handle case of three unique indices.
         elif len(set([p, q, r, s])) == 3:
@@ -256,62 +257,10 @@ class InteractionOperator(InteractionTensor):
                 [(min(q, p), 'Z'), (max(q, p), 'Z')], coefficient)
 
         return qubit_operator
-
-    def jordan_wigner_transform(self):
-        """Output InteractionOperator as QubitOperator class under JW
-        transform.
-
-        One could accomplish this very easily by first mapping to fermions and
-        then mapping to qubits. We skip the middle step for the sake of speed.
-
-        Returns:
-          qubit_operator: An instance of the QubitOperator class.
-
-        """
-        # Initialize qubit operator.
-        qubit_operator = qubit_operators.QubitOperator()
-
-        # Add constant.
-        qubit_operator += qubit_operators.QubitTerm([], self.constant)
-
-        # Loop through all indices.
-        for p in range(self.n_qubits):
-            for q in range(self.n_qubits):
-
-                # Handle one-body terms.
-                coefficient = float(self[p, q])
-                if coefficient and p >= q:
-                    qubit_operator += coefficient * \
-                        self.jordan_wigner_one_body(p, q)
-
-                # Keep looping for the two-body terms.
-                for r in range(self.n_qubits):
-                    for s in range(self.n_qubits):
-                        coefficient = float(self[p, q, r, s])
-
-                        # Skip zero terms.
-                        if (not coefficient) or (p == q) or (r == s):
-                            continue
-
-                        # Identify and skip one of the complex conjugates.
-                        if [p, q, r, s] != [s, r, q, p]:
-                            if len(set([p, q, r, s])) == 4:
-                                if min(r, s) < min(p, q):
-                                    continue
-                            else:
-                                if q < p:
-                                    continue
-
-                        # Handle the two-body terms.
-                        transformed_term = self.jordan_wigner_two_body(
-                            p, q, r, s)
-                        transformed_term *= coefficient
-                        qubit_operator += transformed_term
-
-        return qubit_operator
-
+    
     def get_sparse_operator(self):
+        from fermilib.transformations import jordan_wigner_sparse
         # TODO: Replace with much faster "direct" routine.
         fermion_operator = self.get_fermion_operator()
-        sparse_operator = fermion_operator.jordan_wigner_sparse()
+        sparse_operator = jordan_wigner_sparse(fermion_operator)
         return sparse_operator

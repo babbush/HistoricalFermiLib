@@ -3,10 +3,13 @@ from __future__ import absolute_import
 
 import unittest
 
+import numpy
 import scipy.sparse
 
 from fermilib import fermion_operators
-from fermilib.sparse_operators import *
+from fermilib.sparse_operators import kronecker_operators
+from fermilib.transformations import (jordan_wigner_transform,
+                                      jordan_wigner_sparse)
 
 
 # Make copy definitions over from module.
@@ -40,10 +43,10 @@ class SparseOperatorTest(unittest.TestCase):
         fermion_operator **= 3
 
         # Map to qubits and compare matrix versions.
-        qubit_operator = fermion_operator.jordan_wigner_transform()
+        qubit_operator = jordan_wigner_transform(fermion_operator)
         qubit_sparse = qubit_operator.get_sparse_operator()
         qubit_spectrum = qubit_sparse.eigenspectrum()
-        fermion_sparse = fermion_operator.jordan_wigner_sparse()
+        fermion_sparse = jordan_wigner_sparse(fermion_operator)
         fermion_spectrum = fermion_sparse.eigenspectrum()
         self.assertAlmostEqual(0., numpy.amax(
             numpy.absolute(fermion_spectrum - qubit_spectrum)))
