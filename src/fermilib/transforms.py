@@ -14,11 +14,13 @@ from fermilib.interaction_operators import (InteractionOperator,
 from fermilib.qubit_operators import (QubitTerm, QubitTermError,
                                       QubitOperator, QubitOperatorError)
 from fermilib.sparse_operators import (jordan_wigner_term_sparse,
-                                       jordan_wigner_operator_sparse)
+                                       jordan_wigner_operator_sparse,
+                                       qubit_term_sparse,
+                                       qubit_operator_sparse)
 
 
 def eigenspectrum(op):
-    return op.get_sparse_operator().eigenspectrum()
+    return get_sparse_operator(op).eigenspectrum()
 
 
 def reverse_jordan_wigner_term(term, n_qubits=None):
@@ -148,8 +150,25 @@ def reverse_jordan_wigner(op, n_qubits=None):
     return transformed_operator
 
 
+def jordan_wigner_sparse(op, n_qubits=None):
+    """Return a sparse matrix representation of the JW transformed term."""
+    if n_qubits is None:
+        n_qubits = op.n_qubits()
+    if n_qubits == 0:
+        raise ValueError('Invalid n_qubits.')
+    if n_qubits < op.n_qubits():
+        n_qubits = op.n_qubits()
+
+    if isinstance(op, FermionTerm):
+        return jordan_wigner_term_sparse(op, n_qubits)
+    elif isinstance(op, FermionOperator):
+        return jordan_wigner_operator_sparse(op, n_qubits)
+
+    raise TypeError("op should be either a FermionTerm or FermionOperator.")
+
+
 def get_sparse_operator_term(term, n_qubits=None):
-    """Map the QubitTerm to a SparseOperator instance."""
+    """Map a QubitTerm to a SparseOperator."""
     if n_qubits is None:
         n_qubits = term.n_qubits()
     if n_qubits == 0:
@@ -160,10 +179,16 @@ def get_sparse_operator_term(term, n_qubits=None):
 
 
 def get_sparse_operator(op, n_qubits=None):
-    """Map a QubitOperator or InteractionOperator to a SparseOperator."""
+    """Map a Fermion, Qubit, or InteractionOperator to a SparseOperator."""
     if isinstance(op, InteractionOperator):
         return get_sparse_interaction_operator(op)
+    elif isinstance(op, (FermionTerm, FermionOperator)):
+        return jordan_wigner_sparse(op, n_qubits)
+    elif not isinstance(op, (QubitTerm, QubitOperator)):
+        raise TypeError("op must be mappable to SparseOperator.")
 
+    if isinstance(op, QubitTerm):
+        op = QubitOperator(op)
     if n_qubits is None:
         n_qubits = op.n_qubits()
     if n_qubits == 0:
@@ -174,9 +199,6 @@ def get_sparse_operator(op, n_qubits=None):
 
 
 def get_sparse_interaction_operator(iop):
-    # to avoid circular imports
-    from fermilib.transforms import jordan_wigner_sparse
-
     # TODO: Replace with much faster "direct" routine.
     fermion_operator = get_fermion_operator(iop)
     sparse_operator = jordan_wigner_sparse(fermion_operator)
@@ -381,23 +403,6 @@ def jordan_wigner(op):
     return transformed_operator
 
 
-def jordan_wigner_sparse(op, n_qubits=None):
-    """Return a sparse matrix representation of the JW transformed term."""
-    if n_qubits is None:
-        n_qubits = op.n_qubits()
-    if n_qubits == 0:
-        raise ValueError('Invalid n_qubits.')
-    if n_qubits < op.n_qubits():
-        n_qubits = op.n_qubits()
-
-    if isinstance(op, FermionTerm):
-        return jordan_wigner_term_sparse(op, n_qubits)
-    elif isinstance(op, FermionOperator):
-        return jordan_wigner_operator_sparse(op, n_qubits)
-
-    raise TypeError("op should be either a FermionTerm or FermionOperator.")
-
-
 def get_interaction_rdm(qop, n_qubits=None):
     """Build a InteractionRDM from measured qubit operators.
 
@@ -453,9 +458,6 @@ def get_interaction_operator(iop):
       runtime of this method is exponential in the number of qubits.
 
     """
-    # Import here to avoid circular dependency.
-    # from fermilib import interaction_operators
-
     # Normal order the terms and initialize.
     iop.normal_order()
     constant = 0.

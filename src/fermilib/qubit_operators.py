@@ -216,16 +216,6 @@ class QubitTerm(LocalTerm):
                 string_representation += ' Z{}'.format(operator[0])
         return string_representation
 
-    def get_sparse_operator(self, n_qubits=None):
-        """Map the QubitTerm to a SparseOperator instance."""
-        if n_qubits is None:
-            n_qubits = self.n_qubits()
-        if n_qubits == 0:
-            raise QubitTermError('Invalid n_qubits.')
-        if n_qubits < self.n_qubits():
-            n_qubits = self.n_qubits()
-        return qubit_term_sparse(self, n_qubits)
-
 
 class QubitOperator(LocalOperator):
     """A collection of QubitTerm objects acting on same number of qubits.
@@ -262,15 +252,6 @@ class QubitOperator(LocalOperator):
         else:
             new_term = QubitTerm(operators, coefficient)
             self.terms[tuple(operators)] = new_term
-
-    def get_sparse_operator(self, n_qubits=None):
-        if n_qubits is None:
-            n_qubits = self.n_qubits()
-        if n_qubits == 0:
-            raise QubitTermError('Invalid n_qubits.')
-        if n_qubits < self.n_qubits():
-            n_qubits = self.n_qubits()
-        return qubit_operator_sparse(self, n_qubits)
 
     def expectation(self, qubit_operator):
         """Take the expectation value of self with another qubit operator.
