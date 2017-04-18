@@ -10,10 +10,12 @@ from fermilib import fermion_operators as fo
 from fermilib.fermion_operators import (FermionTerm, FermionOperator,
                                         number_operator, one_body_term,
                                         two_body_term)
+from fermilib.interaction_operators import InteractionOperator
 from fermilib.qubit_operators import QubitTerm, QubitOperator, qubit_identity
-from transforms import (bravyi_kitaev, eigenspectrum, get_interaction_operator,
-                        jordan_wigner, reverse_jordan_wigner,
-                        reverse_jordan_wigner_term)
+from transforms import (bravyi_kitaev, eigenspectrum, get_fermion_operator,
+                        get_interaction_operator, jordan_wigner,
+                        jordan_wigner_one_body, jordan_wigner_two_body,
+                        reverse_jordan_wigner, reverse_jordan_wigner_term)
 
 
 class ReverseJWTermTest(unittest.TestCase):
@@ -493,10 +495,62 @@ class GetInteractionOperatorTest(unittest.TestCase):
         op = FermionOperator(term)
 
         molecular_operator = get_interaction_operator(op)
-        fermion_operator = molecular_operator.get_fermion_operator()
+        fermion_operator = get_fermion_operator(molecular_operator)
         fermion_operator.normal_order()
         op.normal_order()
         self.assertEqual(op, fermion_operator)
+
+
+class InteractionOperatorsTest(unittest.TestCase):
+
+    def setUp(self):
+        self.n_qubits = 5
+        self.constant = 0.
+        self.one_body = numpy.zeros((self.n_qubits, self.n_qubits), float)
+        self.two_body = numpy.zeros((self.n_qubits, self.n_qubits,
+                                     self.n_qubits, self.n_qubits), float)
+        self.interaction_operator = InteractionOperator(self.constant,
+                                                        self.one_body,
+                                                        self.two_body)
+
+    def test_jordan_wigner_one_body(self):
+        # Make sure it agrees with jordan_wigner(FermionTerm).
+        for p in range(self.n_qubits):
+            for q in range(self.n_qubits):
+
+                # Get test qubit operator.
+                test_operator = jordan_wigner_one_body(p, q)
+
+                # Get correct qubit operator.
+                fermion_term = FermionTerm([(p, 1), (q, 0)], 1.)
+                correct_op = jordan_wigner(fermion_term)
+                hermitian_conjugate = fermion_term.hermitian_conjugated()
+                if fermion_term != hermitian_conjugate:
+                    correct_op += jordan_wigner(hermitian_conjugate)
+
+                self.assertEqual(test_operator, correct_op)
+
+    def test_jordan_wigner_two_body(self):
+        # Make sure it agrees with jordan_wigner(FermionTerm).
+        for p in range(self.n_qubits):
+            for q in range(self.n_qubits):
+                for r in range(self.n_qubits):
+                    for s in range(self.n_qubits):
+
+                        # Get test qubit operator.
+                        test_operator = jordan_wigner_two_body(p, q, r, s)
+
+                        # Get correct qubit operator.
+                        fermion_term = FermionTerm([(p, 1), (q, 1),
+                                                    (r, 0), (s, 0)], 1.)
+                        correct_op = jordan_wigner(fermion_term)
+                        hermitian_conjugate = (
+                            fermion_term.hermitian_conjugated())
+                        if fermion_term != hermitian_conjugate:
+                            correct_op += jordan_wigner(hermitian_conjugate)
+
+                        self.assertEqual(test_operator, correct_op)
+
 
 if __name__ == '__main__':
     unittest.main()

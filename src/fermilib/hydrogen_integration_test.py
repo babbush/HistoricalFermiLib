@@ -10,8 +10,9 @@ from fermilib import molecular_data
 from fermilib import run_psi4
 from fermilib import sparse_operators
 from fermilib import unitary_cc
-from fermilib.transforms import (jordan_wigner, reverse_jordan_wigner,
-                                 get_interaction_rdm, get_interaction_operator)
+from fermilib.transforms import (get_fermion_operator, get_interaction_rdm,
+                                 get_interaction_operator, get_sparse_operator,
+                                 jordan_wigner, reverse_jordan_wigner)
 
 
 class HydrogenIntegrationTest(unittest.TestCase):
@@ -52,16 +53,16 @@ class HydrogenIntegrationTest(unittest.TestCase):
         self.two_body = self.molecular_hamiltonian.two_body_tensor
 
         # Get fermion Hamiltonian.
-        self.fermion_hamiltonian = (
-            self.molecular_hamiltonian.get_fermion_operator())
+        self.fermion_hamiltonian = get_fermion_operator(
+            self.molecular_hamiltonian)
         self.fermion_hamiltonian.normal_order()
 
         # Get qubit Hamiltonian.
         self.qubit_hamiltonian = jordan_wigner(self.fermion_hamiltonian)
 
         # Get matrix form.
-        self.hamiltonian_matrix = (
-            self.molecular_hamiltonian.get_sparse_operator())
+        self.hamiltonian_matrix = get_sparse_operator(
+            self.molecular_hamiltonian)
 
         # Initialize coefficients given in Seeley and Love paper, arXiv:
         # 1208.5986.
@@ -97,7 +98,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
         # Make sure the mapping of FermionOperator to MolecularOperator works.
         molecular_hamiltonian = get_interaction_operator(
             self.fermion_hamiltonian)
-        fermion_hamiltonian = molecular_hamiltonian.get_fermion_operator()
+        fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
         self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
 
         # Make sure mapping of MolecularOperator to QubitOperator works.

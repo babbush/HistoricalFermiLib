@@ -298,7 +298,6 @@ class JelliumTest(unittest.TestCase):
                             potential_coefficient, paper_potential_coefficient)
 
     def test_jordan_wigner_position_jellium(self):
-
         # Parameters.
         n_dimensions = 2
         grid_length = 3
