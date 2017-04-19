@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 import copy
-
 import numpy
 
 from fermilib.config import *
@@ -17,9 +16,9 @@ class LocalTerm(object):
     """Represents a term consisting of a product of operators and a
     coefficient.
 
-    Attributes:   coefficient: A complex valued float giving the term
-    coefficient.   operators: A list of site operators representing the
-    term.
+    Attributes:
+      coefficient: A complex valued float giving the term coefficient.
+      operators: A list of site operators representing the term.
 
     """
     __array_priority__ = 0  # this ensures good behavior with numpy scalars
@@ -166,7 +165,8 @@ class LocalTerm(object):
         return self
 
     def __mul__(self, multiplier):
-        """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
+        """Compute self * multiplier for scalar, other LocalTerm or
+        LocalOperator.
 
         Args:
           multiplier: A scalar, LocalTerm or LocalOperator.
@@ -177,6 +177,9 @@ class LocalTerm(object):
         Raises:
           TypeError: Object of invalid type cannot multiply LocalTerm.
         """
+        # Import here to avoid circular dependency.
+        from fermilib import local_operators
+
         # Handle scalars or LocalTerms.
         if (numpy.isscalar(multiplier) or isinstance(multiplier, LocalTerm)):
             product = copy.deepcopy(self)

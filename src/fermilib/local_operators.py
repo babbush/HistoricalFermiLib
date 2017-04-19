@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 import copy
-
 import numpy
 
 from fermilib import local_terms
@@ -219,7 +218,8 @@ class LocalOperator(object):
         return self
 
     def __mul__(self, multiplier):
-        """Compute self * multiplier for scalar, other LocalTerm or LocalOperator.
+        """Compute self * multiplier for scalar, other LocalTerm or
+        LocalOperator.
 
         Args:
           multiplier: A scalar, LocalTerm or LocalOperator.
