@@ -1,7 +1,13 @@
+import numpy as np
 import projectq
+import transforms
+
+from fermilib import molecular_data
+from fermilib import run_psi4
+from math import sqrt
+from scipy.linalg import expm
 
 from fermilib.qubit_operators import QubitTerm, QubitOperator
-from math import sqrt
 
 
 def error_operator(terms, series_order=2):
@@ -99,4 +105,38 @@ if __name__ == '__main__':
     print "\nXYZ only:"
     print error_bound([QubitTerm('X1'), QubitTerm('Y1'), QubitTerm('Z1')])
     print error_bound([QubitTerm('X1'), QubitTerm('Y1'), QubitTerm('Z1')],
-                       tight=True)
+                      tight=True)
+
+    geometry = [('H', (0., 0., 0.)), ('F', (0., 0., 1.))]
+    basis = 'sto-3g'
+    multiplicity = 1
+    molecule = molecular_data.MolecularData(geometry, basis, multiplicity)
+
+    # Run calculations.
+    run_scf = 1
+    run_ccsd = 1
+    run_fci = 1
+    verbose = 0
+    delete_input = 1
+    delete_output = 0
+    molecule = run_psi4.run_psi4(molecule, run_scf=True, run_ccsd=True,
+                                 run_fci=True, verbose=False,
+                                 delete_input=True, delete_output=False)
+
+    molecular_hamiltonian = molecule.get_molecular_hamiltonian()
+    fermion_hamiltonian = transforms.get_fermion_operator(
+        molecular_hamiltonian)
+    fermion_hamiltonian.normal_order()
+
+    # Get qubit Hamiltonian.
+    qubit_hamiltonian = transforms.jordan_wigner(fermion_hamiltonian)
+    terms = list(qubit_hamiltonian)
+    
+    import time
+    start = time.time()
+
+    print ("\nFor HF at bond length 1, with %i terms acting on %i qubits:" 
+           % (len(terms), qubit_hamiltonian.n_qubits()))
+    print "Loose error bound = %f" % error_bound(terms)
+    #print "Tight error bound = %f" % error_bound(terms, tight=True)
+    print "Took ", time.time() - start, " to compute"
