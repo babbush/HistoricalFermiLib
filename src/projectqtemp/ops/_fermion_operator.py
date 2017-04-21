@@ -8,6 +8,59 @@ class FermionOperatorError(Exception):
     pass
 
 
+def fermion_identity(coefficient=1.):
+    return coefficient * FermionOperator()
+
+
+def one_body_term(p, q, coefficient=1.):
+    """Return one-body operator which conserves particle number.
+
+    Args:   p, q: The sites between which the hopping occurs.
+    coefficient: Optional float giving coefficient of term.
+
+    """
+    return FermionOperator(((p, 1), (q, 0)), coefficient)
+
+
+def two_body_term(p, q, r, s, coefficient=1.):
+    """Return two-body operator which conserves particle number.
+
+    Args:   p, q, r, s: The sites between which the hopping occurs.
+    coefficient: Optional float giving coefficient of term.
+
+    """
+    return FermionOperator(((p, 1), (q, 1), (r, 0), (s, 0)), coefficient)
+
+
+def number_operator(n_qubits, site=None, coefficient=1.):
+    """Return a number operator.
+
+    Args:   n_qubits: An int giving the number of spin-orbitals in the
+    system.   site: The site on which to return the number operator.
+    If None, return total number operator on all sites.
+
+    """
+    if site is None:
+        operator = FermionOperator((), 0.0)
+        for spin_orbital in range(n_qubits):
+            operator += number_operator(n_qubits, spin_orbital, coefficient)
+    else:
+        operator = FermionOperator(((site, 1), (site, 0)), coefficient)
+    return operator
+
+
+def hermitian_conjugated(fermionoperator):
+    """Calculate Hermitian conjugate of fermionic term.
+
+    Returns:   A new FermionTerm object which is the hermitian
+    conjugate of this.
+
+    """
+    res = copy.deepcopy(fermionoperator)
+    res.hermitian_conjugate()
+    return res
+
+
 class FermionOperator(object):
     """
     A sum of terms acting on qubits, e.g., 0.5 * '0^ 5' + 0.3 * '1^ 2^'.
@@ -316,17 +369,6 @@ class FermionOperator(object):
             conj_terms[tuple(conj_term)] = conj_coeff
         self.terms = conj_terms
 
-    def hermitian_conjugated(self):
-        """Calculate Hermitian conjugate of fermionic term.
-
-        Returns:   A new FermionTerm object which is the hermitian
-        conjugate of this.
-
-        """
-        res = copy.deepcopy(self)
-        res.hermitian_conjugate()
-        return res
-
     def is_normal_ordered(self):
         """Return whether or not term is in normal order.
 
@@ -336,11 +378,15 @@ class FermionOperator(object):
 
         """
         for term in self.terms:
-            for i in range(len(term) - 1):
-                left = term[i]
-                right = term[i + 1]
-                if right[1] > left[1] or right[0] > left[0] or left == right:
+            creating = True  # normal ordered must start with creation ops
+            pos = -1            
+            for i in range(len(term)):
+                if creating and not term[i][1]:
+                    creating = False
+                    pos = term[i][0]
+                elif term[i][0] <= pos or term[i][1] != creating:
                     return False
+                pos = term[i][0]
         return True
 
     # TODO

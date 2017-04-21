@@ -81,6 +81,35 @@ def test_init_bad_mode_num():
         fermion_op = fo.FermionOperator('-1^')
 
 
+def test_fermion_identity():
+    op = fo.fermion_identity(3.)
+    assert op.isclose(fo.FermionOperator() * 3.)
+
+
+def test_one_body_term():
+    op = fo.one_body_term(1, 3, coefficient=-1j+2)
+    assert op.isclose((2 - 1j) * fo.FermionOperator(((1, 1), (3, 0))))
+
+
+def test_two_body_term():
+    op = fo.two_body_term(4, 11, 7, 4, 0.5)
+    assert op.isclose(0.5 * fo.FermionOperator(((4, 1), (11, 1),
+                                                (7, 0), (4, 0))))
+
+def test_number_operator_site():
+    op = fo.number_operator(3, 2, 1j)
+    assert op.isclose(fo.FermionOperator(((2, 1), (2, 0))) * 1j)
+
+
+def test_number_operator_nosite():
+    op = fo.number_operator(4)
+    expected = (fo.FermionOperator(((0, 1), (0, 0))) +
+                fo.FermionOperator(((1, 1), (1, 0))) +
+                fo.FermionOperator(((2, 1), (2, 0))) +
+                fo.FermionOperator(((3, 1), (3, 0))))
+    assert op.isclose(expected)
+
+
 def test_nqubits_0():
     op = fo.FermionOperator()
     assert op.n_qubits() == 0
@@ -429,25 +458,25 @@ def test_hermitian_conjugate_semihermitian():
 
 def test_hermitian_conjugated_empty():
     op = fo.FermionOperator()
-    assert op.isclose(op.hermitian_conjugated())
+    assert op.isclose(fo.hermitian_conjugated(op))
 
 
 def test_hermitian_conjugated_simple():
     op = fo.FermionOperator('0')
     op_hc = fo.FermionOperator('0^')
-    assert op_hc.isclose(op.hermitian_conjugated())
+    assert op_hc.isclose(fo.hermitian_conjugated(op))
 
 
 def test_hermitian_conjugated_complex_const():
     op = fo.FermionOperator('2^ 2', 3j)
     op_hc = fo.FermionOperator('2^ 2', -3j)
-    assert op_hc.isclose(op.hermitian_conjugated())
+    assert op_hc.isclose(fo.hermitian_conjugated(op))
 
 
 def test_hermitian_conjugated_multiterm():
     op = fo.FermionOperator('1^ 2') + fo.FermionOperator('2 3 4')
     op_hc = fo.FermionOperator('2^ 1') + fo.FermionOperator('4^ 3^ 2^')
-    assert op_hc.isclose(op.hermitian_conjugated())
+    assert op_hc.isclose(fo.hermitian_conjugated(op))
 
 
 def test_hermitian_conjugated_semihermitian():
@@ -456,7 +485,78 @@ def test_hermitian_conjugated_semihermitian():
     op_hc = (fo.FermionOperator() + fo.FermionOperator('1^ 3', 2j) +
              fo.FermionOperator('3^ 1', -2j) +
              fo.FermionOperator('2^ 2', -0.1j))
-    assert op_hc.isclose(op.hermitian_conjugated())
+    assert op_hc.isclose(fo.hermitian_conjugated(op))
+
+
+def test_is_normal_ordered_empty():
+    op = fo.FermionOperator() * 2
+    assert op.is_normal_ordered()
+
+
+def test_is_normal_ordered_number():
+    op = fo.FermionOperator('2^ 2') * -1j
+    assert op.is_normal_ordered()
+
+
+def test_is_normal_ordered_reversed():
+    assert not fo.FermionOperator('2 2^').is_normal_ordered()
+
+
+def test_is_normal_ordered_create():
+    assert fo.FermionOperator('11^').is_normal_ordered()
+
+
+def test_is_normal_ordered_annihilate():
+    assert fo.FermionOperator('0').is_normal_ordered()
+
+
+def test_is_normal_ordered_long():
+    assert fo.FermionOperator('1^ 2^ 3^ 5^ 0').is_normal_ordered()
+
+
+def test_is_normal_ordered_multi():
+    op = fo.FermionOperator('2^ 2 3 4') + fo.FermionOperator('2 1')
+    assert not op.is_normal_ordered()
+
+
+def test_is_normal_ordered_multiorder():
+    op = fo.FermionOperator('1 2 3 4') + fo.FermionOperator('2 3')
+    assert op.is_normal_ordered()
+
+
+def test_is_molecular_term_fermion_identity():
+    op = fo.FermionOperator()
+    assert op.is_molecular_term()
+
+
+def test_is_molecular_term_number():
+    op = fo.number_operator(n_qubits = 5, site = 3)
+    assert op.is_molecular_term()
+
+
+def test_is_molecular_term_updown():
+    op = fo.FermionOperator(((2, 1), (4, 0)))
+    assert op.is_molecular_term()
+
+
+def test_is_molecular_term_downup():
+    op = fo.FermionOperator(((2, 0), (4, 1)))
+    assert op.is_molecular_term()
+
+
+def test_is_molecular_term_downup_badspin():
+    op = fo.FermionOperator(((2, 0), (3, 1)))
+    assert not op.is_molecular_term()
+
+
+def test_is_molecular_term_three():
+    op = fo.FermionOperator(((0, 1), (2, 1), (4, 0)))
+    assert not op.is_molecular_term()
+
+
+def test_is_molecular_term_four():
+    op = fo.FermionOperator(((0, 1), (2, 0), (1, 1), (3, 0)))
+    assert op.is_molecular_term()
 
 
 def test_str():
