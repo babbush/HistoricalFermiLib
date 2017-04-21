@@ -428,7 +428,6 @@ class FermionOperator(object):
                     if right_op[1] and not left_op[1]:
                         new_ops[j-1], new_ops[j] = right_op, left_op
                         new_coeff *= -1
-                        new_term = FermionOperator(tuple(new_ops), new_coeff)
 
                         # Replace a a^\dagger with 1 - a^\dagger a if indices
                         # are same.
@@ -447,17 +446,16 @@ class FermionOperator(object):
                         # If same two operators are repeated, term evaluates to
                         # zero.
                         if right_op[0] == left_op[0]:
-                            new_term = FermionOperator((), 0.0)
+                            new_ops = []
+                            new_coeff = 0.0
 
                         # Swap if same ladder type but lower index on left.
                         elif right_op[0] > left_op[0]:
                             new_ops[j-1], new_ops[j] = right_op, left_op
                             new_coeff *= -1
-                            new_term = FermionOperator(tuple(new_ops),
-                                                       new_coeff)
 
-            # Add processed term to output and return.
-            normal_ordered_op += new_term
+            # Add processed new term to output and return.
+            normal_ordered_op += FermionOperator(tuple(new_ops), new_coeff)
 
         return normal_ordered_op
 
