@@ -16,7 +16,7 @@ import copy
 import numpy
 import pytest
 
-from projectq.ops import _fermion_operator as fo
+from projectqtemp.ops import _fermion_operator as fo
 
 
 def test_init_defaults():
@@ -79,6 +79,27 @@ def test_init_bad_str():
 def test_init_bad_mode_num():
     with pytest.raises(fo.FermionOperatorError):
         fermion_op = fo.FermionOperator('-1^')
+
+
+def test_nqubits_0():
+    op = fo.FermionOperator()
+    assert op.n_qubits() == 0
+
+
+def test_nqubits_1():
+    op = fo.FermionOperator('0', 3)
+    assert op.n_qubits() == 1
+
+
+def test_nqubits_doubledigit():
+    op = fo.FermionOperator('27 5^ 11^')
+    assert op.n_qubits() == 28
+
+
+def test_nqubits_multiterm():
+    op = (fo.FermionOperator() + fo.FermionOperator('1 2 3') +
+          fo.FermionOperator())
+    assert op.n_qubits() == 4
 
 
 def test_isclose_abs_tol():
@@ -367,6 +388,75 @@ def test_neg():
     assert op.isclose(fo.FermionOperator(((1, 1), (3, 1), (8, 1)), 0.5))
     correct = -1.0 * op
     assert correct.isclose(-op)
+
+
+def test_hermitian_conjugate_empty():
+    op = fo.FermionOperator()
+    op.hermitian_conjugate()
+    assert op.isclose(fo.FermionOperator())
+
+
+def test_hermitian_conjugate_simple():
+    op = fo.FermionOperator('1^')
+    op_hc = fo.FermionOperator('1')
+    op.hermitian_conjugate()
+    assert op.isclose(op_hc)
+
+
+def test_hermitian_conjugate_complex_const():
+    op = fo.FermionOperator('1^ 3', 3j)
+    op_hc = -3j * fo.FermionOperator('3^ 1')
+    op.hermitian_conjugate()
+    assert op.isclose(op_hc)
+
+
+def test_hermitian_conjugate_notordered():
+    op = fo.FermionOperator('1 3^ 3 3^', 3j)
+    op_hc = -3j * fo.FermionOperator('3 3^ 3 1^')
+    op.hermitian_conjugate()
+    assert op.isclose(op_hc)
+
+
+def test_hermitian_conjugate_semihermitian():
+    op = (fo.FermionOperator() + 2j * fo.FermionOperator('1^ 3') +
+          fo.FermionOperator('3^ 1') * -2j + fo.FermionOperator('2^ 2', 0.1j))
+    op_hc = (fo.FermionOperator() + fo.FermionOperator('1^ 3', 2j) +
+             fo.FermionOperator('3^ 1', -2j) +
+             fo.FermionOperator('2^ 2', -0.1j))
+    op.hermitian_conjugate()
+    assert op.isclose(op_hc)
+
+
+def test_hermitian_conjugated_empty():
+    op = fo.FermionOperator()
+    assert op.isclose(op.hermitian_conjugated())
+
+
+def test_hermitian_conjugated_simple():
+    op = fo.FermionOperator('0')
+    op_hc = fo.FermionOperator('0^')
+    assert op_hc.isclose(op.hermitian_conjugated())
+
+
+def test_hermitian_conjugated_complex_const():
+    op = fo.FermionOperator('2^ 2', 3j)
+    op_hc = fo.FermionOperator('2^ 2', -3j)
+    assert op_hc.isclose(op.hermitian_conjugated())
+
+
+def test_hermitian_conjugated_multiterm():
+    op = fo.FermionOperator('1^ 2') + fo.FermionOperator('2 3 4')
+    op_hc = fo.FermionOperator('2^ 1') + fo.FermionOperator('4^ 3^ 2^')
+    assert op_hc.isclose(op.hermitian_conjugated())
+
+
+def test_hermitian_conjugated_semihermitian():
+    op = (fo.FermionOperator() + 2j * fo.FermionOperator('1^ 3') +
+          fo.FermionOperator('3^ 1') * -2j + fo.FermionOperator('2^ 2', 0.1j))
+    op_hc = (fo.FermionOperator() + fo.FermionOperator('1^ 3', 2j) +
+             fo.FermionOperator('3^ 1', -2j) +
+             fo.FermionOperator('2^ 2', -0.1j))
+    assert op_hc.isclose(op.hermitian_conjugated())
 
 
 def test_str():

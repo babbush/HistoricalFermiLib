@@ -16,7 +16,7 @@ import copy
 import numpy
 import pytest
 
-from projectq.ops import _qubit_operator as qo
+from projectqtemp.ops import _qubit_operator as qo
 
 
 def test_pauli_operator_product_unchanged():

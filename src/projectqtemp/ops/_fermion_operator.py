@@ -81,6 +81,7 @@ class FermionOperator(object):
 
         Raises:
           FermionOperatorError: Invalid term provided to FermionOperator.
+
         """
         if term is not None and not isinstance(term, (tuple, str)):
             raise ValueError('Operators specified incorrectly.')
@@ -122,6 +123,16 @@ class FermionOperator(object):
                     raise ValueError('Invalid action provided to FermionTerm. '
                                      'Must be 0 (lowering) or 1 (raising).')
 
+    def n_qubits(self):
+        """Return the minimum number of qubits this FermionOperator must
+        act on."""
+        highest_mode = 0
+        for term in self.terms:
+            term_modes = max(term or ((-1, -1),), key=lambda t: t[0])[0] + 1
+            if term_modes > highest_mode:
+                highest_mode = term_modes
+        return highest_mode
+
     def isclose(self, other, rel_tol=1e-12, abs_tol=1e-12):
         """
         Returns True if other (FermionOperator) is close to self.
@@ -136,6 +147,7 @@ class FermionOperator(object):
             other(FermionOperator): FermionOperator to compare against.
             rel_tol(float): Relative tolerance, must be greater than 0.0
             abs_tol(float): Absolute tolerance, must be at least 0.0
+
         """
         # terms which are in both:
         for term in set(self.terms).intersection(set(other.terms)):
@@ -159,6 +171,7 @@ class FermionOperator(object):
 
         Args:
           multiplier(complex float, or FermionOperator): multiplier
+
         """
         # Handle scalars.
         if isinstance(multiplier, (int, float, complex)):
@@ -196,6 +209,7 @@ class FermionOperator(object):
 
         Raises:
           TypeError: Invalid type cannot be multiply with FermionOperator.
+
         """
         if isinstance(multiplier, (int, float, complex, FermionOperator)):
             product = copy.deepcopy(self)
@@ -221,6 +235,7 @@ class FermionOperator(object):
 
         Raises:
           TypeError: Object of invalid type cannot multiply FermionOperator.
+
         """
         if not isinstance(multiplier, (int, float, complex)):
             raise TypeError(
@@ -260,6 +275,7 @@ class FermionOperator(object):
 
         Raises:
           TypeError: Cannot add invalid type.
+
         """
         if isinstance(addend, FermionOperator):
             for term in addend.terms:
@@ -285,6 +301,139 @@ class FermionOperator(object):
 
     def __neg__(self):
         return -1 * self
+
+    def hermitian_conjugate(self):
+        """Hermitian conjugate this fermionic term."""
+        conj_terms = {}
+        for term in self.terms:
+            conj_coeff = np.conjugate(self.terms[term])
+            conj_term = list(term)
+            conj_term.reverse()
+            for local_op in range(len(conj_term)):
+                conj_term[local_op] = (conj_term[local_op][0],
+                                       1 - conj_term[local_op][1])
+
+            conj_terms[tuple(conj_term)] = conj_coeff
+        self.terms = conj_terms
+
+    def hermitian_conjugated(self):
+        """Calculate Hermitian conjugate of fermionic term.
+
+        Returns:   A new FermionTerm object which is the hermitian
+        conjugate of this.
+
+        """
+        res = copy.deepcopy(self)
+        res.hermitian_conjugate()
+        return res
+
+    def is_normal_ordered(self):
+        """Return whether or not term is in normal order.
+
+        In our convention, normal ordering implies terms are ordered
+        from highest tensor factor (on left) to lowest (on right). Also,
+        ladder operators come first.
+
+        """
+        for term in self.terms:
+            for i in range(len(term) - 1):
+                left = term[i]
+                right = term[i + 1]
+                if right[1] > left[1] or right[0] > left[0] or left == right:
+                    return False
+        return True
+
+    # TODO
+    def normal_ordered(self):
+        """Compute and return the normal ordered form of a FermionTerm.
+
+        Not an in-place method.
+
+        In our convention, normal ordering implies terms are ordered
+        from highest tensor factor (on left) to lowest (on right).
+        Also, ladder operators come first.
+
+        Returns:
+          FermionOperator object in normal ordered form.
+
+        Warning:
+          Even assuming that each creation or annihilation operator appears
+          at most a constant number of times in the original term, the
+          runtime of this method is exponential in the number of qubits.
+
+        """
+        # Initialize output.
+        normal_ordered_operator = FermionOperator()
+
+        # Copy self.
+        term = copy.deepcopy(self)
+
+        # Iterate from left to right across operators and reorder to normal
+        # form. Swap terms operators into correct position by moving left to
+        # right.
+        for i in range(1, len(term)):
+            for j in range(i, 0, -1):
+                right_operator = term[j]
+                left_operator = term[j - 1]
+
+                # Swap operators if raising on right and lowering on left.
+                if right_operator[1] and not left_operator[1]:
+                    term[j - 1] = right_operator
+                    term[j] = left_operator
+                    term *= -1.
+
+                    # Replace a a^\dagger with 1 - a^\dagger a if indices are
+                    # same.
+                    if right_operator[0] == left_operator[0]:
+                        operators_in_new_term = term[:(j - 1)]
+                        operators_in_new_term += term[(j + 1)::]
+                        new_term = FermionTerm(operators_in_new_term,
+                                               -1. * term.coefficient)
+
+                        # Recursively add the processed new term.
+                        normal_ordered_operator += new_term.normal_ordered()
+
+                    # Handle case when operator type is the same.
+                elif right_operator[1] == left_operator[1]:
+
+                    # If same two operators are repeated, term evaluates to
+                    # zero.
+                    if right_operator[0] == left_operator[0]:
+                        return normal_ordered_operator
+
+                        # Swap if same ladder type but lower index on left.
+                    elif right_operator[0] > left_operator[0]:
+                        term[j - 1] = right_operator
+                        term[j] = left_operator
+                        term *= -1.
+
+        # Add processed term to output and return.
+        normal_ordered_operator += term
+        return normal_ordered_operator
+
+    def is_molecular_term(self):
+        """Query whether term has correct form to be from a molecular.
+
+        Require that term is particle-number conserving (same number of
+        raising and lowering operators). Require that term has 0, 2 or 4
+        ladder operators. Require that term conserves spin (parity of
+        raising operators equals parity of lowering operators).
+
+        """
+        for term in self.terms:
+            if len(term) not in (0, 2, 4):
+                return False
+
+            # Make sure term conserves particle number and spin.
+            spin = 0
+            particles = 0
+            for operator in term:
+                particles += (-1) ** operator[1]  # add 1 if create, else -1
+                spin += (-1) ** (operator[0] + operator[1])
+            if not (particles == spin == 0):
+                return False
+
+        return True
 
     def __str__(self):
         """Return an easy-to-read string representation."""
