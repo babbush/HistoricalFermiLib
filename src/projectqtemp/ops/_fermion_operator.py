@@ -377,21 +377,21 @@ class FermionOperator(object):
         ladder operators come first.
 
         """
+        n_qubits = self.n_qubits()
         for term in self.terms:
             creating = True  # normal ordered must start with creation ops
-            pos = -1            
+            pos = n_qubits
             for i in range(len(term)):
                 if creating and not term[i][1]:
                     creating = False
                     pos = term[i][0]
-                elif term[i][0] <= pos or term[i][1] != creating:
+                elif term[i][0] >= pos or term[i][1] != creating:
                     return False
                 pos = term[i][0]
         return True
 
-    # TODO
     def normal_ordered(self):
-        """Compute and return the normal ordered form of a FermionTerm.
+        """Compute and return the normal ordered form of a FermionOperator.
 
         Not an in-place method.
 
@@ -409,53 +409,57 @@ class FermionOperator(object):
 
         """
         # Initialize output.
-        normal_ordered_operator = FermionOperator()
+        normal_ordered_op = FermionOperator((), 0.0)
 
-        # Copy self.
-        term = copy.deepcopy(self)
+        for term in self.terms:
+            new_ops = list(term)
+            new_term = FermionOperator(tuple(new_ops), self.terms[term])
+            new_coeff = self.terms[term]
 
-        # Iterate from left to right across operators and reorder to normal
-        # form. Swap terms operators into correct position by moving left to
-        # right.
-        for i in range(1, len(term)):
-            for j in range(i, 0, -1):
-                right_operator = term[j]
-                left_operator = term[j - 1]
+            # Iterate from left to right across operators and reorder to normal
+            # form. Swap terms operators into correct position by moving left
+            # to right.
+            for i in range(1, len(new_ops)):
+                for j in range(i, 0, -1):
+                    right_op = new_ops[j]
+                    left_op = new_ops[j - 1]
 
-                # Swap operators if raising on right and lowering on left.
-                if right_operator[1] and not left_operator[1]:
-                    term[j - 1] = right_operator
-                    term[j] = left_operator
-                    term *= -1.
+                    # Swap operators if raising on right and lowering on left.
+                    if right_op[1] and not left_op[1]:
+                        new_ops[j-1], new_ops[j] = right_op, left_op
+                        new_coeff *= -1
+                        new_term = FermionOperator(tuple(new_ops), new_coeff)
 
-                    # Replace a a^\dagger with 1 - a^\dagger a if indices are
-                    # same.
-                    if right_operator[0] == left_operator[0]:
-                        operators_in_new_term = term[:(j - 1)]
-                        operators_in_new_term += term[(j + 1)::]
-                        new_term = FermionTerm(operators_in_new_term,
-                                               -1. * term.coefficient)
+                        # Replace a a^\dagger with 1 - a^\dagger a if indices
+                        # are same.
+                        if right_op[0] == left_op[0]:
+                            new_ops2 = new_ops[:j-1] + new_ops[j+1:]
+                            new_coeff2 = -new_coeff
+                            new_term2 = FermionOperator(tuple(new_ops2),
+                                                        new_coeff2)
 
-                        # Recursively add the processed new term.
-                        normal_ordered_operator += new_term.normal_ordered()
+                            # Recursively add the processed new term.
+                            normal_ordered_op += new_term2.normal_ordered()
 
                     # Handle case when operator type is the same.
-                elif right_operator[1] == left_operator[1]:
+                    elif right_op[1] == left_op[1]:
 
-                    # If same two operators are repeated, term evaluates to
-                    # zero.
-                    if right_operator[0] == left_operator[0]:
-                        return normal_ordered_operator
+                        # If same two operators are repeated, term evaluates to
+                        # zero.
+                        if right_op[0] == left_op[0]:
+                            new_term = FermionOperator((), 0.0)
 
                         # Swap if same ladder type but lower index on left.
-                    elif right_operator[0] > left_operator[0]:
-                        term[j - 1] = right_operator
-                        term[j] = left_operator
-                        term *= -1.
+                        elif right_op[0] > left_op[0]:
+                            new_ops[j-1], new_ops[j] = right_op, left_op
+                            new_coeff *= -1
+                            new_term = FermionOperator(tuple(new_ops),
+                                                       new_coeff)
 
-        # Add processed term to output and return.
-        normal_ordered_operator += term
-        return normal_ordered_operator
+            # Add processed term to output and return.
+            normal_ordered_op += new_term
+
+        return normal_ordered_op
 
     def is_molecular_term(self):
         """Query whether term has correct form to be from a molecular.
