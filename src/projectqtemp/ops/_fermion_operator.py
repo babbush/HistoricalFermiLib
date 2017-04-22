@@ -8,6 +8,59 @@ class FermionOperatorError(Exception):
     pass
 
 
+def fermion_identity(coefficient=1.):
+    return coefficient * FermionOperator()
+
+
+def one_body_term(p, q, coefficient=1.):
+    """Return one-body operator which conserves particle number.
+
+    Args:   p, q: The sites between which the hopping occurs.
+    coefficient: Optional float giving coefficient of term.
+
+    """
+    return FermionOperator(((p, 1), (q, 0)), coefficient)
+
+
+def two_body_term(p, q, r, s, coefficient=1.):
+    """Return two-body operator which conserves particle number.
+
+    Args:   p, q, r, s: The sites between which the hopping occurs.
+    coefficient: Optional float giving coefficient of term.
+
+    """
+    return FermionOperator(((p, 1), (q, 1), (r, 0), (s, 0)), coefficient)
+
+
+def number_operator(n_qubits, site=None, coefficient=1.):
+    """Return a number operator.
+
+    Args:   n_qubits: An int giving the number of spin-orbitals in the
+    system.   site: The site on which to return the number operator.
+    If None, return total number operator on all sites.
+
+    """
+    if site is None:
+        operator = FermionOperator((), 0.0)
+        for spin_orbital in range(n_qubits):
+            operator += number_operator(n_qubits, spin_orbital, coefficient)
+    else:
+        operator = FermionOperator(((site, 1), (site, 0)), coefficient)
+    return operator
+
+
+def hermitian_conjugated(fermionoperator):
+    """Calculate Hermitian conjugate of fermionic term.
+
+    Returns:   A new FermionTerm object which is the hermitian
+    conjugate of this.
+
+    """
+    res = copy.deepcopy(fermionoperator)
+    res.hermitian_conjugate()
+    return res
+
+
 class FermionOperator(object):
     """
     A sum of terms acting on qubits, e.g., 0.5 * '0^ 5' + 0.3 * '1^ 2^'.
@@ -316,17 +369,6 @@ class FermionOperator(object):
             conj_terms[tuple(conj_term)] = conj_coeff
         self.terms = conj_terms
 
-    def hermitian_conjugated(self):
-        """Calculate Hermitian conjugate of fermionic term.
-
-        Returns:   A new FermionTerm object which is the hermitian
-        conjugate of this.
-
-        """
-        res = copy.deepcopy(self)
-        res.hermitian_conjugate()
-        return res
-
     def is_normal_ordered(self):
         """Return whether or not term is in normal order.
 
@@ -335,17 +377,21 @@ class FermionOperator(object):
         ladder operators come first.
 
         """
+        n_qubits = self.n_qubits()
         for term in self.terms:
-            for i in range(len(term) - 1):
-                left = term[i]
-                right = term[i + 1]
-                if right[1] > left[1] or right[0] > left[0] or left == right:
+            creating = True  # normal ordered must start with creation ops
+            pos = n_qubits
+            for i in range(len(term)):
+                if creating and not term[i][1]:
+                    creating = False
+                    pos = term[i][0]
+                elif term[i][0] >= pos or term[i][1] != creating:
                     return False
+                pos = term[i][0]
         return True
 
-    # TODO
     def normal_ordered(self):
-        """Compute and return the normal ordered form of a FermionTerm.
+        """Compute and return the normal ordered form of a FermionOperator.
 
         Not an in-place method.
 
@@ -363,53 +409,55 @@ class FermionOperator(object):
 
         """
         # Initialize output.
-        normal_ordered_operator = FermionOperator()
+        normal_ordered_op = FermionOperator((), 0.0)
 
-        # Copy self.
-        term = copy.deepcopy(self)
+        for term in self.terms:
+            new_ops = list(term)
+            new_term = FermionOperator(tuple(new_ops), self.terms[term])
+            new_coeff = self.terms[term]
 
-        # Iterate from left to right across operators and reorder to normal
-        # form. Swap terms operators into correct position by moving left to
-        # right.
-        for i in range(1, len(term)):
-            for j in range(i, 0, -1):
-                right_operator = term[j]
-                left_operator = term[j - 1]
+            # Iterate from left to right across operators and reorder to normal
+            # form. Swap terms operators into correct position by moving left
+            # to right.
+            for i in range(1, len(new_ops)):
+                for j in range(i, 0, -1):
+                    right_op = new_ops[j]
+                    left_op = new_ops[j - 1]
 
-                # Swap operators if raising on right and lowering on left.
-                if right_operator[1] and not left_operator[1]:
-                    term[j - 1] = right_operator
-                    term[j] = left_operator
-                    term *= -1.
+                    # Swap operators if raising on right and lowering on left.
+                    if right_op[1] and not left_op[1]:
+                        new_ops[j-1], new_ops[j] = right_op, left_op
+                        new_coeff *= -1
 
-                    # Replace a a^\dagger with 1 - a^\dagger a if indices are
-                    # same.
-                    if right_operator[0] == left_operator[0]:
-                        operators_in_new_term = term[:(j - 1)]
-                        operators_in_new_term += term[(j + 1)::]
-                        new_term = FermionTerm(operators_in_new_term,
-                                               -1. * term.coefficient)
+                        # Replace a a^\dagger with 1 - a^\dagger a if indices
+                        # are same.
+                        if right_op[0] == left_op[0]:
+                            new_ops2 = new_ops[:j-1] + new_ops[j+1:]
+                            new_coeff2 = -new_coeff
+                            new_term2 = FermionOperator(tuple(new_ops2),
+                                                        new_coeff2)
 
-                        # Recursively add the processed new term.
-                        normal_ordered_operator += new_term.normal_ordered()
+                            # Recursively add the processed new term.
+                            normal_ordered_op += new_term2.normal_ordered()
 
                     # Handle case when operator type is the same.
-                elif right_operator[1] == left_operator[1]:
+                    elif right_op[1] == left_op[1]:
 
-                    # If same two operators are repeated, term evaluates to
-                    # zero.
-                    if right_operator[0] == left_operator[0]:
-                        return normal_ordered_operator
+                        # If same two operators are repeated, term evaluates to
+                        # zero.
+                        if right_op[0] == left_op[0]:
+                            new_ops = []
+                            new_coeff = 0.0
 
                         # Swap if same ladder type but lower index on left.
-                    elif right_operator[0] > left_operator[0]:
-                        term[j - 1] = right_operator
-                        term[j] = left_operator
-                        term *= -1.
+                        elif right_op[0] > left_op[0]:
+                            new_ops[j-1], new_ops[j] = right_op, left_op
+                            new_coeff *= -1
 
-        # Add processed term to output and return.
-        normal_ordered_operator += term
-        return normal_ordered_operator
+            # Add processed new term to output and return.
+            normal_ordered_op += FermionOperator(tuple(new_ops), new_coeff)
+
+        return normal_ordered_op
 
     def is_molecular_term(self):
         """Query whether term has correct form to be from a molecular.

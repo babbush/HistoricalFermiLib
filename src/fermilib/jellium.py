@@ -197,7 +197,7 @@ def momentum_kinetic_operator(n_dimensions, grid_length,
 
 def momentum_potential_operator(n_dimensions, grid_length,
                                 length_scale, spinless=False):
-    """Return the kinetic energy operator in momentum second quantization.
+    """Return the potential operator in momentum second quantization.
 
     Args:
       n_dimensions: An int giving the number of dimensions for the model.
@@ -406,7 +406,6 @@ def position_potential_operator(n_dimensions, grid_length,
                                      (orbital_b, 1), (orbital_b, 0)]
                         operator += FermionTerm(operators, coefficient)
 
-    # Return.
     return operator
 
 

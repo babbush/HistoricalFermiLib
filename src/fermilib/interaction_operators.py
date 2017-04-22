@@ -4,7 +4,6 @@ from __future__ import absolute_import
 import itertools
 
 from fermilib import qubit_operators
-from fermilib.fermion_operators import FermionTerm, FermionOperator
 from fermilib.interaction_tensors import InteractionTensor
 
 

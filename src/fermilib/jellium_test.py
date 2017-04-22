@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 import itertools
 import unittest
-
 import numpy
 
 from fermilib import jellium

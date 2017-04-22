@@ -5,7 +5,6 @@ import unittest
 
 import numpy
 
-from fermilib import fermion_operators
 from fermilib.interaction_operators import InteractionOperator
 from fermilib.transforms import jordan_wigner
 
