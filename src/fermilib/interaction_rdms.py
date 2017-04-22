@@ -5,6 +5,8 @@ import copy
 import numpy
 
 from fermilib.interaction_tensors import InteractionTensor
+import projectqtemp.ops._fermion_operator as fo
+
 
 
 class InteractionRDMError(Exception):
@@ -86,19 +88,21 @@ def unpack_spatial_rdm(one_rdm_a,
 class InteractionRDM(InteractionTensor):
     """Class for storing 1- and 2-body reduced density matrices.
 
-    Attributes:   one_body_tensor: The expectation values <a^\dagger_p
-    a_q>.   two_body_tensor: The expectation values <a^\dagger_p
-    a^\dagger_q a_r a_s>.   n_qubits: An int giving the number of
-    qubits.
+    Attributes:
+      one_body_tensor: The expectation values <a^\dagger_p a_q>.
+      two_body_tensor: The expectation values 
+                       <a^\dagger_p a^\dagger_q a_r a_s>.
+      n_qubits: An int giving the number of qubits.
 
     """
 
     def __init__(self, one_body_tensor, two_body_tensor):
         """Initialize the InteractionRDM class.
 
-        Args:   one_body_tensor: Expectation values <a^\dagger_p a_q>.
-        two_body_tensor: Expectation values <a^\dagger_p a^\dagger_q a_r
-        a_s>.
+        Args:
+          one_body_tensor: Expectation values <a^\dagger_p a_q>.
+          two_body_tensor: Expectation values
+                           <a^\dagger_p a^\dagger_q a_r a_s>.
 
         """
         super(InteractionRDM, self).__init__(None, one_body_tensor,
@@ -175,25 +179,28 @@ class InteractionRDM(InteractionTensor):
 
         """
         # to avoid circular imports
-        from fermilib.transforms import reverse_jordan_wigner
+        from transforms._reverse_jordan_wigner import reverse_jordan_wigner        
 
         expectation = 0.
         reversed_fermion_operators = reverse_jordan_wigner(qubit_term,
                                                            self.n_qubits)
-        reversed_fermion_operators.normal_order()
-        for fermion_term in reversed_fermion_operators:
-
+        reversed_fermion_operators = (
+            reversed_fermion_operators.normal_ordered())
+        for term in reversed_fermion_operators.terms:
+            coeff = reversed_fermion_operators.terms[term]
+            fermion_term = fo.FermionOperator(term, coeff)
             # Handle molecular terms.
             if fermion_term.is_molecular_term():
-                if fermion_term.is_identity():
-                    expectation += fermion_term.coefficient
+                if fermion_term.isclose(fo.fermion_identity()):
+                    expectation += coeff
                 else:
-                    indices = [operator[0] for operator in fermion_term]
+                    indices = [operator[0] for operator in
+                               list(fermion_term.terms)[0]]
                     rdm_element = self[indices]
-                    expectation += rdm_element * fermion_term.coefficient
+                    expectation += rdm_element * coeff
 
-                # Handle non-molecular terms.
-            elif len(fermion_term.operators) > 4:
+            # Handle non-molecular terms.
+            elif len(list(fermion_term.terms)[0]) > 4:
                 raise InteractionRDMError('Observable not contained '
                                           'in 1-RDM or 2-RDM.')
         return expectation

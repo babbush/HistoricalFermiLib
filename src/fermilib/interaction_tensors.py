@@ -97,7 +97,7 @@ class InteractionTensor(object):
     """
 
     def __init__(self, constant, one_body_tensor, two_body_tensor):
-        """Initialize the InteractionTensorError class.
+        """Initialize the InteractionTensor class.
 
         Args: constant: A constant term in the operator given as a
         float.     For instance, the nuclear repulsion energy.
@@ -110,6 +110,8 @@ class InteractionTensor(object):
         MolecularOperator.
 
         """
+        if constant is None:
+            constant = 0.0
         self.constant = constant
         self.one_body_tensor = one_body_tensor
         self.two_body_tensor = two_body_tensor
@@ -154,10 +156,7 @@ class InteractionTensor(object):
             raise ValueError('args must be of length 0, 2, or 4.')
 
     def __eq__(self, molecular_tensor):
-        if self.constant is None:
-            constant_diff = 0
-        else:
-            constant_diff = abs(molecular_tensor.constant - self.constant)
+        constant_diff = abs(molecular_tensor.constant - self.constant)
         diff = max(constant_diff,
                    numpy.amax(
                        numpy.absolute(self.one_body_tensor -

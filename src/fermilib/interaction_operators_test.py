@@ -6,7 +6,6 @@ import unittest
 import numpy
 
 from fermilib.interaction_operators import InteractionOperator
-from fermilib.transforms import jordan_wigner
 
 
 class InteractionOperatorsTest(unittest.TestCase):

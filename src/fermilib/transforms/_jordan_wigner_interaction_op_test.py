@@ -27,7 +27,6 @@ class InteractionOperatorsJWTest(unittest.TestCase):
         # Make sure it agrees with jordan_wigner(FermionTerm).
         for p in range(self.n_qubits):
             for q in range(self.n_qubits):
-
                 # Get test qubit operator.
                 test_operator = jordan_wigner_one_body(p, q)
 
@@ -35,10 +34,10 @@ class InteractionOperatorsJWTest(unittest.TestCase):
                 fermion_term = FermionOperator(((p, 1), (q, 0)))
                 correct_op = jordan_wigner(fermion_term)
                 hermitian_conjugate = fo.hermitian_conjugated(fermion_term)
-                if fermion_term != hermitian_conjugate:
+                if not fermion_term.isclose(hermitian_conjugate):
                     correct_op += jordan_wigner(hermitian_conjugate)
 
-                #self.assertEqual(test_operator, correct_op)
+                self.assertEqual(test_operator, correct_op)
 
     def test_jordan_wigner_two_body(self):
         # Make sure it agrees with jordan_wigner(FermionTerm).
@@ -46,7 +45,6 @@ class InteractionOperatorsJWTest(unittest.TestCase):
             for q in range(self.n_qubits):
                 for r in range(self.n_qubits):
                     for s in range(self.n_qubits):
-
                         # Get test qubit operator.
                         test_operator = jordan_wigner_two_body(p, q, r, s)
 
@@ -56,10 +54,10 @@ class InteractionOperatorsJWTest(unittest.TestCase):
                         correct_op = jordan_wigner(fermion_term)
                         hermitian_conjugate = fo.hermitian_conjugated(
                             fermion_term)
-                        if fermion_term != hermitian_conjugate:
+                        if not fermion_term.isclose(hermitian_conjugate):
                             correct_op += jordan_wigner(hermitian_conjugate)
 
-                        #self.assertEqual(test_operator, correct_op)
+                        self.assertEqual(test_operator, correct_op)
 
 if __name__ == '__main__':
     unittest.main()
