@@ -2,11 +2,11 @@
 from __future__ import absolute_import
 
 from fermilib.qubit_operators import QubitOperator
-from fermilib.fermion_operators import FermionTerm, FermionOperator
+from projectqtemp.ops._fermion_operator import FermionOperator
 from fermilib.interaction_operators import InteractionOperator
 
-from ._jordan_wigner_term import jordan_wigner_term
-from ._jordan_wigner_interaction_op import jordan_wigner_interaction_op
+from transforms._jordan_wigner_term import jordan_wigner_term
+from transforms._jordan_wigner_interaction_op import jordan_wigner_interaction_op
 
 
 def jordan_wigner(op):
@@ -18,18 +18,17 @@ def jordan_wigner(op):
 
     Warning:
       The runtime of this method is exponential in the maximum locality
-      of the FermionTerms in the original FermionOperator.
+      of the original FermionOperator.
 
     """
-    if isinstance(op, FermionTerm):
-        op = FermionOperator(op)
-    elif isinstance(op, InteractionOperator):
+    if isinstance(op, InteractionOperator):
         return jordan_wigner_interaction_op(op)
+
     if not isinstance(op, FermionOperator):
         raise TypeError("op must be a FermionTerm, FermionOperator, or "
                         "InteractionOperator.")
 
     transformed_operator = QubitOperator()
-    for term in op:
-        transformed_operator += jordan_wigner_term(term)
+    for term in op.terms:
+        transformed_operator += jordan_wigner_term(term, op.terms[term])
     return transformed_operator

@@ -6,29 +6,28 @@ import unittest
 
 import numpy
 
-from fermilib import fermion_operators as fo
-from fermilib.fermion_operators import (FermionTerm, FermionOperator,
-                                        number_operator, one_body_term,
-                                        two_body_term)
+from projectqtemp.ops import _fermion_operator as fo
+from projectqtemp.ops._fermion_operator import (FermionOperator,
+                                                number_operator,
+                                                one_body_term, two_body_term)
 from fermilib.interaction_operators import InteractionOperator
 from fermilib.qubit_operators import QubitTerm, QubitOperator, qubit_identity
-from ._conversion import (eigenspectrum, get_fermion_operator,
-                          get_interaction_operator, get_sparse_operator)
+from transforms._conversion import (eigenspectrum, get_fermion_operator,
+                                    get_interaction_operator,
+                                    get_sparse_operator)
 
 
 class GetInteractionOperatorTest(unittest.TestCase):
 
     def test_get_molecular_operator(self):
         coefficient = 3.
-        operators = [(2, 1), (3, 0), (0, 0), (3, 1)]
-        term = FermionTerm(operators, coefficient)
-        op = FermionOperator(term)
+        operators = ((2, 1), (3, 0), (0, 0), (3, 1))
+        op = FermionOperator(operators, coefficient)
 
         molecular_operator = get_interaction_operator(op)
         fermion_operator = get_fermion_operator(molecular_operator)
-        fermion_operator.normal_order()
-        op.normal_order()
-        self.assertEqual(op, fermion_operator)
+        fermion_operator = fermion_operator.normal_ordered()
+        self.assertTrue(op.normal_ordered().isclose(fermion_operator))
 
 
 class GetSparseOperatorQubitTest(unittest.TestCase):

@@ -2,10 +2,10 @@
 from __future__ import absolute_import
 import copy
 
-from fermilib.fermion_operators import (FermionOperator, FermionTerm,
-                                        fermion_identity, number_operator)
-from fermilib.qubit_operators import (QubitTerm, QubitTermError,
-                                      QubitOperator)
+from projectqtemp.ops._fermion_operator import (FermionOperator,
+                                                fermion_identity,
+                                                number_operator)
+from fermilib.qubit_operators import (QubitTerm, QubitTermError, QubitOperator)
 
 
 def reverse_jordan_wigner_term(term, n_qubits=None):
@@ -39,8 +39,7 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
         n_qubits = term.n_qubits()
 
     # Initialize transformed operator.
-    identity = fermion_identity()
-    transformed_term = FermionOperator(identity)
+    transformed_term = fermion_identity()
     working_term = QubitTerm(term.operators, 1.0)
 
     # Loop through operators.
@@ -51,11 +50,11 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
             # Handle Pauli Z.
             if operator[1] == 'Z':
                 no = number_operator(n_qubits, operator[0], -2.)
-                transformed_operator = identity + no
+                transformed_operator = fermion_identity() + no
 
             else:
-                raising_term = FermionTerm([(operator[0], 1)])
-                lowering_term = FermionTerm([(operator[0], 0)])
+                raising_term = FermionOperator(((operator[0], 1),))
+                lowering_term = FermionOperator(((operator[0], 0),))
 
                 # Handle Pauli X, Y, Z.
                 if operator[1] == 'Y':
@@ -73,8 +72,7 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
                                        operators=[(j, 'Z')])
                     z_term *= working_term
                     working_term = copy.deepcopy(z_term)
-                transformed_operator = FermionOperator([raising_term,
-                                                        lowering_term])
+                transformed_operator = raising_term + lowering_term
                 transformed_operator *= working_term.coefficient
                 working_term.coefficient = 1.0
 
@@ -129,7 +127,7 @@ def reverse_jordan_wigner(op, n_qubits=None):
         raise QubitTermError('Invalid n_qubits.')
     if n_qubits < op.n_qubits():
         n_qubits = op.n_qubits()
-    transformed_operator = FermionOperator()
+    transformed_operator = FermionOperator((), 0.0)
     for term in op:
         transformed_operator += reverse_jordan_wigner_term(term, n_qubits)
     return transformed_operator

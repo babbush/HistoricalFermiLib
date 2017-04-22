@@ -2,11 +2,11 @@
 from __future__ import absolute_import
 import unittest
 
-from fermilib import fermion_operators as fo
-from fermilib.fermion_operators import FermionTerm, number_operator
+from projectqtemp.ops import _fermion_operator as fo
+from projectqtemp.ops._fermion_operator import FermionOperator, number_operator
 from fermilib.qubit_operators import qubit_identity, QubitTerm, QubitOperator
 
-from ._jordan_wigner import jordan_wigner
+from transforms._jordan_wigner import jordan_wigner
 
 
 class JordanWignerTransformTest(unittest.TestCase):
@@ -14,7 +14,7 @@ class JordanWignerTransformTest(unittest.TestCase):
         self.n_qubits = 5
 
     def test_transform_raise3(self):
-        raising = jordan_wigner(FermionTerm([(3, 1)]))
+        raising = jordan_wigner(FermionOperator(((3, 1),)))
         self.assertEqual(len(raising), 2)
 
         correct_operators_x = [(0, 'Z'), (1, 'Z'), (2, 'Z'), (3, 'X')]
@@ -24,7 +24,7 @@ class JordanWignerTransformTest(unittest.TestCase):
         self.assertEqual(raising[correct_operators_y], -0.5j)
 
     def test_transform_raise1(self):
-        raising = jordan_wigner(FermionTerm([(1, 1)]))
+        raising = jordan_wigner(FermionOperator(((1, 1),)))
         self.assertEqual(len(raising), 2)
 
         correct_operators_x = [(0, 'Z'), (1, 'X')]
@@ -34,7 +34,7 @@ class JordanWignerTransformTest(unittest.TestCase):
         self.assertEqual(raising[correct_operators_y], -0.5j)
 
     def test_transform_lower3(self):
-        lowering = jordan_wigner(FermionTerm([(3, 0)]))
+        lowering = jordan_wigner(FermionOperator(((3, 0),)))
         self.assertEqual(len(lowering), 2)
 
         correct_operators_x = [(0, 'Z'), (1, 'Z'), (2, 'Z'), (3, 'X')]
@@ -47,7 +47,7 @@ class JordanWignerTransformTest(unittest.TestCase):
         self.assertEqual(lowering, QubitOperator([qtermx, qtermy]))
 
     def test_transform_lower2(self):
-        lowering = jordan_wigner(FermionTerm([(2, 0)]))
+        lowering = jordan_wigner(FermionOperator(((2, 0),)))
         self.assertEqual(len(lowering), 2)
 
         correct_operators_x = [(0, 'Z'), (1, 'Z'), (2, 'X')]
@@ -57,7 +57,7 @@ class JordanWignerTransformTest(unittest.TestCase):
         self.assertEqual(lowering[correct_operators_y], 0.5j)
 
     def test_transform_lower1(self):
-        lowering = jordan_wigner(FermionTerm([(1, 0)]))
+        lowering = jordan_wigner(FermionOperator(((1, 0),)))
         self.assertEqual(len(lowering), 2)
 
         correct_operators_x = [(0, 'Z'), (1, 'X')]
@@ -67,7 +67,7 @@ class JordanWignerTransformTest(unittest.TestCase):
         self.assertEqual(lowering[correct_operators_y], 0.5j)
 
     def test_transform_lower0(self):
-        lowering = jordan_wigner(FermionTerm([(0, 0)]))
+        lowering = jordan_wigner(FermionOperator(((0, 0),)))
         self.assertEqual(len(lowering), 2)
 
         correct_operators_x = [(0, 'X')]
@@ -78,7 +78,7 @@ class JordanWignerTransformTest(unittest.TestCase):
 
     def test_transform_raise3lower0(self):
         # recall that creation gets -1j on Y and annihilation gets +1j on Y.
-        term = jordan_wigner(FermionTerm([(3, 1), (0, 0)]))
+        term = jordan_wigner(FermionOperator(((3, 1), (0, 0))))
         self.assertEqual(term[((0, 'X'), (1, 'Z'), (2, 'Z'), (3, 'Y'))],
                          0.25 * 1 * -1j)
         self.assertEqual(term[((0, 'Y'), (1, 'Z'), (2, 'Z'), (3, 'Y'))],
@@ -96,57 +96,58 @@ class JordanWignerTransformTest(unittest.TestCase):
         self.assertEqual(len(n_jw), 2)
 
     def test_ccr_offsite_even_ca(self):
-        c2 = FermionTerm([(2, 1)])
-        a4 = FermionTerm([(4, 0)])
-        self.assertEqual((c2 * a4).normal_ordered(),
-                         (-a4 * c2).normal_ordered())
+        c2 = FermionOperator(((2, 1),))
+        a4 = FermionOperator(((4, 0),))
+
+        self.assertTrue((c2 * a4).normal_ordered().isclose(
+            (-a4 * c2).normal_ordered()))
         self.assertEqual(jordan_wigner(c2 * a4), jordan_wigner(-a4 * c2))
 
     def test_ccr_offsite_odd_ca(self):
-        c1 = FermionTerm([(1, 1)])
-        a4 = FermionTerm([(4, 0)])
-        self.assertEqual((c1 * a4).normal_ordered(),
-                         (-a4 * c1).normal_ordered())
+        c1 = FermionOperator(((1, 1),))
+        a4 = FermionOperator(((4, 0),))
+        self.assertTrue((c1 * a4).normal_ordered().isclose(
+            (-a4 * c1).normal_ordered()))
 
         self.assertEqual(jordan_wigner(c1 * a4), jordan_wigner(-a4 * c1))
 
     def test_ccr_offsite_even_cc(self):
-        c2 = FermionTerm([(2, 1)])
-        c4 = FermionTerm([(4, 1)])
-        self.assertEqual((c2 * c4).normal_ordered(),
-                         (-c4 * c2).normal_ordered())
+        c2 = FermionOperator(((2, 1),))
+        c4 = FermionOperator(((4, 1),))
+        self.assertTrue((c2 * c4).normal_ordered().isclose(
+            (-c4 * c2).normal_ordered()))
 
         self.assertEqual(jordan_wigner(c2 * c4), jordan_wigner(-c4 * c2))
 
     def test_ccr_offsite_odd_cc(self):
-        c1 = FermionTerm([(1, 1)])
-        c4 = FermionTerm([(4, 1)])
-        self.assertEqual((c1 * c4).normal_ordered(),
-                         (-c4 * c1).normal_ordered())
+        c1 = FermionOperator(((1, 1),))
+        c4 = FermionOperator(((4, 1),))
+        self.assertTrue((c1 * c4).normal_ordered().isclose(
+            (-c4 * c1).normal_ordered()))
 
         self.assertEqual(jordan_wigner(c1 * c4), jordan_wigner(-c4 * c1))
 
     def test_ccr_offsite_even_aa(self):
-        a2 = FermionTerm([(2, 0)])
-        a4 = FermionTerm([(4, 0)])
-        self.assertEqual((a2 * a4).normal_ordered(),
-                         (-a4 * a2).normal_ordered())
+        a2 = FermionOperator(((2, 0),))
+        a4 = FermionOperator(((4, 0),))
+        self.assertTrue((a2 * a4).normal_ordered().isclose(
+            (-a4 * a2).normal_ordered()))
 
         self.assertEqual(jordan_wigner(a2 * a4), jordan_wigner(-a4 * a2))
 
     def test_ccr_offsite_odd_aa(self):
-        a1 = FermionTerm([(1, 0)])
-        a4 = FermionTerm([(4, 0)])
-        self.assertEqual((a1 * a4).normal_ordered(),
-                         (-a4 * a1).normal_ordered())
+        a1 = FermionOperator(((1, 0),))
+        a4 = FermionOperator(((4, 0),))
+        self.assertTrue((a1 * a4).normal_ordered().isclose(
+            (-a4 * a1).normal_ordered()))
 
         self.assertEqual(jordan_wigner(a1 * a4), jordan_wigner(-a4 * a1))
 
     def test_ccr_onsite(self):
-        c1 = FermionTerm([(1, 1)])
-        a1 = c1.hermitian_conjugated()
-        self.assertEqual((c1 * a1).normal_ordered(),
-                         fo.fermion_identity() - (a1 * c1).normal_ordered())
+        c1 = FermionOperator(((1, 1),))
+        a1 = fo.hermitian_conjugated(c1)
+        self.assertTrue((c1 * a1).normal_ordered().isclose(
+            fo.fermion_identity() - (a1 * c1).normal_ordered()))
         self.assertEqual(jordan_wigner(c1 * a1),
                          qubit_identity() - jordan_wigner(a1 * c1))
 
@@ -158,3 +159,6 @@ class JordanWignerTransformTest(unittest.TestCase):
         for qubit in range(self.n_qubits):
             operators = [(qubit, 'Z')]
             self.assertEqual(n_jw[operators], -0.5)
+
+if __name__ == '__main__':
+    unittest.main()

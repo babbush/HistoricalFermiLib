@@ -12,7 +12,6 @@
 
 """Tests for _fermion_operator.py."""
 import copy
-
 import numpy
 import pytest
 

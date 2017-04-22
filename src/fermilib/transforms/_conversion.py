@@ -7,8 +7,9 @@ import numpy
 
 from fermilib import interaction_rdms
 from fermilib.fenwick_tree import FenwickTree
-from fermilib.fermion_operators import (FermionTerm, FermionOperator,
-                                        fermion_identity, number_operator)
+from projectqtemp.ops._fermion_operator import (FermionOperator,
+                                                fermion_identity,
+                                                number_operator)
 from fermilib.interaction_operators import (InteractionOperator,
                                             InteractionOperatorError)
 from fermilib.qubit_operators import (QubitTerm, QubitTermError,
@@ -32,9 +33,7 @@ def jordan_wigner_sparse(op, n_qubits=None):
     if n_qubits < op.n_qubits():
         n_qubits = op.n_qubits()
 
-    if isinstance(op, FermionTerm):
-        return jordan_wigner_term_sparse(op, n_qubits)
-    elif isinstance(op, FermionOperator):
+    if isinstance(op, FermionOperator):
         return jordan_wigner_operator_sparse(op, n_qubits)
 
     raise TypeError("op should be either a FermionTerm or FermionOperator.")
@@ -55,7 +54,7 @@ def get_sparse_operator(op, n_qubits=None):
     """Map a Fermion, Qubit, or InteractionOperator to a SparseOperator."""
     if isinstance(op, InteractionOperator):
         return get_sparse_interaction_operator(op)
-    elif isinstance(op, (FermionTerm, FermionOperator)):
+    elif isinstance(op, FermionOperator):
         return jordan_wigner_sparse(op, n_qubits)
     elif not isinstance(op, (QubitTerm, QubitOperator)):
         raise TypeError("op must be mappable to SparseOperator.")
@@ -95,15 +94,15 @@ def get_interaction_rdm(qop, n_qubits=None):
 
     # One-RDM.
     for i, j in itertools.product(range(n_qubits), repeat=2):
-        transformed_operator = jordan_wigner(FermionTerm([(i, 1), (j, 0)]))
+        transformed_operator = jordan_wigner(FermionOperator(((i, 1), (j, 0))))
         for term in transformed_operator:
             if tuple(term.operators) in qop.terms:
                 one_rdm[i, j] += term.coefficient * qop[term.operators]
 
     # Two-RDM.
     for i, j, k, l in itertools.product(range(n_qubits), repeat=4):
-        transformed_operator = jordan_wigner(FermionTerm([(i, 1), (j, 1),
-                                                          (k, 0), (l, 0)]))
+        transformed_operator = jordan_wigner(FermionOperator(((i, 1), (j, 1),
+                                                              (k, 0), (l, 0))))
         for term in transformed_operator:
             if tuple(term.operators) in qop.terms:
                 two_rdm[i, j, k, l] += term.coefficient * qop[term.operators]
@@ -134,17 +133,15 @@ def get_interaction_operator(iop):
 
     """
     # Normal order the terms and initialize.
-    iop.normal_order()
+    iop = iop.normal_ordered()
     constant = 0.
     one_body = numpy.zeros((iop.n_qubits(), iop.n_qubits()), complex)
-    two_body = numpy.zeros((
-        iop.n_qubits(), iop.n_qubits(), iop.n_qubits(),
-        iop.n_qubits()),
-        complex)
+    two_body = numpy.zeros((iop.n_qubits(), iop.n_qubits(),
+                            iop.n_qubits(), iop.n_qubits()), complex)
 
     # Loop through terms and assign to matrix.
-    for term in iop:
-        coefficient = term.coefficient
+    for term in iop.terms:
+        coefficient = iop.terms[term]
 
         # Handle constant shift.
         if len(term) == 0:
@@ -186,20 +183,20 @@ def get_fermion_operator(iop):
 
     """
     # Initialize with identity term.
-    identity = FermionTerm([], iop.constant)
-    fermion_operator = FermionOperator([identity])
+    fermion_operator = iop.constant * fermion_identity()
 
     # Add one-body terms.
     for p in range(iop.n_qubits):
         for q in range(iop.n_qubits):
             coefficient = iop[p, q]
-            fermion_operator += FermionTerm([(p, 1), (q, 0)], coefficient)
+            fermion_operator += FermionOperator(((p, 1), (q, 0)), coefficient)
 
             # Add two-body terms.
             for r in range(iop.n_qubits):
                 for s in range(iop.n_qubits):
                     coefficient = iop[p, q, r, s]
-                    fermion_operator += FermionTerm(
-                        [(p, 1), (q, 1), (r, 0), (s, 0)], coefficient)
+                    fermion_operator += FermionOperator(((p, 1), (q, 1),
+                                                         (r, 0), (s, 0)),
+                                                        coefficient)
 
     return fermion_operator

@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 
 from fermilib.qubit_operators import QubitOperator, QubitTerm
-from fermilib.fermion_operators import FermionTerm
+from projectqtemp.ops._fermion_operator import FermionOperator
 from fermilib.fenwick_tree import FenwickTree
 
 
@@ -22,22 +22,25 @@ def bravyi_kitaev_term(term, n_qubits=None):
       Reference: Operator Locality of Quantum Simulation of Fermionic
         Models by Havlicek, Troyer, Whitfield (arXiv:1701.07072).
     """
-    if not isinstance(term, FermionTerm):
-        raise TypeError("term must be a FermionTerm.")
+    if not isinstance(term, FermionOperator) or len(term.terms) > 1:
+        raise ValueError("term must be a single-term FermionOperator.")
 
     if n_qubits is None:
         n_qubits = term.n_qubits()
     if not n_qubits or n_qubits < term.n_qubits():
         raise ValueError('Invalid n_qubits.')
 
+    ops = list(term.terms)[0]
+    coeff = term.terms[ops]
+
     # Build the Fenwick Tree
     fenwick_tree = FenwickTree(n_qubits)
 
     # Initialize identity matrix.
-    transformed_term = QubitOperator([QubitTerm([], term.coefficient)])
+    transformed_term = QubitOperator([QubitTerm([], coeff)])
 
     # Build the Bravyi-Kitaev transformed operators.
-    for operator in term:
+    for operator in ops:
         index = operator[0]
 
         # Parity set. Set of nodes to apply Z to.
@@ -87,9 +90,10 @@ def bravyi_kitaev(op, n_qubits=None):
         n_qubits = op.n_qubits()
     if not n_qubits or n_qubits < op.n_qubits():
         raise ValueError('Invalid n_qubits.')
-    if isinstance(op, FermionTerm):
+    if isinstance(op, FermionOperator) and len(op.terms) == 1:
         return bravyi_kitaev_term(op, n_qubits)
     transformed_operator = QubitOperator()
-    for term in op:
-        transformed_operator += bravyi_kitaev_term(term, n_qubits)
+    for term in op.terms:
+        transformed_operator += bravyi_kitaev_term(
+            FermionOperator(term, op.terms[term]), n_qubits)
     return transformed_operator

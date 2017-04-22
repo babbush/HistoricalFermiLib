@@ -2,10 +2,10 @@
 from __future__ import absolute_import
 import unittest
 
-from fermilib import fermion_operators as fo
+from projectqtemp.ops import _fermion_operator as fo
 from fermilib.qubit_operators import QubitTerm, QubitOperator
-from ._reverse_jordan_wigner import reverse_jordan_wigner
-from ._jordan_wigner import jordan_wigner
+from transforms._reverse_jordan_wigner import reverse_jordan_wigner
+from transforms._jordan_wigner import jordan_wigner
 
 
 class ReverseJWTermTest(unittest.TestCase):
@@ -44,10 +44,9 @@ class ReverseJWTermTest(unittest.TestCase):
         pauli_z = QubitTerm([(2, 'Z')])
         transformed_z = reverse_jordan_wigner(pauli_z)
 
-        expected_terms = [fo.fermion_identity(),
-                          fo.FermionTerm([(2, 1), (2, 0)], -2.)]
-        expected = fo.FermionOperator(expected_terms)
-        self.assertEqual(transformed_z, expected)
+        expected = (fo.fermion_identity() +
+                    fo.FermionOperator(((2, 1), (2, 0)), -2.))
+        self.assertTrue(transformed_z.isclose(expected))
 
         retransformed_z = jordan_wigner(transformed_z)
         self.assertEqual(1, len(retransformed_z))
@@ -56,9 +55,8 @@ class ReverseJWTermTest(unittest.TestCase):
     def test_identity(self):
         n_qubits = 5
         transformed_i = reverse_jordan_wigner(self.identity, n_qubits)
-        expected_i_term = fo.fermion_identity()
-        expected_i = fo.FermionOperator([expected_i_term])
-        self.assertEqual(transformed_i, expected_i)
+        expected_i = fo.fermion_identity()
+        self.assertTrue(transformed_i.isclose(expected_i))
 
         retransformed_i = jordan_wigner(transformed_i)
         self.assertEqual(1, len(retransformed_i))
@@ -83,60 +81,60 @@ class ReverseJWTermTest(unittest.TestCase):
         transformed_xx = reverse_jordan_wigner(xx)
         retransformed_xx = jordan_wigner(transformed_xx)
 
-        expected1 = (fo.FermionTerm([(3, 1)], 2.) -
-                     fo.FermionTerm([(3, 0)], 2.))
-        expected2 = (fo.FermionTerm([(4, 1)], 1.) +
-                     fo.FermionTerm([(4, 0)], 1.))
+        expected1 = (fo.FermionOperator(((3, 1),), 2.) -
+                     fo.FermionOperator(((3, 0),), 2.))
+        expected2 = (fo.FermionOperator(((4, 1),), 1.) +
+                     fo.FermionOperator(((4, 0),), 1.))
         expected = expected1 * expected2
 
         self.assertEqual(QubitOperator([xx]), retransformed_xx)
-        self.assertEqual(transformed_xx.normal_ordered(),
-                         expected.normal_ordered())
+        self.assertTrue(transformed_xx.normal_ordered().isclose(
+            expected.normal_ordered()))
 
     def test_yy(self):
         yy = QubitTerm([(2, 'Y'), (3, 'Y')], 2.)
         transformed_yy = reverse_jordan_wigner(yy)
         retransformed_yy = jordan_wigner(transformed_yy)
 
-        expected1 = -(fo.FermionTerm([(2, 1)], 2.) +
-                      fo.FermionTerm([(2, 0)], 2.))
-        expected2 = (fo.FermionTerm([(3, 1)]) -
-                     fo.FermionTerm([(3, 0)]))
+        expected1 = -(fo.FermionOperator(((2, 1),), 2.) +
+                      fo.FermionOperator(((2, 0),), 2.))
+        expected2 = (fo.FermionOperator(((3, 1),)) -
+                     fo.FermionOperator(((3, 0),)))
         expected = expected1 * expected2
 
         self.assertEqual(QubitOperator([yy]), retransformed_yy)
-        self.assertEqual(transformed_yy.normal_ordered(),
-                         expected.normal_ordered())
+        self.assertTrue(transformed_yy.normal_ordered().isclose(
+            expected.normal_ordered()))
 
     def test_xy(self):
         xy = QubitTerm([(4, 'X'), (5, 'Y')], -2.j)
         transformed_xy = reverse_jordan_wigner(xy)
         retransformed_xy = jordan_wigner(transformed_xy)
 
-        expected1 = -2j * (fo.FermionTerm([(4, 1)], 1j) -
-                           fo.FermionTerm([(4, 0)], 1j))
-        expected2 = (fo.FermionTerm([(5, 1)]) -
-                     fo.FermionTerm([(5, 0)]))
+        expected1 = -2j * (fo.FermionOperator(((4, 1),), 1j) -
+                           fo.FermionOperator(((4, 0),), 1j))
+        expected2 = (fo.FermionOperator(((5, 1),)) -
+                     fo.FermionOperator(((5, 0),)))
         expected = expected1 * expected2
 
         self.assertEqual(QubitOperator([xy]), retransformed_xy)
-        self.assertEqual(transformed_xy.normal_ordered(),
-                         expected.normal_ordered())
+        self.assertTrue(transformed_xy.normal_ordered().isclose(
+            expected.normal_ordered()))
 
     def test_yx(self):
         yx = QubitTerm([(0, 'Y'), (1, 'X')], -0.5)
         transformed_yx = reverse_jordan_wigner(yx)
         retransformed_yx = jordan_wigner(transformed_yx)
 
-        expected1 = 1j * (fo.FermionTerm([(0, 1)]) +
-                          fo.FermionTerm([(0, 0)]))
-        expected2 = -0.5 * (fo.FermionTerm([(1, 1)]) +
-                            fo.FermionTerm([(1, 0)]))
+        expected1 = 1j * (fo.FermionOperator(((0, 1),)) +
+                          fo.FermionOperator(((0, 0),)))
+        expected2 = -0.5 * (fo.FermionOperator(((1, 1),)) +
+                            fo.FermionOperator(((1, 0),)))
         expected = expected1 * expected2
 
         self.assertEqual(QubitOperator([yx]), retransformed_yx)
-        self.assertEqual(transformed_yx.normal_ordered(),
-                         expected.normal_ordered())
+        self.assertTrue(transformed_yx.normal_ordered().isclose(
+            expected.normal_ordered()))
 
 
 class ReverseJWOperatorTest(unittest.TestCase):
@@ -162,4 +160,7 @@ class ReverseJWOperatorTest(unittest.TestCase):
         term2 = QubitTerm([(0, 'Y'), (1, 'X'), (2, 'Y'), (3, 'Y')], -1j)
 
         op12 = reverse_jordan_wigner(term1) - reverse_jordan_wigner(term2)
-        self.assertEqual(op12, reverse_jordan_wigner(term1 - term2))
+        self.assertTrue(op12.isclose(reverse_jordan_wigner(term1 - term2)))
+
+if __name__ == '__main__':
+    unittest.main()

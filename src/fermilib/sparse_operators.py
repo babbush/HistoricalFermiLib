@@ -132,8 +132,9 @@ def jordan_wigner_operator_sparse(fermion_operator, n_qubits):
     values_list = [[]]
     row_list = [[]]
     column_list = [[]]
-    for term in fermion_operator:
-        sparse_term = term.coefficient * sparse_identity(n_qubits)
+    for term in fermion_operator.terms:
+        coeff = fermion_operator.terms[term]
+        sparse_term = coeff * sparse_identity(n_qubits)
         for ladder_operator in term:
             sparse_term = sparse_term * jw_operators[
                 ladder_operator[0]][ladder_operator[1]]
