@@ -11,6 +11,7 @@ from transforms._jordan_wigner import jordan_wigner
 from transforms._jordan_wigner_interaction_op import (jordan_wigner_one_body,
                                                       jordan_wigner_two_body)
 
+
 class InteractionOperatorsJWTest(unittest.TestCase):
 
     def setUp(self):

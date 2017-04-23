@@ -11,6 +11,7 @@ from transforms._bravyi_kitaev import bravyi_kitaev
 from transforms._jordan_wigner import jordan_wigner
 from transforms._conversion import eigenspectrum, get_sparse_operator
 
+
 class BravyiKitaevTransformTest(unittest.TestCase):
 
     # add an identity test - I suspect that will fail

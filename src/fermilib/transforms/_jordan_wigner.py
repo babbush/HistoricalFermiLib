@@ -6,7 +6,8 @@ from projectqtemp.ops._fermion_operator import FermionOperator
 from fermilib.interaction_operators import InteractionOperator
 
 from transforms._jordan_wigner_term import jordan_wigner_term
-from transforms._jordan_wigner_interaction_op import jordan_wigner_interaction_op
+from transforms._jordan_wigner_interaction_op import (
+    jordan_wigner_interaction_op)
 
 
 def jordan_wigner(op):

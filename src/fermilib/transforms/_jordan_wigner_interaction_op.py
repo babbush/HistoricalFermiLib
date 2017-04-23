@@ -5,6 +5,7 @@ import itertools
 
 from fermilib.qubit_operators import QubitTerm, QubitOperator
 
+
 def jordan_wigner_interaction_op(iop):
     """Output InteractionOperator as QubitOperator class under JW
     transform.

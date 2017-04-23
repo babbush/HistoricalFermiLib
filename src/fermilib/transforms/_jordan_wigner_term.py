@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 from fermilib.qubit_operators import QubitTerm, QubitOperator
 
+
 def jordan_wigner_term(term, coeff=1.):
     """Jordan-Wigner transform term and return the resulting qubit operator.
 
@@ -33,4 +34,3 @@ def jordan_wigner_term(term, coeff=1.):
         transformed_term *= QubitOperator([pauli_x_component,
                                            pauli_y_component])
     return transformed_term
-
