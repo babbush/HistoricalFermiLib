@@ -91,10 +91,10 @@ def jordan_wigner_ladder_sparse(n_qubits, tensor_factor, ladder_type):
 
 
 def jordan_wigner_term_sparse(fermion_term, n_qubits):
-    """Initialize a SparseOperator from a FermionTerm.
+    """Initialize a SparseOperator from a FermionOperator.
 
     Args:
-      fermion_term(FermionTerm): Instance of the FermionTerm class.
+      fermion_term(FermionOperator): Instance of the FermionOperator class.
       n_qubits(int): Number of qubits.
 
     Returns:
@@ -139,12 +139,13 @@ def jordan_wigner_operator_sparse(fermion_operator, n_qubits):
             sparse_term = sparse_term * jw_operators[
                 ladder_operator[0]][ladder_operator[1]]
 
-        # Extract triplets from sparse_term.
-        sparse_term.matrix = sparse_term.matrix.tocoo(copy=False)
-        values_list.append(sparse_term.matrix.data)
-        (row, column) = sparse_term.matrix.nonzero()
-        row_list.append(row)
-        column_list.append(column)
+        if coeff:
+            # Extract triplets from sparse_term.
+            sparse_term.matrix = sparse_term.matrix.tocoo(copy=False)
+            values_list.append(sparse_term.matrix.data)
+            (row, column) = sparse_term.matrix.nonzero()
+            row_list.append(row)
+            column_list.append(column)
 
     values_list = numpy.concatenate(values_list)
     row_list = numpy.concatenate(row_list)

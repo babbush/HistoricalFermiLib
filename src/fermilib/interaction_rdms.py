@@ -8,7 +8,6 @@ from fermilib.interaction_tensors import InteractionTensor
 import projectqtemp.ops._fermion_operator as fo
 
 
-
 class InteractionRDMError(Exception):
     pass
 
@@ -90,7 +89,7 @@ class InteractionRDM(InteractionTensor):
 
     Attributes:
       one_body_tensor: The expectation values <a^\dagger_p a_q>.
-      two_body_tensor: The expectation values 
+      two_body_tensor: The expectation values
                        <a^\dagger_p a^\dagger_q a_r a_s>.
       n_qubits: An int giving the number of qubits.
 
@@ -179,7 +178,7 @@ class InteractionRDM(InteractionTensor):
 
         """
         # to avoid circular imports
-        from transforms._reverse_jordan_wigner import reverse_jordan_wigner        
+        from transforms._reverse_jordan_wigner import reverse_jordan_wigner
 
         expectation = 0.
         reversed_fermion_operators = reverse_jordan_wigner(qubit_term,

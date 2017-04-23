@@ -5,6 +5,7 @@ import unittest
 
 import numpy
 import scipy.sparse
+import projectqtemp.ops._fermion_operator as fo
 
 from fermilib import molecular_data
 from fermilib import run_psi4
@@ -243,7 +244,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
                                           self.qubit_hamiltonian.n_qubits())
         ccsd_sparse_l = sparse_operators.\
             jordan_wigner_operator_sparse(
-                -ccsd_operator.hermitian_conjugated(),
+                -fo.hermitian_conjugated(ccsd_operator),
                 self.qubit_hamiltonian.n_qubits())
         ccsd_state_r = scipy.sparse.linalg.expm_multiply(ccsd_sparse_r.matrix,
                                                          hf_state)

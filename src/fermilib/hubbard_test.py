@@ -67,9 +67,9 @@ class FermiHubbardTest(unittest.TestCase):
         self.assertAlmostEqual(hubbard_model.terms[((2, 1), (2, 0),
                                                     (3, 1), (3, 0))], 1.)
         self.assertAlmostEqual(hubbard_model.terms[((4, 1), (4, 0),
-                                                    (5, 1), (5, 0))], 1.) 
+                                                    (5, 1), (5, 0))], 1.)
         self.assertAlmostEqual(hubbard_model.terms[((6, 1), (6, 0),
-                                                    (7, 1), (7, 0))], 1.)        
+                                                    (7, 1), (7, 0))], 1.)
 
     def test_two_by_two_spinful_periodic_rudimentary(self):
         hubbard_model = hubbard.fermi_hubbard(
