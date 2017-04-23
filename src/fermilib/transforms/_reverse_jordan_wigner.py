@@ -33,8 +33,7 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
 
     if n_qubits is None:
         n_qubits = term.n_qubits()
-    if n_qubits == 0:
-        raise QubitTermError('Invalid n_qubits.')
+
     if n_qubits < term.n_qubits():
         n_qubits = term.n_qubits()
 
@@ -60,11 +59,6 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
                 if operator[1] == 'Y':
                     raising_term *= 1j
                     lowering_term *= -1j
-
-                elif operator[1] != 'X':
-                    # Raise for invalid operator.
-                    raise QubitTermError('Invalid operator provided: '
-                                         "must be 'X', 'Y' or 'Z'")
 
                 # Account for the phase terms.
                 for j in reversed(range(operator[0])):
@@ -123,8 +117,6 @@ def reverse_jordan_wigner(op, n_qubits=None):
 
     if n_qubits is None:
         n_qubits = op.n_qubits()
-    if n_qubits == 0:
-        raise QubitTermError('Invalid n_qubits.')
     if n_qubits < op.n_qubits():
         n_qubits = op.n_qubits()
     transformed_operator = FermionOperator((), 0.0)

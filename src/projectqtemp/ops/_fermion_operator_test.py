@@ -419,6 +419,51 @@ def test_neg():
     assert correct.isclose(-op)
 
 
+def test_pow_square_term():
+    coeff = 6.7j
+    ops = ((3, 1), (1, 0), (4, 1))
+    term = fo.FermionOperator(ops, coeff)
+    squared = term ** 2
+    expected = fo.FermionOperator(ops + ops, coeff ** 2)
+    assert squared.isclose(term * term)
+    assert squared.isclose(expected)
+
+
+def test_pow_zero_term():
+    coeff = 6.7j
+    ops = ((3, 1), (1, 0), (4, 1))
+    term = fo.FermionOperator(ops, coeff)
+    zerod = term ** 0
+    expected = fo.fermion_identity()
+    assert expected.isclose(zerod)
+
+
+def test_pow_one_term():
+    coeff = 6.7j
+    ops = ((3, 1), (1, 0), (4, 1))
+    term = fo.FermionOperator(ops, coeff)
+    assert term.isclose(term ** 1)
+
+
+def test_pow_high_term():
+    coeff = 6.7j
+    ops = ((3, 1), (1, 0), (4, 1))
+    term = fo.FermionOperator(ops, coeff)
+    high = term ** 10
+    expected = fo.FermionOperator(ops * 10, coeff ** 10)
+    assert expected.isclose(high)
+
+
+def test_pow_neg_error():
+    with pytest.raises(ValueError):
+        fo.fermion_identity() ** -1
+
+
+def test_pow_nonint_error():
+    with pytest.raises(ValueError):
+        fo.FermionOperator('3 2^') ** 0.5
+
+
 def test_hermitian_conjugate_empty():
     op = fo.FermionOperator()
     op.hermitian_conjugate()

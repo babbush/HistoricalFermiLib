@@ -355,6 +355,34 @@ class FermionOperator(object):
     def __neg__(self):
         return -1 * self
 
+    def __pow__(self, exponent):
+        """Exponentiate the FermionOperator.
+
+        Args:
+          exponent: An int, giving the exponent with which to raise the
+                    operator.
+
+        Returns:
+          exponentiated: The exponentiated operator.
+
+        Raises:
+          ValueError: Can only raise FermionOperator to non-negative
+                      integer powers.
+
+        """
+        # Handle invalid exponents.
+        if not isinstance(exponent, int) or exponent < 0:
+            raise ValueError(
+                'Can only raise FermionOperator to positive integer powers.')
+
+        # Initialized identity.
+        exponentiated = fermion_identity()
+
+        # Handle non-zero exponents.
+        for i in range(exponent):
+            exponentiated *= self
+        return exponentiated
+
     def hermitian_conjugate(self):
         """Hermitian conjugate this fermionic term."""
         conj_terms = {}

@@ -13,6 +13,10 @@ class JordanWignerTransformTest(unittest.TestCase):
     def setUp(self):
         self.n_qubits = 5
 
+    def test_bad_input(self):
+        with self.assertRaises(TypeError):
+            jordan_wigner(3)
+
     def test_transform_raise3(self):
         raising = jordan_wigner(FermionOperator(((3, 1),)))
         self.assertEqual(len(raising), 2)

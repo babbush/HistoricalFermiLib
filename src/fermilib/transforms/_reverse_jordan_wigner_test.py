@@ -3,8 +3,9 @@ from __future__ import absolute_import
 import unittest
 
 from projectqtemp.ops import _fermion_operator as fo
-from fermilib.qubit_operators import QubitTerm, QubitOperator
-from transforms._reverse_jordan_wigner import reverse_jordan_wigner
+from fermilib.qubit_operators import QubitTerm, QubitTermError, QubitOperator
+from transforms._reverse_jordan_wigner import (reverse_jordan_wigner,
+                                               reverse_jordan_wigner_term)
 from transforms._jordan_wigner import jordan_wigner
 
 
@@ -25,6 +26,10 @@ class ReverseJWTermTest(unittest.TestCase):
         self.operator_a = QubitOperator(self.term_a)
         self.operator_b = QubitOperator(self.term_b)
         self.operator_ab = QubitOperator([self.term_a, self.term_b])
+
+    def test_identity_jwterm(self):
+        self.assertTrue(fo.fermion_identity().isclose(
+            reverse_jordan_wigner_term(QubitTerm())))
 
     def test_x(self):
         pauli_x = QubitTerm([(2, 'X')])
@@ -136,6 +141,14 @@ class ReverseJWTermTest(unittest.TestCase):
         self.assertTrue(transformed_yx.normal_ordered().isclose(
             expected.normal_ordered()))
 
+    def test_jw_term_bad_type(self):
+        with self.assertRaises(TypeError):
+            reverse_jordan_wigner_term(3)
+
+    def test_jwterm_too_few_qubits(self):
+        self.assertTrue(fo.fermion_identity().isclose(
+            reverse_jordan_wigner_term(QubitTerm(), n_qubits=-1)))
+
 
 class ReverseJWOperatorTest(unittest.TestCase):
 
@@ -161,6 +174,14 @@ class ReverseJWOperatorTest(unittest.TestCase):
 
         op12 = reverse_jordan_wigner(term1) - reverse_jordan_wigner(term2)
         self.assertTrue(op12.isclose(reverse_jordan_wigner(term1 - term2)))
+
+    def test_bad_type(self):
+        with self.assertRaises(TypeError):
+            reverse_jordan_wigner(3)
+
+    def test_too_few_qubits(self):
+        self.assertTrue(fo.fermion_identity().isclose(
+            reverse_jordan_wigner(QubitTerm(), n_qubits=-1)))
 
 if __name__ == '__main__':
     unittest.main()
