@@ -26,8 +26,7 @@ def jordan_wigner(op):
         return jordan_wigner_interaction_op(op)
 
     if not isinstance(op, FermionOperator):
-        raise TypeError("op must be a FermionTerm, FermionOperator, or "
-                        "InteractionOperator.")
+        raise TypeError("op must be a FermionOperator or InteractionOperator.")
 
     transformed_operator = QubitOperator()
     for term in op.terms:

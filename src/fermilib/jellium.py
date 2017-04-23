@@ -7,7 +7,7 @@ import itertools
 import numpy
 
 from fermilib import qubit_operators
-from fermilib.fermion_operators import FermionTerm, FermionOperator
+from projectqtemp.ops._fermion_operator import FermionOperator
 
 
 # Exceptions.
@@ -171,7 +171,7 @@ def momentum_kinetic_operator(n_dimensions, grid_length,
     """
     # Initialize.
     n_points = grid_length ** n_dimensions
-    operator = FermionOperator()
+    operator = FermionOperator((), 0.0)
     if spinless:
         spins = [None]
     else:
@@ -188,8 +188,8 @@ def momentum_kinetic_operator(n_dimensions, grid_length,
             orbital = orbital_id(grid_length, grid_indices, spin)
 
             # Add interaction term.
-            operators = [(orbital, 1), (orbital, 0)]
-            operator += FermionTerm(operators, coefficient)
+            operators = ((orbital, 1), (orbital, 0))
+            operator += FermionOperator(operators, coefficient)
 
     # Return.
     return operator
@@ -221,7 +221,7 @@ def momentum_potential_operator(n_dimensions, grid_length,
     n_points = grid_length ** n_dimensions
     volume = length_scale ** float(n_dimensions)
     prefactor = 2. * numpy.pi / volume
-    operator = FermionOperator()
+    operator = FermionOperator((), 0.0)
     if spinless:
         spins = [None]
     else:
@@ -283,9 +283,9 @@ def momentum_potential_operator(n_dimensions, grid_length,
                         # Add interaction term.
                         if (orbital_a != orbital_b) and \
                                 (orbital_c != orbital_d):
-                            operators = [(orbital_a, 1), (orbital_b, 1),
-                                         (orbital_c, 0), (orbital_d, 0)]
-                            operator += FermionTerm(operators, coefficient)
+                            operators = ((orbital_a, 1), (orbital_b, 1),
+                                         (orbital_c, 0), (orbital_d, 0))
+                            operator += FermionOperator(operators, coefficient)
 
     # Return.
     return operator
@@ -307,7 +307,7 @@ def position_kinetic_operator(n_dimensions, grid_length,
     """
     # Initialize.
     n_points = grid_length ** n_dimensions
-    operator = FermionOperator()
+    operator = FermionOperator((), 0.0)
     if spinless:
         spins = [None]
     else:
@@ -341,8 +341,8 @@ def position_kinetic_operator(n_dimensions, grid_length,
                 orbital_b = orbital_id(grid_length, grid_indices_b, spin)
 
                 # Add interaction term.
-                operators = [(orbital_a, 1), (orbital_b, 0)]
-                operator += FermionTerm(operators, coefficient)
+                operators = ((orbital_a, 1), (orbital_b, 0))
+                operator += FermionOperator(operators, coefficient)
 
     # Return.
     return operator
@@ -366,7 +366,7 @@ def position_potential_operator(n_dimensions, grid_length,
     n_points = grid_length ** n_dimensions
     volume = length_scale ** float(n_dimensions)
     prefactor = 2. * numpy.pi / volume
-    operator = FermionOperator()
+    operator = FermionOperator((), 0.0)
     if spinless:
         spins = [None]
     else:
@@ -402,9 +402,9 @@ def position_potential_operator(n_dimensions, grid_length,
 
                     # Add interaction term.
                     if orbital_a != orbital_b:
-                        operators = [(orbital_a, 1), (orbital_a, 0),
-                                     (orbital_b, 1), (orbital_b, 0)]
-                        operator += FermionTerm(operators, coefficient)
+                        operators = ((orbital_a, 1), (orbital_a, 0),
+                                     (orbital_b, 1), (orbital_b, 0))
+                        operator += FermionOperator(operators, coefficient)
 
     return operator
 

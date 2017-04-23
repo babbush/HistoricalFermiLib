@@ -14,8 +14,7 @@ from fermilib.interaction_operators import (InteractionOperator,
                                             InteractionOperatorError)
 from fermilib.qubit_operators import (QubitTerm, QubitTermError,
                                       QubitOperator, QubitOperatorError)
-from fermilib.sparse_operators import (jordan_wigner_term_sparse,
-                                       jordan_wigner_operator_sparse,
+from fermilib.sparse_operators import (jordan_wigner_operator_sparse,
                                        qubit_term_sparse,
                                        qubit_operator_sparse)
 
@@ -83,6 +82,9 @@ def get_interaction_rdm(qop, n_qubits=None):
     Returns: A InteractionRDM object.
 
     """
+    # to avoid circular import
+    from fermilib.transforms import jordan_wigner
+
     if n_qubits is None:
         n_qubits = qop.n_qubits()
     if n_qubits == 0:

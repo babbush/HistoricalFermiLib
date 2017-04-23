@@ -54,8 +54,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
         # Get fermion Hamiltonian.
         self.fermion_hamiltonian = get_fermion_operator(
-            self.molecular_hamiltonian)
-        self.fermion_hamiltonian.normal_order()
+            self.molecular_hamiltonian).normal_ordered()
 
         # Get qubit Hamiltonian.
         self.qubit_hamiltonian = jordan_wigner(self.fermion_hamiltonian)
@@ -92,14 +91,14 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
         # Check reverse transform.
         fermion_hamiltonian = reverse_jordan_wigner(qubit_hamiltonian)
-        fermion_hamiltonian.normal_order()
-        self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
+        fermion_hamiltonian = fermion_hamiltonian.normal_ordered()
+        self.assertTrue(self.fermion_hamiltonian.isclose(fermion_hamiltonian))
 
         # Make sure the mapping of FermionOperator to MolecularOperator works.
         molecular_hamiltonian = get_interaction_operator(
             self.fermion_hamiltonian)
         fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
-        self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
+        self.assertTrue(self.fermion_hamiltonian.isclose(fermion_hamiltonian))
 
         # Make sure mapping of MolecularOperator to QubitOperator works.
         qubit_hamiltonian = jordan_wigner(self.molecular_hamiltonian)
@@ -145,8 +144,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
         self.assertAlmostEqual(self.two_body[0, 1, 3, 2], self.g6, places=4)
 
         # Make sure its actually normal ordered.
-        for term in self.fermion_hamiltonian:
-            self.assertTrue(term.is_normal_ordered())
+        self.assertTrue(self.fermion_hamiltonian.is_normal_ordered())
 
         # Test the local Hamiltonian terms.
         self.assertAlmostEqual(
