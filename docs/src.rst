@@ -1,4 +1,4 @@
-src package
+fermilib package
 ===========
 
 Subpackages
@@ -10,162 +10,162 @@ Subpackages
 Submodules
 ----------
 
-src.chemical_series module
+fermilib.chemical_series module
 --------------------------
 
-.. automodule:: src.chemical_series
+.. automodule:: fermilib.chemical_series
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.config module
+fermilib.config module
 ----------------
 
-.. automodule:: src.config
+.. automodule:: fermilib.config
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.fenwick_tree module
+fermilib.fenwick_tree module
 -----------------------
 
-.. automodule:: src.fenwick_tree
+.. automodule:: fermilib.fenwick_tree
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.fermion_operators module
+fermilib.fermion_operators module
 ----------------------------
 
-.. automodule:: src.fermion_operators
+.. automodule:: fermilib.fermion_operators
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.generate_data module
+fermilib.generate_data module
 ------------------------
 
-.. automodule:: src.generate_data
+.. automodule:: fermilib.generate_data
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.hubbard module
+fermilib.hubbard module
 ------------------
 
-.. automodule:: src.hubbard
+.. automodule:: fermilib.hubbard
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.interaction_operators module
+fermilib.interaction_operators module
 --------------------------------
 
-.. automodule:: src.interaction_operators
+.. automodule:: fermilib.interaction_operators
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.interaction_rdms module
+fermilib.interaction_rdms module
 ---------------------------
 
-.. automodule:: src.interaction_rdms
+.. automodule:: fermilib.interaction_rdms
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.interaction_tensors module
+fermilib.interaction_tensors module
 --------------------------------
 
-.. automodule:: src.interaction_tensors
+.. automodule:: fermilib.interaction_tensors
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.jellium module
+fermilib.jellium module
 --------------------------------
 
-.. automodule:: src.jellium
+.. automodule:: fermilib.jellium
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.known_errors module
+fermilib.known_errors module
 -----------------------
 
-.. automodule:: src.known_errors
+.. automodule:: fermilib.known_errors
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.local_operators module
+fermilib.local_operators module
 --------------------------
 
-.. automodule:: src.local_operators
+.. automodule:: fermilib.local_operators
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.local_terms module
+fermilib.local_terms module
 ----------------------
 
-.. automodule:: src.local_terms
+.. automodule:: fermilib.local_terms
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.molecular_data module
+fermilib.molecular_data module
 -------------------------
 
-.. automodule:: src.molecular_data
+.. automodule:: fermilib.molecular_data
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.performance_benchmarks module
+fermilib.performance_benchmarks module
 ---------------------------------
 
-.. automodule:: src.performance_benchmarks
+.. automodule:: fermilib.performance_benchmarks
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.plotter module
+fermilib.plotter module
 ------------------
 
-.. automodule:: src.plotter
+.. automodule:: fermilib.plotter
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.qubit_operators module
+fermilib.qubit_operators module
 --------------------------
 
-.. automodule:: src.qubit_operators
+.. automodule:: fermilib.qubit_operators
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.run_psi4 module
+fermilib.run_psi4 module
 -------------------
 
-.. automodule:: src.run_psi4
+.. automodule:: fermilib.run_psi4
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.run_pyscf module
+fermilib.run_pyscf module
 -------------------
 
-.. automodule:: src.run_pyscf
+.. automodule:: fermilib.run_pyscf
     :members:
     :undoc-members:
     :show-inheritance:
 
-src.sparse_operators module
+fermilib.sparse_operators module
 ---------------------------
 
-.. automodule:: src.sparse_operators
+.. automodule:: fermilib.sparse_operators
     :members:
     :undoc-members:
     :show-inheritance:
@@ -173,7 +173,7 @@ src.sparse_operators module
 Module contents
 ---------------
 
-.. automodule:: src
+.. automodule:: fermilib
     :members:
     :undoc-members:
     :show-inheritance:

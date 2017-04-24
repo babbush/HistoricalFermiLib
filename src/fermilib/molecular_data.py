@@ -13,10 +13,11 @@ from fermilib.config import *
 
 
 """NOTE ON PQRS CONVENTION:
-  The data structures which hold fermionic operators / integrals / coefficients
-  assume a particular convention which depends on how integrals are labeled:
+  The data structures which hold fermionic operators / integrals /
+  coefficients assume a particular convention which depends on how integrals
+  are labeled:
   h[p,q]=\int \phi_p(x)* (T + V_{ext}) \phi_q(x) dx
-  h[p,q,r,s]=\int \phi_p(x)* \phi_q(y)* V_{elec-elec} \phi_r(y) \phi_s(x) dx dy
+  h[p,q,r,s]=\int \phi_p(x)* \phi_q(y)* V_{elec-elec} \phi_r(y) \phi_s(x) dxdy
   With this convention, the molecular Hamiltonian becomes
   H =\sum_{p,q} h[p,q] a_p^\dagger a_q
     + 0.5 * \sum_{p,q,r,s} h[p,q,r,s] a_p^\dagger a_q^\dagger a_r a_s
@@ -85,20 +86,20 @@ def name_molecule(geometry,
     """Function to name molecules.
 
     Args:
-      geometry: A list of tuples giving the coordinates of each atom.
-        example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))]. Distances in
-        atomic units. Use atomic symbols to specify atoms.
-      basis: A string giving the basis set. An example is 'cc-pvtz'.
-      multiplicity: An integer giving the spin multiplicity.
-      charge: An integer giving the total molecular charge.
-      description: A string giving a description. As an example,
-        for dimers a likely description is the bond length (e.g. 0.7414).
+        geometry: A list of tuples giving the coordinates of each atom.
+            example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
+            Distances in atomic units. Use atomic symbols to specify atoms.
+        basis: A string giving the basis set. An example is 'cc-pvtz'.
+        multiplicity: An integer giving the spin multiplicity.
+        charge: An integer giving the total molecular charge.
+        description: A string giving a description. As an example,
+            for dimers a likely description is the bond length (e.g. 0.7414).
 
     Returns:
-      name: A string giving the name of the instance.
+        name: A string giving the name of the instance.
 
     Raises:
-      MoleculeNameError: If spin multiplicity is not valid.
+        MoleculeNameError: If spin multiplicity is not valid.
 
     """
     # Get sorted atom vector.
@@ -149,16 +150,16 @@ def geometry_from_file(file_name):
     """Function to create molecular geometry from text file.
 
     Args:
-      file_name: a string giving the location of the geometry file.
-        It is assumed that the geometry is given for each atom on a line, e.g.:
-        H 0. 0. 0.
-        H 0. 0. 0.7414
+        file_name: a string giving the location of the geometry file.
+            It is assumed that the geometry is given for each atom on a line,
+            e.g.:
+            H 0. 0. 0.
+            H 0. 0. 0.7414
 
     Returns:
-      geometry: A list of tuples giving the coordinates of each atom.
-        example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))]. Distances in
-        atomic units. Use atomic symbols to specify atoms.
-
+        geometry: A list of tuples giving the coordinates of each atom.
+            example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
+            Distances in atomic units. Use atomic symbols to specify atoms.
     """
     geometry = []
     with open(file_name, 'r') as stream:
@@ -179,37 +180,42 @@ class MolecularData(object):
     instance) exceed 10Mb should be saved seperately. Intention is to pickle
     objects to database with unique name.
 
-    Attributes:   geometry: A list of tuples giving the coordinates of
-    each atom.     example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
-    Distances in     atomic units. Use atomic symbols to specify atoms.
-    basis: A string giving the basis set. An example is 'cc-pvtz'.
-    charge: An integer giving the total molecular charge. Defaults to 0.
-    multiplicity: An integer giving the spin multiplicity.
-    description: An optional string giving a description. As an example,
-    for dimers a likely description is the bond length (e.g. 0.7414).
-    name: A string that identifies the instance.   n_atoms: Integer
-    giving the number of atoms in the molecule.   n_electrons: Integer
-    giving the number of electrons in the molecule.   atoms: List of the
-    atoms in molecule sorted by atomic number.   protons: List of the
-    atomic charges in molecule sorted by atomic number.   hf_energy:
-    Energy from open or closed shell Hartree-Fock.   nuclear_repulsion:
-    Energy from nuclei-nuclei interaction.   canonical_orbitals: numpy
-    array giving canonical orbital coefficients.   n_orbitals: Integer
-    giving total number of spatial orbitals.   n_qubits: Integer giving
-    total number of qubits that would be needed.   orbital_energies:
-    Numpy array giving the canonical orbital energies.   fock_matrix:
-    Numpy array giving the Fock matrix.   orbital_overlaps: Numpy array
-    giving the orbital overlap coefficients.   kinetic_integrals: Numpy
-    array giving 1-body kinetic energy integrals.   potential_integrals:
-    Numpy array giving 1-body potential energy integrals.   mp2_energy:
-    Energy from MP2 perturbation theory.   cisd_energy: Energy from
-    configuration interaction singles and doubles.   cisd_one_rdm: Numpy
-    array giving 1-RDM from CISD calculation.   fci_energy: Exact energy
-    of molecule within given basis.   fci_one_rdm: Numpy array giving
-    1-RDM from FCI calculation.   ccsd_energy: Energy from coupled
-    cluster singles and doubles.   ccsd_amplitudes: Molecular operator
-    holding coupled cluster amplitudes
-
+    Attributes:
+        geometry: A list of tuples giving the coordinates of each atom. An
+            example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
+            Distances in atomic units. Use atomic symbols to specify
+            atoms.
+        basis: A string giving the basis set. An example is 'cc-pvtz'.
+        charge: An integer giving the total molecular charge. Defaults to 0.
+        multiplicity: An integer giving the spin multiplicity.
+        description: An optional string giving a description. As an example,
+            for dimers a likely description is the bond length (e.g. 0.7414).
+        name: A string that identifies the instance.
+        n_atoms: Integer giving the number of atoms in the molecule.
+        n_electrons: Integer giving the number of electrons in the molecule.
+        atoms: List of the atoms in molecule sorted by atomic number.
+        protons: List of the atomic charges in molecule sorted by atomic
+            number.
+        hf_energy: Energy from open or closed shell Hartree-Fock.
+        nuclear_repulsion: Energy from nuclei-nuclei interaction.
+        canonical_orbitals: numpy array giving canonical orbital coefficients.
+        n_orbitals: Integer giving total number of spatial orbitals.
+        n_qubits: Integer giving total number of qubits that would be needed.
+        orbital_energies: Numpy array giving the canonical orbital energies.
+        fock_matrix: Numpy array giving the Fock matrix.
+        orbital_overlaps: Numpy array giving the orbital overlap coefficients.
+        kinetic_integrals: Numpy array giving 1-body kinetic energy integrals.
+        potential_integrals: Numpy array giving 1-body potential energy
+            integrals.
+        mp2_energy: Energy from MP2 perturbation theory.
+        cisd_energy: Energy from configuration interaction singles and
+            doubles.
+        cisd_one_rdm: Numpy array giving 1-RDM from CISD calculation.
+        fci_energy: Exact energy of molecule within given basis.
+        fci_one_rdm: Numpy array giving 1-RDM from FCI calculation.
+        ccsd_energy: Energy from coupled cluster singles and doubles.
+        ccsd_amplitudes: Molecular operator holding coupled cluster
+            amplitudes.
     """
 
     def __init__(self,
@@ -344,17 +350,18 @@ class MolecularData(object):
         is typically the case when defining an active space.
 
         Args:
-          active_space_start(int): spatial orbital index defining active
-            space start.
-          active_space_stop(int): spatial orbital index defining active
-            space stop.
+            active_space_start(int): spatial orbital index defining active
+                space start.
+            active_space_stop(int): spatial orbital index defining active
+                space stop.
 
         Returns:
-          core_constant: Adjustment to constant shift in Hamiltonian from
-            integrating out core orbitals
-          one_body_integrals_new: New one-electron integrals over active space.
-          two_body_integrals_new: New two-electron integrals over active space.
-
+            core_constant: Adjustment to constant shift in Hamiltonian from
+                integrating out core orbitals
+            one_body_integrals_new: New one-electron integrals over active
+                space.
+            two_body_integrals_new: New two-electron integrals over active
+                space.
         """
         # Get integrals.
         one_body_integrals, two_body_integrals = self.get_integrals()
@@ -394,15 +401,16 @@ class MolecularData(object):
         """Output arrays of the second quantized Hamiltonian coefficients.
 
         Args:
-          rotation_matrix: A square numpy array or matrix having dimensions of
-            n_orbitals by n_orbitals. Assumed to be real and invertible.
-          active_space_start: An optional int giving the first orbital
-            in the active space.
-          active_space stop: An optional int giving the last orbital
-            in the active space.
+            rotation_matrix: A square numpy array or matrix having dimensions
+                of n_orbitals by n_orbitals. Assumed to be real and
+                invertible.
+            active_space_start: An optional int giving the first orbital
+                in the active space.
+            active_space stop: An optional int giving the last orbital
+                in the active space.
 
         Returns:
-          molecular_hamiltonian: An instance of the MolecularOperator class.
+            molecular_hamiltonian: An instance of the MolecularOperator class.
 
         """
         # Get active space integrals.
@@ -468,14 +476,15 @@ class MolecularData(object):
         """Method to return 1-RDM and 2-RDMs from CISD or FCI.
 
         Args:
-          use_fci: Boolean indicating whether to use RDM from FCI calculation.
+            use_fci: Boolean indicating whether to use RDM from FCI
+            calculation.
 
         Returns:
-          rdm: An instance of the MolecularRDM class.
+            rdm: An instance of the MolecularRDM class.
 
         Raises:
-          MisissingCalculationError: If the CI calculation has not been
-            performed.
+            MisissingCalculationError: If the CI calculation has not been
+                performed.
         """
         # Make sure requested RDM has been computed and load.
         if use_fci:
