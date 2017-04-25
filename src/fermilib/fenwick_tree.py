@@ -10,10 +10,9 @@ class FenwickNode:
     def __init__(self, parent, children, index=None):
         """Fenwick Tree node. Single parent and multiple children.
 
-        Args:     parent: FenwickNode. A parent node.     children:
-        List. A list of children nodes (FenwickNode).     index: Int.
-        Node identifier. [TODO: rename?]
-
+        Args:     parent: FenwickNode. A parent node.     
+                  children: List. A list of children nodes (FenwickNode).     
+                  index: Int. Node label. 
         """
 
         self.children = children
@@ -23,7 +22,8 @@ class FenwickNode:
     def get_ancestors(self):
         """Returns a list of ancestors of the node. Ordered from the earliest.
 
-        Returns:     ancestor_list: A list of FenwickNodes.
+        Returns:     
+            ancestor_list: A list of FenwickNodes.
 
         """
 
@@ -40,8 +40,9 @@ class FenwickTree:
     """Recursive implementation of the Fenwick tree.
 
     Please see Subsection B.2. of Operator Locality in Quantum
-    Simulation of Fermionic Models by Havlicek, Troyer and Whitfiled for
-    a reference to U, P and F sets of the Fenwick.
+    Simulation of Fermionic Models (arXiv:1701.07072) for
+    a reference to the update set (U), the parity set (P) and the 
+    children set (F) sets of the Fenwick.
 
     """
 
@@ -62,8 +63,10 @@ class FenwickTree:
             """This inner function is used to build the Fenwick tree on nodes
             recursivelly. See Algorithm 1 in the paper.
 
-            Args:     left: Int. Left boundary of the range.     right:
-            Int. Right boundary of the range.     parent: Parent node
+            Args:     
+                left: Int. Left boundary of the range.     
+                right: Int. Right boundary of the range.     
+                parent: Parent node
 
             """
 
@@ -125,7 +128,7 @@ class FenwickTree:
 
     def get_remainder_set(self, j):
         """Return the set of children with indices less than j of all ancestors
-        of j. The set C from the paper.
+        of j. The set C from (arXiv:1701.07072).   
 
         Args:
             j: Int. Fermionic site index.
@@ -138,7 +141,7 @@ class FenwickTree:
         result = []
         ancestors = self.get_update_set(j)
 
-        # TODO: Possible bottleneck.
+        # This runs in O(log(N)log(N)) where N is the number of qubits. 
         for a in ancestors:
             for c in a.children:
                 if c.index < j:

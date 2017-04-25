@@ -14,8 +14,6 @@ from transforms._conversion import eigenspectrum, get_sparse_operator
 
 class BravyiKitaevTransformTest(unittest.TestCase):
 
-    # add an identity test - I suspect that will fail
-
     def test_bravyi_kitaev_transform(self):
         # Check that the QubitOperators are two-term.
         lowering = bravyi_kitaev(FermionOperator(((3, 0),)))
@@ -54,7 +52,7 @@ class BravyiKitaevTransformTest(unittest.TestCase):
 
     def test_bk_jw_number_operator(self):
         # Check if number operator has the same spectrum in both
-        # representations
+        # BK and JW representations
         n = fo.number_operator(1, 0)
         jw_n = jordan_wigner(n)
         bk_n = bravyi_kitaev(n)
@@ -67,8 +65,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
             numpy.absolute(jw_spectrum - bk_spectrum)))
 
     def test_bk_jw_number_operators(self):
-        # Check if number operator has the same spectrum in both
-        # representations
+        # Check if a number operator has the same spectrum in both
+        # JW and BK representations
         n_qubits = 2
         n1 = fo.number_operator(n_qubits, 0)
         n2 = fo.number_operator(n_qubits, 1)
@@ -86,7 +84,7 @@ class BravyiKitaevTransformTest(unittest.TestCase):
 
     def test_bk_jw_number_operator_scaled(self):
         # Check if number operator has the same spectrum in both
-        # representations
+        # JW and BK representations
         n_qubits = 1
         n = number_operator(n_qubits, 0, coefficient=2)  # eigenspectrum (0,2)
         jw_n = jordan_wigner(n)
@@ -114,6 +112,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
                                numpy.absolute(jw_spectrum - bk_spectrum)))
 
     def test_bk_jw_majoranas(self):
+        # Check if the Majorana operators have the same spectrum
+        # irrespectively of the transform.
         n_qubits = 7
 
         a = FermionOperator(((1, 0),))
@@ -135,12 +135,12 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         d_spectrum = [eigenspectrum(d_spins[0]),
                       eigenspectrum(d_spins[1])]
 
-        # ^ Majoranas have the same spectra. Fine
         self.assertAlmostEqual(0., numpy.amax(numpy.absolute(d_spectrum[0] -
                                                              d_spectrum[1])))
 
     def test_bk_jw_integration(self):
-        # Initialize a random fermionic operator.
+        # This is a legacy test, which was a minimal failing example when
+        # optimization for hermitian operators was used.
         n_qubits = 4
 
         # Minimal failing example:
@@ -156,7 +156,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
                                                              bk_spectrum)))
 
     def test_bk_jw_integration_original(self):
-        # Initialize a random fermionic operator.
+        # This is a legacy test, which was an example proposed by Ryan,
+        # failing when optimization for hermitian operators was used.
         n_qubits = 5
         fermion_operator = FermionOperator(((3, 1), (2, 1), (1, 0), (0, 0)),
                                            -4.3)

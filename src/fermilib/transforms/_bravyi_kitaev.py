@@ -82,8 +82,9 @@ def bravyi_kitaev_term(term, n_qubits=None):
 def bravyi_kitaev(op, n_qubits=None):
     """Apply the Bravyi-Kitaev transform and return qubit operator.
 
-    Returns:   transformed_operator: An instance of the
-    QubitOperator class.
+    Returns:
+         transformed_operator: An instance of the
+         QubitOperator class.
 
     """
     if n_qubits is None:
