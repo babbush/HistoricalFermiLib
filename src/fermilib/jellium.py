@@ -191,7 +191,6 @@ def momentum_kinetic_operator(n_dimensions, grid_length,
             operators = ((orbital, 1), (orbital, 0))
             operator += FermionOperator(operators, coefficient)
 
-    # Return.
     return operator
 
 
