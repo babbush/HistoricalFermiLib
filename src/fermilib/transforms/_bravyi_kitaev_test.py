@@ -5,7 +5,9 @@ import numpy
 
 from projectqtemp.ops import _fermion_operator as fo
 from projectqtemp.ops._fermion_operator import (FermionOperator, one_body_term,
-                                                number_operator)
+                                                number_operator,
+                                                fermion_identity)
+from projectqtemp.ops._qubit_operator import qubit_identity
 
 from transforms._bravyi_kitaev import bravyi_kitaev
 from transforms._jordan_wigner import jordan_wigner
@@ -49,6 +51,10 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         self.assertEqual(lowering.terms[correct_operators_d], 0.5j)
         self.assertEqual(raising.terms[correct_operators_d], -0.5j)
         self.assertEqual(raising.terms[correct_operators_c], 0.5)
+
+    def test_bk_identity(self):
+        self.assertTrue(bravyi_kitaev(fermion_identity()).isclose(
+            qubit_identity()))
 
     def test_bk_jw_number_operator(self):
         # Check if number operator has the same spectrum in both

@@ -27,7 +27,7 @@ def bravyi_kitaev_term(term, n_qubits=None):
 
     if n_qubits is None:
         n_qubits = term.n_qubits()
-    if not n_qubits or n_qubits < term.n_qubits():
+    if n_qubits < term.n_qubits():
         raise ValueError('Invalid n_qubits.')
 
     ops = list(term.terms)[0]
@@ -88,7 +88,7 @@ def bravyi_kitaev(op, n_qubits=None):
     """
     if n_qubits is None:
         n_qubits = op.n_qubits()
-    if not n_qubits or n_qubits < op.n_qubits():
+    if n_qubits < op.n_qubits():
         raise ValueError('Invalid n_qubits.')
     if isinstance(op, FermionOperator) and len(op.terms) == 1:
         return bravyi_kitaev_term(op, n_qubits)
