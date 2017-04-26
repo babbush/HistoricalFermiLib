@@ -6,11 +6,11 @@ import unittest
 
 import numpy
 
-from projectqtemp.ops import _fermion_operator as fo
-from projectqtemp.ops._fermion_operator import (FermionOperator,
-                                                number_operator,
-                                                one_body_term, two_body_term)
-from fermilib.interaction_operators import InteractionOperator
+from fermilib.ops import (InteractionOperator,
+                          FermionOperator,
+                          number_operator,
+                          one_body_term,
+                          two_body_term)
 from projectqtemp.ops._qubit_operator import QubitOperator, qubit_identity
 from transforms._conversion import (eigenspectrum, get_fermion_operator,
                                     get_interaction_operator,

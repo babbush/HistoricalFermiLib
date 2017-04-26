@@ -5,17 +5,17 @@ import copy
 import itertools
 import numpy
 
-from fermilib import interaction_rdms
-from fermilib.fenwick_tree import FenwickTree
-from projectqtemp.ops._fermion_operator import (FermionOperator,
-                                                fermion_identity,
-                                                number_operator)
-from fermilib.interaction_operators import (InteractionOperator,
-                                            InteractionOperatorError)
+from fermilib.transforms import FenwickTree
+from fermilib.ops import (FermionOperator,
+                          fermion_identity,
+                          number_operator,
+                          InteractionOperator,
+                          InteractionOperatorError,
+                          InteractionRDM,
+                          jordan_wigner_operator_sparse,
+                          qubit_term_sparse,
+                          qubit_operator_sparse)
 from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
-from fermilib.sparse_operators import (jordan_wigner_operator_sparse,
-                                       qubit_term_sparse,
-                                       qubit_operator_sparse)
 
 
 def eigenspectrum(op):
@@ -106,7 +106,7 @@ def get_interaction_rdm(qop, n_qubits=None):
             if tuple(term.operators) in qop.terms:
                 two_rdm[i, j, k, l] += term.coefficient * qop[term.operators]
 
-    return interaction_rdms.InteractionRDM(one_rdm, two_rdm)
+    return InteractionRDM(one_rdm, two_rdm)
 
 
 def get_interaction_operator(iop):

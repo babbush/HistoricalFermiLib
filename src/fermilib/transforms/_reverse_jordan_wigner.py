@@ -2,9 +2,9 @@
 from __future__ import absolute_import
 import copy
 
-from projectqtemp.ops._fermion_operator import (FermionOperator,
-                                                fermion_identity,
-                                                number_operator)
+from fermilib.ops import (FermionOperator,
+                          fermion_identity,
+                          number_operator)
 from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 
 

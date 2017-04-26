@@ -3,15 +3,16 @@ from __future__ import absolute_import
 import unittest
 import numpy
 
-from projectqtemp.ops import _fermion_operator as fo
-from projectqtemp.ops._fermion_operator import (FermionOperator, one_body_term,
-                                                number_operator,
-                                                fermion_identity)
+from fermilib.ops import (FermionOperator,
+                          one_body_term,
+                          number_operator,
+                          fermion_identity)
 from projectqtemp.ops._qubit_operator import qubit_identity
 
-from transforms._bravyi_kitaev import bravyi_kitaev
-from transforms._jordan_wigner import jordan_wigner
-from transforms._conversion import eigenspectrum, get_sparse_operator
+from fermilib.transforms import (bravyi_kitaev,
+                                 jordan_wigner,
+                                 eigenspectrum,
+                                 get_sparse_operator)
 
 
 class BravyiKitaevTransformTest(unittest.TestCase):
@@ -59,7 +60,7 @@ class BravyiKitaevTransformTest(unittest.TestCase):
     def test_bk_jw_number_operator(self):
         # Check if number operator has the same spectrum in both
         # BK and JW representations
-        n = fo.number_operator(1, 0)
+        n = number_operator(1, 0)
         jw_n = jordan_wigner(n)
         bk_n = bravyi_kitaev(n)
 
@@ -74,8 +75,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         # Check if a number operator has the same spectrum in both
         # JW and BK representations
         n_qubits = 2
-        n1 = fo.number_operator(n_qubits, 0)
-        n2 = fo.number_operator(n_qubits, 1)
+        n1 = number_operator(n_qubits, 0)
+        n2 = number_operator(n_qubits, 1)
         n = n1 + n2
 
         jw_n = jordan_wigner(n)
@@ -168,7 +169,7 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         fermion_operator = FermionOperator(((3, 1), (2, 1), (1, 0), (0, 0)),
                                            -4.3)
         fermion_operator += FermionOperator(((3, 1), (1, 0)), 8.17)
-        fermion_operator += 3.2 * fo.fermion_identity()
+        fermion_operator += 3.2 * fermion_identity()
         # fermion_operator **= 3
 
         # Map to qubits and compare matrix versions.

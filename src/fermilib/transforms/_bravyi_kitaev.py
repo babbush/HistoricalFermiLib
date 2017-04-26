@@ -2,9 +2,9 @@
 from __future__ import absolute_import
 
 from projectqtemp.ops._qubit_operator import QubitOperator
-from projectqtemp.ops._fermion_operator import FermionOperator
 
-from fermilib.fenwick_tree import FenwickTree
+from fermilib.ops import FermionOperator
+from fermilib.transforms import FenwickTree
 
 
 def bravyi_kitaev_term(term, n_qubits=None):
