@@ -32,12 +32,12 @@ def two_body_term(p, q, r, s, coefficient=1.):
     return FermionOperator(((p, 1), (q, 1), (r, 0), (s, 0)), coefficient)
 
 
-def number_operator(n_orbitals, orbital=None, coefficient=1.):
+def number_operator(n_orbitals, site=None, coefficient=1.):
     """Return a number operator.
 
     Args:
         n_orbitals (int): The number of spin-orbitals in the system.
-        orbital (int, optional): The site on which to return the number
+        site (int, optional): The site on which to return the number
                                  operator. If None, return total number
                                  operator on all sites.
         coefficient (float): The coefficient of the term.
