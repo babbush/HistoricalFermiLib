@@ -6,7 +6,7 @@ import unittest
 
 import numpy
 
-from fermilib import chemical_series
+from fermilib.utils import make_atomic_ring
 
 
 class ChemicalSeries(unittest.TestCase):
@@ -15,8 +15,8 @@ class ChemicalSeries(unittest.TestCase):
         spacing = 1.
         basis = 'sto-3g'
         for n_atoms in range(2, 10):
-            molecule = chemical_series.make_atomic_ring(n_atoms, spacing,
-                                                        basis, autosave=False)
+            molecule = make_atomic_ring(n_atoms, spacing,
+                                        basis, autosave=False)
 
             # Check that ring is centered.
             vector_that_should_sum_to_zero = 0.

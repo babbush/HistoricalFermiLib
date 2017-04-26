@@ -9,6 +9,7 @@ from ._interaction_tensor import InteractionTensor
 from ._interaction_operator import InteractionOperator
 from ._interaction_rdm import InteractionRDM
 
-from ._molecular_data import MolecularData
+from ._molecular_data import (MolecularData,
+                              _PERIODIC_HASH_TABLE)
 
 from ._sparse_operator import SparseOperator

@@ -6,8 +6,8 @@ import itertools
 
 import numpy
 
-import projectqtemp.ops._qubit_operator as qubit_operators
-from projectqtemp.ops._fermion_operator import FermionOperator
+from projectqtemp.ops._qubit_operator import QubitOperator
+from fermilib.ops import FermionOperator
 
 
 # Exceptions.

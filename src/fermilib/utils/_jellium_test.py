@@ -4,9 +4,8 @@ import itertools
 import unittest
 import numpy
 
-from fermilib import jellium
+import fermilib.utils._jellium as jellium
 import projectqtemp.ops._qubit_operator as qubit_operators
-from fermilib import sparse_operators
 from fermilib.transforms import jordan_wigner, eigenspectrum
 
 

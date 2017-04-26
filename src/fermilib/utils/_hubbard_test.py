@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import unittest
 
-from fermilib import hubbard
+from fermilib.utils import fermi_hubbard
 
 
 class FermiHubbardTest(unittest.TestCase):
@@ -20,7 +20,7 @@ class FermiHubbardTest(unittest.TestCase):
     def test_two_by_two_spinful(self):
 
         # Initialize the Hamiltonian.
-        hubbard_model = hubbard.fermi_hubbard(
+        hubbard_model = fermi_hubbard(
             self.x_dimension, self.y_dimension, self.tunneling, self.coulomb,
             self.chemical_potential, self.magnetic_field,
             self.periodic, self.spinless)
@@ -72,19 +72,19 @@ class FermiHubbardTest(unittest.TestCase):
                                                     (7, 1), (7, 0))], 1.)
 
     def test_two_by_two_spinful_periodic_rudimentary(self):
-        hubbard_model = hubbard.fermi_hubbard(
+        hubbard_model = fermi_hubbard(
             self.x_dimension, self.y_dimension, self.tunneling, self.coulomb,
             self.chemical_potential, self.magnetic_field,
             periodic=True, spinless=False)
 
     def test_two_by_two_spinful_aperiodic_rudimentary(self):
-        hubbard_model = hubbard.fermi_hubbard(
+        hubbard_model = fermi_hubbard(
             self.x_dimension, self.y_dimension, self.tunneling, self.coulomb,
             self.chemical_potential, self.magnetic_field,
             periodic=False, spinless=False)
 
     def test_two_by_two_spinless_periodic_rudimentary(self):
-        hubbard_model = hubbard.fermi_hubbard(
+        hubbard_model = fermi_hubbard(
             self.x_dimension, self.y_dimension, self.tunneling, self.coulomb,
             self.chemical_potential, self.magnetic_field,
             periodic=True, spinless=True)
