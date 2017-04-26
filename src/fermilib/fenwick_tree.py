@@ -51,13 +51,16 @@ class FenwickTree:
     def __init__(self, n_qubits):
         """Builds a Fenwick tree on n_qubits qubits.
 
-        Args:     n_qubits: Int, the number of qubits in the system
+        Args:
+            n_qubits: Int, the number of qubits in the system
 
         """
 
         self.nodes = [FenwickNode(None, []) for _ in range(n_qubits)]
-        self.root = self.nodes[n_qubits - 1]
-        self.root.index = n_qubits - 1  # For debug atm
+
+        if n_qubits > 0:
+            self.root = self.nodes[n_qubits - 1]
+            self.root.index = n_qubits - 1
 
         def fenwick(left, right, parent):
             """This inner function is used to build the Fenwick tree on nodes
@@ -70,7 +73,7 @@ class FenwickTree:
 
             """
 
-            if left == right:
+            if left >= right:
                 return
             else:
                 pivot = (left + right) >> 1

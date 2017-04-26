@@ -54,7 +54,7 @@ class BravyiKitaevTransformTest(unittest.TestCase):
 
     def test_bk_identity(self):
         self.assertTrue(bravyi_kitaev(fermion_identity()).isclose(
-            qubit_identity()))
+                        qubit_identity()))
 
     def test_bk_jw_number_operator(self):
         # Check if number operator has the same spectrum in both

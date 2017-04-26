@@ -3,11 +3,15 @@ from __future__ import absolute_import
 
 from projectqtemp.ops._qubit_operator import QubitOperator
 from projectqtemp.ops._fermion_operator import FermionOperator
+
 from fermilib.fenwick_tree import FenwickTree
 
 
 def bravyi_kitaev_term(term, n_qubits=None):
     """Apply the Bravyi-Kitaev transform and return qubit operator.
+    Arguments:
+      term: A fermionic operator to be transformed
+      n_qubits: number of qubits in the register TODO (?)
 
     Returns:
       transformed_term: An instance of the QubitOperator class.
@@ -20,7 +24,7 @@ def bravyi_kitaev_term(term, n_qubits=None):
 
     Note:
       Reference: Operator Locality of Quantum Simulation of Fermionic
-        Models by Havlicek, Troyer, Whitfield (arXiv:1701.07072).
+        Models (arXiv:1701.07072).
     """
     if not isinstance(term, FermionOperator) or len(term.terms) > 1:
         raise ValueError("term must be a single-term FermionOperator.")
@@ -84,12 +88,14 @@ def bravyi_kitaev(op, n_qubits=None):
     Returns:
          transformed_operator: An instance of the
          QubitOperator class.
-
     """
+
     if n_qubits is None:
         n_qubits = op.n_qubits()
+
     if n_qubits < op.n_qubits():
         raise ValueError('Invalid n_qubits.')
+
     if isinstance(op, FermionOperator) and len(op.terms) == 1:
         return bravyi_kitaev_term(op, n_qubits)
     transformed_operator = QubitOperator((), 0.0)
