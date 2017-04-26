@@ -1,7 +1,6 @@
-"""FermionOperator stores a sum of creation and annihilation operators acting
-on some set of modes."""
+"""FermionOperator stores a sum of products of fermionic ladder operators."""
 import copy
-import numpy as np
+import numpy
 
 
 class FermionOperatorError(Exception):
@@ -9,15 +8,16 @@ class FermionOperatorError(Exception):
 
 
 def fermion_identity(coefficient=1.):
+    """Return a fermionic identity operator."""
     return coefficient * FermionOperator()
 
 
 def one_body_term(p, q, coefficient=1.):
     """Return one-body operator which conserves particle number.
 
-    Args:   p, q: The sites between which the hopping occurs.
-    coefficient: Optional float giving coefficient of term.
-
+    Args:
+        p, q (ints): The sites between which the hopping occurs.
+        coefficient (float, opertional): The coefficient of term.
     """
     return FermionOperator(((p, 1), (q, 0)), coefficient)
 
@@ -25,20 +25,22 @@ def one_body_term(p, q, coefficient=1.):
 def two_body_term(p, q, r, s, coefficient=1.):
     """Return two-body operator which conserves particle number.
 
-    Args:   p, q, r, s: The sites between which the hopping occurs.
-    coefficient: Optional float giving coefficient of term.
-
+    Args:
+        p, q, r, s (ints): The sites between which the hopping occurs.
+        coefficient (float, optional): The coefficient of term.
     """
     return FermionOperator(((p, 1), (q, 1), (r, 0), (s, 0)), coefficient)
 
 
-def number_operator(n_qubits, site=None, coefficient=1.):
+def number_operator(n_orbitals, orbital=None, coefficient=1.):
     """Return a number operator.
 
-    Args:   n_qubits: An int giving the number of spin-orbitals in the
-    system.   site: The site on which to return the number operator.
-    If None, return total number operator on all sites.
-
+    Args:
+        n_orbitals (int): The number of spin-orbitals in the system.
+        orbital (int, optional): The site on which to return the number
+                                 operator. If None, return total number
+                                 operator on all sites.
+        coefficient (float): The coefficient of the term.
     """
     if site is None:
         operator = FermionOperator((), 0.0)
@@ -49,66 +51,61 @@ def number_operator(n_qubits, site=None, coefficient=1.):
     return operator
 
 
-def hermitian_conjugated(fermionoperator):
-    """Calculate Hermitian conjugate of fermionic term.
-
-    Returns:   A new FermionTerm object which is the hermitian
-    conjugate of this.
-
-    """
-    res = copy.deepcopy(fermionoperator)
-    res.hermitian_conjugate()
-    return res
+def hermitian_conjugated(fermion_operator):
+    """Calculate Hermitian conjugate of fermionic term."""
+    copied_operator = copy.deepcopy(fermion_operator)
+    copied_operator.hermitian_conjugate()
+    return copied_operator
 
 
 class FermionOperator(object):
-    """
-    A sum of terms acting on qubits, e.g., 0.5 * '0^ 5' + 0.3 * '1^ 2^'.
+    """FermionOperator stores a sum of products of fermionic ladder operators.
 
-    A term is an operator acting on n modes and can be represented as:
+    In FermiLib, we describe fermionic ladder operators using the shorthand:
+    'q^' = a^\dagger_q
+    'q' = a_q
+    where {'p^', 'q'} = delta_pq
 
-    coefficent * local_operator[0] x ... x local_operator[n-1]
+    One can multiply together these fermionic ladder operators to obtain a
+    fermionic term. For instance, '2^ 1' is a fermion term which
+    creates at orbital 2 and destroys at orbital 1. The FermionOperator class
+    also stores a coefficient for the term, e.g. '3.17 * 2^ 1'.
 
-    where x is the tensor product. A local operator is creation or
-    annihilation operator acting on a single mode. In math notation a
-    term is, for example, 0.5 * '0^ 5', which means that a creation
-    operator acts on mode 0 and an annihilation operator acts on mode 5,
-    while the identity operator acts on all other qubits.
-
-    A FermionOperator represents a sum of terms acting on modes and
-    overloads operations for easy manipulation of these objects by the
-    user.
+    The FermionOperator class is designed (in general) to store sums of these
+    terms. For instance, an instance of FermionOperator might represent
+    3.17 2^ 1 - 66.2 * 8^ 7 6^ 2
+    The Fermion Operator class overloads operations for manipulation of
+    these objects by the user.
 
     Attributes:
-      terms (dict): key: A term represented by a tuple of tuples. Each
-                         tuple represents a local operator and is an
-                         operator which acts on one mode stored as a
-                         tuple. The first element is an integer
-                         indicating the mode on which a non-trivial
-                         local operator acts and the second element is a
-                         string, either '0' indicating annihilation, or
-                         '1' indicating creation in that mode.
-                         E.g. '2^ 5' is ((2, 1), (5, 0))
-                         The tuples are sorted according to the qubit number
-                         they act on, starting from 0.
-                    value: Coefficient of this term as a (complex) float
+        terms (dict):
+            key (tuple of tuples): Each tuple represents a fermion
+                                   term, i.e. a tensor product of fermion
+                                   ladder operators with a coefficient. The
+                                   first element is an integer indicating the
+                                   mode on which a ladder operator acts and
+                                   the second element is a bool, either '0'
+                                   indicating annihilation, or '1' indicating
+                                   creation in that mode; for example,
+                                   '2^ 5' is ((2, 1), (5, 0)).
+            value (complex float): The coefficient of term represented by key.
     """
 
     def __init__(self, term=(), coefficient=1.):
-        """
-        Inits a FermionOperator.
+        """Initializes a FermionOperator.
 
-        The init function only allows to initialize one term. Additional
-        terms have to be added using += (which is fast) or using + of
-        two FermionOperator objects:
+        The init function only allows to initialize a FermionOperator
+        consisting of a single term. If one desires to initialize a
+        FermionOperator consisting of many terms, one must add those terms
+        together by using either += (which is fast) or using +.
 
         Example:
             .. code-block:: python
 
-            ham = (QubitOperator('0^ 3', 0.5) + 0.5 * QubitOperator('3^ 0'))
+            ham = (FermionOperator('0^ 3', 0.5) + 0.5 * FermionOperator('3^ 0'))
             # Equivalently
-            ham2 = QubitOperator('0^ 3', 0.5)
-            ham2 += 0.5 * QubitOperator('3^ 0')
+            ham2 = FermionOperator('0^ 3', 0.5)
+            ham2 += FermionOperator('3^ 0', 0.5)
 
         Note:
             Adding terms to FermionOperator is faster using += (as this
@@ -117,73 +114,73 @@ class FermionOperator(object):
             with a scalar as calls an out-of-place multiplication.
 
         Args:
-            coefficient (complex float, optional): The coefficient of the
-                first term of this FermionOperator. Default is 1.0.
             term (tuple of tuples, a string, or optional):
                 1) A tuple of tuples. The first element of each tuple is
-                   an integer indicating the mode on which a non-trivial
-                   local operator acts, starting from zero. The second
+                   an integer indicating the mode on which a fermion
+                   ladder operator acts, starting from zero. The second
                    element of each tuple is an integer, either 1 or 0,
                    indicating whether creation or annihilation acts on
                    that mode.
                 2) A string of the form '0^ 2', indicating creation in
-                   mode 0 and annihilation in mode 2. The string should
-                   be sorted by the mode number.
+                   mode 0 and annihilation in mode 2.
                 3) default will result in identity operations on all
                    modes, which is just an empty tuple '()'.
+            coefficient (complex float, optional): The coefficient of the term.
+                                                   Default value is 1.0.
 
         Raises:
           FermionOperatorError: Invalid term provided to FermionOperator.
-
         """
-        if term is not None and not isinstance(term, (tuple, str)):
-            raise ValueError('Operators specified incorrectly.')
         if not isinstance(coefficient, (int, float, complex)):
             raise ValueError('Coefficient must be scalar.')
-
         self.terms = {}
 
-        # Parse string input.
+        # String input.
         if isinstance(term, str):
-            list_ops = []
-            for el in term.split():
-                if el[-1] == '^':
-                    list_ops.append((int(el[:-1]), 1))
+            ladder_operators = []
+            for ladder_operator in term.split():
+                if ladder_operator[-1] == '^':
+                    ladder_operators.append((int(ladder_operator[:-1]), 1))
                 else:
                     try:
-                        list_ops.append((int(el), 0))
+                        ladder_operators.append((int(ladder_operator), 0))
                     except ValueError:
                         raise ValueError(
                             'Invalid action provided to FermionTerm.')
-            self.terms[tuple(list_ops)] = coefficient
+            self.terms[tuple(ladder_operators)] = coefficient
 
         # Tuple input.
-        elif isinstance(term, tuple) and len(term) != 0:
-            term = list(term)
-            self.terms[tuple(term)] = coefficient
+        elif isinstance(term, tuple):
+            self.terms[term] = coefficient
+
+        # No input.
+        elif term is None:
+          self.terms[()] = coefficient
+
+        # Invalid input.
         else:
-            self.terms[()] = coefficient
+            raise ValueError('Operators specified incorrectly.')
 
         # Check type.
         for term in self.terms:
-            for operator in term:
-                tensor_factor, action = operator
-                if not (isinstance(tensor_factor, int) and tensor_factor >= 0):
-                    raise FermionOperatorError('Invalid tensor factor provided'
-                                               ' to FermionTerm: must be a '
-                                               'non-negative int.')
+            for ladder_operator in term:
+                orbital, action = ladder_operator
+                if not (isinstance(orbital, int) and orbital >= 0):
+                    raise FermionOperatorError(
+                        'Invalid tensor factor in FermionOperator:'
+                         'must be a non-negative int.')
                 if action not in (0, 1):
-                    raise ValueError('Invalid action provided to FermionTerm. '
-                                     'Must be 0 (lowering) or 1 (raising).')
+                    raise ValueError(
+                        'Invalid action in FermionOperator: '
+                         'Must be 0 (lowering) or 1 (raising).')
 
     def n_qubits(self):
-        """Return the minimum number of qubits this FermionOperator must
-        act on."""
+        """Return minimum number of qubits on which FermionOperator acts."""
         highest_mode = 0
         for term in self.terms:
-            term_modes = max(term or ((-1, -1),), key=lambda t: t[0])[0] + 1
-            if term_modes > highest_mode:
-                highest_mode = term_modes
+            for ladder_operator in term:
+                if ladder[0] > highest_mode:
+                    highest_mode = ladder[0]
         return highest_mode
 
     def isclose(self, other, rel_tol=1e-12, abs_tol=1e-12):
@@ -197,9 +194,9 @@ class FermionOperator(object):
         tolerance.
 
         Args:
-            other(FermionOperator): FermionOperator to compare against.
-            rel_tol(float): Relative tolerance, must be greater than 0.0
-            abs_tol(float): Absolute tolerance, must be at least 0.0
+            other (FermionOperator): FermionOperator to compare against.
+            rel_tol (float): Relative tolerance, must be greater than 0.0
+            abs_tol (float): Absolute tolerance, must be at least 0.0
 
         """
         # terms which are in both:
@@ -209,6 +206,7 @@ class FermionOperator(object):
             # math.isclose does this in Python >=3.5
             if not abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol):
                 return False
+
         # terms only in one (compare to 0.0 so only abs_tol)
         for term in set(self.terms).symmetric_difference(set(other.terms)):
             if term in self.terms:
@@ -219,12 +217,10 @@ class FermionOperator(object):
         return True
 
     def __imul__(self, multiplier):
-        """
-        In-place multiply (*=) terms with scalar or FermionOperator.
+        """In-place multiply (*=) terms with scalar or FermionOperator.
 
         Args:
           multiplier(complex float, or FermionOperator): multiplier
-
         """
         # Handle scalars.
         if isinstance(multiplier, (int, float, complex)):
@@ -239,10 +235,9 @@ class FermionOperator(object):
                 for right_term in multiplier.terms:
                     new_coefficient = (self.terms[left_term] *
                                        multiplier.terms[right_term])
-
                     product_operators = left_term + right_term
 
-                    # Add to result dict
+                    # Add to result dict.
                     result_terms[tuple(product_operators)] = new_coefficient
             self.terms = result_terms
             return self
@@ -251,8 +246,7 @@ class FermionOperator(object):
                             'to FermionOperator.')
 
     def __mul__(self, multiplier):
-        """
-        Return self * multiplier for a scalar, or a FermionOperator.
+        """Return self * multiplier for a scalar, or a FermionOperator.
 
         Args:
           multiplier: A scalar, or a FermionOperator.
@@ -262,7 +256,6 @@ class FermionOperator(object):
 
         Raises:
           TypeError: Invalid type cannot be multiply with FermionOperator.
-
         """
         if isinstance(multiplier, (int, float, complex, FermionOperator)):
             product = copy.deepcopy(self)
@@ -387,7 +380,7 @@ class FermionOperator(object):
         """Hermitian conjugate this fermionic term."""
         conj_terms = {}
         for term in self.terms:
-            conj_coeff = np.conjugate(self.terms[term])
+            conj_coeff = numpy.conjugate(self.terms[term])
             conj_term = list(term)
             conj_term.reverse()
             for local_op in range(len(conj_term)):
@@ -494,7 +487,6 @@ class FermionOperator(object):
         raising and lowering operators). Require that term has 0, 2 or 4
         ladder operators. Require that term conserves spin (parity of
         raising operators equals parity of lowering operators).
-
         """
         for term in self.terms:
             if len(term) not in (0, 2, 4):
