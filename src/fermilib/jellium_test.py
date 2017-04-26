@@ -5,7 +5,7 @@ import unittest
 import numpy
 
 from fermilib import jellium
-from fermilib import qubit_operators
+import projectqtemp.ops._qubit_operator as qubit_operators
 from fermilib import sparse_operators
 from fermilib.transforms import jordan_wigner, eigenspectrum
 
@@ -198,9 +198,9 @@ class JelliumTest(unittest.TestCase):
         qubit_jellium = qubit_kinetic + qubit_potential
 
         # Check identity.
-        identity = qubit_operators.qubit_identity()
-        kinetic_coefficient = qubit_kinetic[identity]
-        potential_coefficient = qubit_potential[identity]
+        identity = tuple()
+        kinetic_coefficient = qubit_kinetic.terms[identity]
+        potential_coefficient = qubit_potential.terms[identity]
 
         paper_kinetic_coefficient = 0.
         paper_potential_coefficient = 0.
@@ -223,9 +223,9 @@ class JelliumTest(unittest.TestCase):
 
         # Check Zp.
         for p in range(n_qubits):
-            zp = qubit_operators.QubitTerm([(p, 'Z')])
-            kinetic_coefficient = qubit_kinetic[zp]
-            potential_coefficient = qubit_potential[zp]
+            zp = ((p, 'Z'),)
+            kinetic_coefficient = qubit_kinetic.terms[zp]
+            potential_coefficient = qubit_potential.terms[zp]
 
             paper_kinetic_coefficient = 0.
             paper_potential_coefficient = 0.
@@ -277,8 +277,8 @@ class JelliumTest(unittest.TestCase):
                         if p == q:
                             continue
 
-                        zpzq = qubit_operators.QubitTerm([(p, 'Z'), (q, 'Z')])
-                        potential_coefficient = qubit_potential[zpzq]
+                        zpzq = ((p, 'Z'), (q, 'Z'))
+                        potential_coefficient = qubit_potential.terms[zpzq]
 
                         for indices_c in \
                                 itertools.product(range(grid_length),
@@ -313,7 +313,7 @@ class JelliumTest(unittest.TestCase):
             n_dimensions, grid_length, length_scale, spinless)
 
         # Make sure Hamiltonians are the same.
-        self.assertTrue(test_hamiltonian == qubit_hamiltonian)
+        self.assertTrue(test_hamiltonian.isclose(qubit_hamiltonian))
 
         # Check number of terms.
         n_qubits = qubit_hamiltonian.n_qubits()
@@ -321,7 +321,10 @@ class JelliumTest(unittest.TestCase):
             paper_n_terms = 1 - .5 * n_qubits + 1.5 * (n_qubits ** 2)
         else:
             paper_n_terms = 1 - .5 * n_qubits + n_qubits ** 2
-        self.assertTrue(len(qubit_hamiltonian) <= paper_n_terms)
+
+        num_nonzeros = sum(1 for coeff in qubit_hamiltonian.terms.values() if
+                           coeff != 0.0)
+        self.assertTrue(num_nonzeros <= paper_n_terms)
 
 
 # Run test.

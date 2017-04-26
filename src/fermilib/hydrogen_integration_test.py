@@ -88,7 +88,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
         # Check that all the transforms work.
         qubit_hamiltonian = jordan_wigner(self.fermion_hamiltonian)
-        self.assertTrue(self.qubit_hamiltonian == qubit_hamiltonian)
+        self.assertTrue(self.qubit_hamiltonian.isclose(qubit_hamiltonian))
 
         # Check reverse transform.
         fermion_hamiltonian = reverse_jordan_wigner(qubit_hamiltonian)
@@ -103,7 +103,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
         # Make sure mapping of MolecularOperator to QubitOperator works.
         qubit_hamiltonian = jordan_wigner(self.molecular_hamiltonian)
-        self.assertEqual(self.qubit_hamiltonian, qubit_hamiltonian)
+        self.assertTrue(self.qubit_hamiltonian.isclose(qubit_hamiltonian))
 
         # Check that FCI prior has the correct energy.
         fci_rdm_energy = self.nuclear_repulsion
@@ -149,44 +149,54 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
         # Test the local Hamiltonian terms.
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(0, 'Z')]], self.f1, places=4)
+            self.qubit_hamiltonian.terms[((0, 'Z'),)], self.f1, places=4)
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(1, 'Z')]], self.f1, places=4)
+            self.qubit_hamiltonian.terms[((1, 'Z'),)], self.f1, places=4)
 
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(2, 'Z')]], self.f2, places=4)
+            self.qubit_hamiltonian.terms[((2, 'Z'),)], self.f2, places=4)
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(3, 'Z')]], self.f2, places=4)
+            self.qubit_hamiltonian.terms[((3, 'Z'),)], self.f2, places=4)
 
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(0, 'Z'), (1, 'Z')]], self.f3, places=4)
+            self.qubit_hamiltonian.terms[((0, 'Z'), (1, 'Z'))],
+            self.f3, places=4)
 
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(0, 'Z'), (2, 'Z')]], self.f4, places=4)
+            self.qubit_hamiltonian.terms[((0, 'Z'), (2, 'Z'))],
+            self.f4, places=4)
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(1, 'Z'), (3, 'Z')]], self.f4, places=4)
+            self.qubit_hamiltonian.terms[((1, 'Z'), (3, 'Z'))],
+            self.f4, places=4)
 
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(1, 'Z'), (2, 'Z')]], self.f5, places=4)
+            self.qubit_hamiltonian.terms[((1, 'Z'), (2, 'Z'))],
+            self.f5, places=4)
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(0, 'Z'), (3, 'Z')]], self.f5, places=4)
+            self.qubit_hamiltonian.terms[((0, 'Z'), (3, 'Z'))],
+            self.f5, places=4)
 
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(2, 'Z'), (3, 'Z')]], self.f6, places=4)
+            self.qubit_hamiltonian.terms[((2, 'Z'), (3, 'Z'))],
+            self.f6, places=4)
 
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(0, 'Y'), (1, 'Y'),
-                                    (2, 'X'), (3, 'X')]], -self.f7, places=4)
+            self.qubit_hamiltonian.terms[((0, 'Y'), (1, 'Y'),
+                                          (2, 'X'), (3, 'X'))],
+            -self.f7, places=4)
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(0, 'X'), (1, 'X'),
-                                    (2, 'Y'), (3, 'Y')]], -self.f7, places=4)
+            self.qubit_hamiltonian.terms[((0, 'X'), (1, 'X'),
+                                          (2, 'Y'), (3, 'Y'))],
+            -self.f7, places=4)
 
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(0, 'X'), (1, 'Y'),
-                                    (2, 'Y'), (3, 'X')]], self.f7, places=4)
+            self.qubit_hamiltonian.terms[((0, 'X'), (1, 'Y'),
+                                          (2, 'Y'), (3, 'X'))],
+            self.f7, places=4)
         self.assertAlmostEqual(
-            self.qubit_hamiltonian[[(0, 'Y'), (1, 'X'),
-                                    (2, 'X'), (3, 'Y')]], self.f7, places=4)
+            self.qubit_hamiltonian.terms[((0, 'Y'), (1, 'X'),
+                                          (2, 'X'), (3, 'Y'))],
+            self.f7, places=4)
 
         # Test the matrix representation.
         energy, wavefunction = self.hamiltonian_matrix.get_ground_state()

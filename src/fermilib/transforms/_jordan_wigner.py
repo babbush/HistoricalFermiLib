@@ -1,7 +1,7 @@
 """Jordan-Wigner transform on fermionic operators."""
 from __future__ import absolute_import
 
-from fermilib.qubit_operators import QubitOperator
+from projectqtemp.ops._qubit_operator import QubitOperator
 from projectqtemp.ops._fermion_operator import FermionOperator
 from fermilib.interaction_operators import InteractionOperator
 
@@ -28,7 +28,7 @@ def jordan_wigner(op):
     if not isinstance(op, FermionOperator):
         raise TypeError("op must be a FermionOperator or InteractionOperator.")
 
-    transformed_operator = QubitOperator()
+    transformed_operator = QubitOperator((), 0.0)
     for term in op.terms:
         transformed_operator += jordan_wigner_term(term, op.terms[term])
     return transformed_operator

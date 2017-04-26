@@ -6,6 +6,7 @@ import numpy
 
 from fermilib.interaction_tensors import InteractionTensor
 import projectqtemp.ops._fermion_operator as fo
+import projectqtemp.ops._qubit_operator as qo
 
 
 class InteractionRDMError(Exception):
@@ -161,12 +162,17 @@ class InteractionRDM(InteractionTensor):
 
         """
         qubit_operator_expectations = copy.deepcopy(qubit_operator)
-        for qubit_term in qubit_operator_expectations:
-            if not qubit_term.is_identity():
-                qubit_term.coefficient = 1.
-                qubit_term.coefficient = self.qubit_term_expectation(
-                    qubit_term)
-        qubit_operator_expectations[[]] = 0.
+        # TODO continue fixing from here
+        for qubit_term in qubit_operator_expectations.terms:
+            qubit_term = qo.QubitOperator(qubit_term,
+                                          qubit_operator_expectations.terms[
+                                              qubit_term])
+            if not qubit_term.isclose(qo.qubit_identity()):
+                # set coefficient to 1, then to correct expectation value
+                qubit_term.terms[list(qubit_term.terms)[0]] = 1.
+                qubit_term.terms[list(qubit_term.terms)[0]] = (
+                    self.qubit_term_expectation(qubit_term))
+        qubit_operator_expectations.terms[()] = 0.
         return qubit_operator_expectations
 
     def qubit_term_expectation(self, qubit_term):

@@ -18,8 +18,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         # Check that the QubitOperators are two-term.
         lowering = bravyi_kitaev(FermionOperator(((3, 0),)))
         raising = bravyi_kitaev(FermionOperator(((3, 1),)))
-        self.assertEqual(len(raising), 2)
-        self.assertEqual(len(lowering), 2)
+        self.assertEqual(len(raising.terms), 2)
+        self.assertEqual(len(lowering.terms), 2)
 
         #  Test the locality invariant for N=2^d qubits
         # (c_j majorana is always log2N+1 local on qubits)
@@ -30,25 +30,25 @@ class BravyiKitaevTransformTest(unittest.TestCase):
             qubit_terms = operator.terms.items()  # Get the majorana terms.
 
             for item in qubit_terms:
-                term = item[1]
+                coeff = item[1]
 
                 #  Identify the c majorana terms by real
                 #  coefficients and check their length.
-                if not isinstance(term.coefficient, complex):
-                    self.assertEqual(len(term), invariant)
+                if not isinstance(coeff, complex):
+                    self.assertEqual(len(item[0]), invariant)
 
         #  Hardcoded coefficient test on 16 qubits
         lowering = bravyi_kitaev(FermionOperator(((9, 0),)), n_qubits)
         raising = bravyi_kitaev(FermionOperator(((9, 1),)), n_qubits)
 
-        correct_operators_c = [
-            (7, 'Z'), (8, 'Z'), (9, 'X'), (11, 'X'), (15, 'X')]
-        correct_operators_d = [(7, 'Z'), (9, 'Y'), (11, 'X'), (15, 'X')]
+        correct_operators_c = ((7, 'Z'), (8, 'Z'), (9, 'X'),
+                               (11, 'X'), (15, 'X'))
+        correct_operators_d = ((7, 'Z'), (9, 'Y'), (11, 'X'), (15, 'X'))
 
-        self.assertEqual(lowering[correct_operators_c], 0.5)
-        self.assertEqual(lowering[correct_operators_d], 0.5j)
-        self.assertEqual(raising[correct_operators_d], -0.5j)
-        self.assertEqual(raising[correct_operators_c], 0.5)
+        self.assertEqual(lowering.terms[correct_operators_c], 0.5)
+        self.assertEqual(lowering.terms[correct_operators_d], 0.5j)
+        self.assertEqual(raising.terms[correct_operators_d], -0.5j)
+        self.assertEqual(raising.terms[correct_operators_c], 0.5)
 
     def test_bk_jw_number_operator(self):
         # Check if number operator has the same spectrum in both

@@ -1,7 +1,7 @@
 """Bravyi-Kitaev transform on fermionic operators."""
 from __future__ import absolute_import
 
-from fermilib.qubit_operators import QubitOperator, QubitTerm
+from projectqtemp.ops._qubit_operator import QubitOperator
 from projectqtemp.ops._fermion_operator import FermionOperator
 from fermilib.fenwick_tree import FenwickTree
 
@@ -37,7 +37,7 @@ def bravyi_kitaev_term(term, n_qubits=None):
     fenwick_tree = FenwickTree(n_qubits)
 
     # Initialize identity matrix.
-    transformed_term = QubitOperator([QubitTerm([], coeff)])
+    transformed_term = QubitOperator((), coeff)
 
     # Build the Bravyi-Kitaev transformed operators.
     for operator in ops:
@@ -61,20 +61,19 @@ def bravyi_kitaev_term(term, n_qubits=None):
 
         # The fermion lowering operator is given by
         # a = (c+id)/2 where c, d are the majoranas.
-        d_majorana_component = QubitTerm(
-            ([(operator[0], 'Y')] +
-             [(index, 'Z') for index in ancestor_children] +
-             [(index, 'X') for index in ancestors]),
+        d_majorana_component = QubitOperator(
+            (((operator[0], 'Y'),) +
+             tuple((index, 'Z') for index in ancestor_children) +
+             tuple((index, 'X') for index in ancestors)),
             d_coeff)
 
-        c_majorana_component = QubitTerm(
-            ([(operator[0], 'X')] +
-             [(index, 'Z') for index in parity_set] +
-             [(index, 'X') for index in ancestors]),
+        c_majorana_component = QubitOperator(
+            (((operator[0], 'X'),) +
+             tuple((index, 'Z') for index in parity_set) +
+             tuple((index, 'X') for index in ancestors)),
             0.5)
 
-        transformed_term *= QubitOperator(
-            [c_majorana_component, d_majorana_component])
+        transformed_term *= c_majorana_component + d_majorana_component
 
     return transformed_term
 
@@ -93,7 +92,7 @@ def bravyi_kitaev(op, n_qubits=None):
         raise ValueError('Invalid n_qubits.')
     if isinstance(op, FermionOperator) and len(op.terms) == 1:
         return bravyi_kitaev_term(op, n_qubits)
-    transformed_operator = QubitOperator()
+    transformed_operator = QubitOperator((), 0.0)
     for term in op.terms:
         transformed_operator += bravyi_kitaev_term(
             FermionOperator(term, op.terms[term]), n_qubits)

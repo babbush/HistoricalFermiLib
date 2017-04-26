@@ -43,6 +43,10 @@ class QubitOperatorError(Exception):
     pass
 
 
+def qubit_identity(coefficient=1.):
+    return coefficient * QubitOperator()
+
+
 class QubitOperator(object):
     """
     A sum of terms acting on qubits, e.g., 0.5 * 'X0 X5' + 0.3 * 'Z1 Z2'.
@@ -160,6 +164,16 @@ class QubitOperator(object):
                     raise QubitOperatorError('Invalid qubit number provided '
                                              'to QubitTerm: must be a'
                                              ' non-negative int.')
+
+    def n_qubits(self):
+        """Return the minimum number of qubits this QubitOperator must
+        act on."""
+        highest_qubit = 0
+        for term in self.terms:
+            term_qubits = max(term or ((-1, -1),), key=lambda t: t[0])[0] + 1
+            if term_qubits > highest_qubit:
+                highest_qubit = term_qubits
+        return highest_qubit
 
     def isclose(self, other, rel_tol=1e-12, abs_tol=1e-12):
         """

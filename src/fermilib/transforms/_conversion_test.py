@@ -11,7 +11,7 @@ from projectqtemp.ops._fermion_operator import (FermionOperator,
                                                 number_operator,
                                                 one_body_term, two_body_term)
 from fermilib.interaction_operators import InteractionOperator
-from fermilib.qubit_operators import QubitTerm, QubitOperator, qubit_identity
+from projectqtemp.ops._qubit_operator import QubitOperator, qubit_identity
 from transforms._conversion import (eigenspectrum, get_fermion_operator,
                                     get_interaction_operator,
                                     get_sparse_operator)
@@ -33,7 +33,7 @@ class GetInteractionOperatorTest(unittest.TestCase):
 class GetSparseOperatorQubitTest(unittest.TestCase):
 
     def test_sparse_matrix_Y(self):
-        term = QubitTerm([(0, 'Y')])
+        term = QubitOperator(((0, 'Y'),))
         sparse_operator = get_sparse_operator(term)
         self.assertEqual(list(sparse_operator.matrix.data), [1j, -1j])
         self.assertEqual(list(sparse_operator.matrix.indices), [1, 0])
@@ -41,16 +41,16 @@ class GetSparseOperatorQubitTest(unittest.TestCase):
 
     def test_sparse_matrix_ZX(self):
         coefficient = 2.
-        operators = [(0, 'Z'), (1, 'X')]
-        term = QubitTerm(operators, coefficient)
+        operators = ((0, 'Z'), (1, 'X'))
+        term = QubitOperator(operators, coefficient)
         sparse_operator = get_sparse_operator(term)
         self.assertEqual(list(sparse_operator.matrix.data), [2., 2., -2., -2.])
         self.assertEqual(list(sparse_operator.matrix.indices), [1, 0, 3, 2])
         self.assertTrue(sparse_operator.is_hermitian())
 
     def test_sparse_matrix_ZIZ(self):
-        operators = [(0, 'Z'), (2, 'Z')]
-        term = QubitTerm(operators)
+        operators = ((0, 'Z'), (2, 'Z'))
+        term = QubitOperator(operators)
         sparse_operator = get_sparse_operator(term)
         self.assertEqual(list(sparse_operator.matrix.data),
                          [1, -1, 1, -1, -1, 1, -1, 1])
@@ -58,8 +58,8 @@ class GetSparseOperatorQubitTest(unittest.TestCase):
         self.assertTrue(sparse_operator.is_hermitian())
 
     def test_sparse_matrix_combo(self):
-        qop = (QubitTerm([(0, 'Y'), (1, 'X')], -0.1j) +
-               QubitTerm([(0, 'X'), (1, 'Z')], 3. + 2.j))
+        qop = (QubitOperator(((0, 'Y'), (1, 'X')), -0.1j) +
+               QubitOperator(((0, 'X'), (1, 'Z')), 3. + 2.j))
         sparse_operator = get_sparse_operator(qop)
 
         self.assertEqual(list(sparse_operator.matrix.data),
@@ -69,32 +69,30 @@ class GetSparseOperatorQubitTest(unittest.TestCase):
                          [2, 3, 2, 3, 0, 1, 0, 1])
 
     def test_sparse_matrix_zero_1qubit(self):
-        sparse_operator = get_sparse_operator(QubitOperator(), 1)
+        sparse_operator = get_sparse_operator(QubitOperator((), 0.0), 1)
         sparse_operator.eliminate_zeros()
         self.assertEqual(len(list(sparse_operator.matrix.data)), 0)
         self.assertEqual(sparse_operator.matrix.shape, (2, 2))
 
     def test_sparse_matrix_zero_5qubit(self):
-        sparse_operator = get_sparse_operator(QubitOperator(), 5)
+        sparse_operator = get_sparse_operator(QubitOperator((), 0.0), 5)
         sparse_operator.eliminate_zeros()
         self.assertEqual(len(list(sparse_operator.matrix.data)), 0)
         self.assertEqual(sparse_operator.matrix.shape, (32, 32))
 
     def test_sparse_matrix_identity_1qubit(self):
-        sparse_operator = get_sparse_operator(QubitOperator(qubit_identity()),
-                                              1)
+        sparse_operator = get_sparse_operator(qubit_identity(), 1)
         self.assertEqual(list(sparse_operator.matrix.data), [1] * 2)
         self.assertEqual(sparse_operator.matrix.shape, (2, 2))
 
     def test_sparse_matrix_identity_5qubit(self):
-        sparse_operator = get_sparse_operator(QubitOperator(qubit_identity()),
-                                              5)
+        sparse_operator = get_sparse_operator(qubit_identity(), 5)
         self.assertEqual(list(sparse_operator.matrix.data), [1] * 32)
         self.assertEqual(sparse_operator.matrix.shape, (32, 32))
 
     def test_sparse_matrix_linearity(self):
-        identity = QubitOperator(qubit_identity())
-        zzzz = QubitOperator(QubitTerm([(i, 'Z') for i in range(4)], 1.0))
+        identity = qubit_identity()
+        zzzz = QubitOperator(tuple((i, 'Z') for i in range(4)), 1.0)
 
         sparse1 = get_sparse_operator(identity + zzzz)
         sparse2 = get_sparse_operator(identity, 4) + get_sparse_operator(zzzz)

@@ -38,7 +38,7 @@ class InteractionOperatorsJWTest(unittest.TestCase):
                 if not fermion_term.isclose(hermitian_conjugate):
                     correct_op += jordan_wigner(hermitian_conjugate)
 
-                self.assertEqual(test_operator, correct_op)
+                self.assertTrue(test_operator.isclose(correct_op))
 
     def test_jordan_wigner_two_body(self):
         # Make sure it agrees with jordan_wigner(FermionTerm).
@@ -58,7 +58,7 @@ class InteractionOperatorsJWTest(unittest.TestCase):
                         if not fermion_term.isclose(hermitian_conjugate):
                             correct_op += jordan_wigner(hermitian_conjugate)
 
-                        self.assertEqual(test_operator, correct_op)
+                        self.assertTrue(test_operator.isclose(correct_op))
 
 if __name__ == '__main__':
     unittest.main()

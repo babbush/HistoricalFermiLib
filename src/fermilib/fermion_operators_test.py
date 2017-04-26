@@ -12,7 +12,6 @@ from fermilib.fermion_operators import (fermion_identity, number_operator,
                                         one_body_term, two_body_term,
                                         FermionTerm, FermionOperator,
                                         FermionTermError, FermionOperatorError)
-from fermilib.qubit_operators import qubit_identity, QubitTerm, QubitOperator
 
 
 class HoppingOperatorsTest(unittest.TestCase):

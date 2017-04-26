@@ -6,7 +6,7 @@ import itertools
 
 import numpy
 
-from fermilib import qubit_operators
+import projectqtemp.ops._qubit_operator as qubit_operators
 from projectqtemp.ops._fermion_operator import FermionOperator
 
 
@@ -469,7 +469,7 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
     else:
         spins = [0, 1]
         n_qubits = 2 * n_orbitals
-    hamiltonian = qubit_operators.QubitOperator()
+    hamiltonian = qubit_operators.QubitOperator((), 0.0)
 
     # Compute the identity coefficient.
     identity_coefficient = 0.
@@ -498,7 +498,8 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
 
     # Add local Z terms.
     for qubit in range(n_qubits):
-        qubit_term = qubit_operators.QubitTerm([(qubit, 'Z')], z_coefficient)
+        qubit_term = qubit_operators.QubitOperator(((qubit, 'Z'),),
+                                                   z_coefficient)
         hamiltonian += qubit_term
 
     # Add ZZ terms.
@@ -523,8 +524,8 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
                         momenta.dot(differences)) / momenta.dot(momenta)
 
             # Add term.
-            qubit_term = qubit_operators.QubitTerm(
-                [(p, 'Z'), (q, 'Z')], zpzq_coefficient)
+            qubit_term = qubit_operators.QubitOperator(((p, 'Z'), (q, 'Z')),
+                                                       zpzq_coefficient)
             hamiltonian += qubit_term
 
     # Add XZX + YZY terms.
@@ -551,12 +552,12 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
                         numpy.cos(momenta.dot(differences))
 
             # Add term.
-            z_string = [(i, 'Z') for i in range(p + 1, q)]
-            xzx_operators = [(p, 'X')] + z_string + [(q, 'X')]
-            yzy_operators = [(p, 'Y')] + z_string + [(q, 'Y')]
-            hamiltonian += qubit_operators.QubitTerm(
+            z_string = tuple((i, 'Z') for i in range(p + 1, q))
+            xzx_operators = ((p, 'X'),) + z_string + ((q, 'X'),)
+            yzy_operators = ((p, 'Y'),) + z_string + ((q, 'Y'),)
+            hamiltonian += qubit_operators.QubitOperator(
                 xzx_operators, term_coefficient)
-            hamiltonian += qubit_operators.QubitTerm(
+            hamiltonian += qubit_operators.QubitOperator(
                 yzy_operators, term_coefficient)
 
     # Return Hamiltonian.

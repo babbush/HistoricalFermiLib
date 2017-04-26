@@ -12,8 +12,7 @@ from projectqtemp.ops._fermion_operator import (FermionOperator,
                                                 number_operator)
 from fermilib.interaction_operators import (InteractionOperator,
                                             InteractionOperatorError)
-from fermilib.qubit_operators import (QubitTerm, QubitTermError,
-                                      QubitOperator, QubitOperatorError)
+from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 from fermilib.sparse_operators import (jordan_wigner_operator_sparse,
                                        qubit_term_sparse,
                                        qubit_operator_sparse)
@@ -39,11 +38,11 @@ def jordan_wigner_sparse(op, n_qubits=None):
 
 
 def get_sparse_operator_term(term, n_qubits=None):
-    """Map a QubitTerm to a SparseOperator."""
+    """Map a single-term QubitOperator to a SparseOperator."""
     if n_qubits is None:
         n_qubits = term.n_qubits()
     if n_qubits == 0:
-        raise QubitTermError('Invalid n_qubits.')
+        raise QubitOperatorError('Invalid n_qubits.')
     if n_qubits < term.n_qubits():
         n_qubits = term.n_qubits()
     return qubit_term_sparse(term, n_qubits)
@@ -55,15 +54,13 @@ def get_sparse_operator(op, n_qubits=None):
         return get_sparse_interaction_operator(op)
     elif isinstance(op, FermionOperator):
         return jordan_wigner_sparse(op, n_qubits)
-    elif not isinstance(op, (QubitTerm, QubitOperator)):
+    elif not isinstance(op, QubitOperator):
         raise TypeError("op must be mappable to SparseOperator.")
 
-    if isinstance(op, QubitTerm):
-        op = QubitOperator(op)
     if n_qubits is None:
         n_qubits = op.n_qubits()
     if n_qubits == 0:
-        raise QubitTermError('Invalid n_qubits.')
+        raise QubitOperatorError('Invalid n_qubits.')
     if n_qubits < op.n_qubits():
         n_qubits = op.n_qubits()
     return qubit_operator_sparse(op, n_qubits)
@@ -88,7 +85,7 @@ def get_interaction_rdm(qop, n_qubits=None):
     if n_qubits is None:
         n_qubits = qop.n_qubits()
     if n_qubits == 0:
-        raise QubitTermError('Invalid n_qubits.')
+        raise QubitOperatorError('Invalid n_qubits.')
     if n_qubits < qop.n_qubits():
         n_qubits = qop.n_qubits()
     one_rdm = numpy.zeros((n_qubits,) * 2, dtype=complex)

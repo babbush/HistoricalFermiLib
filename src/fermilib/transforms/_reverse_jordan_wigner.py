@@ -5,11 +5,12 @@ import copy
 from projectqtemp.ops._fermion_operator import (FermionOperator,
                                                 fermion_identity,
                                                 number_operator)
-from fermilib.qubit_operators import (QubitTerm, QubitTermError, QubitOperator)
+from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 
 
 def reverse_jordan_wigner_term(term, n_qubits=None):
-    """Transforms a QubitTerm into an instance of FermionOperator using JW.
+    """Transforms a single-term QubitOperator into a FermionOperator
+    using JW.
 
     Operators are mapped as follows:
     Z_j -> I - 2 a^\dagger_j a_j
@@ -17,7 +18,7 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
     Y_j -> i (a^\dagger_j - a_j) Z_{j-1} Z_{j-2} .. Z_0
 
     Args:
-      term: the QubitTerm to be transformed.
+      term: the QubitOperator to be transformed.
       n_qubits: the number of qubits term acts on. If not set, defaults
                 to the maximum qubit number acted on by term.
 
@@ -25,11 +26,12 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
       transformed_term: An instance of the FermionOperator class.
 
     Raises:
-      QubitTermError: Invalid operator provided: must be 'X', 'Y' or 'Z'.
+      QubitOperatorError: Invalid operator provided: must be 'X', 'Y'
+                          or 'Z'.
 
     """
-    if not isinstance(term, QubitTerm):
-        raise TypeError("term must be a QubitTerm.")
+    if not isinstance(term, QubitOperator) or len(term.terms) != 1:
+        raise TypeError("term must be a single-term QubitOperator.")
 
     if n_qubits is None:
         n_qubits = term.n_qubits()
@@ -39,11 +41,14 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
 
     # Initialize transformed operator.
     transformed_term = fermion_identity()
-    working_term = QubitTerm(term.operators, 1.0)
+    working_ops = list(term.terms)[0]
+    working_term = QubitOperator(working_ops, 1.0)
+    original_coeff = term.terms[working_ops]
 
     # Loop through operators.
-    if working_term.operators:
-        operator = working_term.operators[-1]
+    if working_term.terms:
+        ops = list(working_term.terms)[0]
+        operator = ops[-1] if ops else None
         while operator is not None:
 
             # Handle Pauli Z.
@@ -62,18 +67,19 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
 
                 # Account for the phase terms.
                 for j in reversed(range(operator[0])):
-                    z_term = QubitTerm(coefficient=1.0,
-                                       operators=[(j, 'Z')])
+                    z_term = QubitOperator(((j, 'Z'),))
                     z_term *= working_term
                     working_term = copy.deepcopy(z_term)
                 transformed_operator = raising_term + lowering_term
-                transformed_operator *= working_term.coefficient
-                working_term.coefficient = 1.0
+                working_term_ops = list(working_term.terms)[0]
+                working_term_coeff = working_term.terms[working_term_ops]
+                transformed_operator *= working_term_coeff
+                working_term.terms[working_term_ops] = 1.0
 
             # Get next non-identity operator acting below the
             # 'working_qubit'.
             working_qubit = operator[0] - 1
-            for working_operator in working_term[::-1]:
+            for working_operator in list(working_term.terms)[0][::-1]:
                 if working_operator[0] <= working_qubit:
                     operator = working_operator
                     break
@@ -84,14 +90,14 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
             transformed_term *= transformed_operator
 
     # Account for overall coefficient
-    transformed_term *= term.coefficient
+    transformed_term *= original_coeff
 
     return transformed_term
 
 
 def reverse_jordan_wigner(op, n_qubits=None):
-    """Transforms a QubitTerm or QubitOperator into an instance of
-    FermionOperator using the Jordan-Wigner transform.
+    """Transforms a QubitOperator into a FermionOperator using the
+    Jordan-Wigner transform.
 
     Operators are mapped as follows:
     Z_j -> I - 2 a^\dagger_j a_j
@@ -107,11 +113,10 @@ def reverse_jordan_wigner(op, n_qubits=None):
       transformed_term: An instance of the FermionOperator class.
 
     Raises:
-      QubitTermError: Invalid operator provided: must be 'X', 'Y' or 'Z'.
+      QubitOperatorError: Invalid operator provided: must be 'X', 'Y'
+                          or 'Z'.
 
     """
-    if isinstance(op, QubitTerm):
-        op = QubitOperator(op)
     if not isinstance(op, QubitOperator):
         raise TypeError("op must be a QubitOperator.")
 
@@ -120,6 +125,8 @@ def reverse_jordan_wigner(op, n_qubits=None):
     if n_qubits < op.n_qubits():
         n_qubits = op.n_qubits()
     transformed_operator = FermionOperator((), 0.0)
-    for term in op:
-        transformed_operator += reverse_jordan_wigner_term(term, n_qubits)
+    for term in op.terms:
+        single_term = QubitOperator(term, op.terms[term])
+        transformed_operator += reverse_jordan_wigner_term(single_term,
+                                                           n_qubits)
     return transformed_operator

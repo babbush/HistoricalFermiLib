@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 import itertools
 
-from fermilib.qubit_operators import QubitTerm, QubitOperator
+from projectqtemp.ops._qubit_operator import QubitOperator
 
 
 def jordan_wigner_interaction_op(iop):
@@ -18,10 +18,10 @@ def jordan_wigner_interaction_op(iop):
 
     """
     # Initialize qubit operator.
-    qubit_operator = QubitOperator()
+    qubit_operator = QubitOperator((), 0.0)
 
     # Add constant.
-    qubit_operator += QubitTerm([], iop.constant)
+    qubit_operator += QubitOperator((), iop.constant)
 
     # Loop through all indices.
     for p in range(iop.n_qubits):
@@ -66,18 +66,18 @@ def jordan_wigner_one_body(p, q):
 
     """
     # Handle off-diagonal terms.
-    qubit_operator = QubitOperator()
+    qubit_operator = QubitOperator((), 0.0)
     if p != q:
         a, b = sorted([p, q])
-        parity_string = [(z, 'Z') for z in range(a + 1, b)]
+        parity_string = tuple((z, 'Z') for z in range(a + 1, b))
         for operator in ['X', 'Y']:
-            operators = [(a, operator)] + parity_string + [(b, operator)]
-            qubit_operator += QubitTerm(operators, .5)
+            operators = ((a, operator),) + parity_string + ((b, operator),)
+            qubit_operator += QubitOperator(operators, .5)
 
     # Handle diagonal terms.
     else:
-        qubit_operator += QubitTerm([], .5)
-        qubit_operator += QubitTerm([(p, 'Z')], -.5)
+        qubit_operator += QubitOperator((), .5)
+        qubit_operator += QubitOperator(((p, 'Z'),), -.5)
 
     return qubit_operator
 
@@ -91,7 +91,7 @@ def jordan_wigner_two_body(p, q, r, s):
 
     """
     # Initialize qubit operator.
-    qubit_operator = QubitOperator()
+    qubit_operator = QubitOperator((), 0.0)
 
     # Return zero terms.
     if (p == q) or (r == s):
@@ -116,12 +116,12 @@ def jordan_wigner_two_body(p, q, r, s):
                  key=lambda pair: pair[0])
 
             # Computer operator strings.
-            operators = [(a, operator_a)]
-            operators += [(z, 'Z') for z in range(a + 1, b)]
-            operators += [(b, operator_b)]
-            operators += [(c, operator_c)]
-            operators += [(z, 'Z') for z in range(c + 1, d)]
-            operators += [(d, operator_d)]
+            operators = ((a, operator_a),)
+            operators += tuple((z, 'Z') for z in range(a + 1, b))
+            operators += ((b, operator_b),)
+            operators += ((c, operator_c),)
+            operators += tuple((z, 'Z') for z in range(c + 1, d))
+            operators += ((d, operator_d),)
 
             # Get coefficients.
             coefficient = .125
@@ -134,7 +134,7 @@ def jordan_wigner_two_body(p, q, r, s):
                 coefficient *= -1.
 
             # Add term.
-            qubit_operator += QubitTerm(operators, coefficient)
+            qubit_operator += QubitOperator(operators, coefficient)
 
     # Handle case of three unique indices.
     elif len(set([p, q, r, s])) == 3:
@@ -154,10 +154,10 @@ def jordan_wigner_two_body(p, q, r, s):
             c = q
 
         # Get operators.
-        parity_string = [(z, 'Z') for z in range(a + 1, b)]
-        pauli_z = QubitTerm([(c, 'Z')], 1.)
+        parity_string = tuple((z, 'Z') for z in range(a + 1, b))
+        pauli_z = QubitOperator(((c, 'Z'),), 1.)
         for operator in ['X', 'Y']:
-            operators = [(a, operator)] + parity_string + [(b, operator)]
+            operators = ((a, operator),) + parity_string + ((b, operator),)
 
             # Get coefficient.
             if (p == s) or (q == r):
@@ -166,7 +166,7 @@ def jordan_wigner_two_body(p, q, r, s):
                 coefficient = -.25
 
             # Add term.
-            hopping_term = QubitTerm(operators, coefficient)
+            hopping_term = QubitOperator(operators, coefficient)
             qubit_operator -= pauli_z * hopping_term
             qubit_operator += hopping_term
 
@@ -182,10 +182,10 @@ def jordan_wigner_two_body(p, q, r, s):
             coefficient *= -1.
 
         # Add terms.
-        qubit_operator -= QubitTerm([], coefficient)
-        qubit_operator += QubitTerm([(p, 'Z')], coefficient)
-        qubit_operator += QubitTerm([(q, 'Z')], coefficient)
-        qubit_operator -= QubitTerm([(min(q, p), 'Z'), (max(q, p), 'Z')],
-                                    coefficient)
+        qubit_operator -= QubitOperator((), coefficient)
+        qubit_operator += QubitOperator(((p, 'Z'),), coefficient)
+        qubit_operator += QubitOperator(((q, 'Z'),), coefficient)
+        qubit_operator -= QubitOperator(((min(q, p), 'Z'), (max(q, p), 'Z')),
+                                        coefficient)
 
     return qubit_operator

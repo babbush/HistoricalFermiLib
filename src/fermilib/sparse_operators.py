@@ -13,6 +13,8 @@ import scipy.sparse.linalg
 
 from fermilib.config import *
 
+from projectqtemp.ops._qubit_operator import QubitOperator
+
 
 # Define error class.
 class SparseOperatorError(Exception):
@@ -158,18 +160,22 @@ def jordan_wigner_operator_sparse(fermion_operator, n_qubits):
 
 
 def qubit_term_sparse(qubit_term, n_qubits):
-    """Initialize a SparseOperator from a QubitTerm.
+    """Initialize a SparseOperator from a single-term QubitOperator.
 
     Args:
-      qubit_term(QubitTerm): instance of the QubitTerm class.
+      qubit_term (QubitOperator): instance of the QubitOperator class.
 
     Returns:
       The corresponding SparseOperator.
 
     """
-    operators = [qubit_term.coefficient]
+    if not isinstance(qubit_term, QubitOperator) or len(qubit_term.terms) != 1:
+        raise TypeError("qubit_term must be a single-term QubitOperator.")
+
+    # set as the coefficient
+    operators = [qubit_term.terms[list(qubit_term.terms)[0]]]
     tensor_factor = 0
-    for operator in qubit_term:
+    for operator in list(qubit_term.terms)[0]:
 
         # Grow space for missing identity operators.
         if operator[0] > tensor_factor:
@@ -183,7 +189,7 @@ def qubit_term_sparse(qubit_term, n_qubits):
         tensor_factor = operator[0] + 1
 
     # Grow space at end of string unless operator acted on final qubit.
-    if tensor_factor < n_qubits or not qubit_term.operators:
+    if tensor_factor < n_qubits or not list(qubit_term.terms)[0]:
         identity_qubits = n_qubits - tensor_factor
         identity = scipy.sparse.identity(2 ** identity_qubits,
                                          dtype=complex, format='csc')
@@ -209,7 +215,9 @@ def qubit_operator_sparse(qubit_operator, n_qubits):
     values_list = [[]]
     row_list = [[]]
     column_list = [[]]
-    for qubit_term in qubit_operator:
+    for qubit_term in qubit_operator.terms:
+        qubit_term = QubitOperator(qubit_term,
+                                   qubit_operator.terms[qubit_term])
         sparse_term = qubit_term_sparse(qubit_term, n_qubits)
         sparse_term.matrix = sparse_term.matrix.tocoo(copy=False)
 
