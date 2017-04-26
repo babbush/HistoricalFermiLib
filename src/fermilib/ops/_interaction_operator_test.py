@@ -5,7 +5,7 @@ import unittest
 
 import numpy
 
-from fermilib.interaction_operators import InteractionOperator
+from fermilib.ops import InteractionOperator
 
 
 class InteractionOperatorsTest(unittest.TestCase):

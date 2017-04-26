@@ -6,7 +6,7 @@ import unittest
 import copy
 import numpy
 
-from fermilib.interaction_tensors import InteractionTensor
+from fermilib.ops import InteractionTensor
 
 
 class InteractionTensorTest(unittest.TestCase):

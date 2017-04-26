@@ -4,8 +4,8 @@ from __future__ import absolute_import
 import unittest
 
 from fermilib.config import *
-from fermilib.molecular_data import MolecularData
-from fermilib.run_psi4 import run_psi4
+from fermilib.ops import MolecularData
+from psi4tmp import run_psi4
 from fermilib.transforms import jordan_wigner
 
 
