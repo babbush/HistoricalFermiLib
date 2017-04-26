@@ -7,8 +7,8 @@ import sys
 
 import numpy
 
-from fermilib import interaction_operators
-from fermilib import interaction_rdms
+from fermilib.ops import InteractionOperator
+from fermilib.ops import InteractionRDM
 from fermilib.config import *
 
 

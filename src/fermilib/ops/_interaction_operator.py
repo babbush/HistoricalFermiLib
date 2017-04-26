@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 import itertools
 
-from fermilib.interaction_tensors import InteractionTensor
+from fermilib.ops import InteractionTensor
 
 
 class InteractionOperatorError(Exception):

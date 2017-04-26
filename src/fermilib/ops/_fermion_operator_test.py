@@ -15,7 +15,7 @@ import copy
 import numpy
 import pytest
 
-from projectqtemp.ops import _fermion_operator as fo
+from fermilib.ops import FermionOperator as fo
 
 
 def test_init_defaults():

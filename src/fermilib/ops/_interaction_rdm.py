@@ -4,8 +4,8 @@ from __future__ import absolute_import
 import copy
 import numpy
 
-from fermilib.interaction_tensors import InteractionTensor
-import projectqtemp.ops._fermion_operator as fo
+from fermilib.ops import InteractionTensor
+from fermilib.ops import FermionOperator as fo
 import projectqtemp.ops._qubit_operator as qo
 
 
