@@ -32,22 +32,22 @@ def two_body_term(p, q, r, s, coefficient=1.):
     return FermionOperator(((p, 1), (q, 1), (r, 0), (s, 0)), coefficient)
 
 
-def number_operator(n_orbitals, site=None, coefficient=1.):
+def number_operator(n_orbitals, orbital=None, coefficient=1.):
     """Return a number operator.
 
     Args:
         n_orbitals (int): The number of spin-orbitals in the system.
-        site (int, optional): The site on which to return the number
+        orbital (int, optional): The orbital on which to return the number
                                  operator. If None, return total number
                                  operator on all sites.
         coefficient (float): The coefficient of the term.
     """
-    if site is None:
+    if orbital is None:
         operator = FermionOperator((), 0.0)
-        for spin_orbital in range(n_qubits):
-            operator += number_operator(n_qubits, spin_orbital, coefficient)
+        for spin_orbital in range(n_orbitals):
+            operator += number_operator(n_orbitals, spin_orbital, coefficient)
     else:
-        operator = FermionOperator(((site, 1), (site, 0)), coefficient)
+        operator = FermionOperator(((orbital, 1), (orbital, 0)), coefficient)
     return operator
 
 
@@ -179,8 +179,8 @@ class FermionOperator(object):
         highest_mode = 0
         for term in self.terms:
             for ladder_operator in term:
-                if ladder[0] > highest_mode:
-                    highest_mode = ladder[0]
+                if ladder_operator[0] > highest_mode:
+                    highest_mode = ladder_operator[0]
         return highest_mode
 
     def isclose(self, other, rel_tol=1e-12, abs_tol=1e-12):

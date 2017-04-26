@@ -1,4 +1,9 @@
-from ._fermion_operator import FermionOperator
+from ._fermion_operator import (fermion_identity,
+                                one_body_term,
+                                two_body_term,
+                                number_operator,
+                                hermitian_conjugated,
+                                FermionOperator)
 
 from ._interaction_tensor import InteractionTensor
 from ._interaction_operator import InteractionOperator
