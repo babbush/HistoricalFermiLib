@@ -162,16 +162,17 @@ class InteractionRDM(InteractionTensor):
 
         """
         qubit_operator_expectations = copy.deepcopy(qubit_operator)
-        # TODO continue fixing from here
         for qubit_term in qubit_operator_expectations.terms:
             qubit_term = qo.QubitOperator(qubit_term,
                                           qubit_operator_expectations.terms[
                                               qubit_term])
-            if not qubit_term.isclose(qo.qubit_identity()):
+            if (not qubit_term.is_identity() and
+                qubit_term.terms[list(qubit_term.terms)[0]] != 0.0):
                 # set coefficient to 1, then to correct expectation value
                 qubit_term.terms[list(qubit_term.terms)[0]] = 1.
-                qubit_term.terms[list(qubit_term.terms)[0]] = (
-                    self.qubit_term_expectation(qubit_term))
+                qubit_operator_expectations.terms[
+                    list(qubit_term.terms)[0]] = (self.qubit_term_expectation(
+                        qubit_term))
         qubit_operator_expectations.terms[()] = 0.
         return qubit_operator_expectations
 
@@ -179,10 +180,15 @@ class InteractionRDM(InteractionTensor):
         """Return expectation value of a QubitTerm with an InteractionRDM
         (self).
 
-        Args:   qubit_term: QubitTerm instance to be evaluated on this
-        InteractionRDM.
+        Args:
+          qubit_term: single-term QubitOperator to be evaluated on this
+                      InteractionRDM.
 
         """
+        if len(qubit_term.terms) != 1:
+            raise ValueError('qubit_term must be a single-term'
+                             ' QubitOperator.')
+
         # to avoid circular imports
         from transforms._reverse_jordan_wigner import reverse_jordan_wigner
 
@@ -191,12 +197,12 @@ class InteractionRDM(InteractionTensor):
                                                            self.n_qubits)
         reversed_fermion_operators = (
             reversed_fermion_operators.normal_ordered())
-        for term in reversed_fermion_operators.terms:
-            coeff = reversed_fermion_operators.terms[term]
-            fermion_term = fo.FermionOperator(term, coeff)
+        for ops in reversed_fermion_operators.terms:
+            coeff = reversed_fermion_operators.terms[ops]
+            fermion_term = fo.FermionOperator(ops, coeff)
             # Handle molecular terms.
             if fermion_term.is_molecular_term():
-                if fermion_term.isclose(fo.fermion_identity()):
+                if fermion_term.is_identity():
                     expectation += coeff
                 else:
                     indices = [operator[0] for operator in

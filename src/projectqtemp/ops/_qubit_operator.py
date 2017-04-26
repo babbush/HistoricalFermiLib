@@ -418,6 +418,12 @@ class QubitOperator(object):
     def __neg__(self):
         return -1. * self
 
+    def is_identity(self):
+        for term in self.terms:
+            if self.terms[term] and term != tuple():
+                return False
+        return True
+
     def __str__(self):
         """Return an easy-to-read string representation."""
         string_rep = ''
