@@ -179,8 +179,8 @@ class FermionOperator(object):
         highest_mode = 0
         for term in self.terms:
             for ladder_operator in term:
-                if ladder_operator[0] > highest_mode:
-                    highest_mode = ladder_operator[0]
+                if ladder_operator[0] + 1 > highest_mode:
+                    highest_mode = ladder_operator[0] + 1
         return highest_mode
 
     def isclose(self, other, rel_tol=1e-12, abs_tol=1e-12):
