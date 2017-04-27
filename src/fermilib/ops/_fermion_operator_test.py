@@ -87,7 +87,7 @@ def test_one_body_term():
 def test_two_body_term():
     op = two_body_term(4, 11, 7, 4, 0.5)
     assert op.isclose(0.5 * FermionOperator(((4, 1), (11, 1),
-                                                (7, 0), (4, 0))))
+                                             (7, 0), (4, 0))))
 
 
 def test_number_operator_site():

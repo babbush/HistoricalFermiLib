@@ -86,8 +86,8 @@ class FermionOperator(object):
                                    mode on which a ladder operator acts and
                                    the second element is a bool, either '0'
                                    indicating annihilation, or '1' indicating
-                                   creation in that mode; for example,
-                                   '2^ 5' is ((2, 1), (5, 0)).
+                                   creation in that mode; for example, '2^ 5'
+                                   is ((2, 1), (5, 0)).
             value (complex float): The coefficient of term represented by key.
     """
 
@@ -102,7 +102,7 @@ class FermionOperator(object):
         Example:
             .. code-block:: python
 
-            ham = (FermionOperator('0^ 3', 0.5) + 0.5 * FermionOperator('3^ 0'))
+            ham = (FermionOperator('0^ 3', .5) + .5 * FermionOperator('3^ 0'))
             # Equivalently
             ham2 = FermionOperator('0^ 3', 0.5)
             ham2 += FermionOperator('3^ 0', 0.5)
@@ -168,11 +168,11 @@ class FermionOperator(object):
                 if not (isinstance(orbital, int) and orbital >= 0):
                     raise FermionOperatorError(
                         'Invalid tensor factor in FermionOperator:'
-                         'must be a non-negative int.')
+                        'must be a non-negative int.')
                 if action not in (0, 1):
                     raise ValueError(
                         'Invalid action in FermionOperator: '
-                         'Must be 0 (lowering) or 1 (raising).')
+                        'Must be 0 (lowering) or 1 (raising).')
 
     def n_qubits(self):
         """Return minimum number of qubits on which FermionOperator acts."""

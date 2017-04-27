@@ -1,3 +1,6 @@
 {
-  "_sparse_operator_test.py::SparseOperatorTest::test_qubit_jw_fermion_integration": true
+  "_molecular_data_test.py::MolecularData::test_energies": true, 
+  "_molecular_data_test.py::MolecularData::test_name_molecule": true, 
+  "_molecular_data_test.py::MolecularData::test_rdm_and_rotation": true, 
+  "_molecular_data_test.py::MolecularData::test_save_refresh": true
 }
