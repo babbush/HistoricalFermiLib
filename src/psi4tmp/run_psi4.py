@@ -66,7 +66,7 @@ def generate_psi4_input(molecule,
     geo_string = create_geometry_string(molecule.geometry)
 
     # Parse input template.
-    template_file = THIS_DIRECTORY + '/psi4_template'
+    template_file = PSI4_DIRECTORY + '/psi4_template'
     input_template = []
     with open(template_file, 'r') as stream:
         for line in stream:
@@ -74,7 +74,7 @@ def generate_psi4_input(molecule,
 
     # Populate contents of input file based on automatic parameters.
     input_content = [re.sub('&THIS_DIRECTORY',
-                            THIS_DIRECTORY, line)
+                            PSI4_DIRECTORY, line)
                      for line in input_template]
 
     # Populate contents of input file based on MolecularData parameters.

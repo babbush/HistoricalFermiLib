@@ -2,11 +2,10 @@
 from __future__ import absolute_import
 
 import unittest
-
 import numpy
 
-from fermilib import molecular_data
-from fermilib import run_psi4
+from fermilib.ops import MolecularData
+from psi4tmp import run_psi4
 
 
 class OddNumberElectronBug(unittest.TestCase):
@@ -26,7 +25,7 @@ class OddNumberElectronBug(unittest.TestCase):
         self.geometry = [('H', (0., 0., x * 0.7414)) for x in range(3)]
         self.basis = 'sto-3g'
         self.multiplicity = 2
-        self.molecule = molecular_data.MolecularData(
+        self.molecule = MolecularData(
             self.geometry, self.basis, self.multiplicity)
 
         # Run calculations.
@@ -35,12 +34,12 @@ class OddNumberElectronBug(unittest.TestCase):
         verbose = 0
         delete_input = 1
         delete_output = 1
-        self.molecule = run_psi4.run_psi4(self.molecule,
-                                          run_scf=run_scf,
-                                          run_fci=run_fci,
-                                          verbose=verbose,
-                                          delete_input=delete_input,
-                                          delete_output=delete_output)
+        self.molecule = run_psi4(self.molecule,
+                                 run_scf=run_scf,
+                                 run_fci=run_fci,
+                                 verbose=verbose,
+                                 delete_input=delete_input,
+                                 delete_output=delete_output)
 
         # Get molecular Hamiltonian.
         self.molecular_hamiltonian = self.molecule.get_molecular_hamiltonian()
