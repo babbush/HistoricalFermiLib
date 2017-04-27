@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import unittest
 
-from fermilib.fenwick_tree import (FenwickTree, FenwickNode)
+from fermilib.transforms._fenwick_tree import (FenwickTree, FenwickNode)
 
 
 class FenwickTreeTest(unittest.TestCase):

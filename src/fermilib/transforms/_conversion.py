@@ -10,12 +10,11 @@ from fermilib.ops import (FermionOperator,
                           fermion_identity,
                           number_operator,
                           InteractionOperator,
-                          InteractionRDM,
-                          jordan_wigner_operator_sparse,
-                          qubit_term_sparse,
-                          qubit_operator_sparse)
+                          InteractionRDM)
 
 from fermilib.ops._interaction_operator import InteractionOperatorError
+from fermilib.ops._sparse_operator import (qubit_term_sparse,
+                                           qubit_operator_sparse)
 from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 
 

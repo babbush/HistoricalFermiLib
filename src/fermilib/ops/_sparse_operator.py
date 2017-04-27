@@ -250,7 +250,6 @@ class SparseOperator(object):
       n_qubits(int): Number qubits in the system Hilbert space.
 
     """
-
     def __init__(self, matrix):
         """Construct a sparse operator.
 
