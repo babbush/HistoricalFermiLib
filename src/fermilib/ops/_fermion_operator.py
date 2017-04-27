@@ -246,6 +246,70 @@ class FermionOperator(object):
                     highest_mode = ladder_operator[0] + 1
         return highest_mode
 
+    def is_normal_ordered(self):
+        """Return whether or not term is in normal order.
+
+        In our convention, normal ordering implies terms are ordered
+        from highest tensor factor (on left) to lowest (on right). Also,
+        ladder operators come first.
+        """
+        n_qubits = self.n_qubits()
+        for term in self.terms:
+          for i in range(1, len(term)):
+            for j in range(i, 0, -1):
+                right_operator = term[j]
+                left_operator = term[j - 1]
+                if right_operator[1] and not left_operator[1]:
+                    return False
+                elif (right_operator[1] == left_operator[1] and
+                      right_operator[0] >= left_operator[0]):
+                    return False
+        return True
+
+    def is_molecular_term(self):
+        """Query whether term has correct form to be from a molecular.
+
+        Require that term is particle-number conserving (same number of
+        raising and lowering operators). Require that term has 0, 2 or 4
+        ladder operators. Require that term conserves spin (parity of
+        raising operators equals parity of lowering operators).
+        """
+        for term in self.terms:
+            if len(term) not in (0, 2, 4):
+                return False
+
+            # Make sure term conserves particle number and spin.
+            spin = 0
+            particles = 0
+            for operator in term:
+                particles += (-1) ** operator[1]  # add 1 if create, else -1
+                spin += (-1) ** (operator[0] + operator[1])
+            if not (particles == spin == 0):
+                return False
+        return True
+
+    def is_identity(self):
+        for term in self.terms:
+            if self.terms[term] and term != tuple():
+                return False
+        return True
+
+    def __str__(self):
+        """Return an easy-to-read string representation."""
+        string_rep = ''
+        for term in self.terms:
+            tmp_string = '{} ['.format(self.terms[term])
+            for operator in term:
+                if operator[1] == 1:
+                    tmp_string += '{}^ '.format(operator[0])
+                elif operator[1] == 0:
+                    tmp_string += '{} '.format(operator[0])
+            string_rep += '{}]\n'.format(tmp_string.strip())
+        return string_rep
+
+    def __repr__(self):
+        return str(self)
+
     def isclose(self, other, rel_tol=1e-12, abs_tol=1e-12):
         """
         Returns True if other (FermionOperator) is close to self.
@@ -447,68 +511,3 @@ class FermionOperator(object):
         for i in range(exponent):
             exponentiated *= self
         return exponentiated
-
-    def is_normal_ordered(self):
-        """Return whether or not term is in normal order.
-
-        In our convention, normal ordering implies terms are ordered
-        from highest tensor factor (on left) to lowest (on right). Also,
-        ladder operators come first.
-        """
-        n_qubits = self.n_qubits()
-        for term in self.terms:
-            creating = True  # normal ordered must start with creation ops
-            pos = n_qubits
-            for i in range(len(term)):
-                if creating and not term[i][1]:
-                    creating = False
-                    pos = term[i][0]
-                elif term[i][0] >= pos or term[i][1] != creating:
-                    return False
-                pos = term[i][0]
-        return True
-
-    def is_molecular_term(self):
-        """Query whether term has correct form to be from a molecular.
-
-        Require that term is particle-number conserving (same number of
-        raising and lowering operators). Require that term has 0, 2 or 4
-        ladder operators. Require that term conserves spin (parity of
-        raising operators equals parity of lowering operators).
-        """
-        for term in self.terms:
-            if len(term) not in (0, 2, 4):
-                return False
-
-            # Make sure term conserves particle number and spin.
-            spin = 0
-            particles = 0
-            for operator in term:
-                particles += (-1) ** operator[1]  # add 1 if create, else -1
-                spin += (-1) ** (operator[0] + operator[1])
-            if not (particles == spin == 0):
-                return False
-
-        return True
-
-    def is_identity(self):
-        for term in self.terms:
-            if self.terms[term] and term != tuple():
-                return False
-        return True
-
-    def __str__(self):
-        """Return an easy-to-read string representation."""
-        string_rep = ''
-        for term in self.terms:
-            tmp_string = '{} ['.format(self.terms[term])
-            for operator in term:
-                if operator[1] == 1:
-                    tmp_string += '{}^ '.format(operator[0])
-                elif operator[1] == 0:
-                    tmp_string += '{} '.format(operator[0])
-            string_rep += '{}]\n'.format(tmp_string.strip())
-        return string_rep
-
-    def __repr__(self):
-        return str(self)
