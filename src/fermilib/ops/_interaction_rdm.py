@@ -177,7 +177,7 @@ class InteractionRDM(InteractionTensor):
 
     def qubit_term_expectation(self, qubit_term):
         """
-        Return expectation value of a QubitTerm with an InteractionRDM (self).
+        Return expectation value of a QubitOperator with an InteractionRDM (self).
 
         Args:
             qubit_term: single-term QubitOperator to be evaluated on this

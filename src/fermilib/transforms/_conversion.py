@@ -5,7 +5,7 @@ import copy
 import itertools
 import numpy
 
-from fermilib.transforms import FenwickTree
+from fermilib.transforms import FenwickTree, jordan_wigner_sparse
 from fermilib.ops import (FermionOperator,
                           fermion_identity,
                           number_operator,
@@ -58,38 +58,37 @@ def get_sparse_interaction_operator(iop):
     return sparse_operator
 
 
-def get_interaction_rdm(qop, n_qubits=None):
+def get_interaction_rdm(qubit_operator, n_qubits=None):
     """Build a InteractionRDM from measured qubit operators.
 
     Returns: A InteractionRDM object.
-
     """
     # to avoid circular import
     from fermilib.transforms import jordan_wigner
 
     if n_qubits is None:
-        n_qubits = qop.n_qubits()
+        n_qubits = qubit_operator.n_qubits()
     if n_qubits == 0:
         raise QubitOperatorError('Invalid n_qubits.')
-    if n_qubits < qop.n_qubits():
-        n_qubits = qop.n_qubits()
+    if n_qubits < qubit_operator.n_qubits():
+        n_qubits = qubit_operator.n_qubits()
     one_rdm = numpy.zeros((n_qubits,) * 2, dtype=complex)
     two_rdm = numpy.zeros((n_qubits,) * 4, dtype=complex)
 
     # One-RDM.
     for i, j in itertools.product(range(n_qubits), repeat=2):
         transformed_operator = jordan_wigner(FermionOperator(((i, 1), (j, 0))))
-        for term in transformed_operator:
-            if tuple(term.operators) in qop.terms:
-                one_rdm[i, j] += term.coefficient * qop[term.operators]
+        for term, coefficient in transformed_operator.terms.iteritems():
+            if term in qubit_operator.terms:
+                one_rdm[i, j] += coefficient * qubit_operator.terms[term]
 
     # Two-RDM.
     for i, j, k, l in itertools.product(range(n_qubits), repeat=4):
         transformed_operator = jordan_wigner(FermionOperator(((i, 1), (j, 1),
                                                               (k, 0), (l, 0))))
-        for term in transformed_operator:
-            if tuple(term.operators) in qop.terms:
-                two_rdm[i, j, k, l] += term.coefficient * qop[term.operators]
+        for term, coefficient in transformed_operator.terms.iteritems():
+            if term in qubit_operator.terms:
+                two_rdm[i, j, k, l] += coefficient * qubit_operator.terms[term]
 
     return InteractionRDM(one_rdm, two_rdm)
 
