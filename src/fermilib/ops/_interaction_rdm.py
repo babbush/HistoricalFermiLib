@@ -181,15 +181,11 @@ class InteractionRDM(InteractionTensor):
         Args:
           qubit_term: single-term QubitOperator to be evaluated on this
                       InteractionRDM.
-
         """
+        from fermilib.transforms import reverse_jordan_wigner
         if len(qubit_term.terms) != 1:
             raise ValueError('qubit_term must be a single-term'
                              ' QubitOperator.')
-
-        # to avoid circular imports
-        from transforms._reverse_jordan_wigner import reverse_jordan_wigner
-
         expectation = 0.
         reversed_fermion_operators = reverse_jordan_wigner(qubit_term,
                                                            self.n_qubits)
@@ -197,7 +193,7 @@ class InteractionRDM(InteractionTensor):
             reversed_fermion_operators.normal_ordered())
         for ops in reversed_fermion_operators.terms:
             coeff = reversed_fermion_operators.terms[ops]
-            fermion_term = fo.FermionOperator(ops, coeff)
+            fermion_term = FermionOperator(ops, coeff)
             # Handle molecular terms.
             if fermion_term.is_molecular_term():
                 if fermion_term.is_identity():

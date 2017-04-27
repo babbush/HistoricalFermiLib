@@ -11,10 +11,8 @@ from fermilib.ops import (InteractionOperator,
                           number_operator,
                           one_body_term,
                           two_body_term)
+from fermilib.transforms import *
 from projectqtemp.ops._qubit_operator import QubitOperator
-from transforms._conversion import (eigenspectrum, get_fermion_operator,
-                                    get_interaction_operator,
-                                    get_sparse_operator)
 
 
 class GetInteractionOperatorTest(unittest.TestCase):

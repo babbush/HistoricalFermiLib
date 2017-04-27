@@ -1,1 +1,3 @@
-{}
+{
+  "_hydrogen_integration_test.py::HydrogenIntegrationTest::test_molecular_hydrogen": true
+}

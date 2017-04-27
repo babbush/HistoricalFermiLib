@@ -5,15 +5,11 @@ import unittest
 
 import numpy
 import scipy.sparse
-import projectqtemp.ops._fermion_operator as fo
+from fermilib.ops import *
+from fermilib.transforms import *
+from fermilib.utils import uccsd_operator
 
-from fermilib.ops._molecular_data import MolecularData
-from fermilib import run_psi4
-from fermilib import sparse_operators
-from fermilib import unitary_cc
-from fermilib.transforms import (get_fermion_operator, get_interaction_rdm,
-                                 get_interaction_operator, get_sparse_operator,
-                                 jordan_wigner, reverse_jordan_wigner)
+from psi4tmp import run_psi4
 
 
 class HydrogenIntegrationTest(unittest.TestCase):
@@ -24,7 +20,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
         self.geometry = [('H', (0., 0., 0.)), ('H', (0., 0., 0.7414))]
         self.basis = 'sto-3g'
         self.multiplicity = 1
-        self.molecule = molecular_data.MolecularData(
+        self.molecule = MolecularData(
             self.geometry, self.basis, self.multiplicity)
 
         # Run calculations.
@@ -34,13 +30,13 @@ class HydrogenIntegrationTest(unittest.TestCase):
         verbose = 0
         delete_input = 1
         delete_output = 0
-        self.molecule = run_psi4.run_psi4(self.molecule,
-                                          run_scf=run_scf,
-                                          run_ccsd=run_ccsd,
-                                          run_fci=run_fci,
-                                          verbose=verbose,
-                                          delete_input=delete_input,
-                                          delete_output=delete_output)
+        self.molecule = run_psi4(self.molecule,
+                                 run_scf=run_scf,
+                                 run_ccsd=run_ccsd,
+                                 run_fci=run_fci,
+                                 verbose=verbose,
+                                 delete_input=delete_input,
+                                 delete_output=delete_output)
 
         # Get molecular Hamiltonian.
         self.molecular_hamiltonian = self.molecule.get_molecular_hamiltonian()
@@ -60,7 +56,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
         # Get qubit Hamiltonian.
         self.qubit_hamiltonian = jordan_wigner(self.fermion_hamiltonian)
 
-        # Get matrix form.
+        # Get matrix m.
         self.hamiltonian_matrix = get_sparse_operator(
             self.molecular_hamiltonian)
 
@@ -90,7 +86,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
         qubit_hamiltonian = jordan_wigner(self.fermion_hamiltonian)
         self.assertTrue(self.qubit_hamiltonian.isclose(qubit_hamiltonian))
 
-        # Check reverse transform.
+        # Check reverse transm.
         fermion_hamiltonian = reverse_jordan_wigner(qubit_hamiltonian)
         fermion_hamiltonian = fermion_hamiltonian.normal_ordered()
         self.assertTrue(self.fermion_hamiltonian.isclose(fermion_hamiltonian))
@@ -204,10 +200,10 @@ class HydrogenIntegrationTest(unittest.TestCase):
         expected_energy = self.hamiltonian_matrix.expectation(wavefunction)
         self.assertAlmostEqual(expected_energy, energy)
 
-        # Make sure you can reproduce Hartree-Fock energy.
-        hf_state = sparse_operators.jw_hartree_fock_state(
+        # Make sure you can reproduce Hartree energy.
+        hf_state = jw_hartree_fock_state(
             self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits())
-        hf_density = sparse_operators.get_density_matrix([hf_state], [1.])
+        hf_density = get_density_matrix([hf_state], [1.])
         expected_hf_density_energy = self.hamiltonian_matrix.expectation(
             hf_density)
         expected_hf_energy = self.hamiltonian_matrix.expectation(hf_state)
@@ -225,14 +221,13 @@ class HydrogenIntegrationTest(unittest.TestCase):
         new_fermi_rdm.expectation(self.molecular_hamiltonian)
         self.assertAlmostEqual(fci_rdm_energy, self.molecule.fci_energy)
 
-        # Test UCCSD for reasonable accuracy against FCI using loaded t
+        # Test UCCSD  reasonable accuracy against FCI using loaded t
         # amplitudes
-        uccsd_operator = unitary_cc.\
-            uccsd_operator(self.molecule.ccsd_amplitudes.one_body_tensor,
-                           self.molecule.ccsd_amplitudes.two_body_tensor)
+        uccsd_operator = uccsd_operator(
+            self.molecule.ccsd_amplitudes.one_body_tensor,
+            self.molecule.ccsd_amplitudes.two_body_tensor)
 
-        uccsd_sparse = sparse_operators.\
-            jordan_wigner_operator_sparse(uccsd_operator,
+        uccsd_sparse = jordan_wigner_operator_sparse(uccsd_operator,
                                           self.qubit_hamiltonian.n_qubits())
         uccsd_state = scipy.sparse.linalg.expm_multiply(uccsd_sparse.matrix,
                                                         hf_state)
@@ -241,20 +236,16 @@ class HydrogenIntegrationTest(unittest.TestCase):
         self.assertAlmostEqual(expected_uccsd_energy, self.molecule.fci_energy,
                                places=4)
 
-        # print("UCCSD Energy: {}".format(expected_uccsd_energy))
+        # Test CCSD  precise match against FCI using loaded t amplitudes
+        ccsd_operator = uccsd_operator(
+            self.molecule.ccsd_amplitudes.one_body_tensor,
+            self.molecule.ccsd_amplitudes.two_body_tensor,
+            anti_hermitian=False)
 
-        # Test CCSD for precise match against FCI using loaded t amplitudes
-        ccsd_operator = unitary_cc.\
-            uccsd_operator(self.molecule.ccsd_amplitudes.one_body_tensor,
-                           self.molecule.ccsd_amplitudes.two_body_tensor,
-                           anti_hermitian=False)
-
-        ccsd_sparse_r = sparse_operators.\
-            jordan_wigner_operator_sparse(ccsd_operator,
+        ccsd_sparse_r = jordan_wigner_operator_sparse(ccsd_operator,
                                           self.qubit_hamiltonian.n_qubits())
-        ccsd_sparse_l = sparse_operators.\
-            jordan_wigner_operator_sparse(
-                -fo.hermitian_conjugated(ccsd_operator),
+        ccsd_sparse_l = jordan_wigner_operator_sparse(
+                -hermitian_conjugated(ccsd_operator),
                 self.qubit_hamiltonian.n_qubits())
         ccsd_state_r = scipy.sparse.linalg.expm_multiply(ccsd_sparse_r.matrix,
                                                          hf_state)
@@ -263,8 +254,6 @@ class HydrogenIntegrationTest(unittest.TestCase):
         expected_ccsd_energy = ccsd_state_l.getH().dot(
             self.hamiltonian_matrix.matrix.dot(ccsd_state_r))[0, 0]
         self.assertAlmostEqual(expected_ccsd_energy, self.molecule.fci_energy)
-
-        # print("CCSD Energy: {}".format(expected_ccsd_energy))
 
 
 if __name__ == '__main__':
