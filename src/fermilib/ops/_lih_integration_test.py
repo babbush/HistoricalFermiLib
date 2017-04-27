@@ -6,9 +6,10 @@ import unittest
 import numpy
 import scipy.linalg
 
-from fermilib.ops._molecular_data import MolecularData
+from fermilib.ops import *
+from fermilib.transforms import *
+
 from psi4tmp import run_psi4
-from fermilib.ops import _sparse_operator
 
 
 class LiHIntegrationTest(unittest.TestCase):
@@ -40,6 +41,7 @@ class LiHIntegrationTest(unittest.TestCase):
         self.molecular_hamiltonian = self.molecule.get_molecular_hamiltonian()
         self.molecular_hamiltonian_no_core = self.molecule.\
             get_molecular_hamiltonian(active_space_start=1)
+
         # Get FCI RDM.
         self.fci_rdm = self.molecule.get_molecular_rdm(use_fci=run_fci)
 
@@ -49,19 +51,19 @@ class LiHIntegrationTest(unittest.TestCase):
         self.two_body = self.molecular_hamiltonian.two_body_tensor
 
         # Get fermion Hamiltonian.
-        self.fermion_hamiltonian = (
-            self.molecular_hamiltonian.get_fermion_operator())
-        self.fermion_hamiltonian.normal_order()
+        self.fermion_hamiltonian = get_fermion_operator(
+            self.molecular_hamiltonian)
+        self.fermion_hamiltonian = self.fermion_hamiltonian.normal_ordered()
 
         # Get qubit Hamiltonian.
-        self.qubit_hamiltonian = (
-            self.fermion_hamiltonian.jordan_wigner_transform())
+        self.qubit_hamiltonian = jordan_wigner(
+            self.fermion_hamiltonian)
 
         # Get matrix form.
-        self.hamiltonian_matrix = (
-            self.molecular_hamiltonian.get_sparse_operator())
-        self.hamiltonian_matrix_no_core = self.molecular_hamiltonian_no_core.\
-            get_sparse_operator()
+        self.hamiltonian_matrix = get_sparse_operator(
+            self.molecular_hamiltonian)
+        self.hamiltonian_matrix_no_core = get_sparse_operator(
+            self.molecular_hamiltonian_no_core)
 
         # Recore frozen core result from external caluclation.
         self.frozen_core_fci_energy = -7.8807607374168
@@ -69,19 +71,20 @@ class LiHIntegrationTest(unittest.TestCase):
     def test_molecular_LiH(self):
 
         # Check that all the transforms work.
-        qubit_hamiltonian = self.fermion_hamiltonian.jordan_wigner_transform()
-        self.assertTrue(self.qubit_hamiltonian == qubit_hamiltonian)
+        qubit_hamiltonian = jordan_wigner(self.fermion_hamiltonian)
+        self.assertTrue(self.qubit_hamiltonian.isclose(qubit_hamiltonian))
 
         # Check reverse transform.
-        fermion_hamiltonian = qubit_hamiltonian.reverse_jordan_wigner()
-        fermion_hamiltonian.normal_order()
-        self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
+        fermion_hamiltonian = reverse_jordan_wigner(qubit_hamiltonian)
+        fermion_hamiltonian = fermion_hamiltonian.normal_ordered()
+        self.assertTrue(self.fermion_hamiltonian.isclose(fermion_hamiltonian))
 
-        # Make sure the mapping of FermionOperator to MolecularOperator works.
-        molecular_hamiltonian = (
-            self.fermion_hamiltonian.get_interaction_operator())
-        fermion_hamiltonian = molecular_hamiltonian.get_fermion_operator()
-        self.assertTrue(self.fermion_hamiltonian == fermion_hamiltonian)
+        # Make sure the mapping of FermionOperator to InteractionOperator works.
+        molecular_hamiltonian = get_interaction_operator(
+            self.fermion_hamiltonian)
+        fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
+        fermion_hamiltonian = fermion_hamiltonian.normal_ordered()
+        self.assertTrue(self.fermion_hamiltonian.isclose(fermion_hamiltonian))
 
         # Check that FCI prior has the correct energy.
         fci_rdm_energy = self.nuclear_repulsion
@@ -98,9 +101,9 @@ class LiHIntegrationTest(unittest.TestCase):
         self.assertAlmostEqual(expected_energy, energy)
 
         # Make sure you can reproduce Hartree-Fock energy.
-        hf_state = _sparse_operator.jw_hartree_fock_state(
+        hf_state = jw_hartree_fock_state(
             self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits())
-        hf_density = _sparse_operator.get_density_matrix([hf_state], [1.])
+        hf_density = get_density_matrix([hf_state], [1.])
         expected_hf_density_energy = self.hamiltonian_matrix.expectation(
             hf_density)
         expected_hf_energy = self.hamiltonian_matrix.expectation(hf_state)
@@ -110,11 +113,13 @@ class LiHIntegrationTest(unittest.TestCase):
 
         # Confirm expectation on qubit Hamiltonian using reverse JW matches.
         qubit_rdm = self.fci_rdm.get_qubit_expectations(self.qubit_hamiltonian)
-        qubit_energy = self.qubit_hamiltonian.expectation(qubit_rdm)
+        qubit_energy = self.qubit_hamiltonian.terms[()]
+        for term, coefficient in qubit_rdm.terms.iteritems():
+          qubit_energy += coefficient * self.qubit_hamiltonian.terms[term]
         self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 
         # Confirm fermionic RDMs can be built from measured qubit RDMs.
-        new_fermi_rdm = qubit_rdm.get_interaction_rdm()
+        new_fermi_rdm = get_interaction_rdm(qubit_rdm)
         fermi_rdm_energy = new_fermi_rdm.expectation(
             self.molecular_hamiltonian)
         self.assertAlmostEqual(fci_rdm_energy, self.molecule.fci_energy)
