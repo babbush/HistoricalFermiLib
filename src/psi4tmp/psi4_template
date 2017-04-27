@@ -1,15 +1,17 @@
 """This is a template for psi4 input format."""
-
-# Import needed libraries.
 import sys
-sys.path.append('&THIS_DIRECTORY')
-import interaction_tensors
-import interaction_rdms
-import molecular_data
 import numpy
+
+from fermilib.config import *
+from fermilib.ops import MolecularData
+from fermilib.ops._interaction_rdm import (InteractionRDM,
+                                           unpack_spatial_rdm)
+from fermilib.ops._interaction_tensor import (one_body_basis_change,
+                                              two_body_basis_change)
+
+sys.path.append('&THIS_DIRECTORY')
 import parser_functions
 
-from config import *
 
 # Set memory that job can use in megabytes.
 memory &memory mb
@@ -18,11 +20,11 @@ memory &memory mb
 _description = '&description'
 if _description == 'None':
   _description = None
-molecule = molecular_data.MolecularData(&geometry,
-                                        '&basis',
-                                        &multiplicity,
-                                        &charge,
-                                        _description)
+molecule = MolecularData(&geometry,
+                         '&basis',
+                         &multiplicity,
+                         &charge,
+                         _description)
 
 # Set molecular geometry and symmetry.
 molecule mol {
@@ -83,9 +85,9 @@ if &run_scf:
 
     # Get integrals using MintsHelper.
     mints = MintsHelper(hf_wavefunction.basisset())
-    molecule.one_body_integrals = interaction_tensors.one_body_basis_change(
+    molecule.one_body_integrals = one_body_basis_change(
         numpy.asarray(mints.ao_kinetic()), molecule.canonical_orbitals)
-    molecule.one_body_integrals += interaction_tensors.one_body_basis_change(
+    molecule.one_body_integrals += one_body_basis_change(
         numpy.asarray(mints.ao_potential()), molecule.canonical_orbitals)
     two_body_integrals = numpy.asarray(mints.ao_eri())
     two_body_integrals.reshape((molecule.n_orbitals,
@@ -93,7 +95,7 @@ if &run_scf:
                                 molecule.n_orbitals,
                                 molecule.n_orbitals))
     two_body_integrals = numpy.einsum('psqr', two_body_integrals)
-    two_body_integrals = interaction_tensors.two_body_basis_change(
+    two_body_integrals = two_body_basis_change(
         two_body_integrals, molecule.canonical_orbitals)
     integrals_name = molecule.data_handle() + '_eri'
     numpy.save(integrals_name, two_body_integrals)
@@ -153,7 +155,7 @@ if &run_cisd:
                               molecule.n_orbitals, molecule.n_orbitals)
 
     # Get overall RDMs.
-    cisd_one_rdm, cisd_two_rdm = interaction_rdms.unpack_spatial_rdm(
+    cisd_one_rdm, cisd_two_rdm = unpack_spatial_rdm(
         cisd_one_rdm_a, cisd_one_rdm_b,
         cisd_two_rdm_aa, cisd_two_rdm_ab,
         cisd_two_rdm_bb)
@@ -200,7 +202,7 @@ if &run_fci:
                               molecule.n_orbitals, molecule.n_orbitals)
 
     # Get overall RDMs.
-    fci_one_rdm, fci_two_rdm = interaction_rdms.unpack_spatial_rdm(
+    fci_one_rdm, fci_two_rdm = unpack_spatial_rdm(
         fci_one_rdm_a, fci_one_rdm_b,
         fci_two_rdm_aa, fci_two_rdm_ab, fci_two_rdm_bb)
 

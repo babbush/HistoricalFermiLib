@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 import numpy
 
-from fermilib import interaction_operators
+from fermilib.ops import InteractionOperator
 
 
 def parse_psi4_ccsd_amplitudes(number_orbitals,
@@ -165,8 +165,8 @@ def parse_psi4_ccsd_amplitudes(number_orbitals,
                               alpha_occupied(j),
                               alpha_unoccupied(b)] = -value / 2.
 
-    # Package into molecular operator
-    molecule = interaction_operators.InteractionOperator(0.0,
-                                                         single_amplitudes,
-                                                         double_amplitudes)
+    # Package into InteractionOperator.
+    molecule = InteractionOperator(0.0,
+                                   single_amplitudes,
+                                   double_amplitudes)
     return molecule

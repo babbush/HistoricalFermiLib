@@ -1,7 +1,11 @@
 """This is a development-only script for generating data."""
-import chemical_series
-import molecular_data
-import run_psi4
+from fermilib.ops._molecular_data import (MolecularData,
+                                          _PERIODIC_TABLE)
+
+from fermilib.utils import (make_atomic_ring,
+                            make_atom)
+
+from psi4tmp import run_psi4
 
 
 if __name__ == '__main__':
@@ -27,10 +31,10 @@ if __name__ == '__main__':
 
     # Initialize.
     if periodic_table:
-      atomic_symbol = molecular_data._PERIODIC_TABLE[n_electrons]
-      molecule = chemical_series.make_atom(atomic_symbol, basis)
+      atomic_symbol = _PERIODIC_TABLE[n_electrons]
+      molecule = make_atom(atomic_symbol, basis)
     else:
-      molecule = chemical_series.make_atomic_ring(n_electrons, spacing, basis)
+      molecule = make_atomic_ring(n_electrons, spacing, basis)
 
     # To run or not to run.
     if not molecule.hf_energy:
@@ -48,11 +52,11 @@ if __name__ == '__main__':
 
     # Run.
     if run_job:
-      molecule = run_psi4.run_psi4(molecule,
-                                   run_scf=run_scf,
-                                   run_mp2=run_mp2,
-                                   run_cisd=run_cisd,
-                                   run_ccsd=run_ccsd,
-                                   run_fci=run_fci,
-                                   verbose=verbose,
-                                   tolerate_error=tolerate_error)
+      molecule = run_psi4(molecule,
+                          run_scf=run_scf,
+                          run_mp2=run_mp2,
+                          run_cisd=run_cisd,
+                          run_ccsd=run_ccsd,
+                          run_fci=run_fci,
+                          verbose=verbose,
+                          tolerate_error=tolerate_error)

@@ -3,7 +3,9 @@ from __future__ import absolute_import
 
 import numpy
 
-from fermilib.ops import MolecularData, _PERIODIC_HASH_TABLE
+from fermilib.ops._molecular_data import (MolecularData,
+                                          _PERIODIC_HASH_TABLE,
+                                          _PERIODIC_POLARIZATION)
 
 
 # Define error objects which inherit from Exception.
