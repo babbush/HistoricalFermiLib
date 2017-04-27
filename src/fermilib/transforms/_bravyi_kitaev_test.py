@@ -9,7 +9,7 @@ from fermilib.ops import (fermion_identity,
                           one_body_term)
 
 from fermilib.transforms import (bravyi_kitaev,
-                                 eigenspectrum,
+                                 get_eigenspectrum,
                                  get_sparse_operator,
                                  jordan_wigner)
 
@@ -66,8 +66,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         bk_n = bravyi_kitaev(n)
 
         # Diagonalize and make sure the spectra are the same.
-        jw_spectrum = eigenspectrum(jw_n)
-        bk_spectrum = eigenspectrum(bk_n)
+        jw_spectrum = get_eigenspectrum(jw_n)
+        bk_spectrum = get_eigenspectrum(bk_n)
 
         self.assertAlmostEqual(0., numpy.amax(
             numpy.absolute(jw_spectrum - bk_spectrum)))
@@ -84,8 +84,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         bk_n = bravyi_kitaev(n)
 
         # Diagonalize and make sure the spectra are the same.
-        jw_spectrum = eigenspectrum(jw_n)
-        bk_spectrum = eigenspectrum(bk_n)
+        jw_spectrum = get_eigenspectrum(jw_n)
+        bk_spectrum = get_eigenspectrum(bk_n)
 
         self.assertAlmostEqual(0., numpy.amax(
             numpy.absolute(jw_spectrum - bk_spectrum)))
@@ -99,8 +99,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         bk_n = bravyi_kitaev(n)
 
         # Diagonalize and make sure the spectra are the same.
-        jw_spectrum = eigenspectrum(jw_n)
-        bk_spectrum = eigenspectrum(bk_n)
+        jw_spectrum = get_eigenspectrum(jw_n)
+        bk_spectrum = get_eigenspectrum(bk_n)
 
         self.assertAlmostEqual(0., numpy.amax(
                                numpy.absolute(jw_spectrum - bk_spectrum)))
@@ -113,8 +113,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         bk_ho = bravyi_kitaev(ho)
 
         # Diagonalize and make sure the spectra are the same.
-        jw_spectrum = eigenspectrum(jw_ho)
-        bk_spectrum = eigenspectrum(bk_ho)
+        jw_spectrum = get_eigenspectrum(jw_ho)
+        bk_spectrum = get_eigenspectrum(bk_ho)
 
         self.assertAlmostEqual(0., numpy.amax(
                                numpy.absolute(jw_spectrum - bk_spectrum)))
@@ -138,10 +138,10 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         d_sparse = [get_sparse_operator(d_spins[0]),
                     get_sparse_operator(d_spins[1])]
 
-        c_spectrum = [eigenspectrum(c_spins[0]),
-                      eigenspectrum(c_spins[1])]
-        d_spectrum = [eigenspectrum(d_spins[0]),
-                      eigenspectrum(d_spins[1])]
+        c_spectrum = [get_eigenspectrum(c_spins[0]),
+                      get_eigenspectrum(c_spins[1])]
+        d_spectrum = [get_eigenspectrum(d_spins[0]),
+                      get_eigenspectrum(d_spins[1])]
 
         self.assertAlmostEqual(0., numpy.amax(numpy.absolute(d_spectrum[0] -
                                                              d_spectrum[1])))
@@ -157,8 +157,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         jw = jordan_wigner(fo)
         bk = bravyi_kitaev(fo)
 
-        jw_spectrum = eigenspectrum(jw)
-        bk_spectrum = eigenspectrum(bk)
+        jw_spectrum = get_eigenspectrum(jw)
+        bk_spectrum = get_eigenspectrum(bk)
 
         self.assertAlmostEqual(0., numpy.amax(numpy.absolute(jw_spectrum -
                                                              bk_spectrum)))
@@ -178,8 +178,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         bk_qubit_operator = bravyi_kitaev(fermion_operator)
 
         # Diagonalize and make sure the spectra are the same.
-        jw_spectrum = eigenspectrum(jw_qubit_operator)
-        bk_spectrum = eigenspectrum(bk_qubit_operator)
+        jw_spectrum = get_eigenspectrum(jw_qubit_operator)
+        bk_spectrum = get_eigenspectrum(bk_qubit_operator)
         self.assertAlmostEqual(0., numpy.amax(numpy.absolute(jw_spectrum -
                                                              bk_spectrum)))
 

@@ -18,7 +18,7 @@ from fermilib.ops._sparse_operator import (qubit_term_sparse,
 from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 
 
-def eigenspectrum(op):
+def get_eigenspectrum(op):
     return get_sparse_operator(op).eigenspectrum()
 
 
