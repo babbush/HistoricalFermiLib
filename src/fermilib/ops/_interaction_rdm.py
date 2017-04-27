@@ -197,7 +197,7 @@ class InteractionRDM(InteractionTensor):
             reversed_fermion_operators.normal_ordered())
         for ops in reversed_fermion_operators.terms:
             coeff = reversed_fermion_operators.terms[ops]
-            fermion_term = fo.FermionOperator(ops, coeff)
+            fermion_term = FermionOperator(ops, coeff)
             # Handle molecular terms.
             if fermion_term.is_molecular_term():
                 if fermion_term.is_identity():
