@@ -204,6 +204,11 @@ class HydrogenIntegrationTest(unittest.TestCase):
         hf_state = jw_hartree_fock_state(
             self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits())
         hf_density = get_density_matrix([hf_state], [1.])
+
+        # Make sure you can reproduce Hartree-Fock energy.
+        hf_state = jw_hartree_fock_state(
+            self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits())
+        hf_density = get_density_matrix([hf_state], [1.])
         expected_hf_density_energy = self.hamiltonian_matrix.expectation(
             hf_density)
         expected_hf_energy = self.hamiltonian_matrix.expectation(hf_state)
@@ -227,8 +232,8 @@ class HydrogenIntegrationTest(unittest.TestCase):
             self.molecule.ccsd_amplitudes.one_body_tensor,
             self.molecule.ccsd_amplitudes.two_body_tensor)
 
-        uccsd_sparse = jordan_wigner_operator_sparse(uccsd_operator,
-                                          self.qubit_hamiltonian.n_qubits())
+        uccsd_sparse = jordan_wigner_operator_sparse(
+            uccsd_operator, self.qubit_hamiltonian.n_qubits())
         uccsd_state = scipy.sparse.linalg.expm_multiply(uccsd_sparse.matrix,
                                                         hf_state)
         expected_uccsd_energy = self.hamiltonian_matrix.expectation(
@@ -242,11 +247,23 @@ class HydrogenIntegrationTest(unittest.TestCase):
             self.molecule.ccsd_amplitudes.two_body_tensor,
             anti_hermitian=False)
 
-        ccsd_sparse_r = jordan_wigner_operator_sparse(ccsd_operator,
-                                          self.qubit_hamiltonian.n_qubits())
+        ccsd_sparse_r = jordan_wigner_operator_sparse(
+            ccsd_operator, self.qubit_hamiltonian.n_qubits())
         ccsd_sparse_l = jordan_wigner_operator_sparse(
-                -hermitian_conjugated(ccsd_operator),
-                self.qubit_hamiltonian.n_qubits())
+            -hermitian_conjugated(ccsd_operator),
+            self.qubit_hamiltonian.n_qubits())
+
+        # Test CCSD for precise match against FCI using loaded t amplitudes
+        ccsd_operator = uccsd_operator(
+            self.molecule.ccsd_amplitudes.one_body_tensor,
+            self.molecule.ccsd_amplitudes.two_body_tensor,
+            anti_hermitian=False)
+
+        ccsd_sparse_r = jordan_wigner_operator_sparse(
+            ccsd_operator, self.qubit_hamiltonian.n_qubits())
+        ccsd_sparse_l = jordan_wigner_operator_sparse(
+            -fo.hermitian_conjugated(ccsd_operator),
+            self.qubit_hamiltonian.n_qubits())
         ccsd_state_r = scipy.sparse.linalg.expm_multiply(ccsd_sparse_r.matrix,
                                                          hf_state)
         ccsd_state_l = scipy.sparse.linalg.expm_multiply(ccsd_sparse_l.matrix,

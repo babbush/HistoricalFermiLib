@@ -8,7 +8,7 @@ import scipy.linalg
 
 from fermilib.ops._molecular_data import MolecularData
 from fermilib import run_psi4
-from fermilib import sparse_operators
+from fermilib.ops import _sparse_operator
 
 
 class LiHIntegrationTest(unittest.TestCase):
@@ -98,9 +98,9 @@ class LiHIntegrationTest(unittest.TestCase):
         self.assertAlmostEqual(expected_energy, energy)
 
         # Make sure you can reproduce Hartree-Fock energy.
-        hf_state = sparse_operators.jw_hartree_fock_state(
+        hf_state = _sparse_operator.jw_hartree_fock_state(
             self.molecule.n_electrons, self.qubit_hamiltonian.n_qubits())
-        hf_density = sparse_operators.get_density_matrix([hf_state], [1.])
+        hf_density = _sparse_operator.get_density_matrix([hf_state], [1.])
         expected_hf_density_energy = self.hamiltonian_matrix.expectation(
             hf_density)
         expected_hf_energy = self.hamiltonian_matrix.expectation(hf_state)
