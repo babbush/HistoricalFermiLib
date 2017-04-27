@@ -11,26 +11,26 @@ from fermilib.qubit_operators import QubitTerm, QubitOperator
 
 
 def error_operator(terms, series_order=2):
-    """Determine the difference between the exact generator of unitary
+    """
+    Determine the difference between the exact generator of unitary
     evolution and the approximate generator given by Trotter-Suzuki
     to the given order.
 
     Args:
-      terms: a list of QubitTerms in the Hamiltonian to be simulated.
-      series_order: the order at which to compute the BCH expansion.
-                    Only the second order formula is currently
-                    implemented (corresponding to Equation 9 of the
-                    paper).
+        terms: a list of QubitTerms in the Hamiltonian to be simulated.
+        series_order: the order at which to compute the BCH expansion.
+                      Only the second order formula is currently
+                      implemented (corresponding to Equation 9 of the
+                      paper).
 
     Returns:
-      The difference between the true and effective generators of time
-      evolution for a single Trotter step.
+        The difference between the true and effective generators of time
+        evolution for a single Trotter step.
 
     Notes: follows Equation 9 of Poulin et al.'s work in "The Trotter
            Step Size Required for Accurate Quantum Simulation of Quantum
            Chemistry".
-
-      """
+    """
 
     if series_order != 2:
         raise NotImplementedError
@@ -50,18 +50,19 @@ def error_operator(terms, series_order=2):
 
 
 def error_bound(terms, tight=False):
-    """Numerically upper bound the error in the ground state energy
+    """
+    Numerically upper bound the error in the ground state energy
     for the second order Trotter-Suzuki expansion.
 
     Args:
-      terms: a list of QubitTerms in the Hamiltonian to be simulated.
-      tight: whether to use the triangle inequality to give a loose
-             upper bound on the error (default) or to calculate the
-             norm of the error operator.
+        terms: a list of QubitTerms in the Hamiltonian to be simulated.
+        tight: whether to use the triangle inequality to give a loose
+               upper bound on the error (default) or to calculate the
+               norm of the error operator.
 
     Returns:
-      A float upper bound on the norm of the error in the ground state
-      energy.
+        A float upper bound on the norm of the error in the ground state
+        energy.
 
     Notes: follows Poulin et al.'s work in "The Trotter Step Size
            Required for Accurate Quantum Simulation of Quantum
@@ -74,7 +75,6 @@ def error_bound(terms, tight=False):
            state or CISD state, which can scalably bound the error in
            the ground state but much more accurately than the triangle
            inequality.
-
     """
     zero = QubitOperator()
     error = 0.0

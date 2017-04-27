@@ -8,7 +8,8 @@ from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 
 
 def reverse_jordan_wigner_term(term, n_qubits=None):
-    """Transforms a single-term QubitOperator into a FermionOperator
+    """
+    Transforms a single-term QubitOperator into a FermionOperator
     using JW.
 
     Operators are mapped as follows:
@@ -17,16 +18,16 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
     Y_j -> i (a^\dagger_j - a_j) Z_{j-1} Z_{j-2} .. Z_0
 
     Args:
-      term: the QubitOperator to be transformed.
-      n_qubits: the number of qubits term acts on. If not set, defaults
-                to the maximum qubit number acted on by term.
+        term: the QubitOperator to be transformed.
+        n_qubits: the number of qubits term acts on. If not set, defaults
+                  to the maximum qubit number acted on by term.
 
     Returns:
-      transformed_term: An instance of the FermionOperator class.
+        transformed_term: An instance of the FermionOperator class.
 
     Raises:
-      QubitOperatorError: Invalid operator provided: must be 'X', 'Y'
-                          or 'Z'.
+        QubitOperatorError: Invalid operator provided: must be 'X', 'Y'
+                            or 'Z'.
 
     """
     if not isinstance(term, QubitOperator) or len(term.terms) != 1:
@@ -95,7 +96,8 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
 
 
 def reverse_jordan_wigner(op, n_qubits=None):
-    """Transforms a QubitOperator into a FermionOperator using the
+    """
+    Transforms a QubitOperator into a FermionOperator using the
     Jordan-Wigner transform.
 
     Operators are mapped as follows:
@@ -104,17 +106,16 @@ def reverse_jordan_wigner(op, n_qubits=None):
     Y_j -> i (a^\dagger_j - a_j) Z_{j-1} Z_{j-2} .. Z_0
 
     Args:
-      op: the QubitOperator to be transformed.
-      n_qubits: the number of qubits term acts on. If not set, defaults
+        op: the QubitOperator to be transformed.
+        n_qubits: the number of qubits term acts on. If not set, defaults
                 to the maximum qubit number acted on by term.
 
     Returns:
-      transformed_term: An instance of the FermionOperator class.
+        transformed_term: An instance of the FermionOperator class.
 
     Raises:
-      QubitOperatorError: Invalid operator provided: must be 'X', 'Y'
-                          or 'Z'.
-
+        QubitOperatorError: Invalid operator provided: must be 'X', 'Y'
+                            or 'Z'.
     """
     if not isinstance(op, QubitOperator):
         raise TypeError("op must be a QubitOperator.")

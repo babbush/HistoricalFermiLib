@@ -71,16 +71,16 @@ def sparse_identity(n_qubits):
 
 
 def jordan_wigner_ladder_sparse(n_qubits, tensor_factor, ladder_type):
-    """Make a matrix representation of a fermion ladder operator.
+    """
+    Make a matrix representation of a fermion ladder operator.
 
     Args:
-      index: This is a nonzero integer. The integer indicates the tensor
-        factor and the sign indicates raising or lowering.
-      n_qubits(int): Number qubits in the system Hilbert space.
+        index: This is a nonzero integer. The integer indicates the tensor
+            factor and the sign indicates raising or lowering.
+        n_qubits(int): Number qubits in the system Hilbert space.
 
     Returns:
-      The corresponding SparseOperator.
-
+        The corresponding SparseOperator.
     """
     identities = [scipy.sparse.identity(
         2 ** tensor_factor, dtype=complex, format='csc')]
@@ -93,14 +93,15 @@ def jordan_wigner_ladder_sparse(n_qubits, tensor_factor, ladder_type):
 
 
 def jordan_wigner_term_sparse(fermion_term, n_qubits):
-    """Initialize a SparseOperator from a FermionOperator.
+    """
+    Initialize a SparseOperator from a FermionOperator.
 
     Args:
-      fermion_term(FermionOperator): Instance of the FermionOperator class.
-      n_qubits(int): Number of qubits.
+        fermion_term(FermionOperator): Instance of the FermionOperator class.
+        n_qubits(int): Number of qubits.
 
     Returns:
-      The corresponding SparseOperator.
+        The corresponding SparseOperator.
 
     """
     sparse_operator = sparse_identity(n_qubits)
@@ -111,14 +112,15 @@ def jordan_wigner_term_sparse(fermion_term, n_qubits):
 
 
 def jordan_wigner_operator_sparse(fermion_operator, n_qubits):
-    """Initialize a SparseOperator from a FermionOperator.
+    """
+    Initialize a SparseOperator from a FermionOperator.
 
     Args:
-      fermion_operator(FermionOperator): instance of the FermionOperator class.
-      n_qubits(int): Number of qubits.
+        fermion_operator(FermionOperator): instance of the FermionOperator class.
+        n_qubits(int): Number of qubits.
 
     Returns:
-      The corresponding SparseOperator.
+        The corresponding SparseOperator.
 
     """
     # Create a list of raising and lowering operators for each orbital.
@@ -160,13 +162,14 @@ def jordan_wigner_operator_sparse(fermion_operator, n_qubits):
 
 
 def qubit_term_sparse(qubit_term, n_qubits):
-    """Initialize a SparseOperator from a single-term QubitOperator.
+    """
+    Initialize a SparseOperator from a single-term QubitOperator.
 
     Args:
-      qubit_term (QubitOperator): instance of the QubitOperator class.
+        qubit_term (QubitOperator): instance of the QubitOperator class.
 
     Returns:
-      The corresponding SparseOperator.
+        The corresponding SparseOperator.
 
     """
     if not isinstance(qubit_term, QubitOperator) or len(qubit_term.terms) != 1:
@@ -201,13 +204,14 @@ def qubit_term_sparse(qubit_term, n_qubits):
 
 
 def qubit_operator_sparse(qubit_operator, n_qubits):
-    """Initialize a SparseOperator from a QubitOperator.
+    """
+    Initialize a SparseOperator from a QubitOperator.
 
     Args:
-      qubit_operator(QubitOperator): instance of the QubitOperator class.
+        qubit_operator(QubitOperator): instance of the QubitOperator class.
 
     Returns:
-      The corresponding SparseOperator.
+        The corresponding SparseOperator.
 
     """
     # Construct the SparseOperator.
@@ -246,8 +250,8 @@ class SparseOperator(object):
     "get_hartree_fock_state" and more.
 
     Attributes:
-      matrix(scipy.sparse.csc_matrix): The sparse matrix.
-      n_qubits(int): Number qubits in the system Hilbert space.
+        matrix(scipy.sparse.csc_matrix): The sparse matrix.
+        n_qubits(int): Number qubits in the system Hilbert space.
 
     """
     def __init__(self, matrix):
@@ -331,9 +335,10 @@ class SparseOperator(object):
         self.matrix.eliminate_zeros()
 
     def is_hermitian(self):
-        """Test if matrix is Hermitian.
+        """
+        Test if matrix is Hermitian.
 
-        Returns:   Boole indicating whether matrix passes test.
+        Returns: Bool indicating whether matrix passes test.
 
         """
         difference = self - self.conjugated()
@@ -344,11 +349,12 @@ class SparseOperator(object):
         return True
 
     def get_ground_state(self):
-        """Compute lowest eigenvalue and eigenstate.
+        """
+        Compute lowest eigenvalue and eigenstate.
 
-        Returns:   eigenvalue: The lowest eigenvalue, a float.
-        eigenstate: The lowest eigenstate in scipy.sparse csc format.
-
+        Returns:
+            eigenvalue: The lowest eigenvalue, a float.
+            eigenstate: The lowest eigenstate in scipy.sparse csc format.
         """
         if self.is_hermitian():
             values, vectors = scipy.sparse.linalg.eigsh(
@@ -361,11 +367,12 @@ class SparseOperator(object):
         return eigenvalue, eigenstate.getH()
 
     def eigenspectrum(self):
-        """Perform a dense diagonalization.
+        """
+        Perform a dense diagonalization.
 
-        Returns:   eigenspectrum: The lowest eigenvalues in a numpy
-        array.
-
+        Returns:
+            eigenspectrum: The lowest eigenvalues in a numpy
+            array.
         """
         dense_operator = self.to_dense()
         if self.is_hermitian():
@@ -375,18 +382,18 @@ class SparseOperator(object):
         return eigenspectrum
 
     def expectation(self, state):
-        """Compute expectation value of operator with a state.
+        """
+        Compute expectation value of operator with a state.
 
         Args:
-          state_vector: scipy.sparse.csc vector representing a pure state,
-            or, a scipy.sparse.csc matrix representing a density matrix.
+            state_vector: scipy.sparse.csc vector representing a pure state,
+                or, a scipy.sparse.csc matrix representing a density matrix.
 
         Returns:
-          A real float giving expectation value.
+            A real float giving expectation value.
 
         Raises:
-          SparseOperatorError: Input state has invalid format.
-
+            SparseOperatorError: Input state has invalid format.
         """
         # Handle density matrix.
         if state.shape == (len(self), len(self)):
@@ -406,10 +413,10 @@ class SparseOperator(object):
         return expectation
 
     def get_gap(self):
-        """Compute gap between lowest eigenvalue and first excited state.
+        """
+        Compute gap between lowest eigenvalue and first excited state.
 
-        Returns:   A real float giving eigenvalue gap.
-
+        Returns: A real float giving eigenvalue gap.
         """
         if self.is_hermitian():
             values, _ = scipy.sparse.linalg.eigsh(

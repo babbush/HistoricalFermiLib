@@ -120,16 +120,16 @@ def get_interaction_operator(iop):
     the two-body terms are stored in a tensor, two_body[p, q, r, s].
 
     Returns:
-      interaction_operator: An instance of the InteractionOperator class.
+       interaction_operator: An instance of the InteractionOperator class.
 
     Raises:
-      ErrorInteractionOperator: FermionOperator is not a molecular
-        operator.
+        ErrorInteractionOperator: FermionOperator is not a molecular
+            operator.
 
     Warning:
-      Even assuming that each creation or annihilation operator appears
-      at most a constant number of times in the original operator, the
-      runtime of this method is exponential in the number of qubits.
+        Even assuming that each creation or annihilation operator appears
+        at most a constant number of times in the original operator, the
+        runtime of this method is exponential in the number of qubits.
 
     """
     # Normal order the terms and initialize.
@@ -176,11 +176,11 @@ def get_interaction_operator(iop):
 
 
 def get_fermion_operator(iop):
-    """Output InteractionOperator as an instance of FermionOperator class.
+    """
+    Output InteractionOperator as an instance of FermionOperator class.
 
-    Returns:   fermion_operator: An instance of the FermionOperator
-    class.
-
+    Returns:
+        fermion_operator: An instance of the FermionOperator class.
     """
     # Initialize with identity term.
     fermion_operator = iop.constant * fermion_identity()

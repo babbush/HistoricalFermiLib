@@ -24,44 +24,47 @@ class InteractionOperator(InteractionTensor):
         \sum_{p, q, r, s} h_[p, q, r, s] a^\dagger_p a^\dagger_q a_r a_s.
 
     Attributes:
-      n_qubits: An int giving the number of qubits.
-      constant: A constant term in the operator given as a float.
-          For instance, the nuclear repulsion energy.
-      one_body_tensor: The coefficients of the one-body terms (h[p, q]).
-          This is an n_qubits x n_qubits numpy array of floats.
-      two_body_tensor: The coefficients of the two-body terms
-          (h[p, q, r, s]). This is an n_qubits x n_qubits x n_qubits x
-          n_qubits numpy array of floats.
-
+        n_qubits: An int giving the number of qubits.
+        constant: A constant term in the operator given as a float.
+            For instance, the nuclear repulsion energy.
+        one_body_tensor: The coefficients of the one-body terms (h[p, q]).
+            This is an n_qubits x n_qubits numpy array of floats.
+        two_body_tensor: The coefficients of the two-body terms
+            (h[p, q, r, s]). This is an n_qubits x n_qubits x n_qubits x
+            n_qubits numpy array of floats.
     """
 
     def __init__(self, constant, one_body_tensor, two_body_tensor):
-        """Initialize the InteractionOperator class.
+        """
+        Initialize the InteractionOperator class.
 
-        Args:   constant: A constant term in the operator given as a
-        float.       For instance, the nuclear repulsion energy.
-        one_body_tensor: The coefficients of the one-body terms (h[p,
-        q]).       This is an n_qubits x n_qubits numpy array of floats.
-        two_body_tensor: The coefficients of the two-body terms
-        (h[p, q, r, s]). This is an n_qubits x n_qubits x n_qubits x
-        n_qubits numpy array of floats.
-
+        Args:
+            constant: A constant term in the operator given as a
+                float. For instance, the nuclear repulsion energy.
+            one_body_tensor: The coefficients of the one-body terms (h[p,q]).
+               This is an n_qubits x n_qubits numpy array of floats.
+            two_body_tensor: The coefficients of the two-body terms
+                (h[p, q, r, s]). This is an n_qubits x n_qubits x n_qubits x
+                n_qubits numpy array of floats.
         """
         # Make sure nonzero elements are only for normal ordered terms.
         super(InteractionOperator, self).__init__(constant, one_body_tensor,
                                                   two_body_tensor)
 
     def unique_iter(self, complex_valued=False):
-        """Iterate all terms that are not in the same symmetry group.
+        """
+        Iterate all terms that are not in the same symmetry group.
+
         Four point symmetry:
-          1. pq = qp.
-          2. pqrs = srqp = qpsr = rspq.
+            1. pq = qp.
+            2. pqrs = srqp = qpsr = rspq.
         Eight point symmetry:
-          1. pq = qp.
-          2. pqrs = rqps = psrq = srqp = qpsr = rspq = spqr = qrsp.
+            1. pq = qp.
+            2. pqrs = rqps = psrq = srqp = qpsr = rspq = spqr = qrsp.
 
         Args:
-          complex_valued: Bool, whether the operator has complex coefficients.
+            complex_valued: Bool, whether the operator has complex
+                coefficients.
         """
         # Constant.
         if self.constant:

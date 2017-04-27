@@ -7,21 +7,21 @@ from fermilib.ops import FermionOperator
 
 
 def uccsd_operator(single_amplitudes, double_amplitudes, anti_hermitian=True):
-    """Create a fermionic operator that is the generator of uccsd.
+    """
+    Create a fermionic operator that is the generator of uccsd.
 
     Args:
-      single_amplitudes(ndarray): [NxN] array storing single excitation
-        amplitudes corresponding to t[i,j] * (a_i^\dagger a_j + H.C.)
+        single_amplitudes(ndarray): [NxN] array storing single excitation
+            amplitudes corresponding to t[i,j] * (a_i^\dagger a_j + H.C.)
       double_amplitudes(ndarray): [NxNxNxN] array storing double excitation
-        amplitudes corresponding to
-        t[i,j,k,l] * (a_i^\dagger a_j a_k^\dagger a_l + H.C.)
-      anti_hermitian(Bool): Flag to generate only normal CCSD operator rather
-        than unitary variant, primarily for testing
+            amplitudes corresponding to
+            t[i,j,k,l] * (a_i^\dagger a_j a_k^\dagger a_l + H.C.)
+        anti_hermitian(Bool): Flag to generate only normal CCSD operator
+            rather than unitary variant, primarily for testing
 
     Returns:
-      uccsd_operator(FermionOperator): Anti-hermitian fermion operator that is
-        the generator for the uccsd wavefunction.
-
+        uccsd_operator(FermionOperator): Anti-hermitian fermion operator that
+            is the generator for the uccsd wavefunction.
     """
     n_orbitals = single_amplitudes.shape[0]
     assert(n_orbitals == double_amplitudes.shape[0])

@@ -19,19 +19,19 @@ def orbital_id(grid_length, grid_coordinates, spin=None):
     """Return the tensor factor of a orbital with given coordinates and spin.
 
     Args:
-      grid_length: Int, the number of points in one dimension of the grid.
-      grid_coordinates: List or tuple of ints giving coordinates of grid
-        element. Acceptable to provide an int (instead of tuple or list) for 1D
-        case.
-      spin: Boole, 0 means spin down and 1 means spin up.
-        If None, assume spinless model.
+        grid_length: Int, the number of points in one dimension of the grid.
+        grid_coordinates: List or tuple of ints giving coordinates of grid
+            element. Acceptable to provide an int (instead of tuple or list)
+            for 1D case.
+        spin: Boole, 0 means spin down and 1 means spin up.
+            If None, assume spinless model.
 
     Returns:
-      tensor_factor: The tensor factor associated with provided orbital label.
+        tensor_factor: The tensor factor associated with provided orbital
+        label.
 
     Raises:
-      OrbitalSpecificiationError: Invalid orbital coordinates provided.
-
+        OrbitalSpecificiationError: Invalid orbital coordinates provided.
     """
     # Initialize.
     if isinstance(grid_coordinates, int):
@@ -60,16 +60,17 @@ def orbital_id(grid_length, grid_coordinates, spin=None):
 
 
 def grid_indices(qubit_id, n_dimensions, grid_length, spinless):
-    """This function is the inverse of orbital_id.
-
-      qubit_id: The tensor factor to map to grid indices.
-      n_dimensions: An int giving the number of dimensions for the model.
-      grid_length: Int, the number of points in one dimension of the grid.
-      spinless: Boole, whether to use the spinless model or not.
+    """
+    This function is the inverse of orbital_id.
+    
+    Args:
+        qubit_id: The tensor factor to map to grid indices.
+        n_dimensions: An int giving the number of dimensions for the model.
+        grid_length (int): The number of points in one dimension of the grid.
+        spinless (bool): Whether to use the spinless model or not.
 
     Returns:
-      grid_indices: The location of the qubit on the grid.
-
+        grid_indices: The location of the qubit on the grid.
     """
     # Remove spin degree of freedom.
     orbital_id = qubit_id
@@ -88,21 +89,22 @@ def grid_indices(qubit_id, n_dimensions, grid_length, spinless):
 
 
 def position_vector(position_indices, grid_length, length_scale):
-    """Given grid point coordinate, return position vector with dimensions.
+    """
+    Given grid point coordinate, return position vector with dimensions.
 
     Args:
-      position_indices: List or tuple of integers giving grid point coordinate.
-          Allowed values are ints in [0, grid_length).
-      grid_length: Int, the number of points in one dimension of the grid.
-      length_scale: Float, the real space length of a box dimension.
+        position_indices: List or tuple of integers giving grid point
+            coordinate. Allowed values are ints in [0, grid_length).
+        grid_length (int): The number of points in one dimension of the grid.
+        length_scale (float): The real space length of a box dimension.
 
     Returns:
-      position_vector: A numpy array giving the position vector with
+        position_vector: A numpy array giving the position vector with
         dimensions.
 
     Raises:
-      orbitalSpecificationError: Position indices must be integers
-          in [0, grid_length).
+        orbitalSpecificationError: Position indices must be integers
+            in [0, grid_length).
 
     """
     # Raise exceptions.
@@ -122,22 +124,22 @@ def position_vector(position_indices, grid_length, length_scale):
 
 
 def momentum_vector(momentum_indices, grid_length, length_scale):
-    """Given grid point coordinate, return momentum vector with dimensions.
+    """
+    Given grid point coordinate, return momentum vector with dimensions.
 
     Args:
-      momentum_indices: List or tuple of integers giving momentum indices.
-        Allowed values are ints in [0, grid_length).
-      grid_length: Int, the number of points in one dimension of the grid.
-      length_scale: Float, the real space length of a box dimension.
+        momentum_indices: List or tuple of integers giving momentum indices.
+            Allowed values are ints in [0, grid_length).
+        grid_length: Int, the number of points in one dimension of the grid.
+        length_scale: Float, the real space length of a box dimension.
 
-    Returns:
-      momentum_vector: A numpy array giving the momentum vector with
-        dimensions.
+        Returns:
+            momentum_vector: A numpy array giving the momentum vector with
+                dimensions.
 
     Raises:
-      OrbitalSpecificationError: Momentum indices must be integers
-          in [0, grid_length).
-
+        OrbitalSpecificationError: Momentum indices must be integers
+            in [0, grid_length).
     """
     # Raise exceptions.
     if isinstance(momentum_indices, int):
@@ -157,17 +159,17 @@ def momentum_vector(momentum_indices, grid_length, length_scale):
 
 def momentum_kinetic_operator(n_dimensions, grid_length,
                               length_scale, spinless=False):
-    """Return the kinetic energy operator in momentum second quantization.
+    """
+    Return the kinetic energy operator in momentum second quantization.
 
     Args:
-      n_dimensions: An int giving the number of dimensions for the model.
-      grid_length: Int, the number of points in one dimension of the grid.
-      length_scale: Float, the real space length of a box dimension.
-      spinless: Boole, whether to use the spinless model or not.
+        n_dimensions: An int giving the number of dimensions for the model.
+        grid_length: Int, the number of points in one dimension of the grid.
+        length_scale: Float, the real space length of a box dimension.
+        spinless: Bool, whether to use the spinless model or not.
 
     Returns:
-      operator: An instance of the FermionOperator class.
-
+        operator: An instance of the FermionOperator class.
     """
     # Initialize.
     n_points = grid_length ** n_dimensions
@@ -196,20 +198,20 @@ def momentum_kinetic_operator(n_dimensions, grid_length,
 
 def momentum_potential_operator(n_dimensions, grid_length,
                                 length_scale, spinless=False):
-    """Return the potential operator in momentum second quantization.
+    """
+    Return the potential operator in momentum second quantization.
 
     Args:
-      n_dimensions: An int giving the number of dimensions for the model.
-      grid_length: Int, the number of points in one dimension of the grid.
-      length_scale: Float, the real space length of a box dimension.
-      spinless: Boole, whether to use the spinless model or not.
+        n_dimensions: An int giving the number of dimensions for the model.
+        grid_length: Int, the number of points in one dimension of the grid.
+        length_scale: Float, the real space length of a box dimension.
+        spinless: Boole, whether to use the spinless model or not.
 
     Returns:
-      operator: An instance of the FermionOperator class.
+        operator: An instance of the FermionOperator class.
 
     Raises:
-      OrbitalSpecificationError: 'Must use an odd number of momentum modes.'
-
+        OrbitalSpecificationError: 'Must use an odd number of momentum modes.'
     """
     # Make sure number of orbitals is odd.
     if not (grid_length % 2):
@@ -292,17 +294,17 @@ def momentum_potential_operator(n_dimensions, grid_length,
 
 def position_kinetic_operator(n_dimensions, grid_length,
                               length_scale, spinless=False):
-    """Return the kinetic operator in position space second quantization.
+    """
+    Return the kinetic operator in position space second quantization.
 
     Args:
-      n_dimensions: An int giving the number of dimensions for the model.
-      grid_length: Int, the number of points in one dimension of the grid.
-      length_scale: Float, the real space length of a box dimension.
-      spinless: Boole, whether to use the spinless model or not.
+        n_dimensions: An int giving the number of dimensions for the model.
+        grid_length: Int, the number of points in one dimension of the grid.
+        length_scale: Float, the real space length of a box dimension.
+        spinless: Bool, whether to use the spinless model or not.
 
     Returns:
-      operator: An instance of the FermionOperator class.
-
+        operator: An instance of the FermionOperator class.
     """
     # Initialize.
     n_points = grid_length ** n_dimensions
@@ -349,16 +351,17 @@ def position_kinetic_operator(n_dimensions, grid_length,
 
 def position_potential_operator(n_dimensions, grid_length,
                                 length_scale, spinless=False):
-    """Return the potential operator in position space second quantization.
+    """
+    Return the potential operator in position space second quantization.
 
     Args:
-      n_dimensions: An int giving the number of dimensions for the model.
-      grid_length: Int, the number of points in one dimension of the grid.
-      length_scale: Float, the real space length of a box dimension.
-      spinless: Boole, whether to use the spinless model or not.
+        n_dimensions: An int giving the number of dimensions for the model.
+        grid_length: Int, the number of points in one dimension of the grid.
+        length_scale: Float, the real space length of a box dimension.
+        spinless: Boole, whether to use the spinless model or not.
 
     Returns:
-      operator: An instance of the FermionOperator class.
+        operator: An instance of the FermionOperator class.
 
     """
     # Initialize.
@@ -410,19 +413,19 @@ def position_potential_operator(n_dimensions, grid_length,
 
 def jellium_model(n_dimensions, grid_length, length_scale,
                   spinless=False, momentum_space=False):
-    """Return jellium Hamiltonian as FermionOperator class.
+    """
+    Return jellium Hamiltonian as FermionOperator class.
 
     Args:
-      n_dimensions: An int giving the number of dimensions for the model.
-      grid_length: Int, the number of points in one dimension of the grid.
-      length_scale: Float, the real space length of a box dimension.
-      spinless: Boole, whether to use the spinless model or not.
-      momentum_space: Boole, whether to return in momentum space (True)
-          or position space (False).
+        n_dimensions: An int giving the number of dimensions for the model.
+        grid_length: Int, the number of points in one dimension of the grid.
+        length_scale: Float, the real space length of a box dimension.
+        spinless: Bool, whether to use the spinless model or not.
+        momentum_space: Boole, whether to return in momentum space (True)
+            or position space (False).
 
     Returns:
-      hamiltonian: An instance of the FermionOperator class.
-
+        hamiltonian: An instance of the FermionOperator class.
     """
     if momentum_space:
         hamiltonian = momentum_kinetic_operator(n_dimensions,
@@ -447,17 +450,17 @@ def jellium_model(n_dimensions, grid_length, length_scale,
 
 def jordan_wigner_position_jellium(n_dimensions, grid_length,
                                    length_scale, spinless=False):
-    """Return the position space jellium Hamiltonian as QubitOperator.
+    """
+    Return the position space jellium Hamiltonian as QubitOperator.
 
     Args:
-      n_dimensions: An int giving the number of dimensions for the model.
-      grid_length: Int, the number of points in one dimension of the grid.
-      length_scale: Float, the real space length of a box dimension.
-      spinless: Boole, whether to use the spinless model or not.
+        n_dimensions: An int giving the number of dimensions for the model.
+        grid_length: Int, the number of points in one dimension of the grid.
+        length_scale: Float, the real space length of a box dimension.
+        spinless: Bool, whether to use the spinless model or not.
 
     Returns:
-      hamiltonian: An instance of the QubitOperator class.
-
+        hamiltonian: An instance of the QubitOperator class.
     """
     # Initialize.
     n_orbitals = grid_length ** n_dimensions

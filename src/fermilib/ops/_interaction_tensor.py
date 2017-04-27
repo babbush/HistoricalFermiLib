@@ -18,13 +18,13 @@ def one_body_basis_change(one_body_tensor, rotation_matrix):
     and M' is the transformed 1-body tensor.
 
     Args:
-      one_body_tensor: A square numpy array or matrix containing information
-        about a 1-body interaction tensor such as the 1-RDM.
-      rotation_matrix: A square numpy array or matrix having dimensions of
-        n_qubits by n_qubits. Assumed to be real and invertible.
+        one_body_tensor: A square numpy array or matrix containing information
+            about a 1-body interaction tensor such as the 1-RDM.
+        rotation_matrix: A square numpy array or matrix having dimensions of
+            n_qubits by n_qubits. Assumed to be real and invertible.
 
     Returns:
-      transformed_one_body_tensor: one_body_tensor in the rotated basis.
+        transformed_one_body_tensor: one_body_tensor in the rotated basis.
 
     """
     # If operator acts on spin degrees of freedom, enlarge rotation matrix.
@@ -48,12 +48,12 @@ def two_body_basis_change(two_body_tensor, rotation_matrix):
       (\sum_b R^q_b (\sum_c R^r_c (\sum_d R^s_d (ab|cd)))).
 
     Args:
-      two_body_tensor: a square rank 4 interaction tensor.
-      rotation_matrix: A square numpy array or matrix having dimensions of
-        n_qubits by n_qubits. Assumed to be real and invertible.
+        two_body_tensor: a square rank 4 interaction tensor.
+        rotation_matrix: A square numpy array or matrix having dimensions of
+            n_qubits by n_qubits. Assumed to be real and invertible.
 
     Returns:
-      transformed_two_body_tensor: two_body_tensor matrix in rotated basis.
+        transformed_two_body_tensor: two_body_tensor matrix in rotated basis.
 
     """
     # If operator acts on spin degrees of freedom, enlarge rotation matrix.
@@ -84,31 +84,31 @@ class InteractionTensor(object):
     class is redudant with FermionOperator but enables much more efficient
     numerical computations in many cases, such as basis rotations.
 
-    Attributes:   n_qubits: The number of qubits on which the tensor
-    acts.   constant: A constant term in the operator given as a float.
-    For instance, the nuclear repulsion energy.   one_body_tensor: The
-    coefficients of the 2D matrix terms. This is an       n_qubits x
-    n_qubits numpy array of floats.       For instance, the one body
-    term of MolecularOperator.   two_body_tensor: The coefficients of
-    the 4D matrix terms. This is an       n_qubits x n_qubits x n_qubits
-    x n_qubits numpy array offloats.       For instance, the two body
-    term of MolecularOperator.
-
+    Attributes:
+        n_qubits: The number of qubits on which the tensor
+            acts.
+        constant: A constant term in the operator given as a float.
+            For instance, the nuclear repulsion energy.
+        one_body_tensor: The coefficients of the 2D matrix terms. This is an
+            n_qubits x n_qubits numpy array of floats. For instance, the one
+            body term of MolecularOperator.
+        two_body_tensor: The coefficients of the 4D matrix terms. This is an
+            n_qubits x n_qubits x n_qubits x n_qubits numpy array offloats.
+            For instance, the two body term of MolecularOperator.
     """
 
     def __init__(self, constant, one_body_tensor, two_body_tensor):
         """Initialize the InteractionTensor class.
 
-        Args: constant: A constant term in the operator given as a
-        float.     For instance, the nuclear repulsion energy.
+        Args: 
+            constant: A constant term in the operator given as a
+                float. For instance, the nuclear repulsion energy.
         one_body_tensor: The coefficients of the 2D matrix terms. This
-        is       an n_qubits x n_qubits numpy array of floats.       For
-        instance, the one body term of MolecularOperator.
-        two_body_tensor: The coefficients of the 4D matrix terms. This
-        is       an n_qubits x n_qubits x n_qubits x n_qubits numpy
-        array offloats.       For instance, the two body term of
-        MolecularOperator.
-
+            is an n_qubits x n_qubits numpy array of floats. For
+            instance, the one body term of MolecularOperator.
+        two_body_tensor: The coefficients of the 4D matrix terms. This is
+            an n_qubits x n_qubits x n_qubits x n_qubits numpy array of 
+            floats. For instance, the two body term of MolecularOperator.
         """
         if constant is None:
             constant = 0.0
@@ -139,7 +139,8 @@ class InteractionTensor(object):
             raise ValueError('args must be of length 0, 2, or 4.')
 
     def __setitem__(self, args, value):
-        """Args: ints giving indices of tensor. Either p,q or p,q,r,s.
+        """
+        Args: ints giving indices of tensor. Either p,q or p,q,r,s.
 
         Raises:   ValueError: args must be of length 2 or 4.
 
@@ -265,12 +266,13 @@ class InteractionTensor(object):
         return string if string else '0'
 
     def rotate_basis(self, rotation_matrix):
-        """Rotate the orbital basis of the InteractionTensor.
+        """
+        Rotate the orbital basis of the InteractionTensor.
 
-        Args:   rotation_matrix: A square numpy array or matrix having
-        dimensions of     n_qubits by n_qubits. Assumed to be real and
-        invertible.
-
+        Args:   
+            rotation_matrix: A square numpy array or matrix having
+                dimensions of n_qubits by n_qubits. Assumed to be real and
+                invertible.
         """
         self.one_body_tensor = one_body_basis_change(
             self.one_body_tensor, rotation_matrix)

@@ -8,23 +8,25 @@ from projectqtemp.ops import QubitOperator
 
 
 def bravyi_kitaev_term(term, n_qubits=None):
-    """Apply the Bravyi-Kitaev transform and return qubit operator.
-    Arguments:
-      term: A fermionic operator to be transformed
-      n_qubits: number of qubits in the register TODO (?)
-
-    Returns:
-      transformed_term: An instance of the QubitOperator class.
-
-    Warning:
-      Likely greedy. At the moment the method gets the node sets for
-      each fermionic operator. FenwickNodes are not neccessary in this
-      construction, only the indices matter here. This may be optimized
-      by removing the unnecessary structure.
+    """
+    Apply the Bravyi-Kitaev transform and return qubit operator.
 
     Note:
-      Reference: Operator Locality of Quantum Simulation of Fermionic
-        Models (arXiv:1701.07072).
+        Reference: Operator Locality of Quantum Simulation of Fermionic
+            Models (arXiv:1701.07072).
+    
+    Args:
+        term: A fermionic operator to be transformed
+        n_qubits: number of qubits in the register TODO (?)
+
+    Returns:
+        transformed_term: An instance of the QubitOperator class.
+
+    Warning:
+        Likely greedy. At the moment the method gets the node sets for
+        each fermionic operator. FenwickNodes are not neccessary in this
+        construction, only the indices matter here. This may be optimized
+        by removing the unnecessary structure.
     """
     if not isinstance(term, FermionOperator) or len(term.terms) > 1:
         raise ValueError("term must be a single-term FermionOperator.")
@@ -83,11 +85,11 @@ def bravyi_kitaev_term(term, n_qubits=None):
 
 
 def bravyi_kitaev(op, n_qubits=None):
-    """Apply the Bravyi-Kitaev transform and return qubit operator.
+    """
+    Apply the Bravyi-Kitaev transform and return qubit operator.
 
     Returns:
-         transformed_operator: An instance of the
-         QubitOperator class.
+         transformed_operator: An instance of the QubitOperator class.
     """
 
     if n_qubits is None:

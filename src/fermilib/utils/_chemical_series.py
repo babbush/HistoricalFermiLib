@@ -15,22 +15,23 @@ class MolecularLatticeError(Exception):
 
 def make_atomic_ring(n_atoms, spacing, basis,
                      atom_type='H', charge=0, autosave=True):
-    """Function to create atomic rings with n_atoms.
+    """
+    Function to create atomic rings with n_atoms.
 
     Note that basic geometry suggests that for spacing L between atoms
     the radius of the ring should be L / (2 * cos (pi / 2 - theta / 2))
 
     Args:
-      n_atoms: Integer, the number of atoms in the ring.
-      spacing: The spacing between atoms in the ring in Angstroms.
-      basis: The basis in which to perform the calculation.
-      atom_type: String, the atomic symbol of the element in the ring.
-        this defaults to 'H' for Hydrogen.
-      charge: An integer giving the total molecular charge. Defaults to 0.
-      autosave: Whether to save molecular data automatically.
+        n_atoms: Integer, the number of atoms in the ring.
+        spacing: The spacing between atoms in the ring in Angstroms.
+        basis: The basis in which to perform the calculation.
+        atom_type: String, the atomic symbol of the element in the ring.
+            this defaults to 'H' for Hydrogen.
+        charge: An integer giving the total molecular charge. Defaults to 0.
+        autosave: Whether to save molecular data automatically.
 
     Returns:
-      molecule: A an instance of the MolecularData class.
+        molecule: A an instance of the MolecularData class.
 
     """
     # Make geometry.
@@ -63,25 +64,25 @@ def make_atomic_ring(n_atoms, spacing, basis,
 
 def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
                         atom_type='H', charge=0, autosave=True):
-    """Function to create atomic lattice with n_atoms.
+    """
+    Function to create atomic lattice with n_atoms.
 
     Args:
-      nx_atoms: Integer, the length of lattice (in number of atoms).
-      ny_atoms: Integer, the width of lattice (in number of atoms).
-      nz_atoms: Integer, the depth of lattice (in number of atoms).
-      spacing: The spacing between atoms in the lattice in Angstroms.
-      basis: The basis in which to perform the calculation.
-      atom_type: String, the atomic symbol of the element in the ring.
-        this defaults to 'H' for Hydrogen.
-      charge: An integer giving the total molecular charge. Defaults to 0.
-      autosave: Whether to save molecular data automatically.
+        nx_atoms: Integer, the length of lattice (in number of atoms).
+        ny_atoms: Integer, the width of lattice (in number of atoms).
+        nz_atoms: Integer, the depth of lattice (in number of atoms).
+        spacing: The spacing between atoms in the lattice in Angstroms.
+        basis: The basis in which to perform the calculation.
+        atom_type: String, the atomic symbol of the element in the ring.
+            this defaults to 'H' for Hydrogen.
+        charge: An integer giving the total molecular charge. Defaults to 0.
+        autosave: Whether to save molecular data automatically.
 
     Returns:
-      molecule: A an instance of the MolecularData class.
+        molecule: A an instance of the MolecularData class.
 
     Raises:
-      MolecularLatticeError: If lattice specification is invalid.
-
+        MolecularLatticeError: If lattice specification is invalid.
     """
     # Make geometry.
     geometry = []
@@ -124,14 +125,15 @@ def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
 
 
 def make_atom(atom_type, basis, autosave=True):
-    """Prepare a molecular data instance for a single element.
+    """
+    Prepare a molecular data instance for a single element.
 
     Args:
-      atom_type: Float giving atomic symbol.
-      basis: The basis in which to perform the calculation.
+        atom_type: Float giving atomic symbol.
+        basis: The basis in which to perform the calculation.
 
     Returns:
-      atom: An instance of the MolecularData class.
+        atom: An instance of the MolecularData class.
 
     """
     geometry = [(atom_type, (0., 0., 0.))]

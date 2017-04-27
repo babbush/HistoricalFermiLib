@@ -19,7 +19,8 @@ def unpack_spatial_rdm(one_rdm_a,
                        two_rdm_aa,
                        two_rdm_ab,
                        two_rdm_bb):
-    """Covert from spin compact spatial format to spin-orbital format for RDM.
+    """
+    Covert from spin compact spatial format to spin-orbital format for RDM.
 
     Note: the compact 2-RDM is stored as follows where A/B are spin up/down:
     RDM[pqrs] = <| a_{p, A}^\dagger a_{r, A}^\dagger a_{q, A} a_{s, A} |>
@@ -28,23 +29,22 @@ def unpack_spatial_rdm(one_rdm_a,
       for 'AB' spins.
 
     Args:
-      one_rdm_a: 2-index numpy array storing alpha spin
-        sector of 1-electron reduced density matrix.
-      one_rdm_b: 2-index numpy array storing beta spin
-        sector of 1-electron reduced density matrix.
-      two_rdm_aa: 4-index numpy array storing alpha-alpha spin
-        sector of 2-electron reduced density matrix.
-      two_rdm_ab: 4-index numpy array storing alpha-beta spin
-        sector of 2-electron reduced density matrix.
-      two_rdm_bb: 4-index numpy array storing beta-beta spin
-        sector of 2-electron reduced density matrix.
+        one_rdm_a: 2-index numpy array storing alpha spin
+            sector of 1-electron reduced density matrix.
+        one_rdm_b: 2-index numpy array storing beta spin
+            sector of 1-electron reduced density matrix.
+        two_rdm_aa: 4-index numpy array storing alpha-alpha spin
+            sector of 2-electron reduced density matrix.
+        two_rdm_ab: 4-index numpy array storing alpha-beta spin
+            sector of 2-electron reduced density matrix.
+        two_rdm_bb: 4-index numpy array storing beta-beta spin
+            sector of 2-electron reduced density matrix.
 
     Returns:
-      one_rdm: 2-index numpy array storing 1-electron density matrix
-        in full spin-orbital space.
-      two_rdm: 4-index numpy array storing 2-electron density matrix
-        in full spin-orbital space.
-
+        one_rdm: 2-index numpy array storing 1-electron density matrix
+            in full spin-orbital space.
+        two_rdm: 4-index numpy array storing 2-electron density matrix
+            in full spin-orbital space.
     """
     # Initialize RDMs.
     n_orbitals = one_rdm_a.shape[0]
@@ -87,24 +87,24 @@ def unpack_spatial_rdm(one_rdm_a,
 
 
 class InteractionRDM(InteractionTensor):
-    """Class for storing 1- and 2-body reduced density matrices.
+    """
+    Class for storing 1- and 2-body reduced density matrices.
 
     Attributes:
-      one_body_tensor: The expectation values <a^\dagger_p a_q>.
-      two_body_tensor: The expectation values
-                       <a^\dagger_p a^\dagger_q a_r a_s>.
-      n_qubits: An int giving the number of qubits.
-
+        one_body_tensor: The expectation values <a^\dagger_p a_q>.
+        two_body_tensor: The expectation values
+                         <a^\dagger_p a^\dagger_q a_r a_s>.
+        n_qubits: An int giving the number of qubits.
     """
 
     def __init__(self, one_body_tensor, two_body_tensor):
-        """Initialize the InteractionRDM class.
+        """
+        Initialize the InteractionRDM class.
 
         Args:
-          one_body_tensor: Expectation values <a^\dagger_p a_q>.
-          two_body_tensor: Expectation values
-                           <a^\dagger_p a^\dagger_q a_r a_s>.
-
+            one_body_tensor: Expectation values <a^\dagger_p a_q>.
+            two_body_tensor: Expectation values
+                             <a^\dagger_p a^\dagger_q a_r a_s>.
         """
         super(InteractionRDM, self).__init__(None, one_body_tensor,
                                              two_body_tensor)
@@ -118,17 +118,17 @@ class InteractionRDM(InteractionTensor):
         return cls(constant, one_rdm, two_rdm)
 
     def expectation(self, operator):
-        """Return expectation value of an InteractionRDM with an operator.
+        """
+        Return expectation value of an InteractionRDM with an operator.
 
         Args:
-          operator: A QubitOperator or InteractionOperator.
+            operator: A QubitOperator or InteractionOperator.
 
         Returns:
-          expectation: A float giving the expectation value.
+            expectation: A float giving the expectation value.
 
         Raises:
-          InteractionRDMError: Invalid operator provided.
-
+            InteractionRDMError: Invalid operator provided.
         """
         if isinstance(operator, QubitOperator):
             expectation_value = 0.
@@ -145,15 +145,16 @@ class InteractionRDM(InteractionTensor):
         return expectation
 
     def get_qubit_expectations(self, qubit_operator):
-        """Return expectations of qubit op as coefficients of new qubit op.
+        """
+        Return expectations of qubit op as coefficients of new qubit op.
 
         Args:
-          qubit_operator: QubitOperator instance to be evaluated on this
-              InteractionRDM.
+            qubit_operator: QubitOperator instance to be evaluated on this
+                            InteractionRDM.
 
         Returns:
-          qubit_operator_expectations: QubitOperator with coefficients
-              corresponding to expectation values of those operators.
+            qubit_operator_expectations: QubitOperator with coefficients
+                corresponding to expectation values of those operators.
 
         Raises:
           InteractionRDMError: Observable not contained in 1-RDM or 2-RDM.
@@ -175,12 +176,12 @@ class InteractionRDM(InteractionTensor):
         return qubit_operator_expectations
 
     def qubit_term_expectation(self, qubit_term):
-        """Return expectation value of a QubitTerm with an InteractionRDM
-        (self).
+        """
+        Return expectation value of a QubitTerm with an InteractionRDM (self).
 
         Args:
-          qubit_term: single-term QubitOperator to be evaluated on this
-                      InteractionRDM.
+            qubit_term: single-term QubitOperator to be evaluated on this
+                        InteractionRDM.
         """
         from fermilib.transforms import reverse_jordan_wigner
         if len(qubit_term.terms) != 1:

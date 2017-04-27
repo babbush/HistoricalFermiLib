@@ -8,14 +8,15 @@ import itertools
 
 
 def jordan_wigner_term(term, coeff=1.):
-    """Jordan-Wigner transform term and return the resulting qubit operator.
+    """
+    Jordan-Wigner transform term and return the resulting qubit operator.
 
     Returns:
-      transformed_term: An instance of the QubitOperator class.
+        transformed_term: An instance of the QubitOperator class.
 
     Warning:
-      The runtime of this method is exponential in the locality of the
-      original FermionOperator.
+        The runtime of this method is exponential in the locality of the
+        original FermionOperator.
 
     """
     # Initialize identity matrix.
@@ -40,15 +41,16 @@ def jordan_wigner_term(term, coeff=1.):
 
 
 def jordan_wigner(op):
-    """Apply the Jordan-Wigner transform the fermionic operator op and
+    """
+    Apply the Jordan-Wigner transform the fermionic operator op and
     return qubit operator.
 
     Returns:
-      transformed_operator: An instance of the QubitOperator class.
+        transformed_operator: An instance of the QubitOperator class.
 
     Warning:
-      The runtime of this method is exponential in the maximum locality
-      of the original FermionOperator.
+        The runtime of this method is exponential in the maximum locality
+        of the original FermionOperator.
 
     """
     if isinstance(op, InteractionOperator):
@@ -64,15 +66,15 @@ def jordan_wigner(op):
 
 
 def jordan_wigner_interaction_op(iop):
-    """Output InteractionOperator as QubitOperator class under JW
+    """
+    Output InteractionOperator as QubitOperator class under JW
     transform.
 
     One could accomplish this very easily by first mapping to fermions and
     then mapping to qubits. We skip the middle step for the sake of speed.
 
     Returns:
-      qubit_operator: An instance of the QubitOperator class.
-
+        qubit_operator: An instance of the QubitOperator class.
     """
     # Initialize qubit operator.
     qubit_operator = QubitOperator((), 0.0)
@@ -116,11 +118,11 @@ def jordan_wigner_interaction_op(iop):
 
 
 def jordan_wigner_one_body(p, q):
-    """Map the term a^\dagger_p a_q + a^\dagger_q a_p to a qubit operator.
+    """
+    Map the term a^\dagger_p a_q + a^\dagger_q a_p to a qubit operator.
 
     Note that the diagonal terms are divided by a factor of 2
     because they are equal to their own Hermitian conjugate.
-
     """
     # Handle off-diagonal terms.
     qubit_operator = QubitOperator((), 0.0)
@@ -140,12 +142,12 @@ def jordan_wigner_one_body(p, q):
 
 
 def jordan_wigner_two_body(p, q, r, s):
-    """Map the term a^\dagger_p a^\dagger_q a_r a_s + h.c. to qubit
+    """
+    Map the term a^\dagger_p a^\dagger_q a_r a_s + h.c. to qubit
     operator.
 
     Note that the diagonal terms are divided by a factor of two
     because they are equal to their own Hermitian conjugate.
-
     """
     # Initialize qubit operator.
     qubit_operator = QubitOperator((), 0.0)

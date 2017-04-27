@@ -53,22 +53,23 @@ def fermi_hubbard(x_dimension, y_dimension, tunneling, coulomb,
     """Return symbolic representation of a Fermi-Hubbard Hamiltonian.
 
     Args:
-      x_dimension: An integer giving the number of sites in width.
-      y_dimension: An integer giving the number of sites in height.
-      tunneling: A float giving the tunneling amplitude.
-      coulomb: A float giving the attractive local interaction strength.
-      chemical_potential: An optional float giving the potential of each site.
-        Default value is None.
-      magnetic_field: An optional float giving a magnetic field at each site.
-        Default value is None.
-      periodic: If True, add periodic boundary conditions.
-      spinless: An optional Boolean. If False, each site has spin up orbitals
-        and spin down orbitals. If True, return a spinless Fermi-Hubbard model.
-      verbose: An optional Boolean. If True, print all second quantized terms.
+        x_dimension: An integer giving the number of sites in width.
+        y_dimension: An integer giving the number of sites in height.
+        tunneling: A float giving the tunneling amplitude.
+        coulomb: A float giving the attractive local interaction strength.
+        chemical_potential: An optional float giving the potential of each
+            site. Default value is None.
+        magnetic_field: An optional float giving a magnetic field at each
+            site. Default value is None.
+        periodic: If True, add periodic boundary conditions.
+        spinless: An optional Boolean. If False, each site has spin up 
+            orbitals and spin down orbitals. If True, return a spinless
+            Fermi-Hubbard model.
+        verbose: An optional Boolean. If True, print all second quantized
+            terms.
 
     Returns:
-      hubbard_model: An instance of the FermionOperator class.
-
+        hubbard_model: An instance of the FermionOperator class.
     """
     # Initialize fermion operator class.
     n_sites = x_dimension * y_dimension
