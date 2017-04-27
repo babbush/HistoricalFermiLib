@@ -8,7 +8,7 @@ import scipy.sparse
 import projectqtemp.ops._fermion_operator as fo
 
 from fermilib.ops._molecular_data import MolecularData
-from fermilib import run_psi4
+from psi4tmp import run_psi4
 from fermilib.ops import _sparse_operator
 from fermilib.utils import unitary_cc
 from fermilib.transforms import (get_fermion_operator, get_interaction_rdm,
@@ -34,7 +34,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
         verbose = 0
         delete_input = 1
         delete_output = 0
-        self.molecule = run_psi4.run_psi4(self.molecule,
+        self.molecule = run_psi4(self.molecule,
                                           run_scf=run_scf,
                                           run_ccsd=run_ccsd,
                                           run_fci=run_fci,
