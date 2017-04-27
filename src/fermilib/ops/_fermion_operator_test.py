@@ -6,9 +6,7 @@ import pytest
 from ._fermion_operator import (FermionOperator,
                                 FermionOperatorError,
                                 hermitian_conjugated,
-                                number_operator,
-                                one_body_term,
-                                two_body_term)
+                                number_operator)
 
 
 def test_init_defaults():
@@ -76,17 +74,6 @@ def test_init_bad_mode_num():
 def test_FermionOperator():
     op = FermionOperator((), 3.)
     assert op.isclose(FermionOperator() * 3.)
-
-
-def test_one_body_term():
-    op = one_body_term(1, 3, coefficient=-1j+2)
-    assert op.isclose((2 - 1j) * FermionOperator(((1, 1), (3, 0))))
-
-
-def test_two_body_term():
-    op = two_body_term(4, 11, 7, 4, 0.5)
-    assert op.isclose(0.5 * FermionOperator(((4, 1), (11, 1),
-                                             (7, 0), (4, 0))))
 
 
 def test_number_operator_site():

@@ -3,9 +3,7 @@ from __future__ import absolute_import
 import unittest
 import numpy
 
-from fermilib.ops import (FermionOperator,
-                          number_operator,
-                          one_body_term)
+from fermilib.ops import FermionOperator, number_operator
 
 from fermilib.transforms import (bravyi_kitaev,
                                  get_eigenspectrum,
@@ -107,7 +105,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
     def test_bk_jw_hopping_operator(self):
         # Check if the spectrum fits for a single hoppping operator
         n_qubits = 5
-        ho = one_body_term(1, 4) + one_body_term(4, 1)
+        ho = FermionOperator(((1, 1), (4, 0))) + FermionOperator(
+            ((4, 1), (1,0)))
         jw_ho = jordan_wigner(ho)
         bk_ho = bravyi_kitaev(ho)
 

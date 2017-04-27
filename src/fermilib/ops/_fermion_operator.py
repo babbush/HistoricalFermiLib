@@ -7,26 +7,6 @@ class FermionOperatorError(Exception):
     pass
 
 
-def one_body_term(p, q, coefficient=1.):
-    """Return one-body operator which conserves particle number.
-
-    Args:
-        p, q (ints): The sites between which the hopping occurs.
-        coefficient (float, opertional): The coefficient of term.
-    """
-    return FermionOperator(((p, 1), (q, 0)), coefficient)
-
-
-def two_body_term(p, q, r, s, coefficient=1.):
-    """Return two-body operator which conserves particle number.
-
-    Args:
-        p, q, r, s (ints): The sites between which the hopping occurs.
-        coefficient (float, optional): The coefficient of term.
-    """
-    return FermionOperator(((p, 1), (q, 1), (r, 0), (s, 0)), coefficient)
-
-
 def number_operator(n_orbitals, orbital=None, coefficient=1.):
     """Return a number operator.
 

@@ -1,8 +1,6 @@
 from ._fermion_operator import (FermionOperator,
                                 hermitian_conjugated,
-                                number_operator,
-                                one_body_term,
-                                two_body_term)
+                                number_operator)
 
 from ._interaction_tensor import InteractionTensor
 from ._interaction_operator import InteractionOperator

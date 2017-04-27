@@ -8,9 +8,8 @@ import numpy
 
 from fermilib.ops import (InteractionOperator,
                           FermionOperator,
-                          number_operator,
-                          one_body_term,
-                          two_body_term)
+                          number_operator)
+
 from fermilib.transforms import *
 from projectqtemp.ops import QubitOperator
 
