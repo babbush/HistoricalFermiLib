@@ -1,4 +1,4 @@
-"""Tests for molecular_data and run_psi4."""
+"""Tests for molecular_data."""
 from __future__ import absolute_import
 
 import unittest
@@ -6,8 +6,8 @@ import unittest
 import numpy.random
 import scipy.linalg
 
-from fermilib import molecular_data
-from fermilib import run_psi4
+from fermilib.ops._molecular_data import MolecularData, name_molecule
+from psi4tmp import run_psi4
 
 
 class MolecularData(unittest.TestCase):
@@ -22,11 +22,11 @@ class MolecularData(unittest.TestCase):
         self.multiplicity = 1
         self.charge = 0
         self.description = 'eq'
-        self.molecule = molecular_data.MolecularData(self.geometry,
-                                                     self.basis,
-                                                     self.multiplicity,
-                                                     self.charge,
-                                                     self.description)
+        self.molecule = MolecularData(self.geometry,
+                                      self.basis,
+                                      self.multiplicity,
+                                      self.charge,
+                                      self.description)
 
         # Run calculations.
         run_scf = 1
@@ -37,23 +37,23 @@ class MolecularData(unittest.TestCase):
         delete_input = 1
         delete_output = 1
         verbose = 0
-        self.molecule = run_psi4.run_psi4(self.molecule,
-                                          run_scf=run_scf,
-                                          run_mp2=run_mp2,
-                                          run_cisd=run_cisd,
-                                          run_ccsd=run_ccsd,
-                                          run_fci=run_fci,
-                                          verbose=verbose,
-                                          delete_input=delete_input,
-                                          delete_output=delete_output)
+        self.molecule = run_psi4(self.molecule,
+                                 run_scf=run_scf,
+                                 run_mp2=run_mp2,
+                                 run_cisd=run_cisd,
+                                 run_ccsd=run_ccsd,
+                                 run_fci=run_fci,
+                                 verbose=verbose,
+                                 delete_input=delete_input,
+                                 delete_output=delete_output)
 
     def test_name_molecule(self):
         correct_name = 'H2_sto-3g_singlet_eq'
-        computed_name = molecular_data.name_molecule(self.geometry,
-                                                     self.basis,
-                                                     self.multiplicity,
-                                                     self.charge,
-                                                     self.description)
+        computed_name = name_molecule(self.geometry,
+                                      self.basis,
+                                      self.multiplicity,
+                                      self.charge,
+                                      self.description)
         self.assertEqual(correct_name, computed_name)
         self.assertEqual(correct_name, self.molecule.name)
 
@@ -73,11 +73,11 @@ class MolecularData(unittest.TestCase):
         self.molecule.save()
 
         # Load the molecule.
-        self.molecule = molecular_data.MolecularData(self.geometry,
-                                                     self.basis,
-                                                     self.multiplicity,
-                                                     self.charge,
-                                                     self.description)
+        self.molecule = MolecularData(self.geometry,
+                                      self.basis,
+                                      self.multiplicity,
+                                      self.charge,
+                                      self.description)
         self.assertTrue(self.molecule.n_atoms, n_atoms + 1)
 
         # Finally, correct the number of atoms and restore.

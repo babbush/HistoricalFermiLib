@@ -1,10 +1,10 @@
 """Bravyi-Kitaev transform on fermionic operators."""
 from __future__ import absolute_import
 
-from projectqtemp.ops._qubit_operator import QubitOperator
-
 from fermilib.ops import FermionOperator
 from fermilib.transforms import FenwickTree
+
+from projectqtemp.ops import QubitOperator
 
 
 def bravyi_kitaev_term(term, n_qubits=None):

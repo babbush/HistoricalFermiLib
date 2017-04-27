@@ -43,10 +43,6 @@ class QubitOperatorError(Exception):
     pass
 
 
-def qubit_identity(coefficient=1.):
-    return coefficient * QubitOperator()
-
-
 class QubitOperator(object):
     """
     A sum of terms acting on qubits, e.g., 0.5 * 'X0 X5' + 0.3 * 'Z1 Z2'.

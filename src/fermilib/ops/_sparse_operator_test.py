@@ -6,8 +6,8 @@ import unittest
 import numpy
 import scipy.sparse
 
-from projectqtemp.ops import _fermion_operator as fo
-from fermilib.sparse_operators import kronecker_operators
+from fermilib.ops import FermionOperator
+from fermilib.ops._sparse_operator import kronecker_operators
 from fermilib.transforms import (jordan_wigner, jordan_wigner_sparse,
                                  get_sparse_operator)
 
@@ -35,10 +35,10 @@ class SparseOperatorTest(unittest.TestCase):
     def test_qubit_jw_fermion_integration(self):
 
         # Initialize a random fermionic operator.
-        fermion_operator = fo.FermionOperator(((3, 1), (2, 1), (1, 0), (0, 0)),
+        fermion_operator = FermionOperator(((3, 1), (2, 1), (1, 0), (0, 0)),
                                               -4.3)
-        fermion_operator += fo.FermionOperator(((3, 1), (1, 0)), 8.17)
-        fermion_operator += 3.2 * fo.fermion_identity()
+        fermion_operator += FermionOperator(((3, 1), (1, 0)), 8.17)
+        fermion_operator += 3.2 * FermionOperator()
 
         # Map to qubits and compare matrix versions.
         qubit_operator = jordan_wigner(fermion_operator)

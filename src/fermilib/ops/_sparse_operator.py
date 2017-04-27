@@ -13,7 +13,7 @@ import scipy.sparse.linalg
 
 from fermilib.config import *
 
-from projectqtemp.ops._qubit_operator import QubitOperator
+from projectqtemp.ops import QubitOperator
 
 
 # Define error class.

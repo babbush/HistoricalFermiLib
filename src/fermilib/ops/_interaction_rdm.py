@@ -4,9 +4,8 @@ from __future__ import absolute_import
 import copy
 import numpy
 
-from fermilib.ops import InteractionTensor
-from fermilib.ops import FermionOperator as fo
-import projectqtemp.ops._qubit_operator as qo
+from fermilib.ops import InteractionTensor, FermionOperator
+from projectqtemp.ops import QubitOperator
 
 
 class InteractionRDMError(Exception):

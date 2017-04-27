@@ -1,9 +1,8 @@
 """Tests for interaction_operators.py."""
 from __future__ import absolute_import
 
-import unittest
-
 import numpy
+import unittest
 
 from fermilib.ops import InteractionOperator
 

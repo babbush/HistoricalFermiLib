@@ -3,16 +3,17 @@ from __future__ import absolute_import
 import unittest
 import numpy
 
-from fermilib.ops import (FermionOperator,
-                          one_body_term,
+from fermilib.ops import (fermion_identity,
+                          FermionOperator,
                           number_operator,
-                          fermion_identity)
-from projectqtemp.ops._qubit_operator import qubit_identity
+                          one_body_term)
 
 from fermilib.transforms import (bravyi_kitaev,
-                                 jordan_wigner,
                                  eigenspectrum,
-                                 get_sparse_operator)
+                                 get_sparse_operator,
+                                 jordan_wigner)
+
+from projectqtemp.ops import QubitOperator
 
 
 class BravyiKitaevTransformTest(unittest.TestCase):
@@ -55,7 +56,7 @@ class BravyiKitaevTransformTest(unittest.TestCase):
 
     def test_bk_identity(self):
         self.assertTrue(bravyi_kitaev(fermion_identity()).isclose(
-                        qubit_identity()))
+                        QubitOperator()))
 
     def test_bk_jw_number_operator(self):
         # Check if number operator has the same spectrum in both

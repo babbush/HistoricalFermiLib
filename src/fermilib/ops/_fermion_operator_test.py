@@ -4,12 +4,12 @@ import numpy
 import pytest
 
 from ._fermion_operator import (fermion_identity,
-                                one_body_term,
-                                two_body_term,
+                                FermionOperator,
+                                FermionOperatorError,
                                 hermitian_conjugated,
                                 number_operator,
-                                FermionOperator,
-                                FermionOperatorError)
+                                one_body_term,
+                                two_body_term)
 
 
 def test_init_defaults():
