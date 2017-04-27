@@ -53,7 +53,7 @@ class LiHIntegrationTest(unittest.TestCase):
         # Get fermion Hamiltonian.
         self.fermion_hamiltonian = get_fermion_operator(
             self.molecular_hamiltonian)
-        self.fermion_hamiltonian = self.fermion_hamiltonian.normal_ordered()
+        self.fermion_hamiltonian = normal_ordered(self.fermion_hamiltonian)
 
         # Get qubit Hamiltonian.
         self.qubit_hamiltonian = jordan_wigner(
@@ -76,14 +76,14 @@ class LiHIntegrationTest(unittest.TestCase):
 
         # Check reverse transform.
         fermion_hamiltonian = reverse_jordan_wigner(qubit_hamiltonian)
-        fermion_hamiltonian = fermion_hamiltonian.normal_ordered()
+        fermion_hamiltonian = normal_ordered(fermion_hamiltonian)
         self.assertTrue(self.fermion_hamiltonian.isclose(fermion_hamiltonian))
 
         # Make sure the mapping of FermionOperator to InteractionOperator works.
         molecular_hamiltonian = get_interaction_operator(
             self.fermion_hamiltonian)
         fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
-        fermion_hamiltonian = fermion_hamiltonian.normal_ordered()
+        fermion_hamiltonian = normal_ordered(fermion_hamiltonian)
         self.assertTrue(self.fermion_hamiltonian.isclose(fermion_hamiltonian))
 
         # Check that FCI prior has the correct energy.

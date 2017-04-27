@@ -1,5 +1,6 @@
 from ._fermion_operator import (FermionOperator,
                                 hermitian_conjugated,
+                                normal_ordered,
                                 number_operator)
 
 from ._interaction_tensor import InteractionTensor

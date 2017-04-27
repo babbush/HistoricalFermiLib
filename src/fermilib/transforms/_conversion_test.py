@@ -8,6 +8,7 @@ import numpy
 
 from fermilib.ops import (InteractionOperator,
                           FermionOperator,
+                          normal_ordered,
                           number_operator)
 
 from fermilib.transforms import *
@@ -23,8 +24,8 @@ class GetInteractionOperatorTest(unittest.TestCase):
 
         molecular_operator = get_interaction_operator(op)
         fermion_operator = get_fermion_operator(molecular_operator)
-        fermion_operator = fermion_operator.normal_ordered()
-        self.assertTrue(op.normal_ordered().isclose(fermion_operator))
+        fermion_operator = normal_ordered(fermion_operator)
+        self.assertTrue(normal_ordered(op).isclose(fermion_operator))
 
 
 class GetSparseOperatorQubitTest(unittest.TestCase):

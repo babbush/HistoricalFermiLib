@@ -7,6 +7,7 @@ import numpy
 
 from fermilib.transforms import FenwickTree, jordan_wigner_sparse
 from fermilib.ops import (FermionOperator,
+                          normal_ordered,
                           number_operator,
                           InteractionOperator,
                           InteractionRDM)
@@ -115,7 +116,7 @@ def get_interaction_operator(iop):
 
     """
     # Normal order the terms and initialize.
-    iop = iop.normal_ordered()
+    iop = normal_ordered(iop)
     constant = 0.
     one_body = numpy.zeros((iop.n_qubits(), iop.n_qubits()), complex)
     two_body = numpy.zeros((iop.n_qubits(), iop.n_qubits(),

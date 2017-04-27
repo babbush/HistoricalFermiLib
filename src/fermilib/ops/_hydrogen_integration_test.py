@@ -50,8 +50,8 @@ class HydrogenIntegrationTest(unittest.TestCase):
         self.two_body = self.molecular_hamiltonian.two_body_tensor
 
         # Get fermion Hamiltonian.
-        self.fermion_hamiltonian = get_fermion_operator(
-            self.molecular_hamiltonian).normal_ordered()
+        self.fermion_hamiltonian = normal_ordered(get_fermion_operator(
+            self.molecular_hamiltonian))
 
         # Get qubit Hamiltonian.
         self.qubit_hamiltonian = jordan_wigner(self.fermion_hamiltonian)
@@ -88,7 +88,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
         # Check reverse transm.
         fermion_hamiltonian = reverse_jordan_wigner(qubit_hamiltonian)
-        fermion_hamiltonian = fermion_hamiltonian.normal_ordered()
+        fermion_hamiltonian = normal_ordered(fermion_hamiltonian)
         self.assertTrue(self.fermion_hamiltonian.isclose(fermion_hamiltonian))
 
         # Make sure the mapping of FermionOperator to MolecularOperator works.

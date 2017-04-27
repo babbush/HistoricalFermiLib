@@ -6,6 +6,7 @@ import pytest
 from ._fermion_operator import (FermionOperator,
                                 FermionOperatorError,
                                 hermitian_conjugated,
+                                normal_ordered,
                                 number_operator)
 
 
@@ -446,28 +447,28 @@ def test_pow_nonint_error():
 
 def test_hermitian_conjugate_empty():
     op = FermionOperator()
-    op.hermitian_conjugate()
+    op = hermitian_conjugated(op)
     assert op.isclose(FermionOperator())
 
 
 def test_hermitian_conjugate_simple():
     op = FermionOperator('1^')
     op_hc = FermionOperator('1')
-    op.hermitian_conjugate()
+    op = hermitian_conjugated(op)
     assert op.isclose(op_hc)
 
 
 def test_hermitian_conjugate_complex_const():
     op = FermionOperator('1^ 3', 3j)
     op_hc = -3j * FermionOperator('3^ 1')
-    op.hermitian_conjugate()
+    op = hermitian_conjugated(op)
     assert op.isclose(op_hc)
 
 
 def test_hermitian_conjugate_notordered():
     op = FermionOperator('1 3^ 3 3^', 3j)
     op_hc = -3j * FermionOperator('3 3^ 3 1^')
-    op.hermitian_conjugate()
+    op = hermitian_conjugated(op)
     assert op.isclose(op_hc)
 
 
@@ -477,7 +478,7 @@ def test_hermitian_conjugate_semihermitian():
     op_hc = (FermionOperator() + FermionOperator('1^ 3', 2j) +
              FermionOperator('3^ 1', -2j) +
              FermionOperator('2^ 2', -0.1j))
-    op.hermitian_conjugate()
+    op = hermitian_conjugated(op)
     assert op.isclose(op_hc)
 
 
@@ -555,12 +556,12 @@ def test_is_normal_ordered_multiorder():
 
 def test_normal_ordered_single_term():
     op = FermionOperator('4 3 2 1') + FermionOperator('3 2')
-    assert op.isclose(op.normal_ordered())
+    assert op.isclose(normal_ordered(op))
 
 
 def test_normal_ordered_two_term():
     op_b = FermionOperator(((2, 0), (4, 0), (2, 1)), -88.)
-    normal_ordered_b = op_b.normal_ordered()
+    normal_ordered_b = normal_ordered(op_b)
     expected = (FermionOperator(((4, 0),), 88.) +
                 FermionOperator(((2, 1), (4, 0), (2, 0)), 88.))
     assert normal_ordered_b.isclose(expected)
@@ -568,44 +569,44 @@ def test_normal_ordered_two_term():
 
 def test_normal_ordered_number():
     number_op2 = FermionOperator(((2, 1), (2, 0)))
-    assert number_op2.isclose(number_op2.normal_ordered())
+    assert number_op2.isclose(normal_ordered(number_op2))
 
 
 def test_normal_ordered_number_reversed():
     n_term_rev2 = FermionOperator(((2, 0), (2, 1)))
     number_op2 = number_operator(3, 2)
     expected = FermionOperator() - number_op2
-    assert n_term_rev2.normal_ordered().isclose(expected)
+    assert normal_ordered(n_term_rev2).isclose(expected)
 
 
 def test_normal_ordered_offsite():
     op = FermionOperator(((3, 1), (2, 0)))
-    assert op.isclose(op.normal_ordered())
+    assert op.isclose(normal_ordered(op))
 
 
 def test_normal_ordered_offsite_reversed():
     op = FermionOperator(((3, 0), (2, 1)))
     expected = -FermionOperator(((2, 1), (3, 0)))
-    assert expected.isclose(op.normal_ordered())
+    assert expected.isclose(normal_ordered(op))
 
 
 def test_normal_ordered_double_create():
     op = FermionOperator(((2, 0), (3, 1), (3, 1)))
     expected = FermionOperator((), 0.0)
-    assert expected.isclose(op.normal_ordered())
+    assert expected.isclose(normal_ordered(op))
 
 
 def test_normal_ordered_double_create_separated():
     op = FermionOperator(((3, 1), (2, 0), (3, 1)))
     expected = FermionOperator((), 0.0)
-    assert expected.isclose(op.normal_ordered())
+    assert expected.isclose(normal_ordered(op))
 
 
 def test_normal_ordered_multi():
     op = FermionOperator(((2, 0), (1, 1), (2, 1)))
     expected = (-FermionOperator(((2, 1), (1, 1), (2, 0))) -
                 FermionOperator(((1, 1),)))
-    assert expected.isclose(op.normal_ordered())
+    assert expected.isclose(normal_ordered(op))
 
 
 def test_normal_ordered_triple():
@@ -613,9 +614,9 @@ def test_normal_ordered_triple():
     op_123 = FermionOperator(((1, 1), (2, 0), (3, 0)))
     op_321 = FermionOperator(((3, 0), (2, 0), (1, 1)))
 
-    assert op_132.isclose(-op_123.normal_ordered())
-    assert op_132.isclose(op_132.normal_ordered())
-    assert op_132.isclose(op_321.normal_ordered())
+    assert op_132.isclose(normal_ordered(-op_123))
+    assert op_132.isclose(normal_ordered(op_132))
+    assert op_132.isclose(normal_ordered(op_321))
 
 
 def test_is_molecular_term_FermionOperator():

@@ -7,6 +7,16 @@ class FermionOperatorError(Exception):
     pass
 
 
+def hermitian_conjugated(fermion_operator):
+    """Return Hermitian conjugate of fermionic operator."""
+    conjugate_operator = FermionOperator((), 0.)
+    for term, coefficient in fermion_operator.terms.iteritems():
+        conjugate_term = tuple([(tensor_factor, 1 - action) for
+                                (tensor_factor, action) in reversed(term)])
+        conjugate_operator.terms[conjugate_term] = numpy.conjugate(coefficient)
+    return conjugate_operator
+
+
 def number_operator(n_orbitals, orbital=None, coefficient=1.):
     """Return a number operator.
 
@@ -26,11 +36,89 @@ def number_operator(n_orbitals, orbital=None, coefficient=1.):
     return operator
 
 
-def hermitian_conjugated(fermion_operator):
-    """Calculate Hermitian conjugate of fermionic term."""
-    copied_operator = copy.deepcopy(fermion_operator)
-    copied_operator.hermitian_conjugate()
-    return copied_operator
+def normal_ordered_term(term, coefficient):
+    """Return a normal ordered FermionOperator corresponding to single term.
+
+    Args:
+        term: A tuple of tuples. The first element of each tuple is
+              an integer indicating the mode on which a fermion ladder
+              operator acts, starting from zero. The second element of each
+              tuple is an integer, either 1 or 0, indicating whether creation
+              or annihilation acts on that mode.
+        coefficient: The coefficient of the term.
+
+    Returns:
+        ordered_term (FermionOperator): The normal ordered form of the input.
+                                        Note that this might have more terms.
+
+    In our convention, normal ordering implies terms are ordered
+    from highest tensor factor (on left) to lowest (on right).
+    Also, ladder operators come first.
+
+    Warning:
+        Even assuming that each creation or annihilation operator appears
+        at most a constant number of times in the original term, the
+        runtime of this method is exponential in the number of qubits.
+    """
+    # Iterate from left to right across operators and reorder to normal
+    # form. Swap terms operators into correct position by moving from
+    # left to right across ladder operators.
+    term = list(term)
+    ordered_term = FermionOperator((), 0.)
+    for i in range(1, len(term)):
+        for j in range(i, 0, -1):
+            right_operator = term[j]
+            left_operator = term[j - 1]
+
+            # Swap operators if raising on right and lowering on left.
+            if right_operator[1] and not left_operator[1]:
+                term[j - 1] = right_operator
+                term[j] = left_operator
+                coefficient *= -1
+
+                # Replace a a^\dagger with 1 - a^\dagger a
+                # if indices are the same.
+                if right_operator[0] == left_operator[0]:
+                    new_term = term[:(j - 1)] + term[(j + 1)::]
+
+                    # Recursively add the processed new term.
+                    ordered_term += normal_ordered_term(
+                        tuple(new_term), -coefficient)
+
+            # Handle case when operator type is the same.
+            elif right_operator[1] == left_operator[1]:
+
+                # If same two operators are repeated, evaluate to zero.
+                if right_operator[0] == left_operator[0]:
+                  return ordered_term
+
+                # Swap if same ladder type but lower index on left.
+                elif right_operator[0] > left_operator[0]:
+                    term[j - 1] = right_operator
+                    term[j] = left_operator
+                    coefficient *= -1
+
+    # Add processed term and return.
+    ordered_term += FermionOperator(tuple(term), coefficient)
+    return ordered_term
+
+
+def normal_ordered(fermion_operator):
+    """Compute and return the normal ordered form of a FermionOperator.
+
+    In our convention, normal ordering implies terms are ordered
+    from highest tensor factor (on left) to lowest (on right).
+    Also, ladder operators come first.
+
+    Warning:
+      Even assuming that each creation or annihilation operator appears
+      at most a constant number of times in the original term, the
+      runtime of this method is exponential in the number of qubits.
+    """
+    ordered_operator = FermionOperator((), 0.)
+    for term, coefficient in fermion_operator.terms.items():
+        ordered_operator += normal_ordered_term(term, coefficient)
+    return ordered_operator
 
 
 class FermionOperator(object):
@@ -346,7 +434,6 @@ class FermionOperator(object):
         Raises:
           ValueError: Can only raise FermionOperator to non-negative
                       integer powers.
-
         """
         # Handle invalid exponents.
         if not isinstance(exponent, int) or exponent < 0:
@@ -361,27 +448,12 @@ class FermionOperator(object):
             exponentiated *= self
         return exponentiated
 
-    def hermitian_conjugate(self):
-        """Hermitian conjugate this fermionic term."""
-        conj_terms = {}
-        for term in self.terms:
-            conj_coeff = numpy.conjugate(self.terms[term])
-            conj_term = list(term)
-            conj_term.reverse()
-            for local_op in range(len(conj_term)):
-                conj_term[local_op] = (conj_term[local_op][0],
-                                       1 - conj_term[local_op][1])
-
-            conj_terms[tuple(conj_term)] = conj_coeff
-        self.terms = conj_terms
-
     def is_normal_ordered(self):
         """Return whether or not term is in normal order.
 
         In our convention, normal ordering implies terms are ordered
         from highest tensor factor (on left) to lowest (on right). Also,
         ladder operators come first.
-
         """
         n_qubits = self.n_qubits()
         for term in self.terms:
@@ -395,75 +467,6 @@ class FermionOperator(object):
                     return False
                 pos = term[i][0]
         return True
-
-    def normal_ordered(self):
-        """Compute and return the normal ordered form of a FermionOperator.
-
-        Not an in-place method.
-
-        In our convention, normal ordering implies terms are ordered
-        from highest tensor factor (on left) to lowest (on right).
-        Also, ladder operators come first.
-
-        Returns:
-          FermionOperator object in normal ordered form.
-
-        Warning:
-          Even assuming that each creation or annihilation operator appears
-          at most a constant number of times in the original term, the
-          runtime of this method is exponential in the number of qubits.
-
-        """
-        # Initialize output.
-        normal_ordered_op = FermionOperator((), 0.0)
-
-        for term in self.terms:
-            new_ops = list(term)
-            new_term = FermionOperator(tuple(new_ops), self.terms[term])
-            new_coeff = self.terms[term]
-
-            # Iterate from left to right across operators and reorder to normal
-            # form. Swap terms operators into correct position by moving left
-            # to right.
-            for i in range(1, len(new_ops)):
-                for j in range(i, 0, -1):
-                    right_op = new_ops[j]
-                    left_op = new_ops[j - 1]
-
-                    # Swap operators if raising on right and lowering on left.
-                    if right_op[1] and not left_op[1]:
-                        new_ops[j-1], new_ops[j] = right_op, left_op
-                        new_coeff *= -1
-
-                        # Replace a a^\dagger with 1 - a^\dagger a if indices
-                        # are same.
-                        if right_op[0] == left_op[0]:
-                            new_ops2 = new_ops[:j-1] + new_ops[j+1:]
-                            new_coeff2 = -new_coeff
-                            new_term2 = FermionOperator(tuple(new_ops2),
-                                                        new_coeff2)
-
-                            # Recursively add the processed new term.
-                            normal_ordered_op += new_term2.normal_ordered()
-
-                    # Handle case when operator type is the same.
-                    elif right_op[1] == left_op[1]:
-
-                        # If same two operators are repeated, term evaluates to
-                        # zero.
-                        if right_op[0] == left_op[0]:
-                            new_coeff = 0.0
-
-                        # Swap if same ladder type but lower index on left.
-                        elif right_op[0] > left_op[0]:
-                            new_ops[j-1], new_ops[j] = right_op, left_op
-                            new_coeff *= -1
-
-            # Add processed new term to output and return.
-            if new_coeff:
-                normal_ordered_op += FermionOperator(tuple(new_ops), new_coeff)
-
-        return normal_ordered_op
 
     def is_molecular_term(self):
         """Query whether term has correct form to be from a molecular.

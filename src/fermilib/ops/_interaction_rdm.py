@@ -6,7 +6,8 @@ import numpy
 
 from fermilib.ops import (FermionOperator,
                           InteractionTensor,
-                          InteractionOperator)
+                          InteractionOperator,
+                          normal_ordered)
 from projectqtemp.ops import QubitOperator
 
 
@@ -190,8 +191,7 @@ class InteractionRDM(InteractionTensor):
         expectation = 0.
         reversed_fermion_operators = reverse_jordan_wigner(qubit_term,
                                                            self.n_qubits)
-        reversed_fermion_operators = (
-            reversed_fermion_operators.normal_ordered())
+        reversed_fermion_operators = normal_ordered(reversed_fermion_operators)
         for ops in reversed_fermion_operators.terms:
             coeff = reversed_fermion_operators.terms[ops]
             fermion_term = FermionOperator(ops, coeff)

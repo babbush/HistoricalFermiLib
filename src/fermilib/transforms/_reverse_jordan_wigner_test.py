@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 import unittest
 
-from fermilib.ops import FermionOperator
+from fermilib.ops import FermionOperator, normal_ordered
 from fermilib.transforms import jordan_wigner
 from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 from fermilib.transforms._reverse_jordan_wigner import (
@@ -94,8 +94,8 @@ class ReverseJWTermTest(unittest.TestCase):
         expected = expected1 * expected2
 
         self.assertTrue(xx.isclose(retransmed_xx))
-        self.assertTrue(transmed_xx.normal_ordered().isclose(
-            expected.normal_ordered()))
+        self.assertTrue(normal_ordered(transmed_xx).isclose(
+            normal_ordered(expected)))
 
     def test_yy(self):
         yy = QubitOperator(((2, 'Y'), (3, 'Y')), 2.)
@@ -109,8 +109,8 @@ class ReverseJWTermTest(unittest.TestCase):
         expected = expected1 * expected2
 
         self.assertTrue(yy.isclose(retransmed_yy))
-        self.assertTrue(transmed_yy.normal_ordered().isclose(
-            expected.normal_ordered()))
+        self.assertTrue(normal_ordered(transmed_yy).isclose(
+            normal_ordered(expected)))
 
     def test_xy(self):
         xy = QubitOperator(((4, 'X'), (5, 'Y')), -2.j)
@@ -124,8 +124,8 @@ class ReverseJWTermTest(unittest.TestCase):
         expected = expected1 * expected2
 
         self.assertTrue(xy.isclose(retransmed_xy))
-        self.assertTrue(transmed_xy.normal_ordered().isclose(
-            expected.normal_ordered()))
+        self.assertTrue(normal_ordered(transmed_xy).isclose(
+            normal_ordered(expected)))
 
     def test_yx(self):
         yx = QubitOperator(((0, 'Y'), (1, 'X')), -0.5)
@@ -139,8 +139,8 @@ class ReverseJWTermTest(unittest.TestCase):
         expected = expected1 * expected2
 
         self.assertTrue(yx.isclose(retransmed_yx))
-        self.assertTrue(transmed_yx.normal_ordered().isclose(
-            expected.normal_ordered()))
+        self.assertTrue(normal_ordered(transmed_yx).isclose(
+            normal_ordered(expected)))
 
     def test_jw_term_bad_type(self):
         with self.assertRaises(TypeError):

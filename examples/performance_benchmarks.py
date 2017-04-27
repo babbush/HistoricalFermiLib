@@ -1,7 +1,7 @@
 """This file contains tests of code performance to reveal bottlenecks."""
 import numpy
 import time
-from fermilib.ops import FermionOperator, InteractionOperator
+from fermilib.ops import FermionOperator, InteractionOperator, normal_ordered
 from fermilib.transforms import (get_fermion_operator,
                                  jordan_wigner,
                                  jordan_wigner_sparse)
@@ -135,7 +135,7 @@ def benchmark_fermion_math_and_normal_order(n_qubits, term_length, power):
 
   # Normal order.
   start_time = time.time()
-  fermion_operator.normal_ordered()
+  normal_ordered(fermion_operator)
   runtime_normal_order = time.time() - start_time
 
   # Return.
@@ -174,7 +174,7 @@ if __name__ == '__main__':
           'takes {} seconds on {} qubits.'.format(runtime, n_qubits))
 
   # Run benchmark on FermionOperator math and normal-ordering.
-  if 0:
+  if 1:
     n_qubits = 20
     term_length = 5
     power = 15
@@ -185,7 +185,7 @@ if __name__ == '__main__':
         runtime_math, runtime_normal))
 
   # Run FermionOperator.jordan_wigner_sparse() benchmark.
-  if 1:
+  if 0:
     n_qubits = 10
     print('Starting test on FermionOperator.jordan_wigner_sparse().')
     runtime = benchmark_jordan_wigner_sparse(n_qubits)
