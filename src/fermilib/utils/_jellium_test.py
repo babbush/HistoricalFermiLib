@@ -276,7 +276,7 @@ class JelliumTest(unittest.TestCase):
                         if p == q:
                             continue
 
-                        zpzq = ((p, 'Z'), (q, 'Z'))
+                        zpzq = ((min(p, q), 'Z'), (max(p, q), 'Z'))
                         potential_coefficient = qubit_potential.terms[zpzq]
 
                         for indices_c in \
