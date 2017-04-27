@@ -14,7 +14,8 @@ from fermilib.ops import (FermionOperator,
 
 from fermilib.ops._interaction_operator import InteractionOperatorError
 from fermilib.ops._sparse_operator import (qubit_term_sparse,
-                                           qubit_operator_sparse)
+                                           qubit_operator_sparse,
+                                           jordan_wigner_operator_sparse)
 from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 
 

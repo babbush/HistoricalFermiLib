@@ -6,7 +6,7 @@ import unittest
 import numpy
 import scipy.linalg
 
-from fermilib import molecular_data
+from fermilib.ops._molecular_data import MolecularData
 from fermilib import run_psi4
 from fermilib import sparse_operators
 
@@ -19,8 +19,8 @@ class LiHIntegrationTest(unittest.TestCase):
         self.geometry = [('Li', (0., 0., 0.)), ('H', (0., 0., 1.45))]
         self.basis = 'sto-3g'
         self.multiplicity = 1
-        self.molecule = molecular_data.MolecularData(
-            self.geometry, self.basis, self.multiplicity)
+        self.molecule = MolecularData(self.geometry, self.basis,
+                                      self.multiplicity)
 
         # Run calculations.
         run_scf = True

@@ -7,7 +7,7 @@ import numpy
 import scipy.sparse
 import projectqtemp.ops._fermion_operator as fo
 
-from fermilib import molecular_data
+from fermilib.ops._molecular_data import MolecularData
 from fermilib import run_psi4
 from fermilib import sparse_operators
 from fermilib import unitary_cc
