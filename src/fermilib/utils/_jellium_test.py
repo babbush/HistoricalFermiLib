@@ -5,8 +5,8 @@ import unittest
 import numpy
 
 import fermilib.utils._jellium as jellium
-import projectqtemp.ops._qubit_operator as qubit_operators
-from fermilib.transforms import jordan_wigner, eigenspectrum
+from projectqtemp.ops import QubitOperator
+from fermilib.transforms import jordan_wigner, get_eigenspectrum
 
 
 class JelliumTest(unittest.TestCase):
@@ -117,8 +117,8 @@ class JelliumTest(unittest.TestCase):
         # Diagonalize and confirm the same energy.
         jw_momentum = jordan_wigner(momentum_kinetic)
         jw_position = jordan_wigner(position_kinetic)
-        momentum_spectrum = eigenspectrum(jw_momentum)
-        position_spectrum = eigenspectrum(jw_position)
+        momentum_spectrum = get_eigenspectrum(jw_momentum)
+        position_spectrum = get_eigenspectrum(jw_position)
 
         # Confirm spectra are the same.
         difference = numpy.amax(
@@ -141,8 +141,8 @@ class JelliumTest(unittest.TestCase):
         # Diagonalize and confirm the same energy.
         jw_momentum = jordan_wigner(momentum_potential)
         jw_position = jordan_wigner(position_potential)
-        momentum_spectrum = eigenspectrum(jw_momentum)
-        position_spectrum = eigenspectrum(jw_position)
+        momentum_spectrum = get_eigenspectrum(jw_momentum)
+        position_spectrum = get_eigenspectrum(jw_position)
 
         # Confirm spectra are the same.
         difference = numpy.amax(
@@ -164,8 +164,8 @@ class JelliumTest(unittest.TestCase):
         # Diagonalize and confirm the same energy.
         jw_momentum = jordan_wigner(momentum_hamiltonian)
         jw_position = jordan_wigner(position_hamiltonian)
-        momentum_spectrum = eigenspectrum(jw_momentum)
-        position_spectrum = eigenspectrum(jw_position)
+        momentum_spectrum = get_eigenspectrum(jw_momentum)
+        position_spectrum = get_eigenspectrum(jw_position)
 
         # Confirm spectra are the same.
         difference = numpy.amax(
