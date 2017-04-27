@@ -4,3 +4,15 @@ data/
 __pycache__/
 .DS_Store
 .ipynb_checkpoints/
+
+src/fermilib/.cache/v/cache/lastfailed
+
+src/fermilib/ops/.cache/v/cache/lastfailed
+
+src/fermilib/ops/.cache/v/cache/lastfailed
+
+src/.cache/v/cache/lastfailed
+
+src/fermilib/.cache/v/cache/lastfailed
+
+src/fermilib/.cache/v/cache/lastfailed

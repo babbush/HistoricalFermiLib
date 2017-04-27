@@ -10,7 +10,7 @@ from fermilib.ops._molecular_data import MolecularData, name_molecule
 from psi4tmp import run_psi4
 
 
-class MolecularData(unittest.TestCase):
+class MolecularDataTest(unittest.TestCase):
 
     def setUp(self):
 
@@ -37,15 +37,15 @@ class MolecularData(unittest.TestCase):
         delete_input = 1
         delete_output = 1
         verbose = 0
-        self.molecule = run_psi4(self.molecule,
-                                 run_scf=run_scf,
-                                 run_mp2=run_mp2,
-                                 run_cisd=run_cisd,
-                                 run_ccsd=run_ccsd,
-                                 run_fci=run_fci,
-                                 verbose=verbose,
-                                 delete_input=delete_input,
-                                 delete_output=delete_output)
+        self.molecule = run_psi4.run_psi4(self.molecule,
+                                          run_scf=run_scf,
+                                          run_mp2=run_mp2,
+                                          run_cisd=run_cisd,
+                                          run_ccsd=run_ccsd,
+                                          run_fci=run_fci,
+                                          verbose=verbose,
+                                          delete_input=delete_input,
+                                          delete_output=delete_output)
 
     def test_name_molecule(self):
         correct_name = 'H2_sto-3g_singlet_eq'

@@ -87,13 +87,15 @@ def name_molecule(geometry,
 
     Args:
         geometry: A list of tuples giving the coordinates of each atom.
-            example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
-            Distances in atomic units. Use atomic symbols to specify atoms.
+                  example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
+                  Distances in atomic units. Use atomic symbols to
+                  specify atoms.
         basis: A string giving the basis set. An example is 'cc-pvtz'.
         multiplicity: An integer giving the spin multiplicity.
         charge: An integer giving the total molecular charge.
         description: A string giving a description. As an example,
-            for dimers a likely description is the bond length (e.g. 0.7414).
+                     for dimers a likely description is the bond length
+                     (e.g. 0.7414).
 
     Returns:
         name: A string giving the name of the instance.
@@ -175,16 +177,17 @@ def geometry_from_file(file_name):
 class MolecularData(object):
 
     """Class for storing molecule data from a fixed basis set at a fixed
-    geometry that is obtained from classical electronic structure packages. Not
-    every field is filled in every calculation. All data that can (for some
-    instance) exceed 10Mb should be saved seperately. Intention is to pickle
-    objects to database with unique name.
+    geometry that is obtained from classical electronic structure
+    packages. Not every field is filled in every calculation. All data
+    that can (for some instance) exceed 10 MB should be saved
+    separately. Intention is to pickle objects to database with unique
+    name.
 
     Attributes:
         geometry: A list of tuples giving the coordinates of each atom. An
-            example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
-            Distances in atomic units. Use atomic symbols to specify
-            atoms.
+                  example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
+                  Distances in atomic units. Use atomic symbols to specify
+                  atoms.
         basis: A string giving the basis set. An example is 'cc-pvtz'.
         charge: An integer giving the total molecular charge. Defaults to 0.
         multiplicity: An integer giving the spin multiplicity.
@@ -215,16 +218,11 @@ class MolecularData(object):
         fci_one_rdm: Numpy array giving 1-RDM from FCI calculation.
         ccsd_energy: Energy from coupled cluster singles and doubles.
         ccsd_amplitudes: Molecular operator holding coupled cluster
-            amplitudes.
+                         amplitudes.
     """
 
-    def __init__(self,
-                 geometry,
-                 basis,
-                 multiplicity,
-                 charge=0,
-                 description=None,
-                 autosave=True):
+    def __init__(self, geometry, basis, multiplicity,
+                 charge=0, description=None, autosave=True):
         """Initialize molecular metadata which defines class.
 
         Args:
