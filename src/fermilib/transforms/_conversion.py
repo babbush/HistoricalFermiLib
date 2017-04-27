@@ -14,28 +14,12 @@ from fermilib.ops import (FermionOperator,
 
 from fermilib.ops._interaction_operator import InteractionOperatorError
 from fermilib.ops._sparse_operator import (qubit_term_sparse,
-                                           qubit_operator_sparse,
-                                           jordan_wigner_operator_sparse)
+                                           qubit_operator_sparse)
 from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 
 
 def eigenspectrum(op):
     return get_sparse_operator(op).eigenspectrum()
-
-
-def jordan_wigner_sparse(op, n_qubits=None):
-    """Return a sparse matrix representation of the JW transformed term."""
-    if n_qubits is None:
-        n_qubits = op.n_qubits()
-    if n_qubits == 0:
-        raise ValueError('Invalid n_qubits.')
-    if n_qubits < op.n_qubits():
-        n_qubits = op.n_qubits()
-
-    if isinstance(op, FermionOperator):
-        return jordan_wigner_operator_sparse(op, n_qubits)
-
-    raise TypeError("op should be either a FermionTerm or FermionOperator.")
 
 
 def get_sparse_operator_term(term, n_qubits=None):

@@ -12,7 +12,7 @@ from fermilib.ops import (InteractionOperator,
                           one_body_term,
                           two_body_term)
 from fermilib.transforms import *
-from projectqtemp.ops._qubit_operator import QubitOperator
+from projectqtemp.ops import QubitOperator
 
 
 class GetInteractionOperatorTest(unittest.TestCase):

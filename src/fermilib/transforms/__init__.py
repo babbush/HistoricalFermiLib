@@ -7,8 +7,7 @@ from ._conversion import (eigenspectrum,
                           get_interaction_operator,
                           get_sparse_operator,
                           get_sparse_operator_term,
-                          get_sparse_interaction_operator,
-                          jordan_wigner_sparse)
+                          get_sparse_interaction_operator)
 
-from ._jordan_wigner import jordan_wigner
+from ._jordan_wigner import jordan_wigner, jordan_wigner_sparse
 from ._reverse_jordan_wigner import reverse_jordan_wigner

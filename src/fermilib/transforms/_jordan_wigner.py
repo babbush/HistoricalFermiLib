@@ -3,8 +3,49 @@ from __future__ import absolute_import
 
 from projectqtemp.ops import QubitOperator
 from fermilib.ops import FermionOperator, InteractionOperator
+from fermilib.ops._sparse_operator import jordan_wigner_operator_sparse
 
 import itertools
+
+
+def jordan_wigner(op):
+    """
+    Apply the Jordan-Wigner transform the fermionic operator op and
+    return qubit operator.
+
+    Returns:
+        transformed_operator: An instance of the QubitOperator class.
+
+    Warning:
+        The runtime of this method is exponential in the maximum locality
+        of the original FermionOperator.
+
+    """
+    if isinstance(op, InteractionOperator):
+        return jordan_wigner_interaction_op(op)
+
+    if not isinstance(op, FermionOperator):
+        raise TypeError("op must be a FermionOperator or InteractionOperator.")
+
+    transformed_operator = QubitOperator((), 0.0)
+    for term in op.terms:
+        transformed_operator += jordan_wigner_term(term, op.terms[term])
+    return transformed_operator
+
+
+def jordan_wigner_sparse(op, n_qubits=None):
+    """Return a sparse matrix representation of the JW transformed term."""
+    if n_qubits is None:
+        n_qubits = op.n_qubits()
+    if n_qubits == 0:
+        raise ValueError('Invalid n_qubits.')
+    if n_qubits < op.n_qubits():
+        n_qubits = op.n_qubits()
+
+    if isinstance(op, FermionOperator):
+        return jordan_wigner_operator_sparse(op, n_qubits)
+
+    raise TypeError("op should be either a FermionTerm or FermionOperator.")
 
 
 def jordan_wigner_term(term, coeff=1.):
@@ -38,31 +79,6 @@ def jordan_wigner_term(term, coeff=1.):
 
         transformed_term *= pauli_x_component + pauli_y_component
     return transformed_term
-
-
-def jordan_wigner(op):
-    """
-    Apply the Jordan-Wigner transform the fermionic operator op and
-    return qubit operator.
-
-    Returns:
-        transformed_operator: An instance of the QubitOperator class.
-
-    Warning:
-        The runtime of this method is exponential in the maximum locality
-        of the original FermionOperator.
-
-    """
-    if isinstance(op, InteractionOperator):
-        return jordan_wigner_interaction_op(op)
-
-    if not isinstance(op, FermionOperator):
-        raise TypeError("op must be a FermionOperator or InteractionOperator.")
-
-    transformed_operator = QubitOperator((), 0.0)
-    for term in op.terms:
-        transformed_operator += jordan_wigner_term(term, op.terms[term])
-    return transformed_operator
 
 
 def jordan_wigner_interaction_op(iop):
