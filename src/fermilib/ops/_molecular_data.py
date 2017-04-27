@@ -468,7 +468,7 @@ class MolecularData(object):
             numpy.absolute(two_body_coefficients) < EQ_TOLERANCE] = 0.
 
         # Cast to InteractionOperator class and return.
-        molecular_hamiltonian = interaction_operators.InteractionOperator(
+        molecular_hamiltonian = InteractionOperator(
             constant, one_body_coefficients, two_body_coefficients)
         return molecular_hamiltonian
 
@@ -512,5 +512,5 @@ class MolecularData(object):
         two_rdm[numpy.absolute(two_rdm) < EQ_TOLERANCE] = 0.
 
         # Cast to InteractionRDM class.
-        rdm = interaction_rdms.InteractionRDM(one_rdm, two_rdm)
+        rdm = InteractionRDM(one_rdm, two_rdm)
         return rdm

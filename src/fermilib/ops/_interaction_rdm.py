@@ -4,7 +4,9 @@ from __future__ import absolute_import
 import copy
 import numpy
 
-from fermilib.ops import InteractionTensor, FermionOperator
+from fermilib.ops import (FermionOperator,
+                          InteractionTensor,
+                          InteractionOperator)
 from projectqtemp.ops import QubitOperator
 
 
@@ -128,14 +130,11 @@ class InteractionRDM(InteractionTensor):
           InteractionRDMError: Invalid operator provided.
 
         """
-        # Import here to avoid circular dependency.
-        from fermilib import interaction_operators, qubit_operators
-
-        if isinstance(operator, qubit_operators.QubitOperator):
+        if isinstance(operator, QubitOperator):
             expectation_value = 0.
             for qubit_term in operator:
                 expectation += qubit_term_expectation(self, qubit_term)
-        elif isinstance(operator, interaction_operators.InteractionOperator):
+        elif isinstance(operator, InteractionOperator):
             expectation = operator.constant
             expectation += numpy.sum(self.one_body_tensor *
                                      operator.one_body_tensor)
