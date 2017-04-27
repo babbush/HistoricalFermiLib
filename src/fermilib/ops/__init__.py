@@ -1,5 +1,4 @@
 from ._fermion_operator import (FermionOperator,
-                                fermion_identity,
                                 hermitian_conjugated,
                                 number_operator,
                                 one_body_term,

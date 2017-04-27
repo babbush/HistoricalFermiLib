@@ -7,7 +7,6 @@ import numpy
 
 from fermilib.transforms import FenwickTree, jordan_wigner_sparse
 from fermilib.ops import (FermionOperator,
-                          fermion_identity,
                           number_operator,
                           InteractionOperator,
                           InteractionRDM)
@@ -166,7 +165,7 @@ def get_fermion_operator(iop):
         fermion_operator: An instance of the FermionOperator class.
     """
     # Initialize with identity term.
-    fermion_operator = iop.constant * fermion_identity()
+    fermion_operator = iop.constant * FermionOperator()
 
     # Add one-body terms.
     for p in range(iop.n_qubits):

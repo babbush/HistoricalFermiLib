@@ -3,8 +3,7 @@ import copy
 import numpy
 import pytest
 
-from ._fermion_operator import (fermion_identity,
-                                FermionOperator,
+from ._fermion_operator import (FermionOperator,
                                 FermionOperatorError,
                                 hermitian_conjugated,
                                 number_operator,
@@ -74,8 +73,8 @@ def test_init_bad_mode_num():
         fermion_op = FermionOperator('-1^')
 
 
-def test_fermion_identity():
-    op = fermion_identity(3.)
+def test_FermionOperator():
+    op = FermionOperator((), 3.)
     assert op.isclose(FermionOperator() * 3.)
 
 
@@ -428,7 +427,7 @@ def test_pow_zero_term():
     ops = ((3, 1), (1, 0), (4, 1))
     term = FermionOperator(ops, coeff)
     zerod = term ** 0
-    expected = fermion_identity()
+    expected = FermionOperator()
     assert expected.isclose(zerod)
 
 
@@ -450,7 +449,7 @@ def test_pow_high_term():
 
 def test_pow_neg_error():
     with pytest.raises(ValueError):
-        fermion_identity() ** -1
+        FermionOperator() ** -1
 
 
 def test_pow_nonint_error():
@@ -588,7 +587,7 @@ def test_normal_ordered_number():
 def test_normal_ordered_number_reversed():
     n_term_rev2 = FermionOperator(((2, 0), (2, 1)))
     number_op2 = number_operator(3, 2)
-    expected = fermion_identity() - number_op2
+    expected = FermionOperator() - number_op2
     assert n_term_rev2.normal_ordered().isclose(expected)
 
 
@@ -632,7 +631,7 @@ def test_normal_ordered_triple():
     assert op_132.isclose(op_321.normal_ordered())
 
 
-def test_is_molecular_term_fermion_identity():
+def test_is_molecular_term_FermionOperator():
     op = FermionOperator()
     assert op.is_molecular_term()
 

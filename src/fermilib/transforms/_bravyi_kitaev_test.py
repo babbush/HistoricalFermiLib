@@ -3,8 +3,7 @@ from __future__ import absolute_import
 import unittest
 import numpy
 
-from fermilib.ops import (fermion_identity,
-                          FermionOperator,
+from fermilib.ops import (FermionOperator,
                           number_operator,
                           one_body_term)
 
@@ -55,7 +54,7 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         self.assertEqual(raising.terms[correct_operators_c], 0.5)
 
     def test_bk_identity(self):
-        self.assertTrue(bravyi_kitaev(fermion_identity()).isclose(
+        self.assertTrue(bravyi_kitaev(FermionOperator()).isclose(
                         QubitOperator()))
 
     def test_bk_jw_number_operator(self):
@@ -170,8 +169,7 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         fermion_operator = FermionOperator(((3, 1), (2, 1), (1, 0), (0, 0)),
                                            -4.3)
         fermion_operator += FermionOperator(((3, 1), (1, 0)), 8.17)
-        fermion_operator += 3.2 * fermion_identity()
-        # fermion_operator **= 3
+        fermion_operator += 3.2 * FermionOperator()
 
         # Map to qubits and compare matrix versions.
         jw_qubit_operator = jordan_wigner(fermion_operator)

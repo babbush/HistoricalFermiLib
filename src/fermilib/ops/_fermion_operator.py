@@ -7,11 +7,6 @@ class FermionOperatorError(Exception):
     pass
 
 
-def fermion_identity(coefficient=1.):
-    """Return a fermionic identity operator."""
-    return coefficient * FermionOperator()
-
-
 def one_body_term(p, q, coefficient=1.):
     """Return one-body operator which conserves particle number.
 
@@ -379,7 +374,7 @@ class FermionOperator(object):
                 'Can only raise FermionOperator to positive integer powers.')
 
         # Initialized identity.
-        exponentiated = fermion_identity()
+        exponentiated = FermionOperator()
 
         # Handle non-zero exponents.
         for i in range(exponent):
