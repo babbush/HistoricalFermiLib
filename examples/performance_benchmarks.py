@@ -1,8 +1,10 @@
 """This file contains tests of code performance to reveal bottlenecks."""
-import interaction_operators
 import numpy
 import time
-from fermion_operators import FermionTerm
+from fermilib.ops import FermionOperator, InteractionOperator
+from fermilib.transforms import (get_fermion_operator,
+                                 jordan_wigner,
+                                 jordan_wigner_sparse)
 
 def artificial_molecular_operator(n_qubits):
   """Make an artificial random InteractionOperator for testing purposes."""
@@ -49,7 +51,7 @@ def artificial_molecular_operator(n_qubits):
           two_body_coefficients[s, r, q, p] = two_body_coefficients[p, q, r, s]
 
   # Build the molecular operator and return.
-  molecular_operator = interaction_operators.InteractionOperator(
+  molecular_operator = InteractionOperator(
       constant, one_body_coefficients, two_body_coefficients)
   return molecular_operator
 
@@ -70,7 +72,7 @@ def benchmark_molecular_operator_jordan_wigner(n_qubits):
 
   # Convert to a qubit operator.
   start = time.time()
-  qubit_operator = molecular_operator.jordan_wigner_transform()
+  qubit_operator = jordan_wigner(molecular_operator)
   end = time.time()
 
   # Return runtime.
@@ -120,10 +122,10 @@ def benchmark_fermion_math_and_normal_order(n_qubits, term_length, power):
     operators_b += [operator_b]
 
   # Initialize FermionTerms and then sum them together.
-  fermion_term_a = FermionTerm(
-      operators_a, float(numpy.random.randn()))
-  fermion_term_b = FermionTerm(
-      operators_b, float(numpy.random.randn()))
+  fermion_term_a = FermionOperator(
+      tuple(operators_a), float(numpy.random.randn()))
+  fermion_term_b = FermionOperator(
+      tuple(operators_b), float(numpy.random.randn()))
   fermion_operator = fermion_term_a + fermion_term_b
 
   # Exponentiate.
@@ -133,7 +135,7 @@ def benchmark_fermion_math_and_normal_order(n_qubits, term_length, power):
 
   # Normal order.
   start_time = time.time()
-  fermion_operator.normal_order()
+  fermion_operator.normal_ordered()
   runtime_normal_order = time.time() - start_time
 
   # Return.
@@ -151,11 +153,11 @@ def benchmark_jordan_wigner_sparse(n_qubits):
   """
   # Initialize a random FermionOperator.
   molecular_operator = artificial_molecular_operator(n_qubits)
-  fermion_operator = molecular_operator.get_fermion_operator()
+  fermion_operator = get_fermion_operator(molecular_operator)
 
   # Map to SparseOperator class.
   start_time = time.time()
-  sparse_operator = fermion_operator.jordan_wigner_sparse()
+  sparse_operator = jordan_wigner_sparse(fermion_operator)
   runtime = time.time() - start_time
   return runtime
 
@@ -164,7 +166,7 @@ def benchmark_jordan_wigner_sparse(n_qubits):
 if __name__ == '__main__':
 
   # Run InteractionOperator.jordan_wigner_transform() benchmark.
-  if 1:
+  if 0:
     n_qubits = 18
     print('Starting test on InteractionOperator.jordan_wigner_transform()')
     runtime = benchmark_molecular_operator_jordan_wigner(n_qubits)
@@ -183,7 +185,7 @@ if __name__ == '__main__':
         runtime_math, runtime_normal))
 
   # Run FermionOperator.jordan_wigner_sparse() benchmark.
-  if 0:
+  if 1:
     n_qubits = 10
     print('Starting test on FermionOperator.jordan_wigner_sparse().')
     runtime = benchmark_jordan_wigner_sparse(n_qubits)

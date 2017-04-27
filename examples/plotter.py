@@ -1,12 +1,13 @@
 """These functions compare properties of different molecules.
 """
-import chemical_series
-import molecular_data
 import numpy
 import warnings
 with warnings.catch_warnings():
   warnings.simplefilter('ignore')
   import pylab
+
+from fermilib.ops import MolecularData, _PERIODIC_TABLE
+from fermilib.utils import make_atom, make_atomic_ring
 
 
 def latex_name(molecule):
@@ -39,13 +40,13 @@ if __name__ == '__main__':
   pylab.rc('font', family='sans=serif')
   marker_size = 6
   line_width = 2
-  axis_size = 18
-  font_size = 24
+  axis_size = 12
+  font_size = 16
   x_log = 0
   y_log = 0
 
   # Set chemical series parameters.
-  periodic_table = 1
+  periodic_table = 0
   max_electrons = 10
   spacing = 0.7414
   basis = 'sto-3g'
@@ -54,10 +55,10 @@ if __name__ == '__main__':
   molecular_series = []
   for n_electrons in range(2, max_electrons + 1):
     if periodic_table:
-      atomic_symbol = molecular_data._PERIODIC_TABLE[n_electrons]
-      molecule = chemical_series.make_atom(atomic_symbol, basis)
+      atomic_symbol = _PERIODIC_TABLE[n_electrons]
+      molecule = make_atom(atomic_symbol, basis)
     else:
-      molecule = chemical_series.make_atomic_ring(n_electrons, spacing, basis)
+      molecule = make_atomic_ring(n_electrons, spacing, basis)
     molecular_series += [molecule]
 
   # Get plot data.
