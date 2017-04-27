@@ -62,7 +62,7 @@ def orbital_id(grid_length, grid_coordinates, spin=None):
 def grid_indices(qubit_id, n_dimensions, grid_length, spinless):
     """
     This function is the inverse of orbital_id.
-    
+
     Args:
         qubit_id: The tensor factor to map to grid indices.
         n_dimensions: An int giving the number of dimensions for the model.

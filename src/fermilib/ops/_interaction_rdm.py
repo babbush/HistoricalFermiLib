@@ -165,13 +165,13 @@ class InteractionRDM(InteractionTensor):
             qubit_term = QubitOperator(
                 qubit_term, qubit_operator_expectations.terms[qubit_term])
             if (not qubit_term.is_identity() and
-                qubit_term.terms[list(qubit_term.terms)[0]]):
+                    qubit_term.terms[list(qubit_term.terms)[0]]):
 
                 # Set coefficient to 1, then to correct expectation value.
                 qubit_term.terms[list(qubit_term.terms)[0]] = 1.
                 qubit_operator_expectations.terms[
                     list(qubit_term.terms)[0]] = (self.qubit_term_expectation(
-                        qubit_term))
+                                                  qubit_term))
         qubit_operator_expectations.terms[()] = 0.
         return qubit_operator_expectations
 

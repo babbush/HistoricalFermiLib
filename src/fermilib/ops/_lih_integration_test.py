@@ -30,11 +30,11 @@ class LiHIntegrationTest(unittest.TestCase):
         delete_input = False
         delete_output = False
         self.molecule = run_psi4(self.molecule,
-                                          run_scf=run_scf,
-                                          run_fci=run_fci,
-                                          verbose=verbose,
-                                          delete_input=delete_input,
-                                          delete_output=delete_output)
+                                 run_scf=run_scf,
+                                 run_fci=run_fci,
+                                 verbose=verbose,
+                                 delete_input=delete_input,
+                                 delete_output=delete_output)
 
         # Get molecular Hamiltonian.
         self.molecular_hamiltonian = self.molecule.get_molecular_hamiltonian()

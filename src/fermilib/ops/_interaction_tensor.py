@@ -100,14 +100,14 @@ class InteractionTensor(object):
     def __init__(self, constant, one_body_tensor, two_body_tensor):
         """Initialize the InteractionTensor class.
 
-        Args: 
+        Args:
             constant: A constant term in the operator given as a
                 float. For instance, the nuclear repulsion energy.
         one_body_tensor: The coefficients of the 2D matrix terms. This
             is an n_qubits x n_qubits numpy array of floats. For
             instance, the one body term of MolecularOperator.
         two_body_tensor: The coefficients of the 4D matrix terms. This is
-            an n_qubits x n_qubits x n_qubits x n_qubits numpy array of 
+            an n_qubits x n_qubits x n_qubits x n_qubits numpy array of
             floats. For instance, the two body term of MolecularOperator.
         """
         if constant is None:
@@ -269,7 +269,7 @@ class InteractionTensor(object):
         """
         Rotate the orbital basis of the InteractionTensor.
 
-        Args:   
+        Args:
             rotation_matrix: A square numpy array or matrix having
                 dimensions of n_qubits by n_qubits. Assumed to be real and
                 invertible.

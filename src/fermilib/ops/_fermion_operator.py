@@ -155,7 +155,7 @@ class FermionOperator(object):
 
         # No input.
         elif term is None:
-          self.terms[()] = coefficient
+            self.terms[()] = coefficient
 
         # Invalid input.
         else:

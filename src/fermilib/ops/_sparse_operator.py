@@ -116,7 +116,8 @@ def jordan_wigner_operator_sparse(fermion_operator, n_qubits):
     Initialize a SparseOperator from a FermionOperator.
 
     Args:
-        fermion_operator(FermionOperator): instance of the FermionOperator class.
+        fermion_operator(FermionOperator): instance of the FermionOperator
+            class.
         n_qubits(int): Number of qubits.
 
     Returns:
@@ -126,10 +127,12 @@ def jordan_wigner_operator_sparse(fermion_operator, n_qubits):
     # Create a list of raising and lowering operators for each orbital.
     jw_operators = []
     for tensor_factor in range(n_qubits):
-        jw_operators += [(jordan_wigner_ladder_sparse(
-                          n_qubits, tensor_factor, 0),
-                          jordan_wigner_ladder_sparse(
-                          n_qubits, tensor_factor, 1))]
+        jw_operators += [(jordan_wigner_ladder_sparse(n_qubits,
+                                                      tensor_factor,
+                                                      0),
+                          jordan_wigner_ladder_sparse(n_qubits,
+                                                      tensor_factor,
+                                                      1))]
 
     # Construct the SparseOperator.
     n_hilbert = 2 ** n_qubits

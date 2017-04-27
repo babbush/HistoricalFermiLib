@@ -62,7 +62,7 @@ def fermi_hubbard(x_dimension, y_dimension, tunneling, coulomb,
         magnetic_field: An optional float giving a magnetic field at each
             site. Default value is None.
         periodic: If True, add periodic boundary conditions.
-        spinless: An optional Boolean. If False, each site has spin up 
+        spinless: An optional Boolean. If False, each site has spin up
             orbitals and spin down orbitals. If True, return a spinless
             Fermi-Hubbard model.
         verbose: An optional Boolean. If True, print all second quantized

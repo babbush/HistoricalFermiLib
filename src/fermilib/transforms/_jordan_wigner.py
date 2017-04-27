@@ -170,9 +170,9 @@ def jordan_wigner_two_body(p, q, r, s):
             # Sort operators.
             [(a, operator_a), (b, operator_b),
              (c, operator_c), (d, operator_d)] = sorted(
-                 [(p, operator_p), (q, operator_q),
-                  (r, operator_r), (s, operator_s)],
-                 key=lambda pair: pair[0])
+                [(p, operator_p), (q, operator_q),
+                 (r, operator_r), (s, operator_s)],
+                key=lambda pair: pair[0])
 
             # Computer operator strings.
             operators = ((a, operator_a),)

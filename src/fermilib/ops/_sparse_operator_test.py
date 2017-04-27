@@ -36,7 +36,7 @@ class SparseOperatorTest(unittest.TestCase):
 
         # Initialize a random fermionic operator.
         fermion_operator = FermionOperator(((3, 1), (2, 1), (1, 0), (0, 0)),
-                                              -4.3)
+                                           -4.3)
         fermion_operator += FermionOperator(((3, 1), (1, 0)), 8.17)
         fermion_operator += 3.2 * FermionOperator()
 

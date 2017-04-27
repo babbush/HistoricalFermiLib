@@ -14,7 +14,7 @@ def bravyi_kitaev_term(term, n_qubits=None):
     Note:
         Reference: Operator Locality of Quantum Simulation of Fermionic
             Models (arXiv:1701.07072).
-    
+
     Args:
         term: A fermionic operator to be transformed
         n_qubits: number of qubits in the register TODO (?)
