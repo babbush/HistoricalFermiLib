@@ -288,7 +288,7 @@ class FermionOperator(object):
                 'Object of invalid type cannot multiply with FermionOperator.')
         return self * multiplier
 
-    def __div__(self, divisor):
+    def __truediv__(self, divisor):
         """
         Return self / divisor for a scalar.
 
@@ -309,9 +309,19 @@ class FermionOperator(object):
             raise TypeError('Cannot divide QubitOperator by non-scalar type.')
         return self * (1.0 / divisor)
 
-    def __idiv__(self, divisor):
+    def __div__(self, divisor):
+        """ For compatibility with Python 2. """
+        return self.__truediv__(divisor)
+
+    def __itruediv__(self, divisor):
+        if not isinstance(divisor, (int, float, complex)):
+            raise TypeError('Cannot divide QubitOperator by non-scalar type.')
         self *= (1.0 / divisor)
         return self
+
+    def __idiv__(self, divisor):
+        """ For compatibility with Python 2. """
+        return self.__itruediv__(divisor)
 
     def __iadd__(self, addend):
         """In-place method for += addition of FermionOperator.
