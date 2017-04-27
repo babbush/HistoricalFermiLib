@@ -106,7 +106,7 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         # Check if the spectrum fits for a single hoppping operator
         n_qubits = 5
         ho = FermionOperator(((1, 1), (4, 0))) + FermionOperator(
-            ((4, 1), (1,0)))
+            ((4, 1), (1, 0)))
         jw_ho = jordan_wigner(ho)
         bk_ho = bravyi_kitaev(ho)
 

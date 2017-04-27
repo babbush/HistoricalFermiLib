@@ -6,6 +6,7 @@ from fermilib.transforms import (get_fermion_operator,
                                  jordan_wigner,
                                  jordan_wigner_sparse)
 
+
 def artificial_molecular_operator(n_qubits):
   """Make an artificial random InteractionOperator for testing purposes."""
 

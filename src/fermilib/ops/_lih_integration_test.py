@@ -79,7 +79,7 @@ class LiHIntegrationTest(unittest.TestCase):
         fermion_hamiltonian = normal_ordered(fermion_hamiltonian)
         self.assertTrue(self.fermion_hamiltonian.isclose(fermion_hamiltonian))
 
-        # Make sure the mapping of FermionOperator to InteractionOperator works.
+        # Make sure mapping of FermionOperator to InteractionOperator works.
         molecular_hamiltonian = get_interaction_operator(
             self.fermion_hamiltonian)
         fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)

@@ -10,4 +10,3 @@ from ._conversion import (get_eigenspectrum,
                           get_sparse_operator,
                           get_sparse_operator_term,
                           get_sparse_interaction_operator)
-

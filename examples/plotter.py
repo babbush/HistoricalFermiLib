@@ -2,12 +2,12 @@
 """
 import numpy
 import warnings
+from fermilib.ops import MolecularData, _PERIODIC_TABLE
+from fermilib.utils import make_atom, make_atomic_ring
+
 with warnings.catch_warnings():
   warnings.simplefilter('ignore')
   import pylab
-
-from fermilib.ops import MolecularData, _PERIODIC_TABLE
-from fermilib.utils import make_atom, make_atomic_ring
 
 
 def latex_name(molecule):
