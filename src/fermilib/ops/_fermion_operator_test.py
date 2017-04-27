@@ -177,7 +177,7 @@ def test_imul_inplace():
     prev_id = id(fermion_op)
     fermion_op *= 3.
     assert id(fermion_op) == prev_id
-    print fermion_op.terms.keys()
+    print(fermion_op.terms.keys())
     assert fermion_op.terms[((1, 1),)] == 3.
 
 
@@ -671,7 +671,7 @@ def test_str():
     op = FermionOperator(((1, 1), (3, 0), (8, 1)), 0.5)
     assert str(op) == "0.5 [1^ 3 8^]\n"
     op2 = FermionOperator((), 2)
-    print str(op2)
+    print(str(op2))
     assert str(op2) == "2 []\n"
 
 
