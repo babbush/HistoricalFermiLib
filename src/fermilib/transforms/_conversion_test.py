@@ -11,7 +11,7 @@ from fermilib.ops import (InteractionOperator,
                           number_operator,
                           one_body_term,
                           two_body_term)
-from projectqtemp.ops._qubit_operator import QubitOperator, qubit_identity
+from projectqtemp.ops._qubit_operator import QubitOperator
 from transforms._conversion import (eigenspectrum, get_fermion_operator,
                                     get_interaction_operator,
                                     get_sparse_operator)
@@ -81,17 +81,17 @@ class GetSparseOperatorQubitTest(unittest.TestCase):
         self.assertEqual(sparse_operator.matrix.shape, (32, 32))
 
     def test_sparse_matrix_identity_1qubit(self):
-        sparse_operator = get_sparse_operator(qubit_identity(), 1)
+        sparse_operator = get_sparse_operator(QubitOperator(), 1)
         self.assertEqual(list(sparse_operator.matrix.data), [1] * 2)
         self.assertEqual(sparse_operator.matrix.shape, (2, 2))
 
     def test_sparse_matrix_identity_5qubit(self):
-        sparse_operator = get_sparse_operator(qubit_identity(), 5)
+        sparse_operator = get_sparse_operator(QubitOperator(), 5)
         self.assertEqual(list(sparse_operator.matrix.data), [1] * 32)
         self.assertEqual(sparse_operator.matrix.shape, (32, 32))
 
     def test_sparse_matrix_linearity(self):
-        identity = qubit_identity()
+        identity = QubitOperator()
         zzzz = QubitOperator(tuple((i, 'Z') for i in range(4)), 1.0)
 
         sparse1 = get_sparse_operator(identity + zzzz)

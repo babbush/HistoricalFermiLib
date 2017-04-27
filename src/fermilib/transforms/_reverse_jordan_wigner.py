@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import copy
 
 from fermilib.ops import (FermionOperator,
-                          fermion_identity,
                           number_operator)
 from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 
@@ -40,7 +39,7 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
         n_qubits = term.n_qubits()
 
     # Initialize transformed operator.
-    transformed_term = fermion_identity()
+    transformed_term = FermionOperator()
     working_ops = list(term.terms)[0]
     working_term = QubitOperator(working_ops, 1.0)
     original_coeff = term.terms[working_ops]
@@ -54,7 +53,7 @@ def reverse_jordan_wigner_term(term, n_qubits=None):
             # Handle Pauli Z.
             if operator[1] == 'Z':
                 no = number_operator(n_qubits, operator[0], -2.)
-                transformed_operator = fermion_identity() + no
+                transformed_operator = FermionOperator() + no
 
             else:
                 raising_term = FermionOperator(((operator[0], 1),))
