@@ -7,7 +7,7 @@ import numpy
 import scipy.linalg
 
 from fermilib.ops._molecular_data import MolecularData
-from fermilib import run_psi4
+from psi4tmp import run_psi4
 from fermilib.ops import _sparse_operator
 
 
@@ -29,7 +29,7 @@ class LiHIntegrationTest(unittest.TestCase):
         verbose = False
         delete_input = False
         delete_output = False
-        self.molecule = run_psi4.run_psi4(self.molecule,
+        self.molecule = run_psi4(self.molecule,
                                           run_scf=run_scf,
                                           run_fci=run_fci,
                                           verbose=verbose,
