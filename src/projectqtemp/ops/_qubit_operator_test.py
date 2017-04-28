@@ -16,7 +16,7 @@ import copy
 import numpy
 import pytest
 
-from projectqtemp.ops import _qubit_operator as qo
+from projectqtemp.ops import _qubit_operator
 
 
 def test_pauli_operator_product_unchanged():
@@ -36,11 +36,11 @@ def test_pauli_operator_product_unchanged():
                ('Y', 'Z'): (1.j, 'X'),
                ('Z', 'X'): (1.j, 'Y'),
                ('Z', 'Y'): (-1.j, 'X')}
-    assert qo._PAULI_OPERATOR_PRODUCTS == correct
+    assert _qubit_operator._PAULI_OPERATOR_PRODUCTS == correct
 
 
 def test_init_defaults():
-    loc_op = qo.QubitOperator()
+    loc_op = _qubit_operator.QubitOperator()
     assert len(loc_op.terms) == 1
     assert loc_op.terms[()] == 1.0
 
@@ -49,69 +49,69 @@ def test_init_defaults():
                          numpy.complex128(-1j)])
 def test_init_tuple(coefficient):
     loc_op = ((0, 'X'), (5, 'Y'), (6, 'Z'))
-    qubit_op = qo.QubitOperator(loc_op, coefficient)
+    qubit_op = _qubit_operator.QubitOperator(loc_op, coefficient)
     assert len(qubit_op.terms) == 1
     assert qubit_op.terms[loc_op] == coefficient
 
 
 def test_init_str():
-    qubit_op = qo.QubitOperator('X0 Y5 Z12', -1.)
+    qubit_op = _qubit_operator.QubitOperator('X0 Y5 Z12', -1.)
     correct = ((0, 'X'), (5, 'Y'), (12, 'Z'))
     assert correct in qubit_op.terms
     assert qubit_op.terms[correct] == -1.0
 
 
 def test_init_str_identity():
-    qubit_op = qo.QubitOperator('')
+    qubit_op = _qubit_operator.QubitOperator('')
     assert () in qubit_op.terms
 
 
 def test_init_bad_term():
     with pytest.raises(ValueError):
-        qubit_op = qo.QubitOperator(list())
+        qubit_op = _qubit_operator.QubitOperator(list())
 
 
 def test_init_bad_coefficient():
     with pytest.raises(ValueError):
-        qubit_op = qo.QubitOperator('X0', "0.5")
+        qubit_op = _qubit_operator.QubitOperator('X0', "0.5")
 
 
 def test_init_bad_action():
     with pytest.raises(ValueError):
-        qubit_op = qo.QubitOperator('Q0')
+        qubit_op = _qubit_operator.QubitOperator('Q0')
 
 
 def test_init_bad_tuple():
     with pytest.raises(ValueError):
-        qubit_op = qo.QubitOperator(((0, 1, 'X'),))
+        qubit_op = _qubit_operator.QubitOperator(((0, 1, 'X'),))
 
 
 def test_init_bad_str():
     with pytest.raises(ValueError):
-        qubit_op = qo.QubitOperator('X')
+        qubit_op = _qubit_operator.QubitOperator('X')
 
 
 def test_init_bad_qubit_num():
-    with pytest.raises(qo.QubitOperatorError):
-        qubit_op = qo.QubitOperator('X-1')
+    with pytest.raises(_qubit_operator.QubitOperatorError):
+        qubit_op = _qubit_operator.QubitOperator('X-1')
 
 
 def test_isclose_abs_tol():
-    a = qo.QubitOperator('X0', -1.)
-    b = qo.QubitOperator('X0', -1.05)
-    c = qo.QubitOperator('X0', -1.11)
+    a = _qubit_operator.QubitOperator('X0', -1.)
+    b = _qubit_operator.QubitOperator('X0', -1.05)
+    c = _qubit_operator.QubitOperator('X0', -1.11)
     assert a.isclose(b, rel_tol=1e-14, abs_tol=0.1)
     assert not a.isclose(c, rel_tol=1e-14, abs_tol=0.1)
-    a = qo.QubitOperator('X0', -1.0j)
-    b = qo.QubitOperator('X0', -1.05j)
-    c = qo.QubitOperator('X0', -1.11j)
+    a = _qubit_operator.QubitOperator('X0', -1.0j)
+    b = _qubit_operator.QubitOperator('X0', -1.05j)
+    c = _qubit_operator.QubitOperator('X0', -1.11j)
     assert a.isclose(b, rel_tol=1e-14, abs_tol=0.1)
     assert not a.isclose(c, rel_tol=1e-14, abs_tol=0.1)
 
 
 def test_isclose_rel_tol():
-    a = qo.QubitOperator('X0', 1)
-    b = qo.QubitOperator('X0', 2)
+    a = _qubit_operator.QubitOperator('X0', 1)
+    b = _qubit_operator.QubitOperator('X0', 2)
     assert a.isclose(b, rel_tol=2.5, abs_tol=0.1)
     # Test symmetry
     assert a.isclose(b, rel_tol=1, abs_tol=0.1)
@@ -119,14 +119,16 @@ def test_isclose_rel_tol():
 
 
 def test_isclose_zero_terms():
-    op = qo.QubitOperator(((1, 'Y'), (0, 'X')), -1j) * 0
-    assert op.isclose(qo.QubitOperator((), 0.0), rel_tol=1e-12, abs_tol=1e-12)
-    assert qo.QubitOperator((), 0.0).isclose(op, rel_tol=1e-12, abs_tol=1e-12)
+    op = _qubit_operator.QubitOperator(((1, 'Y'), (0, 'X')), -1j) * 0
+    assert op.isclose(_qubit_operator.QubitOperator((), 0.0),
+                      rel_tol=1e-12, abs_tol=1e-12)
+    assert _qubit_operator.QubitOperator((), 0.0).isclose(
+        op, rel_tol=1e-12, abs_tol=1e-12)
 
 
 def test_isclose_different_terms():
-    a = qo.QubitOperator(((1, 'Y'),), -0.1j)
-    b = qo.QubitOperator(((1, 'X'),), -0.1j)
+    a = _qubit_operator.QubitOperator(((1, 'Y'),), -0.1j)
+    b = _qubit_operator.QubitOperator(((1, 'X'),), -0.1j)
     assert a.isclose(b, rel_tol=1e-12, abs_tol=0.2)
     assert not a.isclose(b, rel_tol=1e-12, abs_tol=0.05)
     assert b.isclose(a, rel_tol=1e-12, abs_tol=0.2)
@@ -134,15 +136,37 @@ def test_isclose_different_terms():
 
 
 def test_isclose_different_num_terms():
-    a = qo.QubitOperator(((1, 'Y'),), -0.1j)
-    a += qo.QubitOperator(((2, 'Y'),), -0.1j)
-    b = qo.QubitOperator(((1, 'X'),), -0.1j)
+    a = _qubit_operator.QubitOperator(((1, 'Y'),), -0.1j)
+    a += _qubit_operator.QubitOperator(((2, 'Y'),), -0.1j)
+    b = _qubit_operator.QubitOperator(((1, 'X'),), -0.1j)
     assert not b.isclose(a, rel_tol=1e-12, abs_tol=0.05)
     assert not a.isclose(b, rel_tol=1e-12, abs_tol=0.05)
 
 
+def test_nqubits_0():
+    op = _qubit_operator.QubitOperator()
+    assert op.n_qubits() == 0
+
+
+def test_nqubits_1():
+    op = _qubit_operator.QubitOperator('X0', 3)
+    assert op.n_qubits() == 1
+
+
+def test_nqubits_doubledigit():
+    op = _qubit_operator.QubitOperator('X5 Z11 Y27')
+    assert op.n_qubits() == 28
+
+
+def test_nqubits_multiterm():
+    op = (_qubit_operator.QubitOperator() +
+          _qubit_operator.QubitOperator('X1 X2 X3') +
+          _qubit_operator.QubitOperator())
+    assert op.n_qubits() == 4
+
+
 def test_imul_inplace():
-    qubit_op = qo.QubitOperator("X1")
+    qubit_op = _qubit_operator.QubitOperator("X1")
     prev_id = id(qubit_op)
     qubit_op *= 3.
     assert id(qubit_op) == prev_id
@@ -152,14 +176,15 @@ def test_imul_inplace():
                          numpy.complex128(-1j)])
 def test_imul_scalar(multiplier):
     loc_op = ((1, 'X'), (2, 'Y'))
-    qubit_op = qo.QubitOperator(loc_op)
+    qubit_op = _qubit_operator.QubitOperator(loc_op)
     qubit_op *= multiplier
     assert qubit_op.terms[loc_op] == pytest.approx(multiplier)
 
 
 def test_imul_qubit_op():
-    op1 = qo.QubitOperator(((0, 'Y'), (3, 'X'), (8, 'Z'), (11, 'X')), 3.j)
-    op2 = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op1 = _qubit_operator.QubitOperator(((0, 'Y'), (3, 'X'),
+                                        (8, 'Z'), (11, 'X')), 3.j)
+    op2 = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
     op1 *= op2
     correct_coefficient = 1.j * 3.0j * 0.5
     correct_term = ((0, 'Y'), (1, 'X'), (3, 'Z'), (11, 'X'))
@@ -168,8 +193,8 @@ def test_imul_qubit_op():
 
 
 def test_imul_qubit_op_2():
-    op3 = qo.QubitOperator(((1, 'Y'), (0, 'X')), -1j)
-    op4 = qo.QubitOperator(((1, 'Y'), (0, 'X'), (2, 'Z')), -1.5)
+    op3 = _qubit_operator.QubitOperator(((1, 'Y'), (0, 'X')), -1j)
+    op4 = _qubit_operator.QubitOperator(((1, 'Y'), (0, 'X'), (2, 'Z')), -1.5)
     op3 *= op4
     op4 *= op3
     assert ((2, 'Z'),) in op3.terms
@@ -177,8 +202,8 @@ def test_imul_qubit_op_2():
 
 
 def test_imul_bidir():
-    op_a = qo.QubitOperator(((1, 'Y'), (0, 'X')), -1j)
-    op_b = qo.QubitOperator(((1, 'Y'), (0, 'X'), (2, 'Z')), -1.5)
+    op_a = _qubit_operator.QubitOperator(((1, 'Y'), (0, 'X')), -1j)
+    op_b = _qubit_operator.QubitOperator(((1, 'Y'), (0, 'X'), (2, 'Z')), -1.5)
     op_a *= op_b
     op_b *= op_a
     assert ((2, 'Z'),) in op_a.terms
@@ -188,48 +213,52 @@ def test_imul_bidir():
 
 
 def test_imul_bad_multiplier():
-    op = qo.QubitOperator(((1, 'Y'), (0, 'X')), -1j)
+    op = _qubit_operator.QubitOperator(((1, 'Y'), (0, 'X')), -1j)
     with pytest.raises(TypeError):
         op *= "1"
 
 
 def test_mul_by_scalarzero():
-    op = qo.QubitOperator(((1, 'Y'), (0, 'X')), -1j) * 0
+    op = _qubit_operator.QubitOperator(((1, 'Y'), (0, 'X')), -1j) * 0
     assert ((0, 'X'), (1, 'Y')) in op.terms
     assert op.terms[((0, 'X'), (1, 'Y'))] == pytest.approx(0.0)
 
 
 def test_mul_bad_multiplier():
-    op = qo.QubitOperator(((1, 'Y'), (0, 'X')), -1j)
+    op = _qubit_operator.QubitOperator(((1, 'Y'), (0, 'X')), -1j)
     with pytest.raises(TypeError):
         op = op * "0.5"
 
 
 def test_mul_out_of_place():
-    op1 = qo.QubitOperator(((0, 'Y'), (3, 'X'), (8, 'Z'), (11, 'X')), 3.j)
-    op2 = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op1 = _qubit_operator.QubitOperator(((0, 'Y'), (3, 'X'),
+                                        (8, 'Z'), (11, 'X')), 3.j)
+    op2 = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
     op3 = op1 * op2
     correct_coefficient = 1.j * 3.0j * 0.5
     correct_term = ((0, 'Y'), (1, 'X'), (3, 'Z'), (11, 'X'))
-    assert op1.isclose(qo.QubitOperator(
+    assert op1.isclose(_qubit_operator.QubitOperator(
         ((0, 'Y'), (3, 'X'), (8, 'Z'), (11, 'X')), 3.j))
-    assert op2.isclose(qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5))
-    assert op3.isclose(qo.QubitOperator(correct_term, correct_coefficient))
+    assert op2.isclose(_qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'),
+                                                     (8, 'Z')), 0.5))
+    assert op3.isclose(_qubit_operator.QubitOperator(correct_term,
+                                                    correct_coefficient))
 
 
 def test_mul_npfloat64():
-    op = qo.QubitOperator(((1, 'X'), (3, 'Y')), 0.5)
+    op = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y')), 0.5)
     res = op * numpy.float64(0.5)
-    assert res.isclose(qo.QubitOperator(((1, 'X'), (3, 'Y')), 0.5 * 0.5))
+    assert res.isclose(_qubit_operator.QubitOperator(((1, 'X'), (3, 'Y')),
+                                                    0.5 * 0.5))
 
 
 def test_mul_multiple_terms():
-    op = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
-    op += qo.QubitOperator(((1, 'Z'), (3, 'X'), (8, 'Z')), 1.2)
-    op += qo.QubitOperator(((1, 'Z'), (3, 'Y'), (9, 'Z')), 1.4j)
+    op = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op += _qubit_operator.QubitOperator(((1, 'Z'), (3, 'X'), (8, 'Z')), 1.2)
+    op += _qubit_operator.QubitOperator(((1, 'Z'), (3, 'Y'), (9, 'Z')), 1.4j)
     res = op * op
-    correct = qo.QubitOperator((), 0.5**2 + 1.2**2 + 1.4j**2)
-    correct += qo.QubitOperator(((1, 'Y'), (3, 'Z')),
+    correct = _qubit_operator.QubitOperator((), 0.5 ** 2 + 1.2 ** 2 + 1.4j ** 2)
+    correct += _qubit_operator.QubitOperator(((1, 'Y'), (3, 'Z')),
                                 2j * 1j * 0.5 * 1.2)
     assert res.isclose(correct)
 
@@ -237,14 +266,14 @@ def test_mul_multiple_terms():
 @pytest.mark.parametrize("multiplier", [0.5, 0.6j, numpy.float64(2.303),
                          numpy.complex128(-1j)])
 def test_rmul_scalar(multiplier):
-    op = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
     res1 = op * multiplier
     res2 = multiplier * op
     assert res1.isclose(res2)
 
 
 def test_rmul_bad_multiplier():
-    op = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
     with pytest.raises(TypeError):
         op = "0.5" * op
 
@@ -252,7 +281,7 @@ def test_rmul_bad_multiplier():
 @pytest.mark.parametrize("divisor", [0.5, 0.6j, numpy.float64(2.303),
                          numpy.complex128(-1j), 2])
 def test_truediv_and_div(divisor):
-    op = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
     original = copy.deepcopy(op)
     res = op / divisor
     correct = op * (1. / divisor)
@@ -262,7 +291,7 @@ def test_truediv_and_div(divisor):
 
 
 def test_truediv_bad_divisor():
-    op = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
     with pytest.raises(TypeError):
         op = op / "0.5"
 
@@ -270,7 +299,7 @@ def test_truediv_bad_divisor():
 @pytest.mark.parametrize("divisor", [0.5, 0.6j, numpy.float64(2.303),
                          numpy.complex128(-1j), 2])
 def test_itruediv_and_idiv(divisor):
-    op = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
     original = copy.deepcopy(op)
     correct = op * (1. / divisor)
     op /= divisor
@@ -280,7 +309,7 @@ def test_itruediv_and_idiv(divisor):
 
 
 def test_itruediv_bad_divisor():
-    op = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
     with pytest.raises(TypeError):
         op /= "0.5"
 
@@ -288,19 +317,19 @@ def test_itruediv_bad_divisor():
 def test_iadd_different_term():
     term_a = ((1, 'X'), (3, 'Y'), (8, 'Z'))
     term_b = ((1, 'Z'), (3, 'Y'), (8, 'Z'))
-    a = qo.QubitOperator(term_a, 1.0)
-    a += qo.QubitOperator(term_b, 0.5)
+    a = _qubit_operator.QubitOperator(term_a, 1.0)
+    a += _qubit_operator.QubitOperator(term_b, 0.5)
     assert len(a.terms) == 2
     assert a.terms[term_a] == pytest.approx(1.0)
     assert a.terms[term_b] == pytest.approx(0.5)
-    a += qo.QubitOperator(term_b, 0.5)
+    a += _qubit_operator.QubitOperator(term_b, 0.5)
     assert len(a.terms) == 2
     assert a.terms[term_a] == pytest.approx(1.0)
     assert a.terms[term_b] == pytest.approx(1.0)
 
 
 def test_iadd_bad_addend():
-    op = qo.QubitOperator((), 1.0)
+    op = _qubit_operator.QubitOperator((), 1.0)
     with pytest.raises(TypeError):
         op += "0.5"
 
@@ -308,19 +337,19 @@ def test_iadd_bad_addend():
 def test_add():
     term_a = ((1, 'X'), (3, 'Y'), (8, 'Z'))
     term_b = ((1, 'Z'), (3, 'Y'), (8, 'Z'))
-    a = qo.QubitOperator(term_a, 1.0)
-    b = qo.QubitOperator(term_b, 0.5)
+    a = _qubit_operator.QubitOperator(term_a, 1.0)
+    b = _qubit_operator.QubitOperator(term_b, 0.5)
     res = a + b + b
     assert len(res.terms) == 2
     assert res.terms[term_a] == pytest.approx(1.0)
     assert res.terms[term_b] == pytest.approx(1.0)
     # Test out of place
-    assert a.isclose(qo.QubitOperator(term_a, 1.0))
-    assert b.isclose(qo.QubitOperator(term_b, 0.5))
+    assert a.isclose(_qubit_operator.QubitOperator(term_a, 1.0))
+    assert b.isclose(_qubit_operator.QubitOperator(term_b, 0.5))
 
 
 def test_add_bad_addend():
-    op = qo.QubitOperator((), 1.0)
+    op = _qubit_operator.QubitOperator((), 1.0)
     with pytest.raises(TypeError):
         op = op + "0.5"
 
@@ -328,8 +357,8 @@ def test_add_bad_addend():
 def test_sub():
     term_a = ((1, 'X'), (3, 'Y'), (8, 'Z'))
     term_b = ((1, 'Z'), (3, 'Y'), (8, 'Z'))
-    a = qo.QubitOperator(term_a, 1.0)
-    b = qo.QubitOperator(term_b, 0.5)
+    a = _qubit_operator.QubitOperator(term_a, 1.0)
+    b = _qubit_operator.QubitOperator(term_b, 0.5)
     res = a - b
     assert len(res.terms) == 2
     assert res.terms[term_a] == pytest.approx(1.0)
@@ -341,7 +370,7 @@ def test_sub():
 
 
 def test_sub_bad_subtrahend():
-    op = qo.QubitOperator((), 1.0)
+    op = _qubit_operator.QubitOperator((), 1.0)
     with pytest.raises(TypeError):
         op = op - "0.5"
 
@@ -349,40 +378,68 @@ def test_sub_bad_subtrahend():
 def test_isub_different_term():
     term_a = ((1, 'X'), (3, 'Y'), (8, 'Z'))
     term_b = ((1, 'Z'), (3, 'Y'), (8, 'Z'))
-    a = qo.QubitOperator(term_a, 1.0)
-    a -= qo.QubitOperator(term_b, 0.5)
+    a = _qubit_operator.QubitOperator(term_a, 1.0)
+    a -= _qubit_operator.QubitOperator(term_b, 0.5)
     assert len(a.terms) == 2
     assert a.terms[term_a] == pytest.approx(1.0)
     assert a.terms[term_b] == pytest.approx(-0.5)
-    a -= qo.QubitOperator(term_b, 0.5)
+    a -= _qubit_operator.QubitOperator(term_b, 0.5)
     assert len(a.terms) == 2
     assert a.terms[term_a] == pytest.approx(1.0)
     assert a.terms[term_b] == pytest.approx(-1.0)
 
 
 def test_isub_bad_addend():
-    op = qo.QubitOperator((), 1.0)
+    op = _qubit_operator.QubitOperator((), 1.0)
     with pytest.raises(TypeError):
         op -= "0.5"
 
 
 def test_neg():
-    op = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
     -op
     # out of place
-    assert op.isclose(qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5))
+    assert op.isclose(_qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'),
+                                                     (8, 'Z')), 0.5))
     correct = -1.0 * op
     assert correct.isclose(-op)
 
 
+def test_isidentity_identity():
+    assert _qubit_operator.QubitOperator().is_identity()
+
+
+def test_isidentity_mulidentity():
+    op = _qubit_operator.QubitOperator() * 2
+    assert op.is_identity()
+
+
+def test_isidentity_zero():
+    op = (0 * _qubit_operator.QubitOperator() +
+          _qubit_operator.QubitOperator('X2', 0.0))
+    assert op.is_identity()
+
+
+def test_isidentity_zeroX():
+    op = (-2 * _qubit_operator.QubitOperator() +
+          _qubit_operator.QubitOperator('X2', 0.0))
+    assert op.is_identity()
+
+
+def test_isidentity_IX():
+    op = (-2 * _qubit_operator.QubitOperator() +
+          _qubit_operator.QubitOperator('X2', 0.03j))
+    assert not op.is_identity()
+
+
 def test_str():
-    op = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
     assert str(op) == "0.5 X1 Y3 Z8\n"
-    op2 = qo.QubitOperator((), 2)
+    op2 = _qubit_operator.QubitOperator((), 2)
     assert str(op2) == "2 I\n"
 
 
 def test_rep():
-    op = qo.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+    op = _qubit_operator.QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
     # Not necessary, repr could do something in addition
     assert repr(op) == str(op)
