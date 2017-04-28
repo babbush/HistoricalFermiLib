@@ -237,7 +237,49 @@ class InteractionOperatorsJWTest(unittest.TestCase):
                         if not fermion_term.isclose(hermitian_conjugate):
                             correct_op += jordan_wigner(hermitian_conjugate)
 
-                        self.assertTrue(test_operator.isclose(correct_op))
+                        self.assertTrue(test_operator.isclose(correct_op),
+                                        str(test_operator - correct_op))
+
+    def test_jordan_wigner_twobody_interaction_op_allunique(self):
+        test_op = FermionOperator('1^ 2^ 3 4')
+        test_op += hermitian_conjugated(test_op)
+
+        retransformed_test_op = reverse_jordan_wigner(jordan_wigner(
+            get_interaction_operator(test_op)))
+
+        self.assertTrue(normal_ordered(retransformed_test_op).isclose(
+            normal_ordered(test_op)))
+
+    @unittest.skip("I am confused by why this test does not pass. "
+                   "The commented lines are some of my attempts at "
+                   "understanding whether or not it should.")
+    def test_jordan_wigner_twobody_interaction_op_reversal_symmetric(self):
+        test_op = FermionOperator('1^ 2^ 2 1')
+        test_op += hermitian_conjugated(test_op)
+        # print jordan_wigner(test_op)
+        
+        # print get_interaction_operator(normal_ordered(test_op))
+        # print get_interaction_operator(test_op)
+
+        # print jordan_wigner(get_interaction_operator(normal_ordered(test_op)))
+        # print jordan_wigner(get_interaction_operator(test_op))
+
+        retransformed_test_op = reverse_jordan_wigner(jordan_wigner(
+            get_interaction_operator(test_op)))
+        # print retransformed_test_op
+
+        self.assertTrue(normal_ordered(retransformed_test_op).isclose(
+            normal_ordered(test_op)))
+
+
+class GetInteractionOperatorTest(unittest.TestCase):
+
+    def setUp(self):
+        self.n_qubits = 5
+        self.constant = 0.
+        self.one_body = numpy.zeros((self.n_qubits, self.n_qubits), float)
+        self.two_body = numpy.zeros((self.n_qubits, self.n_qubits,
+                                     self.n_qubits, self.n_qubits), float)
 
     def test_get_interaction_operator_identity(self):
         interaction_operator = InteractionOperator(-2j, self.one_body,
@@ -290,6 +332,15 @@ class InteractionOperatorsJWTest(unittest.TestCase):
         self.assertEqual(interaction_operator,
                          InteractionOperator(0.0, self.one_body, two_body))
 
+    def test_get_interaction_operator_two_body_distinct(self):
+        interaction_operator = get_interaction_operator(
+            FermionOperator('0^ 1^ 2 3'), self.n_qubits)
+        two_body = numpy.zeros((self.n_qubits, self.n_qubits,
+                                self.n_qubits, self.n_qubits), float)
+        two_body[1, 0, 3, 2] = 1.
+        self.assertEqual(interaction_operator,
+                         InteractionOperator(0.0, self.one_body, two_body))
+
 
 class JordanWignerSparseTest(unittest.TestCase):
 
@@ -319,6 +370,12 @@ class JordanWignerSparseTest(unittest.TestCase):
                               shape=(16, 16))
         self.assertTrue(numpy.allclose(
             jordan_wigner_sparse(FermionOperator('0^ 3', -1j)).matrix.A,
+            expected.A))
+
+    def test_jw_sparse_twobody(self):
+        expected = csc_matrix(([1, 1], ([6, 14], [5, 13])), shape=(16, 16))
+        self.assertTrue(numpy.allclose(
+            jordan_wigner_sparse(FermionOperator('2^ 1^ 1 3')).matrix.A,
             expected.A))
 
 

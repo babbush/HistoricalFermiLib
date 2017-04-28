@@ -8,10 +8,11 @@ from fermilib.ops._sparse_operator import jordan_wigner_operator_sparse
 import itertools
 
 
-def jordan_wigner(op):
+def jordan_wigner(operator):
     """
-    Apply the Jordan-Wigner transform the fermionic operator op and
-    return qubit operator.
+    Apply the Jordan-Wigner transform to a FermionOperator or
+    InteractionOperator to convert the given operator to a
+    QubitOperator.
 
     Returns:
         transformed_operator: An instance of the QubitOperator class.
@@ -21,15 +22,16 @@ def jordan_wigner(op):
         of the original FermionOperator.
 
     """
-    if isinstance(op, InteractionOperator):
-        return jordan_wigner_interaction_op(op)
+    if isinstance(operator, InteractionOperator):
+        return jordan_wigner_interaction_op(operator)
 
-    if not isinstance(op, FermionOperator):
-        raise TypeError("op must be a FermionOperator or InteractionOperator.")
+    if not isinstance(operator, FermionOperator):
+        raise TypeError("operator must be a FermionOperator or "
+                        "InteractionOperator.")
 
     transformed_operator = QubitOperator((), 0.0)
-    for term in op.terms:
-        transformed_operator += jordan_wigner_term(term, op.terms[term])
+    for term in operator.terms:
+        transformed_operator += jordan_wigner_term(term, operator.terms[term])
     return transformed_operator
 
 
