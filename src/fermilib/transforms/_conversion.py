@@ -93,7 +93,7 @@ def get_interaction_rdm(qubit_operator, n_qubits=None):
     return InteractionRDM(one_rdm, two_rdm)
 
 
-def get_interaction_operator(iop):
+def get_interaction_operator(iop, n_qubits=None):
     """Convert a 2-body fermionic operator to instance of
     InteractionOperator.
 
@@ -115,12 +115,17 @@ def get_interaction_operator(iop):
         runtime of this method is exponential in the number of qubits.
 
     """
+    if n_qubits is None:
+        n_qubits = iop.n_qubits()
+    if n_qubits < iop.n_qubits():
+        n_qubits = iop.n_qubits()
+
     # Normal order the terms and initialize.
     iop = normal_ordered(iop)
     constant = 0.
-    one_body = numpy.zeros((iop.n_qubits(), iop.n_qubits()), complex)
-    two_body = numpy.zeros((iop.n_qubits(), iop.n_qubits(),
-                            iop.n_qubits(), iop.n_qubits()), complex)
+    one_body = numpy.zeros((n_qubits, n_qubits), complex)
+    two_body = numpy.zeros((n_qubits, n_qubits,
+                            n_qubits, n_qubits), complex)
 
     # Loop through terms and assign to matrix.
     for term in iop.terms:

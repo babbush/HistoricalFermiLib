@@ -8,7 +8,7 @@ from fermilib.ops import (FermionOperator,
                           InteractionOperator,
                           normal_ordered,
                           number_operator)
-from fermilib.transforms import jordan_wigner
+from fermilib.transforms import jordan_wigner, get_interaction_operator
 
 from projectqtemp.ops import QubitOperator
 
@@ -236,6 +236,16 @@ class InteractionOperatorsJWTest(unittest.TestCase):
                             correct_op += jordan_wigner(hermitian_conjugate)
 
                         self.assertTrue(test_operator.isclose(correct_op))
+
+    def test_jw_identity_interaction_operator(self):
+        interaction_operator = InteractionOperator(-2j, self.one_body,
+                                                   self.two_body)
+        qubit_operator = jordan_wigner(interaction_operator)
+        self.assertTrue(qubit_operator.isclose(-2j * QubitOperator()))
+        self.assertEqual(interaction_operator,
+                         get_interaction_operator(qubit_operator,
+                                                  self.n_qubits))
+        
 
 
 if __name__ == '__main__':

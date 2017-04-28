@@ -81,7 +81,7 @@ def jordan_wigner_term(term, coeff=1.):
     return transformed_term
 
 
-def jordan_wigner_interaction_op(iop):
+def jordan_wigner_interaction_op(iop, n_qubits=None):
     """
     Output InteractionOperator as QubitOperator class under JW
     transform.
@@ -92,6 +92,11 @@ def jordan_wigner_interaction_op(iop):
     Returns:
         qubit_operator: An instance of the QubitOperator class.
     """
+    if n_qubits is None:
+        n_qubits = iop.n_qubits
+    if n_qubits < iop.n_qubits:
+        n_qubits = iop.n_qubits
+
     # Initialize qubit operator.
     qubit_operator = QubitOperator((), 0.0)
 
