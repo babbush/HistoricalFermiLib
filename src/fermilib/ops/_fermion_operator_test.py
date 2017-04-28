@@ -540,6 +540,10 @@ def test_is_normal_ordered_long_not():
     assert not FermionOperator('0 5^ 3^ 2^ 1^').is_normal_ordered()
 
 
+def test_is_normal_ordered_outoforder():
+    assert not FermionOperator('0 1').is_normal_ordered()
+
+
 def test_is_normal_ordered_long_descending():
     assert FermionOperator('5^ 3^ 2^ 1^ 0').is_normal_ordered()
 
@@ -652,6 +656,30 @@ def test_is_molecular_term_three():
 def test_is_molecular_term_r():
     op = FermionOperator(((0, 1), (2, 0), (1, 1), (3, 0)))
     assert op.is_molecular_term()
+
+
+def test_isidentity_identity():
+    assert FermionOperator().is_identity()
+
+
+def test_isidentity_mulidentity():
+    op = FermionOperator() * 2
+    assert op.is_identity()
+
+
+def test_isidentity_zero():
+    op = 0 * FermionOperator() + FermionOperator('2^', 0.0)
+    assert op.is_identity()
+
+
+def test_isidentity_zeroX():
+    op = -2 * FermionOperator() + FermionOperator('2', 0.0)
+    assert op.is_identity()
+
+
+def test_isidentity_IX():
+    op = -2 * FermionOperator() + FermionOperator('0', 0.03j)
+    assert not op.is_identity()
 
 
 def test_str():

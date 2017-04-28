@@ -216,10 +216,6 @@ class FermionOperator(object):
         elif isinstance(term, tuple):
             self.terms[term] = coefficient
 
-        # No input.
-        elif term is None:
-            self.terms[()] = coefficient
-
         # Invalid input.
         else:
             raise ValueError('Operators specified incorrectly.')
@@ -255,15 +251,15 @@ class FermionOperator(object):
         """
         n_qubits = self.n_qubits()
         for term in self.terms:
-          for i in range(1, len(term)):
-            for j in range(i, 0, -1):
-                right_operator = term[j]
-                left_operator = term[j - 1]
-                if right_operator[1] and not left_operator[1]:
-                    return False
-                elif (right_operator[1] == left_operator[1] and
-                      right_operator[0] >= left_operator[0]):
-                    return False
+            for i in range(1, len(term)):
+                for j in range(i, 0, -1):
+                    right_operator = term[j]
+                    left_operator = term[j - 1]
+                    if right_operator[1] and not left_operator[1]:
+                        return False
+                    elif (right_operator[1] == left_operator[1] and
+                          right_operator[0] >= left_operator[0]):
+                        return False
         return True
 
     def is_molecular_term(self):

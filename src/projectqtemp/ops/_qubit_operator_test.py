@@ -410,7 +410,7 @@ def test_isidentity_identity():
 
 
 def test_isidentity_mulidentity():
-    op = _qubit_operator.QubitOperator() * 2
+    op = _qubit_operator.QubitOperator() * 2j
     assert op.is_identity()
 
 
