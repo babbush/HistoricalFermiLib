@@ -33,19 +33,17 @@ def jordan_wigner(op):
     return transformed_operator
 
 
-def jordan_wigner_sparse(op, n_qubits=None):
+def jordan_wigner_sparse(fermion_operator, n_qubits=None):
     """Return a sparse matrix representation of the JW transformed term."""
     if n_qubits is None:
-        n_qubits = op.n_qubits()
-    if n_qubits == 0:
-        raise ValueError('Invalid n_qubits.')
-    if n_qubits < op.n_qubits():
-        n_qubits = op.n_qubits()
+        n_qubits = fermion_operator.n_qubits()
+    if n_qubits < fermion_operator.n_qubits():
+        n_qubits = fermion_operator.n_qubits()
 
-    if isinstance(op, FermionOperator):
-        return jordan_wigner_operator_sparse(op, n_qubits)
+    if isinstance(fermion_operator, FermionOperator):
+        return jordan_wigner_operator_sparse(fermion_operator, n_qubits)
 
-    raise TypeError("op should be either a FermionTerm or FermionOperator.")
+    raise TypeError("fermion_operator should be a FermionOperator.")
 
 
 def jordan_wigner_term(term, coeff=1.):
