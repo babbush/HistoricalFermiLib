@@ -108,14 +108,14 @@ def jordan_wigner_interaction_op(iop, n_qubits=None):
         for q in range(iop.n_qubits):
 
             # Handle one-body terms.
-            coefficient = float(iop[p, q])
+            coefficient = complex(iop[p, q])
             if coefficient and p >= q:
                 qubit_operator += coefficient * jordan_wigner_one_body(p, q)
 
             # Keep looping for the two-body terms.
             for r in range(iop.n_qubits):
                 for s in range(iop.n_qubits):
-                    coefficient = float(iop[p, q, r, s])
+                    coefficient = complex(iop[p, q, r, s])
 
                     # Skip zero terms.
                     if (not coefficient) or (p == q) or (r == s):

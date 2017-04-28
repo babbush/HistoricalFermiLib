@@ -93,7 +93,7 @@ def get_interaction_rdm(qubit_operator, n_qubits=None):
     return InteractionRDM(one_rdm, two_rdm)
 
 
-def get_interaction_operator(iop, n_qubits=None):
+def get_interaction_operator(fermion_operator, n_qubits=None):
     """Convert a 2-body fermionic operator to instance of
     InteractionOperator.
 
@@ -106,8 +106,8 @@ def get_interaction_operator(iop, n_qubits=None):
        interaction_operator: An instance of the InteractionOperator class.
 
     Raises:
-        ErrorInteractionOperator: FermionOperator is not a molecular
-            operator.
+        InteractionOperatorError: FermionOperator is not a molecular
+                                  operator.
 
     Warning:
         Even assuming that each creation or annihilation operator appears
@@ -115,21 +115,24 @@ def get_interaction_operator(iop, n_qubits=None):
         runtime of this method is exponential in the number of qubits.
 
     """
+    if not isinstance(fermion_operator, FermionOperator):
+        raise TypeError('fermion_operator must be a FermionOperator.')
+
     if n_qubits is None:
-        n_qubits = iop.n_qubits()
-    if n_qubits < iop.n_qubits():
-        n_qubits = iop.n_qubits()
+        n_qubits = fermion_operator.n_qubits()
+    if n_qubits < fermion_operator.n_qubits():
+        n_qubits = fermion_operator.n_qubits()
 
     # Normal order the terms and initialize.
-    iop = normal_ordered(iop)
+    fermion_operator = normal_ordered(fermion_operator)
     constant = 0.
     one_body = numpy.zeros((n_qubits, n_qubits), complex)
     two_body = numpy.zeros((n_qubits, n_qubits,
                             n_qubits, n_qubits), complex)
 
     # Loop through terms and assign to matrix.
-    for term in iop.terms:
-        coefficient = iop.terms[term]
+    for term in fermion_operator.terms:
+        coefficient = fermion_operator.terms[term]
 
         # Handle constant shift.
         if len(term) == 0:

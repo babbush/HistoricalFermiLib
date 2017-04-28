@@ -8,7 +8,8 @@ from fermilib.ops import (FermionOperator,
                           InteractionOperator,
                           normal_ordered,
                           number_operator)
-from fermilib.transforms import jordan_wigner, get_interaction_operator
+from fermilib.transforms import (jordan_wigner, get_interaction_operator,
+                                 reverse_jordan_wigner)
 
 from projectqtemp.ops import QubitOperator
 
@@ -17,7 +18,7 @@ from fermilib.transforms._jordan_wigner import (jordan_wigner,
                                                 jordan_wigner_two_body)
 
 
-class JordanWignerTransmTest(unittest.TestCase):
+class JordanWignerTransformTest(unittest.TestCase):
     def setUp(self):
         self.n_qubits = 5
 
@@ -237,15 +238,57 @@ class InteractionOperatorsJWTest(unittest.TestCase):
 
                         self.assertTrue(test_operator.isclose(correct_op))
 
-    def test_jw_identity_interaction_operator(self):
+    def test_get_interaction_operator_identity(self):
         interaction_operator = InteractionOperator(-2j, self.one_body,
                                                    self.two_body)
         qubit_operator = jordan_wigner(interaction_operator)
         self.assertTrue(qubit_operator.isclose(-2j * QubitOperator()))
         self.assertEqual(interaction_operator,
-                         get_interaction_operator(qubit_operator,
-                                                  self.n_qubits))
-        
+                         get_interaction_operator(reverse_jordan_wigner(
+                             qubit_operator), self.n_qubits))
+
+    def test_get_interaction_operator_one_body(self):
+        interaction_operator = get_interaction_operator(
+            FermionOperator('2^ 2'), self.n_qubits)
+        one_body = numpy.zeros((self.n_qubits, self.n_qubits), float)
+        one_body[2, 2] = 1.
+        self.assertEqual(interaction_operator,
+                         InteractionOperator(0.0, one_body, self.two_body))
+
+    def test_get_interaction_operator_one_body_twoterm(self):
+        interaction_operator = get_interaction_operator(
+            FermionOperator('2^ 3', -2j) + FermionOperator('3^ 2', 3j),
+            self.n_qubits)
+        one_body = numpy.zeros((self.n_qubits, self.n_qubits), complex)
+        one_body[2, 3] = -2j
+        one_body[3, 2] = 3j
+        self.assertEqual(interaction_operator,
+                         InteractionOperator(0.0, one_body, self.two_body))
+
+    def test_get_interaction_operator_jw_one_body_nonhermitian(self):
+        original_fermion_operator = (FermionOperator('2^ 3', -2j) +
+                                     FermionOperator('3^ 2', 3j))
+        interaction_operator = get_interaction_operator(
+            original_fermion_operator, self.n_qubits)
+        retransformed = reverse_jordan_wigner(
+            jordan_wigner(interaction_operator))
+
+        # This test fails because the fermion operator is not hermitian.
+        # Must it be? InteractionOperator states that it must "conserve
+        # particle number and spin" but not that it must be hermitian.
+        self.assertTrue(retransformed.isclose(original_fermion_operator),
+                        "Got " + str(retransformed))
+
+    def test_get_interaction_operator_two_body(self):
+        interaction_operator = get_interaction_operator(
+            FermionOperator('2^ 2 3^ 4'), self.n_qubits)
+        two_body = numpy.zeros((self.n_qubits, self.n_qubits,
+                                self.n_qubits, self.n_qubits), float)
+        two_body[3, 2, 4, 2] = -1.
+        self.assertEqual(interaction_operator,
+                         InteractionOperator(0.0, self.one_body, two_body))
+
+
 
 
 if __name__ == '__main__':
