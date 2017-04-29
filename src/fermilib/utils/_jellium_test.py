@@ -4,7 +4,9 @@ import itertools
 import unittest
 import numpy
 
+import fermilib.ops as ops
 import fermilib.utils._jellium as jellium
+from fermilib.ops import FermionOperator
 from projectqtemp.ops import QubitOperator
 from fermilib.transforms import jordan_wigner, get_eigenspectrum
 
@@ -324,6 +326,24 @@ class JelliumTest(unittest.TestCase):
         num_nonzeros = sum(1 for coeff in qubit_hamiltonian.terms.values() if
                            coeff != 0.0)
         self.assertTrue(num_nonzeros <= paper_n_terms)
+
+    def test_fourier_transform(self):
+        n_dimensions = 1
+        length_scale = 1.5
+        grid_length = 3
+        spinless_set = [True, False]
+        for spinless in spinless_set:
+            jm_momentum = jellium.jellium_model(n_dimensions, grid_length,
+                                                length_scale, spinless,
+                                                True)
+            jm_position = jellium.jellium_model(n_dimensions, grid_length,
+                                                length_scale, spinless,
+                                                False)
+            jm_t = jellium.fourier_transform(jm_momentum, n_dimensions,
+                                             grid_length, length_scale,
+                                             spinless)
+            assert ops.normal_ordered(jm_t).isclose(
+                ops.normal_ordered(jm_position))
 
 
 # Run test.
