@@ -387,9 +387,9 @@ class MolecularData(object):
             # Load basis:
             self.basis = f["basis"][...]
             # Load multiplicity:
-            self.multiplicity = f["multiplicity"][...]
+            self.multiplicity = int(f["multiplicity"][...])
             # Load charge:
-            self.charge = f["charge"][...]
+            self.charge = int(f["charge"][...])
             # Load description:
             self.description = f["description"][...]
             # Load name:
@@ -401,12 +401,12 @@ class MolecularData(object):
             # Load protons:
             self.protons = f["protons"][...]
             # Load n_electrons:
-            self.n_electrons = f["n_electrons"][...]
+            self.n_electrons = int(f["n_electrons"][...])
             # Load generic attributes from calculations:
             d_0 = f["n_orbitals"][...]
-            self.n_orbitals = d_0 if d_0.dtype.num != 0 else None
+            self.n_orbitals = int(d_0) if d_0.dtype.num != 0 else None
             d_1 = f["n_qubits"][...]
-            self.n_qubits = d_1 if d_1.dtype.num != 0 else None
+            self.n_qubits = int(d_1) if d_1.dtype.num != 0 else None
             d_2 = f["nuclear_repulsion"][...]
             self.nuclear_repulsion = float(d_2) if d_2.dtype.num != 0 else None
             # Load attributes generated from SCF calculation.
