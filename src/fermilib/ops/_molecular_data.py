@@ -5,6 +5,7 @@ import os
 import pickle
 import sys
 
+import h5py
 import numpy
 
 from fermilib.ops import InteractionOperator
@@ -222,7 +223,7 @@ class MolecularData(object):
     """
 
     def __init__(self, geometry, basis, multiplicity,
-                 charge=0, description=None, autosave=True):
+                 charge=0, description="", autosave=True):
         """Initialize molecular metadata which defines class.
 
         Args:
@@ -246,14 +247,17 @@ class MolecularData(object):
 
         # Metadata fields with default values.
         self.charge = charge
+        if not isinstance(description, str):
+            raise TypeError("description must be a string.")
         self.description = description
 
         # Name molecule and load any fields that have been previously computed.
         self.name = name_molecule(geometry, basis, multiplicity,
                                   charge, description)
-        if os.path.isfile(self.data_handle() + '.pkl'):
-            self.refresh()
-            return
+        # Should be removed?
+        # if os.path.isfile(self.data_handle() + '.hdf5'):
+        #     self.refresh()
+        #     return
 
         # Attributes generated automatically by class.
         self.n_atoms = len(geometry)
@@ -299,17 +303,147 @@ class MolecularData(object):
         """Method to automatically give file name of molecule."""
         return DATA_DIRECTORY + '/' + self.name
 
-    def save(self):
-        """Method to automatically pickle the class under systematic name."""
-        with open(self.data_handle() + '.pkl', 'wb') as stream:
-            pickle.dump(self, stream)
+    def save(self, filename=None):
+        "Method to save the class under a systematic name."
+        if filename == None:
+            filename = self.data_handle()
+        with h5py.File("{}.hdf5".format(filename), "w") as f:
+            # Save geometry (atoms and positions need to be separate):
+            d_geom = f.create_group("geometry")
+            atoms = [item[0] for item in self.geometry]
+            positions = numpy.array([list(item[1]) for item in self.geometry])
+            d_geom["atoms"] = atoms
+            d_geom["positions"] = positions
+            # Save basis:
+            f["basis"] = self.basis
+            # Save multiplicity:
+            f["multiplicity"] = self.multiplicity
+            # Save charge:
+            f["charge"] = self.charge
+            # Save description:
+            f["description"] = self.description
+            # Save name:
+            f["name"] = self.name
+            # Save n_atoms:
+            f["n_atoms"] = self.n_atoms
+            # Save atoms:
+            f["atoms"] = self.atoms
+            # Save protons:
+            f["protons"] = self.protons
+            # Save n_electrons:
+            f["n_electrons"] = self.n_electrons
+            # Save generic attributes from calculations:
+            f["n_orbitals"] = (self.n_orbitals if self.n_orbitals is not None
+                                               else False)
+            f["n_qubits"] = (self.n_qubits if self.n_qubits is not None
+                                           else False)
+            f["nuclear_repulsion"] = (self.nuclear_repulsion if
+                                self.nuclear_repulsion is not None else False)
+            # Save attributes generated from SCF calculation.
+            f["hf_energy"] = (self.hf_energy if
+                              self.hf_energy is not None else False)
+            f["canoncial_orbitals"] = (self.canonical_orbitals if
+                            self.canonical_orbitals is not None else False)
+            f["orbital_energies"] = (self.orbital_energies if
+                                self.orbital_energies is not None else False)
+            # Save attributes generated from integrals.
+            f["orbital_overlaps"] = (self.orbital_overlaps if
+                                self.orbital_overlaps is not None else False)
+            f["one_body_integrals"] = (self.one_body_integrals if
+                            self.one_body_integrals is not None else False)
+            # Save attributes generated from MP2 calculation.
+            f["mp2_energy"] = (self.mp2_energy if
+                               self.mp2_energy is not None else False)
+            # Save attributes generated from CISD calculation.
+            f["cisd_energy"] = (self.cisd_energy if
+                                self.cisd_energy is not None else False)
+            f["cisd_one_rmd"] = (self.cisd_one_rdm if
+                                 self.cisd_one_rdm is not None else False)
+            # Save attributes generated from exact diagonalization.
+            f["fci_energy"] = (self.fci_energy if
+                               self.fci_energy is not None else False)
+            f["fci_one_rdm"] = (self.fci_one_rdm if
+                                self.fci_one_rdm is not None else False)
+            # Save attributes generated from CCSD calculation.
+            f["ccsd_energy"] = (self.ccsd_energy if
+                                self.ccsd_energy is not None else False)
+            ccsd_a = f.create_group("ccsd_amplitudes")
+            ccsd_a["constant"] = (self.ccsd_amplitudes.constant if
+                                  self.ccsd_amplitudes is not None else False)
+            ccsd_a["one_body_tensor"] = (self.ccsd_amplitudes.one_body_tensor
+                            if self.ccsd_amplitudes is not None else False)
+            ccsd_a["two_body_tensor"] = (self.ccsd_amplitudes.two_body_tensor
+                            if self.ccsd_amplitudes is not None else False)
 
-    def refresh(self):
-        """Method to automatically unPickle the class under systematic name."""
-        with open(self.data_handle() + '.pkl', 'rb') as stream:
-            sys.path.append(THIS_DIRECTORY)
-            updated_molecular_data = pickle.load(stream)
-            self.__dict__ = updated_molecular_data.__dict__
+    def refresh(self, filename=None):
+        if filename == None:
+            filename = self.data_handle()
+        geometry = []
+        with h5py.File("{}.hdf5".format(filename), "r") as f:
+            # Load geometry:
+            for atom, pos in zip(f["geometry/atoms"], f["geometry/positions"]):
+                geometry.append((atom, list(pos)))
+            self.geometry = geometry
+            # Load basis:
+            self.basis = f["basis"][...]
+            # Load multiplicity:
+            self.multiplicity = int(f["multiplicity"][...])
+            # Load charge:
+            self.charge = int(f["charge"][...])
+            # Load description:
+            self.description = f["description"][...]
+            # Load name:
+            self.name = f["name"][...]
+            # Load n_atoms:
+            self.n_atoms = int(f["n_atoms"][...])
+            # Load atoms:
+            self.atoms = f["atoms"][...]
+            # Load protons:
+            self.protons = f["protons"][...]
+            # Load n_electrons:
+            self.n_electrons = int(f["n_electrons"][...])
+            # Load generic attributes from calculations:
+            d_0 = f["n_orbitals"][...]
+            self.n_orbitals = int(d_0) if d_0.dtype.num != 0 else None
+            d_1 = f["n_qubits"][...]
+            self.n_qubits = int(d_1) if d_1.dtype.num != 0 else None
+            d_2 = f["nuclear_repulsion"][...]
+            self.nuclear_repulsion = float(d_2) if d_2.dtype.num != 0 else None
+            # Load attributes generated from SCF calculation.
+            d_3 = f["hf_energy"][...]
+            self.hf_energy = d_3 if d_3.dtype.num != 0 else None
+            d_4 = f["canoncial_orbitals"][...]
+            self.canonical_orbitals = d_4 if d_4.dtype.num != 0 else None
+            d_5 = f["orbital_energies"][...]
+            self.orbital_energies = d_5 if d_5.dtype.num != 0 else None
+            # Load attributes generated from integrals.
+            d_6 = f["orbital_overlaps"][...]
+            self.orbital_overlaps = d_6 if d_6.dtype.num != 0 else None
+            d_7 = f["one_body_integrals"][...]
+            self.one_body_integrals = d_7 if d_7.dtype.num != 0 else None
+            # Load attributes generated from MP2 calculation.
+            d_8 = f["mp2_energy"][...]
+            self.mp2_energy = d_8 if d_8.dtype.num != 0 else None
+            # Load attributes generated from CISD calculation.
+            d_9 = f["cisd_energy"][...]
+            self.cisd_energy = d_9 if d_9.dtype.num != 0 else None
+            d_10 = f["cisd_one_rmd"][...]
+            self.cisd_one_rdm = d_10 if d_10.dtype.num != 0 else None
+            # Load attributes generated from exact diagonalization.
+            d_11 = f["fci_energy"][...]
+            self.fci_energy = d_11 if d_11.dtype.num != 0 else None
+            d_12 = f["fci_one_rdm"][...]
+            self.fci_one_rdm = d_12 if d_12.dtype.num != 0 else None
+            # Load attributes generated from CCSD calculation.
+            d_13 = f["ccsd_energy"][...]
+            self.ccsd_energy = d_13 if d_13.dtype.num != 0 else None
+            if f["ccsd_amplitudes/constant"][...].dtype.num != 0:
+                constant = f["ccsd_amplitudes/constant"][...]
+                one = f["ccsd_amplitudes/one_body_tensor"][...]
+                two = f["ccsd_amplitudes/two_body_tensor"][...]
+                self.ccsd_amplitudes = InteractionOperator(constant, one, two)
+            else:
+                self.ccsd_amplitudes = None
 
     def get_n_alpha_electrons(self):
         """Return number of alpha electrons."""
