@@ -250,26 +250,12 @@ class InteractionOperatorsJWTest(unittest.TestCase):
         self.assertTrue(normal_ordered(retransformed_test_op).isclose(
             normal_ordered(test_op)))
 
-    @unittest.skip("I am confused by why this test does not pass. "
-                   "The commented lines are some of my attempts at "
-                   "understanding whether or not it should.")
+    @unittest.skip("test fails")
     def test_jordan_wigner_twobody_interaction_op_reversal_symmetric(self):
         test_op = FermionOperator('1^ 2^ 2 1')
         test_op += hermitian_conjugated(test_op)
-        # print jordan_wigner(test_op)
-        
-        # print get_interaction_operator(normal_ordered(test_op))
-        # print get_interaction_operator(test_op)
-
-        # print jordan_wigner(get_interaction_operator(normal_ordered(test_op)))
-        # print jordan_wigner(get_interaction_operator(test_op))
-
-        retransformed_test_op = reverse_jordan_wigner(jordan_wigner(
-            get_interaction_operator(test_op)))
-        # print retransformed_test_op
-
-        self.assertTrue(normal_ordered(retransformed_test_op).isclose(
-            normal_ordered(test_op)))
+        self.assertTrue(jordan_wigner(test_op).isclose(
+                        jordan_wigner(get_interaction_operator(test_op))))
 
 
 class GetInteractionOperatorTest(unittest.TestCase):
