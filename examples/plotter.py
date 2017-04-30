@@ -2,7 +2,7 @@
 """
 import numpy
 import warnings
-from fermilib.ops import MolecularData, _PERIODIC_TABLE
+from fermilib.ops import MolecularData, periodic_table
 from fermilib.utils import make_atom, make_atomic_ring
 
 with warnings.catch_warnings():
@@ -46,7 +46,7 @@ if __name__ == '__main__':
   y_log = 0
 
   # Set chemical series parameters.
-  periodic_table = 0
+  plot_elements = 0
   max_electrons = 10
   spacing = 0.7414
   basis = 'sto-3g'
@@ -54,8 +54,8 @@ if __name__ == '__main__':
   # Get chemical series.
   molecular_series = []
   for n_electrons in range(2, max_electrons + 1):
-    if periodic_table:
-      atomic_symbol = _PERIODIC_TABLE[n_electrons]
+    if plot_elements:
+      atomic_symbol = periodic_table[n_electrons]
       molecule = make_atom(atomic_symbol, basis)
     else:
       molecule = make_atomic_ring(n_electrons, spacing, basis)
@@ -67,6 +67,7 @@ if __name__ == '__main__':
   for molecule in molecular_series:
 
     # x-axis.
+    print molecule.name
     x_label = 'Number of Electrons'
     x_values += [molecule.n_electrons]
 

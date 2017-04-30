@@ -4,8 +4,8 @@ from __future__ import absolute_import
 import numpy
 
 from fermilib.ops._molecular_data import (MolecularData,
-                                          _PERIODIC_HASH_TABLE,
-                                          _PERIODIC_POLARIZATION)
+                                          periodic_hash_table,
+                                          periodic_polarization)
 
 
 # Define error objects which inherit from Exception.
@@ -44,7 +44,7 @@ def make_atomic_ring(n_atoms, spacing, basis,
         geometry += [(atom_type, (x_coord, y_coord, 0.))]
 
     # Set multiplicity.
-    n_electrons = n_atoms * _PERIODIC_HASH_TABLE[atom_type]
+    n_electrons = n_atoms * periodic_hash_table[atom_type]
     n_electrons -= charge
     if (n_electrons % 2):
         multiplicity = 2
@@ -96,7 +96,7 @@ def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
 
     # Set multiplicity.
     n_atoms = nx_atoms * ny_atoms * nz_atoms
-    n_electrons = n_atoms * _PERIODIC_HASH_TABLE[atom_type]
+    n_electrons = n_atoms * periodic_hash_table[atom_type]
     n_electrons -= charge
     if (n_electrons % 2):
         multiplicity = 2
@@ -137,8 +137,8 @@ def make_atom(atom_type, basis, autosave=True):
 
     """
     geometry = [(atom_type, (0., 0., 0.))]
-    atomic_number = _PERIODIC_HASH_TABLE[atom_type]
-    spin = _PERIODIC_POLARIZATION[atomic_number] / 2.
+    atomic_number = periodic_hash_table[atom_type]
+    spin = periodic_polarization[atomic_number] / 2.
     multiplicity = int(2 * spin + 1)
     atom = MolecularData(geometry,
                          basis,

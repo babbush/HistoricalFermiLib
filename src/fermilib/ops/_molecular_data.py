@@ -43,7 +43,7 @@ def angstroms_to_bohr(distance):
 
 
 # The Periodic Table as a python list and dictionary.
-_PERIODIC_TABLE = [
+periodic_table = [
     '?',
     'H', 'He',
     'Li', 'Be',
@@ -64,18 +64,18 @@ _PERIODIC_TABLE = [
     'Fr', 'Ra',
     'Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm',
     'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr']
-_PERIODIC_HASH_TABLE = {}
-for atomic_number, atom in enumerate(_PERIODIC_TABLE):
-    _PERIODIC_HASH_TABLE[atom] = atomic_number
+periodic_hash_table = {}
+for atomic_number, atom in enumerate(periodic_table):
+    periodic_hash_table[atom] = atomic_number
 
 
 # Spin polarization of atoms on period table.
-_PERIODIC_POLARIZATION = [-1,
-                          1, 0,
-                          1, 0, 1, 2, 3, 2, 1, 0,
-                          1, 0, 1, 2, 3, 2, 1, 0,
-                          1, 0, 1, 2, 3, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0,
-                          1, 0, 1, 2, 5, 6, 5, 8, 9, 0, 1, 0, 1, 2, 3, 2, 1, 0]
+periodic_polarization = [-1,
+                         1, 0,
+                         1, 0, 1, 2, 3, 2, 1, 0,
+                         1, 0, 1, 2, 3, 2, 1, 0,
+                         1, 0, 1, 2, 3, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0,
+                         1, 0, 1, 2, 5, 6, 5, 8, 9, 0, 1, 0, 1, 2, 3, 2, 1, 0]
 
 
 def name_molecule(geometry,
@@ -108,7 +108,7 @@ def name_molecule(geometry,
     atoms = [item[0] for item in geometry]
     atom_charge_info = [(atom, atoms.count(atom)) for atom in set(atoms)]
     sorted_info = sorted(atom_charge_info,
-                         key=lambda atom: _PERIODIC_HASH_TABLE[atom[0]])
+                         key=lambda atom: periodic_hash_table[atom[0]])
 
     # Name molecule.
     name = '{}{}'.format(sorted_info[0][0], sorted_info[0][1])
@@ -252,16 +252,12 @@ class MolecularData(object):
         # Name molecule and load any fields that have been previously computed.
         self.name = name_molecule(geometry, basis, multiplicity,
                                   charge, description)
-        # Should be removed?
-        # if os.path.isfile(self.data_handle() + '.hdf5'):
-        #     self.refresh()
-        #     return
 
         # Attributes generated automatically by class.
         self.n_atoms = len(geometry)
         self.atoms = sorted([row[0] for row in geometry],
-                            key=lambda atom: _PERIODIC_HASH_TABLE[atom])
-        self.protons = [_PERIODIC_HASH_TABLE[atom] for atom in self.atoms]
+                            key=lambda atom: periodic_hash_table[atom])
+        self.protons = [periodic_hash_table[atom] for atom in self.atoms]
         self.n_electrons = sum(self.protons) - charge
 
         # Generic attributes from calculations.
