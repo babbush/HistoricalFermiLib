@@ -336,7 +336,7 @@ class MolecularData(object):
             # Save attributes generated from SCF calculation.
             f["hf_energy"] = (self.hf_energy if
                               self.hf_energy is not None else False)
-            f["canoncial_orbitals"] = (self.canonical_orbitals if
+            f["canonical_orbitals"] = (self.canonical_orbitals if
                             self.canonical_orbitals is not None else False)
             f["orbital_energies"] = (self.orbital_energies if
                                 self.orbital_energies is not None else False)
@@ -406,7 +406,7 @@ class MolecularData(object):
             # Load attributes generated from SCF calculation.
             d_3 = f["hf_energy"][...]
             self.hf_energy = d_3 if d_3.dtype.num != 0 else None
-            d_4 = f["canoncial_orbitals"][...]
+            d_4 = f["canonical_orbitals"][...]
             self.canonical_orbitals = d_4 if d_4.dtype.num != 0 else None
             d_5 = f["orbital_energies"][...]
             self.orbital_energies = d_5 if d_5.dtype.num != 0 else None

@@ -36,7 +36,7 @@ if __name__ == '__main__':
       molecule = make_atomic_ring(n_electrons, spacing, basis)
 
     # To run or not to run.
-    if not molecule.hf_energy:
+    if run_scf and not molecule.hf_energy:
       run_job = 1
     elif run_mp2 and not molecule.mp2_energy:
       run_job = 1

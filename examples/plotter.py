@@ -67,7 +67,6 @@ if __name__ == '__main__':
   for molecule in molecular_series:
 
     # x-axis.
-    print molecule.name
     x_label = 'Number of Electrons'
     x_values += [molecule.n_electrons]
 
