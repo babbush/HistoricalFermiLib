@@ -310,24 +310,24 @@ class MolecularData(object):
         with h5py.File("{}.hdf5".format(filename), "w") as f:
             # Save geometry (atoms and positions need to be separate):
             d_geom = f.create_group("geometry")
-            atoms = [item[0] for item in self.geometry]
+            atoms = [numpy.string_(item[0]) for item in self.geometry]
             positions = numpy.array([list(item[1]) for item in self.geometry])
             d_geom["atoms"] = atoms
             d_geom["positions"] = positions
             # Save basis:
-            f["basis"] = self.basis
+            f["basis"] = numpy.string_(self.basis)
             # Save multiplicity:
             f["multiplicity"] = self.multiplicity
             # Save charge:
             f["charge"] = self.charge
             # Save description:
-            f["description"] = self.description
+            f["description"] = numpy.string_(self.description)
             # Save name:
             f["name"] = self.name
             # Save n_atoms:
             f["n_atoms"] = self.n_atoms
             # Save atoms:
-            f["atoms"] = self.atoms
+            f["atoms"] = numpy.string_(self.atoms)
             # Save protons:
             f["protons"] = self.protons
             # Save n_electrons:
@@ -381,7 +381,7 @@ class MolecularData(object):
         geometry = []
         with h5py.File("{}.hdf5".format(filename), "r") as f:
             # Load geometry:
-            for atom, pos in zip(f["geometry/atoms"], f["geometry/positions"]):
+            for atom, pos in zip(f["geometry/atoms"][...], f["geometry/positions"][...]):
                 geometry.append((atom, list(pos)))
             self.geometry = geometry
             # Load basis:
@@ -453,7 +453,7 @@ class MolecularData(object):
         """Return number of beta electrons."""
         return self.n_electrons / 2 - (self.multiplicity - 1)
 
-    def get_integrals(self):
+    def get_integrals(self, filename=None):
         """Method to return 1-electron and 2-electron integrals in MO basis.
 
         Returns:
@@ -467,13 +467,15 @@ class MolecularData(object):
             performed.
         """
         # Make sure integrals have been computed.
+        if filename == None:
+            filename = self.data_handle()
         if self.hf_energy is None:
             raise MissingCalculationError(
                 'Missing file {}. Run SCF before loading integrals.'.format(
-                    self.data_handle() + '_eri.npy'))
+                    filename + '_eri.npy'))
 
         # Get integrals and return.
-        two_body_integrals = numpy.load(self.data_handle() + '_eri.npy')
+        two_body_integrals = numpy.load(filename + '_eri.npy')
         return self.one_body_integrals, two_body_integrals
 
     def get_active_space_integrals(self, active_space_start,
@@ -531,7 +533,8 @@ class MolecularData(object):
 
     def get_molecular_hamiltonian(self,
                                   active_space_start=None,
-                                  active_space_stop=None):
+                                  active_space_stop=None,
+                                  filename=None):
         """Output arrays of the second quantized Hamiltonian coefficients.
 
         Args:
@@ -549,7 +552,7 @@ class MolecularData(object):
         """
         # Get active space integrals.
         if active_space_start is None:
-            one_body_integrals, two_body_integrals = self.get_integrals()
+            one_body_integrals, two_body_integrals = self.get_integrals(filename=filename)
             constant = self.nuclear_repulsion
         else:
             core_adjustment, one_body_integrals, two_body_integrals = self.\
@@ -562,10 +565,9 @@ class MolecularData(object):
         one_body_coefficients = numpy.zeros((n_qubits, n_qubits))
         two_body_coefficients = numpy.zeros((n_qubits, n_qubits,
                                              n_qubits, n_qubits))
-
         # Loop through integrals.
-        for p in range(n_qubits / 2):
-            for q in range(n_qubits / 2):
+        for p in range(n_qubits // 2):
+            for q in range(n_qubits // 2):
 
                 # Populate 1-body coefficients. Require p and q have same spin.
                 one_body_coefficients[2 * p, 2 * q] = one_body_integrals[p, q]
@@ -573,8 +575,8 @@ class MolecularData(object):
                                       q + 1] = one_body_integrals[p, q]
 
                 # Continue looping to prepare 2-body coefficients.
-                for r in range(n_qubits / 2):
-                    for s in range(n_qubits / 2):
+                for r in range(n_qubits // 2):
+                    for s in range(n_qubits // 2):
 
                         # Require p,s and q,r to have same spin. Handle mixed
                         # spins.
@@ -606,7 +608,7 @@ class MolecularData(object):
             constant, one_body_coefficients, two_body_coefficients)
         return molecular_hamiltonian
 
-    def get_molecular_rdm(self, use_fci=False):
+    def get_molecular_rdm(self, use_fci=False, filename=None):
         """Method to return 1-RDM and 2-RDMs from CISD or FCI.
 
         Args:
@@ -621,23 +623,25 @@ class MolecularData(object):
                 performed.
         """
         # Make sure requested RDM has been computed and load.
+        if filename == None:
+            filename = self.data_handle()
         if use_fci:
             if self.fci_energy is None:
                 raise MissingCalculationError(
                     'Missing {}. '.format(
-                        self.data_handle() + '_fci_rdm.npy') +
+                        filename + '_fci_rdm.npy') +
                     'Run FCI calculation before loading FCI RDMs.')
             else:
-                rdm_name = self.data_handle() + '_fci_rdm.npy'
+                rdm_name = filename + '_fci_rdm.npy'
                 one_rdm = self.fci_one_rdm
         else:
             if self.cisd_energy is None:
                 raise MissingCalculationError(
                     'Missing {}. '.format(
-                        self.data_handle() + '_cisd_rdm.npy') +
+                        filename + '_cisd_rdm.npy') +
                     'Run CISD calculation before loading CISD RDMs.')
             else:
-                rdm_name = self.data_handle() + '_cisd_rdm.npy'
+                rdm_name = filename + '_cisd_rdm.npy'
                 one_rdm = self.cisd_one_rdm
         two_rdm = numpy.load(rdm_name)
 

@@ -1,5 +1,6 @@
 """FermionOperator stores a sum of products of fermionic ladder operators."""
 import copy
+from future.utils import iteritems
 import numpy
 
 
@@ -10,7 +11,7 @@ class FermionOperatorError(Exception):
 def hermitian_conjugated(fermion_operator):
     """Return Hermitian conjugate of fermionic operator."""
     conjugate_operator = FermionOperator((), 0.)
-    for term, coefficient in fermion_operator.terms.iteritems():
+    for term, coefficient in iteritems(fermion_operator.terms):
         conjugate_term = tuple([(tensor_factor, 1 - action) for
                                 (tensor_factor, action) in reversed(term)])
         conjugate_operator.terms[conjugate_term] = numpy.conjugate(coefficient)
