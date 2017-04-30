@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 import os
-import pickle
 import sys
 
 import h5py
@@ -181,8 +180,7 @@ class MolecularData(object):
     geometry that is obtained from classical electronic structure
     packages. Not every field is filled in every calculation. All data
     that can (for some instance) exceed 10 MB should be saved
-    separately. Intention is to pickle objects to database with unique
-    name.
+    separately. Data saved in HDF5 format.
 
     Attributes:
         geometry: A list of tuples giving the coordinates of each atom. An
