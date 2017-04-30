@@ -333,14 +333,14 @@ class MolecularData(object):
             # Save n_electrons:
             f["n_electrons"] = self.n_electrons
             # Save generic attributes from calculations:
-            f["n_orbitals"] = (self.n_orbitals if self.n_orbitals is not None 
+            f["n_orbitals"] = (self.n_orbitals if self.n_orbitals is not None
                                                else False)
             f["n_qubits"] = (self.n_qubits if self.n_qubits is not None
                                            else False)
-            f["nuclear_repulsion"] = (self.nuclear_repulsion if 
+            f["nuclear_repulsion"] = (self.nuclear_repulsion if
                                 self.nuclear_repulsion is not None else False)
             # Save attributes generated from SCF calculation.
-            f["hf_energy"] = (self.hf_energy if 
+            f["hf_energy"] = (self.hf_energy if
                               self.hf_energy is not None else False)
             f["canoncial_orbitals"] = (self.canonical_orbitals if
                             self.canonical_orbitals is not None else False)
@@ -381,7 +381,7 @@ class MolecularData(object):
         geometry = []
         with h5py.File("{}.hdf5".format(filename), "r") as f:
             # Load geometry:
-            for atom, pos in zip(f["geometry/atoms"],f["geometry/positions"]):
+            for atom, pos in zip(f["geometry/atoms"], f["geometry/positions"]):
                 geometry.append((atom, list(pos)))
             self.geometry = geometry
             # Load basis:
