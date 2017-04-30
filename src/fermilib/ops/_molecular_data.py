@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 import os
-import pickle
 import sys
 
 import h5py
@@ -44,7 +43,7 @@ def angstroms_to_bohr(distance):
 
 
 # The Periodic Table as a python list and dictionary.
-_PERIODIC_TABLE = [
+periodic_table = [
     '?',
     'H', 'He',
     'Li', 'Be',
@@ -65,18 +64,18 @@ _PERIODIC_TABLE = [
     'Fr', 'Ra',
     'Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm',
     'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr']
-_PERIODIC_HASH_TABLE = {}
-for atomic_number, atom in enumerate(_PERIODIC_TABLE):
-    _PERIODIC_HASH_TABLE[atom] = atomic_number
+periodic_hash_table = {}
+for atomic_number, atom in enumerate(periodic_table):
+    periodic_hash_table[atom] = atomic_number
 
 
 # Spin polarization of atoms on period table.
-_PERIODIC_POLARIZATION = [-1,
-                          1, 0,
-                          1, 0, 1, 2, 3, 2, 1, 0,
-                          1, 0, 1, 2, 3, 2, 1, 0,
-                          1, 0, 1, 2, 3, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0,
-                          1, 0, 1, 2, 5, 6, 5, 8, 9, 0, 1, 0, 1, 2, 3, 2, 1, 0]
+periodic_polarization = [-1,
+                         1, 0,
+                         1, 0, 1, 2, 3, 2, 1, 0,
+                         1, 0, 1, 2, 3, 2, 1, 0,
+                         1, 0, 1, 2, 3, 6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0,
+                         1, 0, 1, 2, 5, 6, 5, 8, 9, 0, 1, 0, 1, 2, 3, 2, 1, 0]
 
 
 def name_molecule(geometry,
@@ -109,7 +108,7 @@ def name_molecule(geometry,
     atoms = [item[0] for item in geometry]
     atom_charge_info = [(atom, atoms.count(atom)) for atom in set(atoms)]
     sorted_info = sorted(atom_charge_info,
-                         key=lambda atom: _PERIODIC_HASH_TABLE[atom[0]])
+                         key=lambda atom: periodic_hash_table[atom[0]])
 
     # Name molecule.
     name = '{}{}'.format(sorted_info[0][0], sorted_info[0][1])
@@ -181,8 +180,7 @@ class MolecularData(object):
     geometry that is obtained from classical electronic structure
     packages. Not every field is filled in every calculation. All data
     that can (for some instance) exceed 10 MB should be saved
-    separately. Intention is to pickle objects to database with unique
-    name.
+    separately. Data saved in HDF5 format.
 
     Attributes:
         geometry: A list of tuples giving the coordinates of each atom. An
@@ -254,16 +252,12 @@ class MolecularData(object):
         # Name molecule and load any fields that have been previously computed.
         self.name = name_molecule(geometry, basis, multiplicity,
                                   charge, description)
-        # Should be removed?
-        # if os.path.isfile(self.data_handle() + '.hdf5'):
-        #     self.refresh()
-        #     return
 
         # Attributes generated automatically by class.
         self.n_atoms = len(geometry)
         self.atoms = sorted([row[0] for row in geometry],
-                            key=lambda atom: _PERIODIC_HASH_TABLE[atom])
-        self.protons = [_PERIODIC_HASH_TABLE[atom] for atom in self.atoms]
+                            key=lambda atom: periodic_hash_table[atom])
+        self.protons = [periodic_hash_table[atom] for atom in self.atoms]
         self.n_electrons = sum(self.protons) - charge
 
         # Generic attributes from calculations.
@@ -342,7 +336,7 @@ class MolecularData(object):
             # Save attributes generated from SCF calculation.
             f["hf_energy"] = (self.hf_energy if
                               self.hf_energy is not None else False)
-            f["canoncial_orbitals"] = (self.canonical_orbitals if
+            f["canonical_orbitals"] = (self.canonical_orbitals if
                             self.canonical_orbitals is not None else False)
             f["orbital_energies"] = (self.orbital_energies if
                                 self.orbital_energies is not None else False)
@@ -412,7 +406,7 @@ class MolecularData(object):
             # Load attributes generated from SCF calculation.
             d_3 = f["hf_energy"][...]
             self.hf_energy = d_3 if d_3.dtype.num != 0 else None
-            d_4 = f["canoncial_orbitals"][...]
+            d_4 = f["canonical_orbitals"][...]
             self.canonical_orbitals = d_4 if d_4.dtype.num != 0 else None
             d_5 = f["orbital_energies"][...]
             self.orbital_energies = d_5 if d_5.dtype.num != 0 else None
