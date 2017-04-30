@@ -1,1 +1,3 @@
-{}
+{
+  "ops/_molecular_data_test.py::MolecularDataTest::test_save_refresh": true
+}
