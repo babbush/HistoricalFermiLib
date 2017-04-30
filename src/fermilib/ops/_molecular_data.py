@@ -395,7 +395,7 @@ class MolecularData(object):
             # Load name:
             self.name = f["name"][...]
             # Load n_atoms:
-            self.n_atoms = f["n_atoms"][...]
+            self.n_atoms = int(f["n_atoms"][...])
             # Load atoms:
             self.atoms = f["atoms"][...]
             # Load protons:
