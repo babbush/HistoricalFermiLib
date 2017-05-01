@@ -1,5 +1,6 @@
 """Class and functions to store quantum chemistry data."""
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import os
 import sys
@@ -245,7 +246,7 @@ class MolecularData(object):
 
         # Metadata fields with default values.
         self.charge = charge
-        if not isinstance(description, str):
+        if not isinstance(description, str) and not isinstance(description, unicode):
             raise TypeError("description must be a string.")
         self.description = description
 
@@ -376,18 +377,18 @@ class MolecularData(object):
         with h5py.File("{}.hdf5".format(filename), "r") as f:
             # Load geometry:
             for atom, pos in zip(f["geometry/atoms"][...], f["geometry/positions"][...]):
-                geometry.append((atom, list(pos)))
+                geometry.append((str(atom), list(pos)))
             self.geometry = geometry
             # Load basis:
-            self.basis = f["basis"][...]
+            self.basis = f["basis"][...].tostring()
             # Load multiplicity:
             self.multiplicity = int(f["multiplicity"][...])
             # Load charge:
             self.charge = int(f["charge"][...])
             # Load description:
-            self.description = f["description"][...]
+            self.description = str(f["description"][...])
             # Load name:
-            self.name = f["name"][...]
+            self.name = str(f["name"][...])
             # Load n_atoms:
             self.n_atoms = int(f["n_atoms"][...])
             # Load atoms:

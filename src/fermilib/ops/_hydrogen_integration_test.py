@@ -4,6 +4,7 @@ from __future__ import absolute_import
 import unittest
 
 import numpy
+from future.utils import iteritems
 import scipy.sparse
 from fermilib.ops import *
 from fermilib.transforms import *
@@ -219,7 +220,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
         # Confirm expectation on qubit Hamiltonian using reverse JW matches.
         qubit_rdm = self.fci_rdm.get_qubit_expectations(self.qubit_hamiltonian)
         qubit_energy = self.qubit_hamiltonian.terms[()]
-        for term, expectation in qubit_rdm.terms.iteritems():
+        for term, expectation in iteritems(qubit_rdm.terms):
           qubit_energy += expectation * self.qubit_hamiltonian.terms[term]
         self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 

@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 import unittest
+from future.utils import iteritems
 
 import numpy
 import scipy.linalg
@@ -114,7 +115,7 @@ class LiHIntegrationTest(unittest.TestCase):
         # Confirm expectation on qubit Hamiltonian using reverse JW matches.
         qubit_rdm = self.fci_rdm.get_qubit_expectations(self.qubit_hamiltonian)
         qubit_energy = self.qubit_hamiltonian.terms[()]
-        for term, coefficient in qubit_rdm.terms.iteritems():
+        for term, coefficient in iteritems(qubit_rdm.terms):
           qubit_energy += coefficient * self.qubit_hamiltonian.terms[term]
         self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 

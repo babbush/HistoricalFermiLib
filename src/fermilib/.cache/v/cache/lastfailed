@@ -1,9 +1,1 @@
-{
-  "ops/_hydrogen_integration_test.py::HydrogenIntegrationTest::test_molecular_hydrogen": true,
-  "ops/_interaction_rdm_test.py::InteractionRDMTest::test_get_molecular_operator_expectation": true,
-  "ops/_interaction_rdm_test.py::InteractionRDMTest::test_get_qubit_expectations": true,
-  "ops/_lih_integration_test.py::LiHIntegrationTest::test_molecular_LiH": true,
-  "ops/_molecular_data_test.py::MolecularDataTest::test_name_molecule": true,
-  "ops/_molecular_data_test.py::MolecularDataTest::test_rdm_and_rotation": true,
-  "ops/_molecular_data_test.py::MolecularDataTest::test_save_refresh": true
-}
+{}
