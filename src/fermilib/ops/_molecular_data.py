@@ -253,6 +253,9 @@ class MolecularData(object):
         # Name molecule and load any fields that have been previously computed.
         self.name = name_molecule(geometry, basis, multiplicity,
                                   charge, description)
+        if autosave and os.path.isfile(self.data_handle() + '.hdf5'):
+            self.refresh()
+            return
 
         # Attributes generated automatically by class.
         self.n_atoms = len(geometry)
