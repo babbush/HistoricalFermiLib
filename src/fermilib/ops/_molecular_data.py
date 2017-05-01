@@ -380,7 +380,7 @@ class MolecularData(object):
                 geometry.append((str(atom), list(pos)))
             self.geometry = geometry
             # Load basis:
-            self.basis = f["basis"][...].tostring()
+            self.basis = str(f["basis"][...])
             # Load multiplicity:
             self.multiplicity = int(f["multiplicity"][...])
             # Load charge:
