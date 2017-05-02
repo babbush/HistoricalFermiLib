@@ -9,7 +9,7 @@ import scipy.sparse
 from fermilib.config import *
 from fermilib.ops import *
 from fermilib.transforms import *
-from fermilib.utils import uccsd_operator
+from fermilib.utils import *
 
 
 class HydrogenIntegrationTest(unittest.TestCase):

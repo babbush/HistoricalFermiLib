@@ -11,4 +11,6 @@ from ._jellium import (jellium_model,
                        position_kinetic_operator,
                        position_potential_operator)
 
+from ._molecular_data import MolecularData, periodic_table
+
 from ._unitary_cc import uccsd_operator

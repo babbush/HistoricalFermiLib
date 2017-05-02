@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import unittest
 
 from fermilib.config import *
-from fermilib.ops import MolecularData
+from fermilib.utils import MolecularData
 from fermilib.transforms import jordan_wigner
 
 

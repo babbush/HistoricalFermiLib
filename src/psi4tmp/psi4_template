@@ -3,11 +3,11 @@ import sys
 import numpy
 
 from fermilib.config import *
-from fermilib.ops import MolecularData
 from fermilib.ops._interaction_rdm import (InteractionRDM,
                                            unpack_spatial_rdm)
 from fermilib.ops._interaction_tensor import (one_body_basis_change,
                                               two_body_basis_change)
+from fermilib.utils import MolecularData
 
 sys.path.append('&THIS_DIRECTORY')
 import parser_functions

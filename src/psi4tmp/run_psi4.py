@@ -215,7 +215,7 @@ if __name__ == '__main__':
     verbose = 0
 
     # Get molecule and run calculation.
-    from fermilib.ops import MolecularData
+    from fermilib.utils import MolecularData
     molecule = MolecularData(
         geometry, basis, multiplicity, description=description)
     molecule = run_psi4(

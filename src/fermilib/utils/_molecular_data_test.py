@@ -7,7 +7,7 @@ import numpy.random
 import scipy.linalg
 
 from fermilib.config import *
-from fermilib.ops._molecular_data import MolecularData, name_molecule
+from fermilib.utils._molecular_data import MolecularData, name_molecule
 
 
 class MolecularDataTest(unittest.TestCase):
