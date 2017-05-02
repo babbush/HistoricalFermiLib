@@ -240,7 +240,7 @@ if __name__ == '__main__':
     from fermilib.transforms import get_eigenspectrum
     molecule = MolecularData(
         geometry, basis, multiplicity, description=description)
-    if 1:
+    if 0:
         molecule = run_pyscf(
             molecule, run_scf, run_mp2, run_cisd, run_ccsd, run_fci, verbose)
     else:

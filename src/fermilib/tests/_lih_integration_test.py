@@ -6,14 +6,10 @@ import os
 
 import numpy
 import scipy.sparse
+from fermilib.config import *
 from fermilib.ops import *
 from fermilib.transforms import *
 from fermilib.utils import uccsd_operator
-
-
-def get_test_filename(name):
-  _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-  return os.path.join(_THIS_DIR, name)
 
 
 class LiHIntegrationTest(unittest.TestCase):
@@ -21,23 +17,21 @@ class LiHIntegrationTest(unittest.TestCase):
     def setUp(self):
 
         # Set up molecule.
-        self.geometry = [('Li', (0., 0., 0.)), ('H', (0., 0., 1.45))]
-        self.basis = 'sto-3g'
-        self.multiplicity = 1
-        self.molecule = MolecularData(self.geometry, self.basis,
-                                      self.multiplicity)
-        self.molecule.refresh(filename=get_test_filename(
-            "testdata/H1-Li1_sto-3g_singlet"))
+        geometry = [('Li', (0., 0., 0.)), ('H', (0., 0., 1.45))]
+        basis = 'sto-3g'
+        multiplicity = 1
+        filename = THIS_DIRECTORY + '/tests/testdata/H1-Li1_sto-3g_singlet'
+        self.molecule = MolecularData(
+            geometry, basis, multiplicity, filename=filename)
+        self.molecule.load()
 
         # Get molecular Hamiltonian.
-        self.molecular_hamiltonian = self.molecule.get_molecular_hamiltonian(
-            filename=get_test_filename("testdata/H1-Li1_sto-3g_singlet"))
-        #self.molecular_hamiltonian_no_core = self.molecule.\
-            #    get_molecular_hamiltonian(active_space_start=1)
+        self.molecular_hamiltonian = self.molecule.get_molecular_hamiltonian()
+        self.molecular_hamiltonian_no_core = self.molecule.\
+            get_molecular_hamiltonian(active_space_start=1)
 
         # Get FCI RDM.
-        self.fci_rdm = self.molecule.get_molecular_rdm(use_fci=1,
-            filename=get_test_filename("testdata/H1-Li1_sto-3g_singlet"))
+        self.fci_rdm = self.molecule.get_molecular_rdm(use_fci=1)
 
         # Get explicit coefficients.
         self.nuclear_repulsion = self.molecular_hamiltonian.constant
@@ -59,8 +53,8 @@ class LiHIntegrationTest(unittest.TestCase):
         # Get matrix form.
         self.hamiltonian_matrix = get_sparse_operator(
             self.molecular_hamiltonian)
-        #self.hamiltonian_matrix_no_core = get_sparse_operator(
-        #    self.molecular_hamiltonian_no_core)
+        self.hamiltonian_matrix_no_core = get_sparse_operator(
+            self.molecular_hamiltonian_no_core)
 
 
     def test_reverse_jordan_wigner(self):
@@ -113,11 +107,11 @@ class LiHIntegrationTest(unittest.TestCase):
 
         # Check that frozen core result matches frozen core FCI from psi4.
         # Recore frozen core result from external calculation.
-        #self.frozen_core_fci_energy = -7.8807607374168
-        #no_core_fci_energy = scipy. \
-        #    linalg.eigh(self.hamiltonian_matrix_no_core.matrix.todense())[0][0]
-        #self.assertAlmostEqual(no_core_fci_energy,
-        #                       self.frozen_core_fci_energy)
+        self.frozen_core_fci_energy = -7.8807607374168
+        no_core_fci_energy = scipy. \
+            linalg.eigh(self.hamiltonian_matrix_no_core.matrix.todense())[0][0]
+        self.assertAlmostEqual(no_core_fci_energy,
+                               self.frozen_core_fci_energy)
 
 
 if __name__ == '__main__':

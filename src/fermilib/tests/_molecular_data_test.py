@@ -6,6 +6,7 @@ import unittest
 import numpy.random
 import scipy.linalg
 
+from fermilib.config import *
 from fermilib.ops._molecular_data import MolecularData, name_molecule
 from psi4tmp import run_psi4
 
@@ -13,51 +14,26 @@ from psi4tmp import run_psi4
 class MolecularDataTest(unittest.TestCase):
 
     def setUp(self):
-
-        # Set up molecule.
-        self.n_atoms = 2
-        self.geometry = [('H', (0., 0., 0.7414 * x))
-                         for x in range(self.n_atoms)]
+        self.geometry = [('H', (0., 0., 0.)), ('H', (0., 0., 0.7414))]
         self.basis = 'sto-3g'
         self.multiplicity = 1
-        self.charge = 0
-        self.description = 'eq'
-        self.molecule = MolecularData(self.geometry,
-                                      self.basis,
-                                      self.multiplicity,
-                                      self.charge,
-                                      self.description)
-
-        # Run calculations.
-        run_scf = 1
-        run_mp2 = 1
-        run_cisd = 1
-        run_ccsd = 1
-        run_fci = 1
-        delete_input = 1
-        delete_output = 1
-        verbose = 0
-        self.molecule = run_psi4(self.molecule,
-                                 run_scf=run_scf,
-                                 run_mp2=run_mp2,
-                                 run_cisd=run_cisd,
-                                 run_ccsd=run_ccsd,
-                                 run_fci=run_fci,
-                                 verbose=verbose,
-                                 delete_input=delete_input,
-                                 delete_output=delete_output)
+        filename = THIS_DIRECTORY + '/tests/testdata/H2_sto-3g_singlet'
+        self.molecule = MolecularData(
+            self.geometry, self.basis, self.multiplicity, filename=filename)
+        self.molecule.load()
 
     def test_name_molecule(self):
-        correct_name = 'H2_sto-3g_singlet_eq'
+        charge = 0
+        correct_name = 'H2_sto-3g_singlet'
         computed_name = name_molecule(self.geometry,
                                       self.basis,
                                       self.multiplicity,
-                                      self.charge,
-                                      self.description)
+                                      charge,
+                                      description=None)
         self.assertEqual(correct_name, computed_name)
         self.assertEqual(correct_name, self.molecule.name)
 
-    def test_save_refresh(self):
+    def test_save_load(self):
 
         # Set number of atoms to be one higher than it should be.
         n_atoms = self.molecule.n_atoms
@@ -65,24 +41,8 @@ class MolecularDataTest(unittest.TestCase):
         self.assertEqual(self.molecule.n_atoms, n_atoms + 1)
 
         # Refresh the molecule and make sure the number of atoms is restored.
-        self.molecule.refresh()
+        self.molecule.load()
         self.assertEqual(self.molecule.n_atoms, n_atoms)
-
-        # Now change the number of atoms again and save it this time.
-        self.molecule.n_atoms += 1
-        self.molecule.save()
-
-        # Load the molecule.
-        self.molecule = MolecularData(self.geometry,
-                                      self.basis,
-                                      self.multiplicity,
-                                      self.charge,
-                                      self.description)
-        self.assertTrue(self.molecule.n_atoms, n_atoms + 1)
-
-        # Finally, correct the number of atoms and restore.
-        self.molecule.n_atoms -= 1
-        self.molecule.save()
 
     def test_energies(self):
 
@@ -108,8 +68,7 @@ class MolecularDataTest(unittest.TestCase):
         rotation_matrix = scipy.linalg.expm(
             rotation_generator - rotation_generator.T)
 
-        # Compute total energy from RDM under some arbitrary basis set
-        # rotation.
+        # Compute total energy from RDM under some basis set rotation.
         molecular_rdm.rotate_basis(rotation_matrix)
         molecular_hamiltonian.rotate_basis(rotation_matrix)
         total_energy = molecular_rdm.expectation(molecular_hamiltonian)

@@ -110,15 +110,15 @@ def generate_psi4_input(molecule,
                      for line in input_content]
 
     # Write input file and return handle.
-    input_file = molecule.data_handle() + '.inp'
+    input_file = molecule.filename + '.inp'
     with open(input_file, 'w') as stream:
         stream.write(''.join(input_content))
     return input_file
 
 
 def clean_up(molecule, delete_input=True, delete_output=False):
-    input_file = molecule.data_handle() + '.inp'
-    output_file = molecule.data_handle() + '.out'
+    input_file = molecule.filename + '.inp'
+    output_file = molecule.filename + '.out'
     run_directory = os.getcwd()
     for local_file in os.listdir(run_directory):
         if local_file.endswith('.clean'):
@@ -178,7 +178,7 @@ def run_psi4(molecule,
                                      memory)
 
     # Run psi4.
-    output_file = molecule.data_handle() + '.out'
+    output_file = molecule.filename + '.out'
     try:
         process = subprocess.Popen(['psi4', input_file, output_file])
         process.wait()
@@ -192,5 +192,35 @@ def run_psi4(molecule,
         clean_up(molecule, delete_input, delete_output)
 
     # Return updated molecule instance.
-    molecule.refresh()
+    molecule.load()
     return molecule
+
+
+# Test.
+if __name__ == '__main__':
+
+    # Molecule parameters.
+    basis = 'sto-3g'
+    multiplicity = 1
+    bond_length = 0.7414
+    description = str(bond_length)
+    geometry = [['H', (0, 0, 0)], ['H', (0, 0, bond_length)]]
+
+    # Calculation parameters.
+    run_scf = 1
+    run_mp2 = 1
+    run_cisd = 1
+    run_ccsd = 1
+    run_fci = 1
+    verbose = 0
+
+    # Get molecule and run calculation.
+    from fermilib.ops import MolecularData
+    molecule = MolecularData(
+        geometry, basis, multiplicity, description=description)
+    molecule = run_psi4(
+        molecule, run_scf, run_mp2, run_cisd, run_ccsd, run_fci, verbose)
+
+    # Get molecular Hamiltonian.
+    molecular_hamiltonian = molecule.get_molecular_hamiltonian()
+    print molecular_hamiltonian

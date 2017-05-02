@@ -15,8 +15,7 @@ class ChemicalSeries(unittest.TestCase):
         spacing = 1.
         basis = 'sto-3g'
         for n_atoms in range(2, 10):
-            molecule = make_atomic_ring(n_atoms, spacing,
-                                        basis, autosave=False)
+            molecule = make_atomic_ring(n_atoms, spacing, basis)
 
             # Check that ring is centered.
             vector_that_should_sum_to_zero = 0.

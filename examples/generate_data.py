@@ -7,6 +7,8 @@ from fermilib.utils import (make_atomic_ring,
 
 from psi4tmp import run_psi4
 
+import os
+
 if __name__ == '__main__':
 
   # Set chemical parameters.
@@ -28,34 +30,37 @@ if __name__ == '__main__':
   # Generate data.
   for n_electrons in range(2, max_electrons + 1):
 
-    # Initialize.
-    if compute_elements:
-      atomic_symbol = periodic_table[n_electrons]
-      molecule = make_atom(atomic_symbol, basis)
-    else:
-      molecule = make_atomic_ring(n_electrons, spacing, basis)
+      # Initialize.
+      if compute_elements:
+          atomic_symbol = periodic_table[n_electrons]
+          molecule = make_atom(atomic_symbol, basis)
+      else:
+          molecule = make_atomic_ring(n_electrons, spacing, basis)
+      if os.path.exists(molecule.filename + '.hdf5'):
+          molecule.load()
 
-    # To run or not to run.
-    if run_scf and not molecule.hf_energy:
-      run_job = 1
-    elif run_mp2 and not molecule.mp2_energy:
-      run_job = 1
-    elif run_cisd and not molecule.cisd_energy:
-      run_job = 1
-    elif run_ccsd and not molecule.ccsd_energy:
-      run_job = 1
-    elif run_fci and not molecule.fci_energy:
-      run_job = 1
-    else:
-      run_job = force_recompute
+      # To run or not to run.
+      if run_scf and not molecule.hf_energy:
+          run_job = 1
+      elif run_mp2 and not molecule.mp2_energy:
+          run_job = 1
+      elif run_cisd and not molecule.cisd_energy:
+          run_job = 1
+      elif run_ccsd and not molecule.ccsd_energy:
+          run_job = 1
+      elif run_fci and not molecule.fci_energy:
+          run_job = 1
+      else:
+          run_job = force_recompute
 
-    # Run.
-    if run_job:
-      molecule = run_psi4(molecule,
-                          run_scf=run_scf,
-                          run_mp2=run_mp2,
-                          run_cisd=run_cisd,
-                          run_ccsd=run_ccsd,
-                          run_fci=run_fci,
-                          verbose=verbose,
-                          tolerate_error=tolerate_error)
+      # Run.
+      if run_job:
+          molecule = run_psi4(molecule,
+                              run_scf=run_scf,
+                              run_mp2=run_mp2,
+                              run_cisd=run_cisd,
+                              run_ccsd=run_ccsd,
+                              run_fci=run_fci,
+                              verbose=verbose,
+                              tolerate_error=tolerate_error)
+          molecule.save()

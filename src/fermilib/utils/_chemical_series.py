@@ -14,7 +14,7 @@ class MolecularLatticeError(Exception):
 
 
 def make_atomic_ring(n_atoms, spacing, basis,
-                     atom_type='H', charge=0, autosave=True):
+                     atom_type='H', charge=0, filename=''):
     """
     Function to create atomic rings with n_atoms.
 
@@ -28,7 +28,7 @@ def make_atomic_ring(n_atoms, spacing, basis,
         atom_type: String, the atomic symbol of the element in the ring.
             this defaults to 'H' for Hydrogen.
         charge: An integer giving the total molecular charge. Defaults to 0.
-        autosave: Whether to save molecular data automatically.
+        filename: An optional string to give a filename for the molecule.
 
     Returns:
         molecule: A an instance of the MolecularData class.
@@ -58,12 +58,12 @@ def make_atomic_ring(n_atoms, spacing, basis,
                              multiplicity,
                              charge,
                              description,
-                             autosave)
+                             filename)
     return molecule
 
 
 def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
-                        atom_type='H', charge=0, autosave=True):
+                        atom_type='H', charge=0, filename=''):
     """
     Function to create atomic lattice with n_atoms.
 
@@ -76,7 +76,7 @@ def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
         atom_type: String, the atomic symbol of the element in the ring.
             this defaults to 'H' for Hydrogen.
         charge: An integer giving the total molecular charge. Defaults to 0.
-        autosave: Whether to save molecular data automatically.
+        filename: An optional string to give a filename for the molecule.
 
     Returns:
         molecule: A an instance of the MolecularData class.
@@ -120,11 +120,11 @@ def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
                              multiplicity,
                              charge,
                              description,
-                             autosave)
+                             filename)
     return molecule
 
 
-def make_atom(atom_type, basis, autosave=True):
+def make_atom(atom_type, basis, filename=''):
     """
     Prepare a molecular data instance for a single element.
 
@@ -143,5 +143,5 @@ def make_atom(atom_type, basis, autosave=True):
     atom = MolecularData(geometry,
                          basis,
                          multiplicity,
-                         autosave=autosave)
+                         filename=filename)
     return atom

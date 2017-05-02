@@ -193,7 +193,8 @@ class MolecularData(object):
         multiplicity: An integer giving the spin multiplicity.
         description: An optional string giving a description. As an example,
             for dimers a likely description is the bond length (e.g. 0.7414).
-        name: A string that identifies the instance.
+        name: A string giving a characteristic name for the instance.
+        filename: The name of the file where the molecule data is saved.
         n_atoms: Integer giving the number of atoms in the molecule.
         n_electrons: Integer giving the number of electrons in the molecule.
         atoms: List of the atoms in molecule sorted by atomic number.
@@ -220,9 +221,8 @@ class MolecularData(object):
         ccsd_amplitudes: Molecular operator holding coupled cluster
                          amplitudes.
     """
-
     def __init__(self, geometry, basis, multiplicity,
-                 charge=0, description="", autosave=True):
+                 charge=0, description="", filename=""):
         """Initialize molecular metadata which defines class.
 
         Args:
@@ -237,7 +237,8 @@ class MolecularData(object):
             description: A optional string giving a description. As an
                 example, for dimers a likely description is the bond length
                 (e.g. 0.7414).
-            autosave: Whether to save molecular data automatically.
+            filename: An optimal string giving name of file.
+                If filename is not provided, one is generated automatically.
         """
         # Metadata fields which must be provided.
         self.geometry = geometry
@@ -250,12 +251,15 @@ class MolecularData(object):
             raise TypeError("description must be a string.")
         self.description = description
 
-        # Name molecule and load any fields that have been previously computed.
+        # Name molecule and get associated filename.
         self.name = name_molecule(geometry, basis, multiplicity,
                                   charge, description)
-        if autosave and os.path.isfile(self.data_handle() + '.hdf5'):
-            self.refresh()
-            return
+        if filename:
+          if filename[-5:] == '.hdf5':
+            filename = filename[:(len(filename) - 5)]
+          self.filename = filename
+        else:
+          self.filename = DATA_DIRECTORY + '/' + self.name
 
         # Attributes generated automatically by class.
         self.n_atoms = len(geometry)
@@ -293,19 +297,9 @@ class MolecularData(object):
         self.ccsd_energy = None
         self.ccsd_amplitudes = None
 
-        # Save the new molecule.
-        if autosave:
-            self.save()
-
-    def data_handle(self):
-        """Method to automatically give file name of molecule."""
-        return DATA_DIRECTORY + '/' + self.name
-
-    def save(self, filename=None):
+    def save(self):
         "Method to save the class under a systematic name."
-        if filename == None:
-            filename = self.data_handle()
-        with h5py.File("{}.hdf5".format(filename), "w") as f:
+        with h5py.File("{}.hdf5".format(self.filename), "w") as f:
             # Save geometry (atoms and positions need to be separate):
             d_geom = f.create_group("geometry")
             atoms = [numpy.string_(item[0]) for item in self.geometry]
@@ -373,11 +367,9 @@ class MolecularData(object):
             ccsd_a["two_body_tensor"] = (self.ccsd_amplitudes.two_body_tensor
                             if self.ccsd_amplitudes is not None else False)
 
-    def refresh(self, filename=None):
-        if filename == None:
-            filename = self.data_handle()
+    def load(self):
         geometry = []
-        with h5py.File("{}.hdf5".format(filename), "r") as f:
+        with h5py.File("{}.hdf5".format(self.filename), "r") as f:
             # Load geometry:
             for atom, pos in zip(f["geometry/atoms"][...], f["geometry/positions"][...]):
                 geometry.append((str(atom), list(pos)))
@@ -451,7 +443,7 @@ class MolecularData(object):
         """Return number of beta electrons."""
         return self.n_electrons / 2 - (self.multiplicity - 1)
 
-    def get_integrals(self, filename=None):
+    def get_integrals(self):
         """Method to return 1-electron and 2-electron integrals in MO basis.
 
         Returns:
@@ -465,15 +457,13 @@ class MolecularData(object):
             performed.
         """
         # Make sure integrals have been computed.
-        if filename == None:
-            filename = self.data_handle()
         if self.hf_energy is None:
             raise MissingCalculationError(
                 'Missing file {}. Run SCF before loading integrals.'.format(
-                    filename + '_eri.npy'))
+                    self.filename + '_eri.npy'))
 
         # Get integrals and return.
-        two_body_integrals = numpy.load(filename + '_eri.npy')
+        two_body_integrals = numpy.load(self.filename + '_eri.npy')
         return self.one_body_integrals, two_body_integrals
 
     def get_active_space_integrals(self, active_space_start,
@@ -531,8 +521,7 @@ class MolecularData(object):
 
     def get_molecular_hamiltonian(self,
                                   active_space_start=None,
-                                  active_space_stop=None,
-                                  filename=None):
+                                  active_space_stop=None):
         """Output arrays of the second quantized Hamiltonian coefficients.
 
         Args:
@@ -546,11 +535,10 @@ class MolecularData(object):
 
         Returns:
             molecular_hamiltonian: An instance of the MolecularOperator class.
-
         """
         # Get active space integrals.
         if active_space_start is None:
-            one_body_integrals, two_body_integrals = self.get_integrals(filename=filename)
+            one_body_integrals, two_body_integrals = self.get_integrals()
             constant = self.nuclear_repulsion
         else:
             core_adjustment, one_body_integrals, two_body_integrals = self.\
@@ -606,7 +594,7 @@ class MolecularData(object):
             constant, one_body_coefficients, two_body_coefficients)
         return molecular_hamiltonian
 
-    def get_molecular_rdm(self, use_fci=False, filename=None):
+    def get_molecular_rdm(self, use_fci=False):
         """Method to return 1-RDM and 2-RDMs from CISD or FCI.
 
         Args:
@@ -621,25 +609,23 @@ class MolecularData(object):
                 performed.
         """
         # Make sure requested RDM has been computed and load.
-        if filename == None:
-            filename = self.data_handle()
         if use_fci:
             if self.fci_energy is None:
                 raise MissingCalculationError(
                     'Missing {}. '.format(
-                        filename + '_fci_rdm.npy') +
+                        self.filename + '_fci_rdm.npy') +
                     'Run FCI calculation before loading FCI RDMs.')
             else:
-                rdm_name = filename + '_fci_rdm.npy'
+                rdm_name = self.filename + '_fci_rdm.npy'
                 one_rdm = self.fci_one_rdm
         else:
             if self.cisd_energy is None:
                 raise MissingCalculationError(
                     'Missing {}. '.format(
-                        filename + '_cisd_rdm.npy') +
+                        self.filename + '_cisd_rdm.npy') +
                     'Run CISD calculation before loading CISD RDMs.')
             else:
-                rdm_name = filename + '_cisd_rdm.npy'
+                rdm_name = self.filename + '_cisd_rdm.npy'
                 one_rdm = self.cisd_one_rdm
         two_rdm = numpy.load(rdm_name)
 

@@ -6,34 +6,28 @@ import os
 
 import numpy
 import scipy.sparse
+from fermilib.config import *
 from fermilib.ops import *
 from fermilib.transforms import *
 from fermilib.utils import uccsd_operator
 
 
-def get_test_filename(name):
-  _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-  return os.path.join(_THIS_DIR, name)
-
-
 class HydrogenIntegrationTest(unittest.TestCase):
 
     def setUp(self):
-        self.geometry = [('H', (0., 0., 0.)), ('H', (0., 0., 0.7414))]
-        self.basis = 'sto-3g'
-        self.multiplicity = 1
+        geometry = [('H', (0., 0., 0.)), ('H', (0., 0., 0.7414))]
+        basis = 'sto-3g'
+        multiplicity = 1
+        filename = THIS_DIRECTORY + '/tests/testdata/H2_sto-3g_singlet'
         self.molecule = MolecularData(
-            self.geometry, self.basis, self.multiplicity)
-        self.molecule.refresh(filename=get_test_filename(
-            "testdata/H2_sto-3g_singlet"))
+            geometry, basis, multiplicity, filename=filename)
+        self.molecule.load()
 
         # Get molecular Hamiltonian.
-        self.molecular_hamiltonian = self.molecule.get_molecular_hamiltonian(
-            filename=get_test_filename("testdata/H2_sto-3g_singlet"))
+        self.molecular_hamiltonian = self.molecule.get_molecular_hamiltonian()
 
         # Get FCI RDM.
-        self.fci_rdm = self.molecule.get_molecular_rdm(use_fci=1,
-            filename=get_test_filename("testdata/H2_sto-3g_singlet"))
+        self.fci_rdm = self.molecule.get_molecular_rdm(use_fci=1)
 
         # Get explicit coefficients.
         self.nuclear_repulsion = self.molecular_hamiltonian.constant
