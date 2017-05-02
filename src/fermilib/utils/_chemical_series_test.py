@@ -106,13 +106,13 @@ class ChemicalSeries(unittest.TestCase):
 
     def test_make_atom(self):
         basis = 'sto-3g'
-        largest_atom = 10
+        largest_atom = 30
         for n_electrons in range(1, largest_atom):
-          atom_name = periodic_table[n_electrons]
-          atom = make_atom(atom_name, basis)
-          expected_spin = periodic_polarization[n_electrons] / 2.
-          expected_multiplicity = int(2 * expected_spin + 1)
-          self.assertAlmostEqual(expected_multiplicity, atom.multiplicity)
+            atom_name = periodic_table[n_electrons]
+            atom = make_atom(atom_name, basis)
+            expected_spin = periodic_polarization[n_electrons] / 2.
+            expected_multiplicity = int(2 * expected_spin + 1)
+            self.assertAlmostEqual(expected_multiplicity, atom.multiplicity)
 
 
 if __name__ == '__main__':

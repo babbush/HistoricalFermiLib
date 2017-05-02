@@ -7,9 +7,8 @@ import numpy.random
 import scipy.linalg
 
 from fermilib.config import *
-from fermilib.utils._molecular_data import (geometry_from_file,
-                                            MolecularData,
-                                            name_molecule)
+from fermilib.utils import *
+from fermilib.utils._molecular_data import *
 
 
 class MolecularDataTest(unittest.TestCase):
@@ -81,6 +80,27 @@ class MolecularDataTest(unittest.TestCase):
         molecular_hamiltonian.rotate_basis(rotation_matrix)
         total_energy = molecular_rdm.expectation(molecular_hamiltonian)
         self.assertAlmostEqual(total_energy, self.molecule.cisd_energy)
+
+    def test_get_up_down_electrons(self):
+        largest_atom = 20
+        for n_electrons in range(1, largest_atom):
+
+            # Make molecule.
+            basis = 'sto-3g'
+            atom_name = periodic_table[n_electrons]
+            molecule = make_atom(atom_name, basis)
+
+            # Get expected alpha and beta.
+            spin = periodic_polarization[n_electrons] / 2.
+            multiplicity = int(2 * spin + 1)
+            expected_alpha = n_electrons / 2 + (multiplicity - 1)
+            expected_beta = n_electrons / 2 - (multiplicity - 1)
+
+            # Test.
+            self.assertAlmostEqual(molecule.get_n_alpha_electrons(),
+                                   expected_alpha)
+            self.assertAlmostEqual(molecule.get_n_beta_electrons(),
+                                   expected_beta)
 
 
 if __name__ == '__main__':
