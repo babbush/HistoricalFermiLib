@@ -1,5 +1,6 @@
 """FermionOperator stores a sum of products of fermionic ladder operators."""
 import copy
+from fermilib.config import *
 from future.utils import iteritems
 import numpy
 
@@ -307,7 +308,7 @@ class FermionOperator(object):
     def __repr__(self):
         return str(self)
 
-    def isclose(self, other, rel_tol=1e-12, abs_tol=1e-12):
+    def isclose(self, other, rel_tol=EQ_TOLERANCE, abs_tol=EQ_TOLERANCE):
         """
         Returns True if other (FermionOperator) is close to self.
 
@@ -460,7 +461,11 @@ class FermionOperator(object):
         if isinstance(addend, FermionOperator):
             for term in addend.terms:
                 if term in self.terms:
-                    self.terms[term] += addend.terms[term]
+                    if abs(addend.terms[term] +
+                           self.terms[term]) < EQ_TOLERANCE:
+                        del self.terms[term]
+                    else:
+                        self.terms[term] += addend.terms[term]
                 else:
                     self.terms[term] = addend.terms[term]
         else:
