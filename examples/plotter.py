@@ -2,8 +2,8 @@
 """
 import numpy
 import warnings
-from fermilib.ops import MolecularData, periodic_table
-from fermilib.utils import make_atom, make_atomic_ring
+from fermilib.utils import (make_atom, make_atomic_ring,
+                            MolecularData, periodic_table)
 
 with warnings.catch_warnings():
     warnings.simplefilter('ignore')

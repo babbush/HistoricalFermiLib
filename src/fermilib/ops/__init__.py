@@ -7,8 +7,6 @@ from ._interaction_tensor import InteractionTensor
 from ._interaction_operator import InteractionOperator
 from ._interaction_rdm import InteractionRDM
 
-from ._molecular_data import MolecularData, periodic_table
-
 from ._sparse_operator import (get_density_matrix,
                                jordan_wigner_operator_sparse,
                                jw_hartree_fock_state,
