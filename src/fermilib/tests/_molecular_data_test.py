@@ -8,7 +8,6 @@ import scipy.linalg
 
 from fermilib.config import *
 from fermilib.ops._molecular_data import MolecularData, name_molecule
-from psi4tmp import run_psi4
 
 
 class MolecularDataTest(unittest.TestCase):

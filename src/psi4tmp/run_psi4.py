@@ -223,4 +223,4 @@ if __name__ == '__main__':
 
     # Get molecular Hamiltonian.
     molecular_hamiltonian = molecule.get_molecular_hamiltonian()
-    print molecular_hamiltonian
+    print(molecular_hamiltonian)

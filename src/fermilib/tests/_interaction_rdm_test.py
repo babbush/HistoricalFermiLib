@@ -5,7 +5,6 @@ import unittest
 
 from fermilib.config import *
 from fermilib.ops import MolecularData
-from psi4tmp import run_psi4
 from fermilib.transforms import jordan_wigner
 
 
