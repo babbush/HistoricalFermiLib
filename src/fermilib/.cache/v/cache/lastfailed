@@ -1,4 +1,3 @@
 {
-  "ops/_interaction_rdm_test.py::InteractionRDMTest::test_get_molecular_operator_expectation": true, 
-  "ops/_interaction_rdm_test.py::InteractionRDMTest::test_get_qubit_expectations": true
+  "tests/_fermion_operator_test.py": true
 }

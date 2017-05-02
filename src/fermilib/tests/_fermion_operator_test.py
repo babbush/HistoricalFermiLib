@@ -3,11 +3,11 @@ import copy
 import numpy
 import pytest
 
-from ._fermion_operator import (FermionOperator,
-                                FermionOperatorError,
-                                hermitian_conjugated,
-                                normal_ordered,
-                                number_operator)
+from fermilib.ops._fermion_operator import (FermionOperator,
+                                            FermionOperatorError,
+                                            hermitian_conjugated,
+                                            normal_ordered,
+                                            number_operator)
 
 
 def test_init_defaults():

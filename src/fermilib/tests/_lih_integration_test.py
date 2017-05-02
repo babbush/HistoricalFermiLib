@@ -57,17 +57,19 @@ class LiHIntegrationTest(unittest.TestCase):
             self.molecular_hamiltonian_no_core)
 
 
-    def test_reverse_jordan_wigner(self):
+    def test_all(self):
+
+        # Test reverse Jordan-Wigner.
         fermion_hamiltonian = reverse_jordan_wigner(self.qubit_hamiltonian)
         fermion_hamiltonian = normal_ordered(fermion_hamiltonian)
         self.assertTrue(self.fermion_hamiltonian.isclose(fermion_hamiltonian))
 
-    def test_interaction_operator_mapping(self):
+        # Test mapping to interaction operator.
         fermion_hamiltonian = get_fermion_operator(self.molecular_hamiltonian)
         fermion_hamiltonian = normal_ordered(fermion_hamiltonian)
         self.assertTrue(self.fermion_hamiltonian.isclose(fermion_hamiltonian))
 
-    def test_rdm_energy(self):
+        # Test RDM energy.
         fci_rdm_energy = self.nuclear_repulsion
         fci_rdm_energy += numpy.sum(self.fci_rdm.one_body_tensor *
                                     self.one_body)
@@ -88,7 +90,7 @@ class LiHIntegrationTest(unittest.TestCase):
             self.molecular_hamiltonian)
         self.assertAlmostEqual(fci_rdm_energy, self.molecule.fci_energy)
 
-    def test_sparse(self):
+        # Test sparse matrices.
         energy, wavefunction = self.hamiltonian_matrix.get_ground_state()
         self.assertAlmostEqual(energy, self.molecule.fci_energy)
         expected_energy = self.hamiltonian_matrix.expectation(wavefunction)
