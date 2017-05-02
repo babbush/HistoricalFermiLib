@@ -135,8 +135,8 @@ if __name__ == '__main__':
     import time
     start = time.time()
 
-    print ("\nFor HF at bond length 1, with %i terms acting on %i qubits:"
-           % (len(terms), qubit_hamiltonian.n_qubits()))
-    print "Loose error bound = %f" % error_bound(terms)
+    print("\nFor HF at bond length 1, with %i terms acting on %i qubits:"
+          % (len(terms), qubit_hamiltonian.n_qubits()))
+    print("Loose error bound = %f" % error_bound(terms))
     # print "Tight error bound = %f" % error_bound(terms, tight=True)
-    print "Took ", time.time() - start, " to compute"
+    print("Took ", time.time() - start, " to compute")

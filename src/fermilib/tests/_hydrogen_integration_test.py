@@ -87,7 +87,6 @@ class HydrogenIntegrationTest(unittest.TestCase):
         self.assertAlmostEqual(self.two_body[0, 3, 1, 2], g6, places=4)
         self.assertAlmostEqual(self.two_body[0, 1, 3, 2], g6, places=4)
 
-
     def test_qubit_operator(self):
 
         # Below are qubit term coefficients, also from arXiv 1208.5986:
@@ -158,7 +157,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
     def test_interaction_operator_mapping(self):
 
-        # Make sure the mapping of FermionOperator to InteractionOperator works.
+        # Make sure mapping of FermionOperator to InteractionOperator works.
         molecular_hamiltonian = get_interaction_operator(
             self.fermion_hamiltonian)
         fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)

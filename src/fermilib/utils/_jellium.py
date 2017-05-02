@@ -609,23 +609,24 @@ def fourier_transform(jellium_model, n_dimensions, grid_length, length_scale,
 
                 element = FermionOperator(((orbital, ladder_operator[1]),),
                                           numpy.exp(exp_index))
-                if new_basis == None:
+                if new_basis is None:
                     new_basis = element
                 else:
                     new_basis += element
 
             new_basis *= numpy.sqrt(1.0/float(grid_length**n_dimensions))
 
-            if transformed_term == None:
+            if transformed_term is None:
                 transformed_term = new_basis
             else:
                 transformed_term *= new_basis
         if transformed_term is None:
             continue
 
-        transformed_term *= jellium_model.terms[term] # Coefficient.
+        # Coefficient.
+        transformed_term *= jellium_model.terms[term]
 
-        if hamiltonian == None:
+        if hamiltonian is None:
             hamiltonian = transformed_term
         else:
             hamiltonian += transformed_term

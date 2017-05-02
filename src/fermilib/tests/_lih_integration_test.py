@@ -56,7 +56,6 @@ class LiHIntegrationTest(unittest.TestCase):
         self.hamiltonian_matrix_no_core = get_sparse_operator(
             self.molecular_hamiltonian_no_core)
 
-
     def test_all(self):
 
         # Test reverse Jordan-Wigner.

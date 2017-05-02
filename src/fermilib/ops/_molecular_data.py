@@ -247,7 +247,8 @@ class MolecularData(object):
 
         # Metadata fields with default values.
         self.charge = charge
-        if not isinstance(description, str) and not isinstance(description, unicode):
+        if (not isinstance(description, str) and
+           not isinstance(description, unicode)):
             raise TypeError("description must be a string.")
         self.description = description
 
@@ -325,24 +326,29 @@ class MolecularData(object):
             # Save n_electrons:
             f["n_electrons"] = self.n_electrons
             # Save generic attributes from calculations:
-            f["n_orbitals"] = (self.n_orbitals if self.n_orbitals is not None
-                                               else False)
-            f["n_qubits"] = (self.n_qubits if self.n_qubits is not None
-                                           else False)
+            f["n_orbitals"] = (self.n_orbitals if self.n_orbitals is
+                               not None else False)
+            f["n_qubits"] = (self.n_qubits if self.n_qubits is
+                             not None else False)
             f["nuclear_repulsion"] = (self.nuclear_repulsion if
-                                self.nuclear_repulsion is not None else False)
+                                      self.nuclear_repulsion is
+                                      not None else False)
             # Save attributes generated from SCF calculation.
             f["hf_energy"] = (self.hf_energy if
                               self.hf_energy is not None else False)
             f["canonical_orbitals"] = (self.canonical_orbitals if
-                            self.canonical_orbitals is not None else False)
+                                       self.canonical_orbitals is
+                                       not None else False)
             f["orbital_energies"] = (self.orbital_energies if
-                                self.orbital_energies is not None else False)
+                                     self.orbital_energies is
+                                     not None else False)
             # Save attributes generated from integrals.
             f["orbital_overlaps"] = (self.orbital_overlaps if
-                                self.orbital_overlaps is not None else False)
+                                     self.orbital_overlaps is
+                                     not None else False)
             f["one_body_integrals"] = (self.one_body_integrals if
-                            self.one_body_integrals is not None else False)
+                                       self.one_body_integrals is
+                                       not None else False)
             # Save attributes generated from MP2 calculation.
             f["mp2_energy"] = (self.mp2_energy if
                                self.mp2_energy is not None else False)
@@ -363,15 +369,18 @@ class MolecularData(object):
             ccsd_a["constant"] = (self.ccsd_amplitudes.constant if
                                   self.ccsd_amplitudes is not None else False)
             ccsd_a["one_body_tensor"] = (self.ccsd_amplitudes.one_body_tensor
-                            if self.ccsd_amplitudes is not None else False)
+                                         if self.ccsd_amplitudes is
+                                         not None else False)
             ccsd_a["two_body_tensor"] = (self.ccsd_amplitudes.two_body_tensor
-                            if self.ccsd_amplitudes is not None else False)
+                                         if self.ccsd_amplitudes is
+                                         not None else False)
 
     def load(self):
         geometry = []
         with h5py.File("{}.hdf5".format(self.filename), "r") as f:
             # Load geometry:
-            for atom, pos in zip(f["geometry/atoms"][...], f["geometry/positions"][...]):
+            for atom, pos in zip(f["geometry/atoms"][...],
+                                 f["geometry/positions"][...]):
                 geometry.append((str(atom), list(pos)))
             self.geometry = geometry
             # Load basis:
