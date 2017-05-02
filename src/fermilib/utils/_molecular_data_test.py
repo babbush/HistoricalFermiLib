@@ -7,7 +7,9 @@ import numpy.random
 import scipy.linalg
 
 from fermilib.config import *
-from fermilib.utils._molecular_data import MolecularData, name_molecule
+from fermilib.utils._molecular_data import (geometry_from_file,
+                                            MolecularData,
+                                            name_molecule)
 
 
 class MolecularDataTest(unittest.TestCase):
@@ -32,20 +34,27 @@ class MolecularDataTest(unittest.TestCase):
         self.assertEqual(correct_name, computed_name)
         self.assertEqual(correct_name, self.molecule.name)
 
-    def test_save_load(self):
+    def test_geometry_from_file(self):
+        water_geometry = [('O', (0., 0., 0.)),
+                          ('H', (0.757, 0.586, 0.)),
+                          ('H', (-.757, 0.586, 0.))]
+        filename = THIS_DIRECTORY + '/tests/testdata/geometry_example.txt'
+        test_geometry = geometry_from_file(filename)
+        for atom in range(3):
+            self.assertAlmostEqual(water_geometry[atom][0],
+                                    test_geometry[atom][0])
+            for coordinate in range(3):
+                self.assertAlmostEqual(water_geometry[atom][1][coordinate],
+                                       test_geometry[atom][1][coordinate])
 
-        # Set number of atoms to be one higher than it should be.
+    def test_save_load(self):
         n_atoms = self.molecule.n_atoms
         self.molecule.n_atoms += 1
         self.assertEqual(self.molecule.n_atoms, n_atoms + 1)
-
-        # Refresh the molecule and make sure the number of atoms is restored.
         self.molecule.load()
         self.assertEqual(self.molecule.n_atoms, n_atoms)
 
     def test_energies(self):
-
-        # Check energies.
         self.assertAlmostEqual(self.molecule.hf_energy, -1.1167, places=4)
         self.assertAlmostEqual(self.molecule.mp2_energy, -1.1299, places=4)
         self.assertAlmostEqual(self.molecule.cisd_energy, -1.1373, places=4)
