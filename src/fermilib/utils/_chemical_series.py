@@ -109,7 +109,7 @@ def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
         description = 'linear_{}'.format(spacing)
     elif dimensions == 2:
         description = 'planar_{}'.format(spacing)
-    elif dimension == 3:
+    elif dimensions == 3:
         description = 'cubic_{}'.format(spacing)
     else:
         raise MolecularLatticeError('Invalid lattice dimensions.')
