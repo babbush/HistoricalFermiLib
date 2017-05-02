@@ -80,7 +80,7 @@ class LiHIntegrationTest(unittest.TestCase):
         qubit_rdm = self.fci_rdm.get_qubit_expectations(self.qubit_hamiltonian)
         qubit_energy = self.qubit_hamiltonian.terms[()]
         for term, coefficient in qubit_rdm.terms.items():
-          qubit_energy += coefficient * self.qubit_hamiltonian.terms[term]
+            qubit_energy += coefficient * self.qubit_hamiltonian.terms[term]
         self.assertAlmostEqual(qubit_energy, self.molecule.fci_energy)
 
         # Confirm fermionic RDMs can be built from measured qubit RDMs.

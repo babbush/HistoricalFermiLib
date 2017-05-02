@@ -97,11 +97,8 @@ def jordan_wigner_interaction_op(iop, n_qubits=None):
     if n_qubits < iop.n_qubits:
         n_qubits = iop.n_qubits
 
-    # Initialize qubit operator.
-    qubit_operator = QubitOperator((), 0.0)
-
-    # Add constant.
-    qubit_operator += QubitOperator((), iop.constant)
+    # Initialize qubit operator as constant.
+    qubit_operator = QubitOperator((), iop.constant)
 
     # Loop through all indices.
     for p in range(iop.n_qubits):

@@ -92,7 +92,7 @@ def normal_ordered_term(term, coefficient):
 
                 # If same two operators are repeated, evaluate to zero.
                 if right_operator[0] == left_operator[0]:
-                  return ordered_term
+                    return ordered_term
 
                 # Swap if same ladder type but lower index on left.
                 elif right_operator[0] > left_operator[0]:
