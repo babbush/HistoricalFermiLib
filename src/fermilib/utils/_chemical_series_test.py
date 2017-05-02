@@ -7,7 +7,10 @@ import unittest
 
 from fermilib.utils import (make_atom,
                             make_atomic_lattice,
-                            make_atomic_ring)
+                            make_atomic_ring,
+                            periodic_table)
+
+from fermilib.utils._molecular_data import periodic_polarization
 
 
 class ChemicalSeries(unittest.TestCase):
@@ -100,6 +103,16 @@ class ChemicalSeries(unittest.TestCase):
             # Check x-coord.
             grid_x = atom // atom_dim ** 2
             self.assertAlmostEqual(coords[0], spacing * grid_x)
+
+    def test_make_atom(self):
+        basis = 'sto-3g'
+        largest_atom = 10
+        for n_electrons in range(1, largest_atom):
+          atom_name = periodic_table[n_electrons]
+          atom = make_atom(atom_name, basis)
+          expected_spin = periodic_polarization[n_electrons] / 2.
+          expected_multiplicity = int(2 * expected_spin + 1)
+          self.assertAlmostEqual(expected_multiplicity, atom.multiplicity)
 
 
 if __name__ == '__main__':
