@@ -221,25 +221,46 @@ class MolecularData(object):
         ccsd_amplitudes: Molecular operator holding coupled cluster
                          amplitudes.
     """
-    def __init__(self, geometry, basis, multiplicity,
-                 charge=0, description="", filename=""):
+    def __init__(self, geometry=None, basis=None, multiplicity=None,
+                 charge=0, description="", filename="", load_from_file=False):
         """Initialize molecular metadata which defines class.
 
         Args:
             geometry: A list of tuples giving the coordinates of each atom.
                 An example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
                 Distances in atomic units. Use atomic symbols to
-                specify atoms.
+                specify atoms. Only optional if loading from file.
             basis: A string giving the basis set. An example is 'cc-pvtz'.
+                Only optional if loading from file.
             charge: An integer giving the total molecular charge. Defaults
-                to 0.
-            multiplicity: An integer giving the spin multiplicity.
+                to 0.  Only optional if loading from file.
+            multiplicity: An integer giving the spin multiplicity.  Only
+                optional if loading from file.
             description: A optional string giving a description. As an
                 example, for dimers a likely description is the bond length
                 (e.g. 0.7414).
-            filename: An optimal string giving name of file.
+            filename: An optional string giving name of file.
                 If filename is not provided, one is generated automatically.
+            load_from_file(bool): Option to load all data from existing
+                calculation file.
         """
+        # Check appropriate data as been provided
+        if ((not load_from_file) and
+                ((geometry is None) or
+                 (basis is None) or
+                 (multiplicity is None))):
+            raise ValueError("Geometry, basis, multiplicity must be specified"
+                             "when not loading from file.")
+
+        # Load from file if indicated, otherwise continue loading defaults
+        if (load_from_file):
+            if (not filename):
+                raise ValueError("Filename must be specified while loading.")
+            if filename[-5:] == '.hdf5':
+                self.filename = filename[:(len(filename) - 5)]
+            self.load()
+            return
+
         # Metadata fields which must be provided.
         self.geometry = geometry
         self.basis = basis
