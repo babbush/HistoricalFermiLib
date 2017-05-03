@@ -10,6 +10,7 @@ from fermilib.config import *
 from fermilib.ops import *
 from fermilib.transforms import *
 from fermilib.utils import *
+from fermilib._version import __version__
 
 
 class HydrogenIntegrationTest(unittest.TestCase):
@@ -261,6 +262,9 @@ class HydrogenIntegrationTest(unittest.TestCase):
         expected_ccsd_energy = ccsd_state_l.getH().dot(
             self.hamiltonian_matrix.matrix.dot(ccsd_state_r))[0, 0]
         self.assertAlmostEqual(expected_ccsd_energy, self.molecule.fci_energy)
+
+    def test_version(self):
+        self.assertEqual(__version__, '0.1a0')
 
 
 if __name__ == '__main__':
