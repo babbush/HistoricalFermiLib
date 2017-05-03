@@ -222,7 +222,7 @@ class MolecularData(object):
                          amplitudes.
     """
     def __init__(self, geometry=None, basis=None, multiplicity=None,
-                 charge=0, description="", filename="", load_from_file=False):
+                 charge=0, description="", filename=""):
         """Initialize molecular metadata which defines class.
 
         Args:
@@ -241,25 +241,21 @@ class MolecularData(object):
                 (e.g. 0.7414).
             filename: An optional string giving name of file.
                 If filename is not provided, one is generated automatically.
-            load_from_file(bool): Option to load all data from existing
-                calculation file.
         """
-        # Check appropriate data as been provided
-        if ((not load_from_file) and
-                ((geometry is None) or
-                 (basis is None) or
-                 (multiplicity is None))):
-            raise ValueError("Geometry, basis, multiplicity must be specified"
-                             "when not loading from file.")
-
-        # Load from file if indicated, otherwise continue loading defaults
-        if (load_from_file):
-            if (not filename):
-                raise ValueError("Filename must be specified while loading.")
-            if filename[-5:] == '.hdf5':
-                self.filename = filename[:(len(filename) - 5)]
-            self.load()
-            return
+        # Check appropriate data as been provided and autoload if requested.
+        if ((geometry is None) or
+            (basis is None) or
+            (multiplicity is None)):
+            if filename:
+                if filename[-5:] == '.hdf5':
+                    self.filename = filename[:(len(filename) - 5)]
+                else:
+                    self.filename = filename
+                self.load()
+                return
+            else:
+                raise ValueError("Geometry, basis, multiplicity must be"
+                                 "specified when not loading from file.")
 
         # Metadata fields which must be provided.
         self.geometry = geometry
@@ -269,7 +265,7 @@ class MolecularData(object):
         # Metadata fields with default values.
         self.charge = charge
         if (not isinstance(description, str) and
-           not isinstance(description, unicode)):
+                not isinstance(description, unicode)):
             raise TypeError("description must be a string.")
         self.description = description
 

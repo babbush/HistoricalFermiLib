@@ -53,6 +53,48 @@ class MolecularDataTest(unittest.TestCase):
         self.molecule.load()
         self.assertEqual(self.molecule.n_atoms, n_atoms)
 
+    def test_dummy_save(self):
+
+        # Make fake molecule.
+        filename = THIS_DIRECTORY + '/tests/testdata/dummy_molecule'
+        geometry = [('H', (0., 0., 0.)), ('H', (0., 0., 0.7414))]
+        basis = '6-31g*'
+        multiplicity = 7
+        charge = -1
+        description = 'fermilib_forever'
+        molecule = MolecularData(geometry, basis, multiplicity,
+                                      charge, description, filename)
+
+        # Make some attributes to save.
+        molecule.n_orbitals = 10
+        molecule.n_qubits = 10
+        molecule.nuclear_repulsion = -12.3
+        molecule.hf_energy = 88.
+        molecule.canonical_orbitals = [1,2,3,4]
+        molecule.orbital_energies = [5,6,7,8]
+        molecule.orbital_overlaps = [1,2,3,4]
+        molecule.one_body_integrals = [5,6,7,8]
+        molecule.mp2_energy = -12.
+        molecule.cisd_energy = 32.
+        molecule.cisd_one_rdm = numpy.arange(10)
+        molecule.fci_energy = 232.
+        molecule.fci_one_rdm = numpy.arange(11)
+        molecule.ccsd_energy = 88.
+
+        # Save molecule.
+        molecule.save()
+
+        # Change attributes and load.
+        molecule.ccsd_energy = -2.232
+
+        # Load molecule.
+        new_molecule = MolecularData(filename=filename)
+        molecule.load()
+
+        # Check CCSD energy.
+        self.assertAlmostEqual(new_molecule.ccsd_energy, molecule.ccsd_energy)
+        self.assertAlmostEqual(molecule.ccsd_energy, 88.)
+
     def test_energies(self):
         self.assertAlmostEqual(self.molecule.hf_energy, -1.1167, places=4)
         self.assertAlmostEqual(self.molecule.mp2_energy, -1.1299, places=4)
