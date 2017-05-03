@@ -1,5 +1,7 @@
 """FermionOperator stores a sum of products of fermionic ladder operators."""
 import copy
+from fermilib.config import *
+from future.utils import iteritems
 import numpy
 
 
@@ -10,7 +12,7 @@ class FermionOperatorError(Exception):
 def hermitian_conjugated(fermion_operator):
     """Return Hermitian conjugate of fermionic operator."""
     conjugate_operator = FermionOperator((), 0.)
-    for term, coefficient in fermion_operator.terms.iteritems():
+    for term, coefficient in iteritems(fermion_operator.terms):
         conjugate_term = tuple([(tensor_factor, 1 - action) for
                                 (tensor_factor, action) in reversed(term)])
         conjugate_operator.terms[conjugate_term] = numpy.conjugate(coefficient)
@@ -90,7 +92,7 @@ def normal_ordered_term(term, coefficient):
 
                 # If same two operators are repeated, evaluate to zero.
                 if right_operator[0] == left_operator[0]:
-                  return ordered_term
+                    return ordered_term
 
                 # Swap if same ladder type but lower index on left.
                 elif right_operator[0] > left_operator[0]:
@@ -306,7 +308,7 @@ class FermionOperator(object):
     def __repr__(self):
         return str(self)
 
-    def isclose(self, other, rel_tol=1e-12, abs_tol=1e-12):
+    def isclose(self, other, rel_tol=EQ_TOLERANCE, abs_tol=EQ_TOLERANCE):
         """
         Returns True if other (FermionOperator) is close to self.
 
@@ -459,7 +461,11 @@ class FermionOperator(object):
         if isinstance(addend, FermionOperator):
             for term in addend.terms:
                 if term in self.terms:
-                    self.terms[term] += addend.terms[term]
+                    if abs(addend.terms[term] +
+                           self.terms[term]) < EQ_TOLERANCE:
+                        del self.terms[term]
+                    else:
+                        self.terms[term] += addend.terms[term]
                 else:
                     self.terms[term] = addend.terms[term]
         else:

@@ -236,14 +236,15 @@ if __name__ == '__main__':
     verbose = 0
 
     # Get molecule and run calculation.
-    from fermilib.molecular_data import MolecularData
+    from fermilib.ops import MolecularData
+    from fermilib.transforms import get_eigenspectrum
     molecule = MolecularData(
         geometry, basis, multiplicity, description=description)
-    if 1:
+    if 0:
         molecule = run_pyscf(
             molecule, run_scf, run_mp2, run_cisd, run_ccsd, run_fci, verbose)
     else:
-        from run_psi4 import run_psi4
+        from psi4tmp import run_psi4
         molecule = run_psi4(
             molecule, run_scf, run_mp2, run_cisd, run_ccsd, run_fci, verbose)
 
@@ -252,7 +253,6 @@ if __name__ == '__main__':
     print molecular_hamiltonian
 
     # Get eigenspectrum.
-    sparse_operator = molecular_hamiltonian.get_sparse_operator()
     print '\nEigenspectrum follows:'
-    for eigenvalue in sparse_operator.eigenspectrum():
+    for eigenvalue in get_eigenspectrum(molecular_hamiltonian):
         print eigenvalue

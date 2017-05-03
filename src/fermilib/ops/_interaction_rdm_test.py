@@ -4,27 +4,23 @@ from __future__ import absolute_import
 import unittest
 
 from fermilib.config import *
-from fermilib.ops import MolecularData
-from psi4tmp import run_psi4
+from fermilib.utils import MolecularData
 from fermilib.transforms import jordan_wigner
 
 
 class InteractionRDMTest(unittest.TestCase):
 
     def setUp(self):
-        geometry = [('H', (0, 0, 0)), ('H', (0, 0, 0.2))]
-        molecule = MolecularData(geometry, 'sto-3g', 1, autosave=False)
-        molecule = run_psi4(molecule,
-                            run_scf=True,
-                            run_mp2=False,
-                            run_cisd=True,
-                            run_ccsd=False,
-                            run_fci=False,
-                            delete_input=True,
-                            delete_output=True)
-        self.cisd_energy = molecule.cisd_energy
-        self.rdm = molecule.get_molecular_rdm()
-        self.hamiltonian = molecule.get_molecular_hamiltonian()
+        geometry = [('H', (0., 0., 0.)), ('H', (0., 0., 0.7414))]
+        basis = 'sto-3g'
+        multiplicity = 1
+        filename = THIS_DIRECTORY + '/tests/testdata/H2_sto-3g_singlet'
+        self.molecule = MolecularData(
+            geometry, basis, multiplicity, filename=filename)
+        self.molecule.load()
+        self.cisd_energy = self.molecule.cisd_energy
+        self.rdm = self.molecule.get_molecular_rdm()
+        self.hamiltonian = self.molecule.get_molecular_hamiltonian()
 
     def test_get_qubit_expectations(self):
         qubit_operator = jordan_wigner(self.hamiltonian)

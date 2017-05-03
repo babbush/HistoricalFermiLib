@@ -97,11 +97,8 @@ def jordan_wigner_interaction_op(iop, n_qubits=None):
     if n_qubits < iop.n_qubits:
         n_qubits = iop.n_qubits
 
-    # Initialize qubit operator.
-    qubit_operator = QubitOperator((), 0.0)
-
-    # Add constant.
-    qubit_operator += QubitOperator((), iop.constant)
+    # Initialize qubit operator as constant.
+    qubit_operator = QubitOperator((), iop.constant)
 
     # Loop through all indices.
     for p in range(iop.n_qubits):
@@ -126,8 +123,7 @@ def jordan_wigner_interaction_op(iop, n_qubits=None):
                         if len(set([p, q, r, s])) == 4:
                             if min(r, s) < min(p, q):
                                 continue
-                        else:
-                            if q < p:
+                        elif p != r and q < p:
                                 continue
 
                     # Handle the two-body terms.
@@ -254,12 +250,10 @@ def jordan_wigner_two_body(p, q, r, s):
     elif len(set([p, q, r, s])) == 2:
 
         # Get coefficient.
-        if (p, q, r, s) == (s, r, q, p):
-            coefficient = .25
-        else:
-            coefficient = .5
         if p == s:
-            coefficient *= -1.
+          coefficient = -.25
+        else:
+          coefficient = .25
 
         # Add terms.
         qubit_operator -= QubitOperator((), coefficient)

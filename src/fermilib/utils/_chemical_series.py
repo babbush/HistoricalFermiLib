@@ -3,9 +3,9 @@ from __future__ import absolute_import
 
 import numpy
 
-from fermilib.ops._molecular_data import (MolecularData,
-                                          _PERIODIC_HASH_TABLE,
-                                          _PERIODIC_POLARIZATION)
+from fermilib.utils._molecular_data import (MolecularData,
+                                            periodic_hash_table,
+                                            periodic_polarization)
 
 
 # Define error objects which inherit from Exception.
@@ -14,7 +14,7 @@ class MolecularLatticeError(Exception):
 
 
 def make_atomic_ring(n_atoms, spacing, basis,
-                     atom_type='H', charge=0, autosave=True):
+                     atom_type='H', charge=0, filename=''):
     """
     Function to create atomic rings with n_atoms.
 
@@ -28,7 +28,7 @@ def make_atomic_ring(n_atoms, spacing, basis,
         atom_type: String, the atomic symbol of the element in the ring.
             this defaults to 'H' for Hydrogen.
         charge: An integer giving the total molecular charge. Defaults to 0.
-        autosave: Whether to save molecular data automatically.
+        filename: An optional string to give a filename for the molecule.
 
     Returns:
         molecule: A an instance of the MolecularData class.
@@ -44,7 +44,7 @@ def make_atomic_ring(n_atoms, spacing, basis,
         geometry += [(atom_type, (x_coord, y_coord, 0.))]
 
     # Set multiplicity.
-    n_electrons = n_atoms * _PERIODIC_HASH_TABLE[atom_type]
+    n_electrons = n_atoms * periodic_hash_table[atom_type]
     n_electrons -= charge
     if (n_electrons % 2):
         multiplicity = 2
@@ -58,12 +58,12 @@ def make_atomic_ring(n_atoms, spacing, basis,
                              multiplicity,
                              charge,
                              description,
-                             autosave)
+                             filename)
     return molecule
 
 
 def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
-                        atom_type='H', charge=0, autosave=True):
+                        atom_type='H', charge=0, filename=''):
     """
     Function to create atomic lattice with n_atoms.
 
@@ -76,7 +76,7 @@ def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
         atom_type: String, the atomic symbol of the element in the ring.
             this defaults to 'H' for Hydrogen.
         charge: An integer giving the total molecular charge. Defaults to 0.
-        autosave: Whether to save molecular data automatically.
+        filename: An optional string to give a filename for the molecule.
 
     Returns:
         molecule: A an instance of the MolecularData class.
@@ -96,7 +96,7 @@ def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
 
     # Set multiplicity.
     n_atoms = nx_atoms * ny_atoms * nz_atoms
-    n_electrons = n_atoms * _PERIODIC_HASH_TABLE[atom_type]
+    n_electrons = n_atoms * periodic_hash_table[atom_type]
     n_electrons -= charge
     if (n_electrons % 2):
         multiplicity = 2
@@ -109,7 +109,7 @@ def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
         description = 'linear_{}'.format(spacing)
     elif dimensions == 2:
         description = 'planar_{}'.format(spacing)
-    elif dimension == 3:
+    elif dimensions == 3:
         description = 'cubic_{}'.format(spacing)
     else:
         raise MolecularLatticeError('Invalid lattice dimensions.')
@@ -120,11 +120,11 @@ def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
                              multiplicity,
                              charge,
                              description,
-                             autosave)
+                             filename)
     return molecule
 
 
-def make_atom(atom_type, basis, autosave=True):
+def make_atom(atom_type, basis, filename=''):
     """
     Prepare a molecular data instance for a single element.
 
@@ -137,11 +137,11 @@ def make_atom(atom_type, basis, autosave=True):
 
     """
     geometry = [(atom_type, (0., 0., 0.))]
-    atomic_number = _PERIODIC_HASH_TABLE[atom_type]
-    spin = _PERIODIC_POLARIZATION[atomic_number] / 2.
+    atomic_number = periodic_hash_table[atom_type]
+    spin = periodic_polarization[atomic_number] / 2.
     multiplicity = int(2 * spin + 1)
     atom = MolecularData(geometry,
                          basis,
                          multiplicity,
-                         autosave=autosave)
+                         filename=filename)
     return atom
