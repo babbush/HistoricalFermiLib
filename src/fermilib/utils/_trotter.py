@@ -8,7 +8,6 @@ from fermilib.config import *
 from fermilib.ops import normal_ordered
 from fermilib.utils import MolecularData
 from projectqtemp.ops import QubitOperator
-from psi4tmp import run_psi4
 
 
 def commutator(op1, op2):
@@ -107,7 +106,7 @@ def error_operator(terms, series_order=2):
                     if alpha == beta:
                         error_operator -= double_com / 2.0
 
-    return -error_operator / 12.0
+    return error_operator / 12.0
 
 
 def error_bound(terms, tight=False):
