@@ -1,3 +1,4 @@
 {
-  "_molecular_data_test.py::MolecularDataTest::test_get_up_down_electrons": true
+  "_trotter_test.py::test_error_bound_xyz_tight": true, 
+  "_trotter_test.py::test_error_operator_xyz": true
 }

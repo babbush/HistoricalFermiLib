@@ -1,4 +1,4 @@
-import transforms
+import fermilib.transforms
 
 from future.utils import iteritems
 from math import sqrt

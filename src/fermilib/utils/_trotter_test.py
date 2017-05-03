@@ -2,8 +2,8 @@
 
 import numpy
 import pytest
-import transforms
-from utils import _trotter
+import fermilib.transforms
+from fermilib.utils import _trotter
 
 from future.utils import iteritems
 from math import sqrt
