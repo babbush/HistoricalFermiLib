@@ -94,9 +94,9 @@ def error_operator(terms, series_order=2):
 
     error_operator = QubitOperator((), 0.0)
 
-    for alpha in range(len(terms)):
-        for beta in range(alpha, len(terms)):
-            for alpha_prime in range(beta - 1):
+    for beta in range(len(terms)):
+        for alpha in range(beta + 1):
+            for alpha_prime in range(beta):
                 if not trivially_double_commutes(terms[alpha], terms[beta],
                                                  terms[alpha_prime]):
                     double_com = commutator(terms[alpha],

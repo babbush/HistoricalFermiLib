@@ -110,23 +110,23 @@ class ErrorOperatorTest(unittest.TestCase):
         zero = QubitOperator((), 0.0)
         self.assertTrue(zero.isclose(_trotter.error_operator(terms)))
 
-    @unittest.skip("currently fails, elements off by factor 2")
     def test_error_operator_xyz(self):
         terms = [QubitOperator('X1'), QubitOperator('Y1'), QubitOperator('Z1')]
-        expected = numpy.array([[-2./3, 1./3, 0., 0.],
-                                [1./3, 2./3, 0., 0.],
-                                [0., 0., -2./3, 1./3],
-                                [0., 0., 1./3, 2./3]])
+        expected = numpy.array([[-2./3, 1./3 + 1.j/6, 0., 0.],
+                                [1./3 - 1.j/6, 2./3, 0., 0.],
+                                [0., 0., -2./3, 1./3 + 1.j/6],
+                                [0., 0., 1./3 - 1.j/6, 2./3]])
         self.assertTrue(numpy.allclose(
             get_sparse_operator(_trotter.error_operator(terms)).to_dense(),
-            expected))
+            expected), (
+                "Got " + str(get_sparse_operator(
+                    _trotter.error_operator(terms)).to_dense())))
 
 
 class ErrorBoundTest(unittest.TestCase):
-    @unittest.skip("off by factor 2 due to elements off by 2")
     def test_error_bound_xyz_tight(self):
         terms = [QubitOperator('X1'), QubitOperator('Y1'), QubitOperator('Z1')]
-        expected = sqrt(5. / 9)  # norm of [[2/3, -1/3], [-1/3, -2/3]]
+        expected = sqrt(7. / 12)  # norm of [[-2/3, 1/3+i/6], [1/3-i/6, 2/3]]
         self.assertTrue(numpy.isclose(_trotter.error_bound(terms, tight=True),
                                       expected))
 
@@ -135,6 +135,7 @@ class ErrorBoundTest(unittest.TestCase):
         self.assertTrue(numpy.isclose(_trotter.error_bound(terms, tight=False),
                                       4. * (2**2 + 1**2)))
 
+    @unittest.skip("does nothing right now")
     def test_H2_integration(self):
         # figure out a test for H2 that can be done sensibly
         geometry = [('H', (0., 0., 0.)), ('H', (0., 0., 0.7414))]
