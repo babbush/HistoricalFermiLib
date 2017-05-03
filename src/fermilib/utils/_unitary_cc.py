@@ -13,7 +13,7 @@ def uccsd_operator(single_amplitudes, double_amplitudes, anti_hermitian=True):
     Args:
         single_amplitudes(ndarray): [NxN] array storing single excitation
             amplitudes corresponding to t[i,j] * (a_i^\dagger a_j + H.C.)
-      double_amplitudes(ndarray): [NxNxNxN] array storing double excitation
+        double_amplitudes(ndarray): [NxNxNxN] array storing double excitation
             amplitudes corresponding to
             t[i,j,k,l] * (a_i^\dagger a_j a_k^\dagger a_l + H.C.)
         anti_hermitian(Bool): Flag to generate only normal CCSD operator
@@ -21,7 +21,7 @@ def uccsd_operator(single_amplitudes, double_amplitudes, anti_hermitian=True):
 
     Returns:
         uccsd_operator(FermionOperator): Anti-hermitian fermion operator that
-            is the generator for the uccsd wavefunction.
+        is the generator for the uccsd wavefunction.
     """
     n_orbitals = single_amplitudes.shape[0]
     assert(n_orbitals == double_amplitudes.shape[0])
