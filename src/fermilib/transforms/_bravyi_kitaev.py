@@ -1,109 +1,78 @@
 """Bravyi-Kitaev transform on fermionic operators."""
 from __future__ import absolute_import
 
-from fermilib.ops import FermionOperator
 from fermilib.transforms import FenwickTree
 from fermilib.utils import count_qubits
 
 from projectqtemp.ops import QubitOperator
 
 
-def bravyi_kitaev_term(term, n_qubits=None):
+def bravyi_kitaev(operator, n_qubits=None):
     """
     Apply the Bravyi-Kitaev transform and return qubit operator.
-
-    Note:
-        Reference: Operator Locality of Quantum Simulation of Fermionic
-            Models (arXiv:1701.07072).
 
     Args:
-        term: A fermionic operator to be transformed
-        n_qubits: number of qubits in the register.
+        operator: A FermionOperator to transform.
 
     Returns:
-        transformed_term: An instance of the QubitOperator class.
+        transformed_operator: An instance of the QubitOperator class.
 
-    Warning:
-        Likely greedy. At the moment the method gets the node sets for
-        each fermionic operator. FenwickNodes are not neccessary in this
-        construction, only the indices matter here. This may be optimized
-        by removing the unnecessary structure.
+    Raises:
+        ValueError: Invalid number of qubits specified.
     """
-    if not isinstance(term, FermionOperator) or len(term.terms) > 1:
-        raise ValueError("term must be a single-term FermionOperator.")
-
+    # Compute the number of qubits.
     if n_qubits is None:
-        n_qubits = count_qubits(term)
-    if n_qubits < count_qubits(term):
-        raise ValueError('Invalid n_qubits.')
-    if not len(term.terms):
-        return QubitOperator()
-    operators = list(term.terms)[0]
-    coeff = term.terms[operators]
+        n_qubits = count_qubits(operator)
+    if n_qubits < count_qubits(operator):
+        raise ValueError('Invalid number of qubits specified.')
 
-    # Build the Fenwick Tree
-    fenwick_tree = FenwickTree(n_qubits)
-
-    # Initialize identity matrix.
-    transformed_term = QubitOperator((), coeff)
-
-    # Build the Bravyi-Kitaev transformed operators.
-    for operator in operators:
-        index = operator[0]
-
-        # Parity set. Set of nodes to apply Z to.
-        parity_set = [node.index for node in
-                      fenwick_tree.get_parity_set(index)]
-
-        # Update set. Set of ancestors to apply X to.
-        ancestors = [node.index for node in fenwick_tree.get_update_set(index)]
-
-        # The C(j) set.
-        ancestor_children = [node.index for node in
-                             fenwick_tree.get_remainder_set(index)]
-
-        # Switch between lowering/raising operators.
-        d_coeff = .5j
-        if operator[1]:
-            d_coeff = -d_coeff
-
-        # The fermion lowering operator is given by
-        # a = (c+id)/2 where c, d are the majoranas.
-        d_majorana_component = QubitOperator(
-            (((operator[0], 'Y'),) +
-             tuple((index, 'Z') for index in ancestor_children) +
-             tuple((index, 'X') for index in ancestors)),
-            d_coeff)
-
-        c_majorana_component = QubitOperator(
-            (((operator[0], 'X'),) +
-             tuple((index, 'Z') for index in parity_set) +
-             tuple((index, 'X') for index in ancestors)),
-            0.5)
-
-        transformed_term *= c_majorana_component + d_majorana_component
-
-    return transformed_term
-
-
-def bravyi_kitaev(op, n_qubits=None):
-    """
-    Apply the Bravyi-Kitaev transform and return qubit operator.
-
-    Returns:
-         transformed_operator: An instance of the QubitOperator class.
-    """
-
-    if n_qubits is None:
-        n_qubits = count_qubits(op)
-
-    if n_qubits < count_qubits(op):
-        raise ValueError('Invalid n_qubits.')
-
-    if isinstance(op, FermionOperator) and len(op.terms) == 1:
-        return bravyi_kitaev_term(op, n_qubits)
+    # Compute transformed operator.
     transformed_operator = QubitOperator()
-    for term in op.terms:
-        transformed_operator += bravyi_kitaev_term(
-            FermionOperator(term, op.terms[term]), n_qubits)
+    for term in operator.terms:
+
+        # Initialize identity matrix.
+        coefficient = operator.terms[term]
+        transformed_term = QubitOperator((), coefficient)
+
+        # Build the Fenwick Tree
+        fenwick_tree = FenwickTree(n_qubits)
+
+        # Build the Bravyi-Kitaev transformed operators.
+        for ladder_operator in term:
+            index = ladder_operator[0]
+
+            # Parity set. Set of nodes to apply Z to.
+            parity_set = [node.index for node in
+                          fenwick_tree.get_parity_set(index)]
+
+            # Update set. Set of ancestors to apply X to.
+            ancestors = [node.index for node in
+                         fenwick_tree.get_update_set(index)]
+
+            # The C(j) set.
+            ancestor_children = [node.index for node in
+                                 fenwick_tree.get_remainder_set(index)]
+
+            # Switch between lowering/raising operators.
+            d_coefficient = .5j
+            if ladder_operator[1]:
+                d_coefficient *= -1.
+
+            # The fermion lowering operator is given by
+            # a = (c+id)/2 where c, d are the majoranas.
+            d_majorana_component = QubitOperator(
+                (((ladder_operator[0], 'Y'),) +
+                 tuple((index, 'Z') for index in ancestor_children) +
+                 tuple((index, 'X') for index in ancestors)),
+                d_coefficient)
+
+            c_majorana_component = QubitOperator(
+                (((ladder_operator[0], 'X'),) +
+                 tuple((index, 'Z') for index in parity_set) +
+                 tuple((index, 'X') for index in ancestors)),
+                0.5)
+
+            # Update term.
+            transformed_term *= c_majorana_component + d_majorana_component
+        transformed_operator += transformed_term
     return transformed_operator
