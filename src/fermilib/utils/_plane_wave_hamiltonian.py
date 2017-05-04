@@ -7,12 +7,12 @@ import numpy
 
 from fermilib.config import *
 from fermilib.ops import FermionOperator
-from fermilib.utils._jellium import orbital_id, grid_indices, position_vector, \
-         momentum_vector, jellium_model
+from fermilib.utils._jellium import orbital_id, grid_indices, \
+    position_vector, momentum_vector, jellium_model
 from projectqtemp.ops._qubit_operator import QubitOperator
 
 
-#Exceptions.
+# Exceptions.
 class ValueError(Exception):
     pass
 
@@ -35,7 +35,7 @@ def dual_basis_u_operator(n_dimensions, grid_length, length_scale,
     n_points = grid_length ** n_dimensions
     volume = length_scale ** float(n_dimensions)
     prefactor = -4.0 * numpy.pi / volume
-    operator = None 
+    operator = None
     if spinless:
         spins = [None]
     else:
@@ -58,11 +58,11 @@ def dual_basis_u_operator(n_dimensions, grid_length, length_scale,
                     continue
                 exp_index = 1.0j * momenta.dot(coordinate_j - coordinate_p)
                 coefficient = prefactor / momenta_squred * \
-                        nuclear_charges[grid_indices_j] * numpy.exp(exp_index)
+                    nuclear_charges[grid_indices_j] * numpy.exp(exp_index)
 
                 for spin_p in spins:
                     orbital_p = orbital_id(
-                            grid_length, grid_indices_p, spin_p)
+                        grid_length, grid_indices_p, spin_p)
                     operators = ((orbital_p, 1), (orbital_p, 0))
                     if operator is None:
                         operator = FermionOperator(operators, coefficient)
@@ -90,7 +90,7 @@ def plane_wave_u_operator(n_dimensions, grid_length, length_scale,
     n_points = grid_length ** n_dimensions
     volume = length_scale ** float(n_dimensions)
     prefactor = -4.0 * numpy.pi / volume
-    operator = None 
+    operator = None
     if spinless:
         spins = [None]
     else:
@@ -116,13 +116,13 @@ def plane_wave_u_operator(n_dimensions, grid_length, length_scale,
                                                length_scale)
                 exp_index = 1.0j * momenta_p_q.dot(coordinate_j)
                 coefficient = prefactor / momenta_p_q_squared * \
-                        nuclear_charges[grid_indices_j] * numpy.exp(exp_index)
+                    nuclear_charges[grid_indices_j] * numpy.exp(exp_index)
 
                 for spin in spins:
                     orbital_p = orbital_id(
-                            grid_length, grid_indices_p, spin)
+                        grid_length, grid_indices_p, spin)
                     orbital_q = orbital_id(
-                            grid_length, grid_indices_q, spin)
+                        grid_length, grid_indices_q, spin)
                     operators = ((orbital_p, 1), (orbital_q, 0))
                     if operator is None:
                         operator = FermionOperator(operators, coefficient)
