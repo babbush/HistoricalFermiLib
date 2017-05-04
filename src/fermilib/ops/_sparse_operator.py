@@ -92,26 +92,7 @@ def jordan_wigner_ladder_sparse(n_qubits, tensor_factor, ladder_type):
     return SparseOperator(operator)
 
 
-def jordan_wigner_term_sparse(fermion_term, n_qubits):
-    """
-    Initialize a SparseOperator from a FermionOperator.
-
-    Args:
-        fermion_term(FermionOperator): Instance of the FermionOperator class.
-        n_qubits(int): Number of qubits.
-
-    Returns:
-        The corresponding SparseOperator.
-
-    """
-    sparse_operator = sparse_identity(n_qubits)
-    for ladder_operator in fermion_term:
-        sparse_operator = sparse_operator * jordan_wigner_ladder_sparse(
-            n_qubits, ladder_operator[0], ladder_operator[1])
-    return fermion_term.coefficient * sparse_operator
-
-
-def jordan_wigner_operator_sparse(fermion_operator):
+def jordan_wigner_sparse(fermion_operator):
     """
     Initialize a SparseOperator from a FermionOperator.
 
@@ -122,7 +103,6 @@ def jordan_wigner_operator_sparse(fermion_operator):
 
     Returns:
         The corresponding SparseOperator.
-
     """
     from fermilib.utils import count_qubits
     n_qubits = count_qubits(fermion_operator)

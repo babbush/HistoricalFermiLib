@@ -8,6 +8,6 @@ from ._interaction_operator import InteractionOperator
 from ._interaction_rdm import InteractionRDM
 
 from ._sparse_operator import (get_density_matrix,
-                               jordan_wigner_operator_sparse,
+                               jordan_wigner_sparse,
                                jw_hartree_fock_state,
                                qubit_operator_sparse)

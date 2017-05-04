@@ -8,7 +8,7 @@ import scipy.sparse
 from scipy.sparse import csc_matrix
 
 from fermilib.ops import FermionOperator
-from fermilib.ops._sparse_operator import (jordan_wigner_operator_sparse,
+from fermilib.ops._sparse_operator import (jordan_wigner_sparse,
                                            kronecker_operators)
 from fermilib.transforms import (jordan_wigner, get_sparse_operator)
 
@@ -45,7 +45,7 @@ class SparseOperatorTest(unittest.TestCase):
         qubit_operator = jordan_wigner(fermion_operator)
         qubit_sparse = get_sparse_operator(qubit_operator)
         qubit_spectrum = qubit_sparse.eigenspectrum()
-        fermion_sparse = jordan_wigner_operator_sparse(fermion_operator)
+        fermion_sparse = jordan_wigner_sparse(fermion_operator)
         fermion_spectrum = fermion_sparse.eigenspectrum()
         self.assertAlmostEqual(0., numpy.amax(
             numpy.absolute(fermion_spectrum - qubit_spectrum)))
@@ -56,13 +56,13 @@ class JordanWignerSparseTest(unittest.TestCase):
     def test_jw_sparse_0create(self):
         expected = csc_matrix(([1], ([1], [0])), shape=(2, 2))
         self.assertTrue(numpy.allclose(
-            jordan_wigner_operator_sparse(FermionOperator('0^')).matrix.A,
+            jordan_wigner_sparse(FermionOperator('0^')).matrix.A,
             expected.A))
 
     def test_jw_sparse_1annihilate(self):
         expected = csc_matrix(([1, 1], ([0, 2], [1, 3])), shape=(4, 4))
         self.assertTrue(numpy.allclose(
-            jordan_wigner_operator_sparse(FermionOperator('1')).matrix.A,
+            jordan_wigner_sparse(FermionOperator('1')).matrix.A,
             expected.A))
 
     def test_jw_sparse_0create_2annihilate(self):
@@ -70,7 +70,7 @@ class JordanWignerSparseTest(unittest.TestCase):
                                ([4, 6], [1, 3])),
                               shape=(8, 8))
         self.assertTrue(numpy.allclose(
-            jordan_wigner_operator_sparse(FermionOperator('0^ 2', -1j)).matrix.A,
+            jordan_wigner_sparse(FermionOperator('0^ 2', -1j)).matrix.A,
             expected.A))
 
     def test_jw_sparse_0create_3annihilate(self):
@@ -78,13 +78,13 @@ class JordanWignerSparseTest(unittest.TestCase):
                                ([8, 10, 12, 14], [1, 3, 5, 7])),
                               shape=(16, 16))
         self.assertTrue(numpy.allclose(
-            jordan_wigner_operator_sparse(FermionOperator('0^ 3', -1j)).matrix.A,
+            jordan_wigner_sparse(FermionOperator('0^ 3', -1j)).matrix.A,
             expected.A))
 
     def test_jw_sparse_twobody(self):
         expected = csc_matrix(([1, 1], ([6, 14], [5, 13])), shape=(16, 16))
         self.assertTrue(numpy.allclose(
-            jordan_wigner_operator_sparse(FermionOperator('2^ 1^ 1 3')).matrix.A,
+            jordan_wigner_sparse(FermionOperator('2^ 1^ 1 3')).matrix.A,
             expected.A))
 
 

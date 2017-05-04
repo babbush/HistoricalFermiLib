@@ -6,7 +6,6 @@ import unittest
 from fermilib.ops import (FermionOperator,
                           hermitian_conjugated,
                           InteractionOperator,
-                          jordan_wigner_operator_sparse,
                           normal_ordered,
                           number_operator)
 from fermilib.transforms import (jordan_wigner, get_interaction_operator,
