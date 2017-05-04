@@ -92,7 +92,7 @@ def error_operator(terms, series_order=2):
     if series_order != 2:
         raise NotImplementedError
 
-    error_operator = QubitOperator((), 0.0)
+    error_operator = QubitOperator()
 
     for beta in range(len(terms)):
         for alpha in range(beta + 1):
@@ -137,7 +137,7 @@ def error_bound(terms, tight=False):
            the ground state but much more accurately than the triangle
            inequality.
     """
-    zero = QubitOperator((), 0.0)
+    zero = QubitOperator()
     error = 0.0
 
     if tight:
