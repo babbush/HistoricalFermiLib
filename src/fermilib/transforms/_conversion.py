@@ -157,25 +157,17 @@ def get_fermion_operator(interaction_operator):
     """
     # Initialize with identity term.
     fermion_operator = FermionOperator((), interaction_operator.constant)
+    n_qubits = count_qubits(interaction_operator)
 
     # Add one-body terms.
-    for p in range(count_qubits(interaction_operator)):
-        for q in range(count_qubits(interaction_operator)):
+    for p in range(n_qubits):
+        for q in range(n_qubits):
             coefficient = interaction_operator[p, q]
             fermion_operator += FermionOperator(((p, 1), (q, 0)), coefficient)
 
             # Add two-body terms.
-            for r in range(count_qubits(interaction_operator)):
-                for s in range(count_qubits(interaction_operator)):
-                    coefficient = interaction_operator[p, q, r, s]
-    for p in range(interaction_operator.n_qubits):
-        for q in range(interaction_operator.n_qubits):
-            coefficient = interaction_operator[p, q]
-            fermion_operator += FermionOperator(((p, 1), (q, 0)), coefficient)
-
-            # Add two-body terms.
-            for r in range(interaction_operator.n_qubits):
-                for s in range(interaction_operator.n_qubits):
+            for r in range(n_qubits):
+                for s in range(n_qubits):
                     coefficient = interaction_operator[p, q, r, s]
                     fermion_operator += FermionOperator(((p, 1), (q, 1),
                                                          (r, 0), (s, 0)),
