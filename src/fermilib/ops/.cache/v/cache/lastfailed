@@ -1,1 +1,3 @@
-{}
+{
+  "_interaction_rdm_test.py::InteractionRDMTest::test_get_qubit_expectations": true
+}

@@ -19,3 +19,4 @@ from ._unitary_cc import (uccsd_operator,
                           uccsd_singlet_operator,
                           uccsd_singlet_paramsize)
 
+from ._operator_utils import eigenspectrum, is_identity, count_qubits

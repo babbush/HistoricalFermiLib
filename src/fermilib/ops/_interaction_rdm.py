@@ -4,11 +4,12 @@ from __future__ import absolute_import
 import copy
 import numpy
 
+from projectqtemp.ops import QubitOperator
+
 from fermilib.ops import (FermionOperator,
                           InteractionTensor,
                           InteractionOperator,
                           normal_ordered)
-from projectqtemp.ops import QubitOperator
 
 
 class InteractionRDMError(Exception):
@@ -75,11 +76,12 @@ class InteractionRDM(InteractionTensor):
 
     def get_qubit_expectations(self, qubit_operator):
         """
-        Return expectations of qubit op as coefficients of new qubit op.
+        Return expectations of qubit operator as coefficients of
+        new QubitOperator.
 
         Args:
-            qubit_operator: QubitOperator instance to be evaluated on this
-                            InteractionRDM.
+            qubit_operator: QubitOperator instance to be evaluated on
+                            this InteractionRDM.
 
         Returns:
             qubit_operator_expectations: QubitOperator with coefficients
@@ -87,54 +89,35 @@ class InteractionRDM(InteractionTensor):
 
         Raises:
           InteractionRDMError: Observable not contained in 1-RDM or 2-RDM.
-
-        """
-        qubit_operator_expectations = copy.deepcopy(qubit_operator)
-        for qubit_term in qubit_operator_expectations.terms:
-            qubit_term = QubitOperator(
-                qubit_term, qubit_operator_expectations.terms[qubit_term])
-            if (not qubit_term.is_identity() and
-                    qubit_term.terms[list(qubit_term.terms)[0]]):
-
-                # Set coefficient to 1, then to correct expectation value.
-                qubit_term.terms[list(qubit_term.terms)[0]] = 1.
-                qubit_operator_expectations.terms[
-                    list(qubit_term.terms)[0]] = (self.qubit_term_expectation(
-                                                  qubit_term))
-        qubit_operator_expectations.terms[()] = 0.
-        return qubit_operator_expectations
-
-    def qubit_term_expectation(self, qubit_term):
-        """
-        Return expectation value of QubitOperator with InteractionRDM (self).
-
-        Args:
-            qubit_term: single-term QubitOperator to be evaluated on this
-                        InteractionRDM.
         """
         from fermilib.transforms import reverse_jordan_wigner
-        if len(qubit_term.terms) != 1:
-            raise ValueError('qubit_term must be a single-term'
-                             ' QubitOperator.')
-        expectation = 0.
-        reversed_fermion_operators = reverse_jordan_wigner(qubit_term,
-                                                           self.n_qubits)
-        reversed_fermion_operators = normal_ordered(reversed_fermion_operators)
-        for ops in reversed_fermion_operators.terms:
-            coeff = reversed_fermion_operators.terms[ops]
-            fermion_term = FermionOperator(ops, coeff)
-            # Handle molecular terms.
-            if fermion_term.is_molecular_term():
-                if fermion_term.is_identity():
-                    expectation += coeff
-                else:
-                    indices = [operator[0] for operator in
-                               list(fermion_term.terms)[0]]
-                    rdm_element = self[indices]
-                    expectation += rdm_element * coeff
+        qubit_operator_expectations = copy.deepcopy(qubit_operator)
+        del qubit_operator_expectations.terms[()]
+        for qubit_term in qubit_operator_expectations.terms:
+            expectation = 0.
 
-            # Handle non-molecular terms.
-            elif len(list(fermion_term.terms)[0]) > 4:
-                raise InteractionRDMError('Observable not contained '
-                                          'in 1-RDM or 2-RDM.')
-        return expectation
+            # Map qubits back to fermions.
+            reversed_fermion_operators = reverse_jordan_wigner(
+                    QubitOperator(qubit_term), self.n_qubits)
+            reversed_fermion_operators = normal_ordered(
+                    reversed_fermion_operators)
+
+            # Loop through fermion terms.
+            for fermion_term in reversed_fermion_operators.terms:
+                coefficient = reversed_fermion_operators.terms[fermion_term]
+
+                # Handle molecular term.
+                if FermionOperator(fermion_term).is_molecular_term():
+                    if not fermion_term:
+                        expectation += coefficient
+                    else:
+                        indices = [operator[0] for operator in fermion_term]
+                        rdm_element = self[indices]
+                        expectation += rdm_element * coefficient
+
+                # Handle non-molecular terms.
+                elif len(fermion_term) > 4:
+                    raise InteractionRDMError('Observable not contained '
+                                              'in 1-RDM or 2-RDM.')
+            qubit_operator_expectations.terms[qubit_term] = expectation
+        return qubit_operator_expectations

@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 from projectq.ops import QubitOperator
 from fermilib.ops import FermionOperator, InteractionOperator
-from fermilib.ops._sparse_operator import jordan_wigner_operator_sparse
+from fermilib.utils import count_qubits
 
 import itertools
 
@@ -64,19 +64,6 @@ def jordan_wigner(operator):
     return transformed_operator
 
 
-def jordan_wigner_sparse(fermion_operator, n_qubits=None):
-    """Return a sparse matrix representation of the JW transformed term."""
-    if n_qubits is None:
-        n_qubits = fermion_operator.n_qubits()
-    if n_qubits < fermion_operator.n_qubits():
-        n_qubits = fermion_operator.n_qubits()
-
-    if isinstance(fermion_operator, FermionOperator):
-        return jordan_wigner_operator_sparse(fermion_operator, n_qubits)
-
-    raise TypeError("fermion_operator should be a FermionOperator.")
-
-
 def jordan_wigner_interaction_op(iop, n_qubits=None):
     """
     Output InteractionOperator as QubitOperator class under JW
@@ -89,16 +76,16 @@ def jordan_wigner_interaction_op(iop, n_qubits=None):
         qubit_operator: An instance of the QubitOperator class.
     """
     if n_qubits is None:
-        n_qubits = iop.n_qubits
-    if n_qubits < iop.n_qubits:
-        n_qubits = iop.n_qubits
+        n_qubits = count_qubits(iop)
+    if n_qubits < count_qubits(iop):
+        n_qubits = count_qubits(iop)
 
     # Initialize qubit operator as constant.
     qubit_operator = QubitOperator((), iop.constant)
 
     # Loop through all indices.
-    for p in range(iop.n_qubits):
-        for q in range(iop.n_qubits):
+    for p in range(n_qubits):
+        for q in range(n_qubits):
 
             # Handle one-body terms.
             coefficient = complex(iop[p, q])
@@ -106,8 +93,8 @@ def jordan_wigner_interaction_op(iop, n_qubits=None):
                 qubit_operator += coefficient * jordan_wigner_one_body(p, q)
 
             # Keep looping for the two-body terms.
-            for r in range(iop.n_qubits):
-                for s in range(iop.n_qubits):
+            for r in range(n_qubits):
+                for s in range(n_qubits):
                     coefficient = complex(iop[p, q, r, s])
 
                     # Skip zero terms.

@@ -16,7 +16,7 @@ import copy
 import numpy
 import pytest
 
-import _qubit_operator as qo
+from projectq.ops import _qubit_operator as qo
 
 
 def test_pauli_operator_product_unchanged():
@@ -40,10 +40,8 @@ def test_pauli_operator_product_unchanged():
 
 
 def test_init_defaults():
-    empty_op = qo.QubitOperator()
-    assert len(empty_op.terms) == 0
-    loc_op = qo.QubitOperator(())
-    assert len(loc_op.terms) == 1
+    loc_op = qo.QubitOperator()
+    assert len(loc_op.terms) == 0
 
 
 @pytest.mark.parametrize("coefficient", [0.5, 0.6j, numpy.float64(2.303),
@@ -84,6 +82,16 @@ def test_init_bad_action():
         qubit_op = qo.QubitOperator('Q0')
 
 
+def test_init_bad_action_in_tuple():
+    with pytest.raises(ValueError):
+        qubit_op = qo.QubitOperator(((1,'Q'),))
+
+
+def test_init_bad_qubit_num_in_tuple():
+    with pytest.raises(qo.QubitOperatorError):
+        qubit_op = qo.QubitOperator((("1",'X'),))
+
+
 def test_init_bad_tuple():
     with pytest.raises(ValueError):
         qubit_op = qo.QubitOperator(((0, 1, 'X'),))
@@ -110,6 +118,36 @@ def test_isclose_abs_tol():
     c = qo.QubitOperator('X0', -1.11j)
     assert a.isclose(b, rel_tol=1e-14, abs_tol=0.1)
     assert not a.isclose(c, rel_tol=1e-14, abs_tol=0.1)
+
+
+def test_compress():
+    a = qo.QubitOperator('X0', .9e-12)
+    assert len(a.terms) == 1
+    a.compress()
+    assert len(a.terms) == 0
+    a = qo.QubitOperator('X0', 1. + 1j)
+    a.compress(.5)
+    assert len(a.terms) == 1
+    for term in a.terms:
+        assert a.terms[term] == 1. + 1j
+    a = qo.QubitOperator('X0', 1.1 + 1j)
+    a.compress(1.)
+    assert len(a.terms) == 1
+    for term in a.terms:
+        assert a.terms[term] == 1.1
+    a = qo.QubitOperator('X0', 1.1 + 1j) + qo.QubitOperator('X1', 1.e-6j)
+    a.compress()
+    assert len(a.terms) == 2
+    for term in a.terms:
+        assert isinstance(a.terms[term], complex)
+    a.compress(1.e-5)
+    assert len(a.terms) == 1
+    for term in a.terms:
+        assert isinstance(a.terms[term], complex)
+    a.compress(1.)
+    assert len(a.terms) == 1
+    for term in a.terms:
+        assert isinstance(a.terms[term], float)
 
 
 def test_isclose_rel_tol():
@@ -288,6 +326,14 @@ def test_itruediv_bad_divisor():
         op /= "0.5"
 
 
+def test_iadd_cancellation():
+    term_a = ((1, 'X'), (3, 'Y'), (8, 'Z'))
+    term_b = ((1, 'X'), (3, 'Y'), (8, 'Z'))
+    a = qo.QubitOperator(term_a, 1.0)
+    a += qo.QubitOperator(term_b, -1.0)
+    assert len(a.terms) == 0
+
+
 def test_iadd_different_term():
     term_a = ((1, 'X'), (3, 'Y'), (8, 'Z'))
     term_b = ((1, 'Z'), (3, 'Y'), (8, 'Z'))
@@ -303,7 +349,7 @@ def test_iadd_different_term():
 
 
 def test_iadd_bad_addend():
-    op = qo.QubitOperator(())
+    op = qo.QubitOperator((), 1.0)
     with pytest.raises(TypeError):
         op += "0.5"
 

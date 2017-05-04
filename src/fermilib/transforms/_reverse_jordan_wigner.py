@@ -4,8 +4,9 @@ import copy
 
 from fermilib.ops import (FermionOperator,
                           number_operator)
-from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
+from fermilib.utils import count_qubits
 
+from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 
 class ReverseJordanWignerError(Exception):
     pass
@@ -37,8 +38,8 @@ def reverse_jordan_wigner(qubit_operator, n_qubits=None):
     if not isinstance(qubit_operator, QubitOperator):
         raise TypeError('Input must be a QubitOperator.')
     if n_qubits is None:
-        n_qubits = qubit_operator.n_qubits()
-    if n_qubits < qubit_operator.n_qubits():
+        n_qubits = count_qubits(qubit_operator)
+    if n_qubits < count_qubits(qubit_operator):
         raise QubitOperatorError(
             'Invalid number of qubits specified')
 
