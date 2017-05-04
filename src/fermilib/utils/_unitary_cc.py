@@ -14,26 +14,7 @@ import projectq.meta
 from fermilib.ops import FermionOperator
 from fermilib.transforms import jordan_wigner
 
-def pack_uccsd_amplitudes(single_amplitudes, double_amplitudes):
-    """Pack full CC amplitudes into 1D anti-Hermitian form"""
-    assert(False)
-
-    n_orbitals = single_amplitudes.shape[0]
-
-    t1_size = n_orbitals * (n_orbitals - 1) / 2
-    t2_size = n_orbitals**2 * (n_orbitals**2 - 1) / 2
-    packed_amplitudes = numpy.zeros(t1_size + t2_size)
-
-    for i in range(n_orbitals):
-        for j in range(i):
-            packed_amplitudes[i * (i - 1) / 2 + j] = single_amplitudes[i,j]
-
-    for i in range(n_orbitals):
-        for j in range(i):
-            for k in range(j):
-                for l in range(k):
-                    packed_amplitudes[i] = double_amplitudes[i,j,k,l]
-
+import numpy
 
 def uccsd_operator(single_amplitudes, double_amplitudes, anti_hermitian=True):
     """
@@ -49,36 +30,108 @@ def uccsd_operator(single_amplitudes, double_amplitudes, anti_hermitian=True):
             rather than unitary variant, primarily for testing
 
     Returns:
-        uccsd_operator(FermionOperator): Anti-hermitian fermion operator that
+        uccsd_generator(FermionOperator): Anti-hermitian fermion operator that
         is the generator for the uccsd wavefunction.
     """
     n_orbitals = single_amplitudes.shape[0]
     assert(n_orbitals == double_amplitudes.shape[0])
-    uccsd_operator = FermionOperator((), 0.0)
+    uccsd_generator = FermionOperator()
 
     # Add single excitations
     for i, j in itertools.product(range(n_orbitals), repeat=2):
         if single_amplitudes[i, j] == 0.:
             continue
-        uccsd_operator += FermionOperator(
+        uccsd_generator += FermionOperator(
             ((i, 1), (j, 0)), single_amplitudes[i, j])
         if (anti_hermitian):
-            uccsd_operator += FermionOperator(
+            uccsd_generator += FermionOperator(
                 ((j, 1), (i, 0)), -single_amplitudes[i, j])
 
         # Add double excitations
     for i, j, k, l in itertools.product(range(n_orbitals), repeat=4):
         if double_amplitudes[i, j, k, l] == 0.:
             continue
-        uccsd_operator += FermionOperator(
+        uccsd_generator += FermionOperator(
             ((i, 1), (j, 0), (k, 1), (l, 0)),
             double_amplitudes[i, j, k, l])
         if (anti_hermitian):
-            uccsd_operator += FermionOperator(
+            uccsd_generator += FermionOperator(
                 ((l, 1), (k, 0), (j, 1), (i, 0)),
                 -double_amplitudes[i, j, k, l])
 
-    return uccsd_operator
+    return uccsd_generator
+
+
+def uccsd_singlet_paramsize(n_qubits, n_electrons):
+    N = n_qubits
+    n_occ = int(numpy.ceil(n_electrons / 2.))
+    n_virt = N / 2 - n_occ  # Virtual Spatial Orbitals
+    n_t1 = n_occ * n_virt
+    n_t2 = n_t1 ** 2
+    return n_t1 + n_t2
+
+def uccsd_singlet_operator(packed_amplitudes,
+                           n_qubits,
+                           n_electrons,
+                           anti_hermitian=True):
+    """ """
+    N = n_qubits
+    n_occ = int(numpy.ceil(n_electrons / 2.))
+    n_virt = N / 2 - n_occ  # Virtual Spatial Orbitals
+    n_t1 = n_occ * n_virt
+    n_t2 = n_t1 ** 2
+
+    t1 = packed_amplitudes[:n_t1]
+    t2 = packed_amplitudes[n_t1:]
+
+    t1_ind = lambda i, j: i * n_occ + j
+    t2_ind = lambda i, j, k, l: i * n_occ * n_virt * n_occ \
+                                + j * n_virt * n_occ \
+                                + k * n_occ \
+                                + l
+    uccsd_generator = 0* FermionOperator()
+
+    for i in range(n_virt):
+        for j in range(n_occ):
+            for s1 in range(2):
+                uccsd_generator += FermionOperator(
+                    (
+                    (2 * (i + n_occ) + s1, 1),
+                    (2 * j + s1, 0)),
+                    t1[t1_ind(i, j)] )
+
+                if (anti_hermitian):
+                    uccsd_generator += FermionOperator(
+                        (
+                        (2 * j + s1, 1),
+                        (2 * (i + n_occ) + s1, 0)),
+                        -t1[t1_ind(i, j)] )
+
+    for i in range(n_virt):
+        for j in range(n_occ):
+            for s1 in range(2):
+                for k in range(n_virt):
+                    for l in range(n_occ):
+                        for s2 in range(2):
+                            uccsd_generator += FermionOperator(
+                                (
+                                (2 * (i + n_occ) + s1, 1),
+                                (2 * j + s1, 0),
+                                (2 * (k + n_occ) + s2, 1),
+                                (2 * l + s2, 0)),
+                                t2[t2_ind(i, j, k, l)])
+
+                            if (anti_hermitian):
+                                uccsd_generator += FermionOperator(
+                                    (
+                                    (2 * l + s2, 1),
+                                    (2 * (k + n_occ) + s2, 0),
+                                    (2 * j + s1, 1),
+                                    (2 * (i + n_occ) + s1, 0)),
+                                    -t2[t2_ind(i, j, k, l)])
+    print uccsd_generator
+    exit()
+    return uccsd_generator
 
 
 def _identify_non_commuting(cmd):
@@ -139,15 +192,14 @@ def uccsd_trotter_engine(compiler_backend=projectq.backends.Simulator()):
                                           InstructionFilter(_two_gate_filter)])
     return compiler_engine
 
-def uccsd_circuit(single_amplitudes, double_amplitudes,
+def uccsd_circuit(packed_amplitudes, n_qubits, n_electrons,
                   fermion_transform=jordan_wigner):
     """Create a uccsd ansatz circuit"""
 
-    # Assess number of qubits
-    n_qubits = single_amplitudes.shape[0]
-
     # Build UCCSD generator
-    fermion_generator = uccsd_operator(single_amplitudes, double_amplitudes)
+    fermion_generator = uccsd_singlet_operator(packed_amplitudes,
+                                               n_qubits,
+                                               n_electrons)
 
     # Transform generator to qubits
     qubit_generator = 1.0j * fermion_transform(fermion_generator)
