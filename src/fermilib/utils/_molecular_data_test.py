@@ -41,7 +41,7 @@ class MolecularDataTest(unittest.TestCase):
         test_geometry = geometry_from_file(filename)
         for atom in range(3):
             self.assertAlmostEqual(water_geometry[atom][0],
-                                    test_geometry[atom][0])
+                                   test_geometry[atom][0])
             for coordinate in range(3):
                 self.assertAlmostEqual(water_geometry[atom][1][coordinate],
                                        test_geometry[atom][1][coordinate])
@@ -63,17 +63,17 @@ class MolecularDataTest(unittest.TestCase):
         charge = -1
         description = 'fermilib_forever'
         molecule = MolecularData(geometry, basis, multiplicity,
-                                      charge, description, filename)
+                                 charge, description, filename)
 
         # Make some attributes to save.
         molecule.n_orbitals = 10
         molecule.n_qubits = 10
         molecule.nuclear_repulsion = -12.3
         molecule.hf_energy = 88.
-        molecule.canonical_orbitals = [1,2,3,4]
-        molecule.orbital_energies = [5,6,7,8]
-        molecule.orbital_overlaps = [1,2,3,4]
-        molecule.one_body_integrals = [5,6,7,8]
+        molecule.canonical_orbitals = [1, 2, 3, 4]
+        molecule.orbital_energies = [5, 6, 7, 8]
+        molecule.orbital_overlaps = [1, 2, 3, 4]
+        molecule.one_body_integrals = [5, 6, 7, 8]
         molecule.mp2_energy = -12.
         molecule.cisd_energy = 32.
         molecule.cisd_one_rdm = numpy.arange(10)

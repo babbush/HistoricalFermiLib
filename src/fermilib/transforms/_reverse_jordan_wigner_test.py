@@ -3,19 +3,17 @@ from __future__ import absolute_import
 import unittest
 
 from fermilib.ops import FermionOperator, normal_ordered
-from fermilib.transforms import jordan_wigner
+from fermilib.transforms import jordan_wigner, reverse_jordan_wigner
 from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
-from fermilib.transforms._reverse_jordan_wigner import (
-    reverse_jordan_wigner, reverse_jordan_wigner_term)
 
 
-class ReverseJWTermTest(unittest.TestCase):
+class ReverseJWTest(unittest.TestCase):
 
     def setUp(self):
         self.coefficient = 0.5
         self.operators = ((1, 'X'), (3, 'Y'), (8, 'Z'))
         self.term = QubitOperator(self.operators, self.coefficient)
-        self.identity = QubitOperator((), 1.0)
+        self.identity = QubitOperator(())
         self.coefficient_a = 6.7j
         self.coefficient_b = -88.
         self.operators_a = ((3, 'Z'), (1, 'Y'), (4, 'Y'))
@@ -23,10 +21,14 @@ class ReverseJWTermTest(unittest.TestCase):
         self.operator_a = QubitOperator(self.operators_a, self.coefficient_a)
         self.operator_b = QubitOperator(self.operators_b, self.coefficient_b)
         self.operator_ab = self.operator_a + self.operator_b
+        self.qubit_operator = QubitOperator(
+            ((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+        self.qubit_operator += QubitOperator(
+            ((1, 'Z'), (3, 'X'), (8, 'Z')), 1.2)
 
     def test_identity_jwterm(self):
-        self.assertTrue(FermionOperator().isclose(
-            reverse_jordan_wigner_term(QubitOperator((), 1.0))))
+        self.assertTrue(FermionOperator(()).isclose(
+            reverse_jordan_wigner(QubitOperator(()))))
 
     def test_x(self):
         pauli_x = QubitOperator(((2, 'X'),))
@@ -44,7 +46,7 @@ class ReverseJWTermTest(unittest.TestCase):
         pauli_z = QubitOperator(((2, 'Z'),))
         transmed_z = reverse_jordan_wigner(pauli_z)
 
-        expected = (FermionOperator() +
+        expected = (FermionOperator(()) +
                     FermionOperator(((2, 1), (2, 0)), -2.))
         self.assertTrue(transmed_z.isclose(expected))
 
@@ -54,21 +56,18 @@ class ReverseJWTermTest(unittest.TestCase):
     def test_identity(self):
         n_qubits = 5
         transmed_i = reverse_jordan_wigner(self.identity, n_qubits)
-        expected_i = FermionOperator()
+        expected_i = FermionOperator(())
         self.assertTrue(transmed_i.isclose(expected_i))
-
         retransmed_i = jordan_wigner(transmed_i)
-        # self.assertEqual(1, len(retransmed_i.terms))
         self.assertTrue(self.identity.isclose(retransmed_i))
 
     def test_zero(self):
         n_qubits = 5
-        transmed_i = reverse_jordan_wigner(QubitOperator((), 0.0), n_qubits)
-        expected_i = 0.0 * FermionOperator('3^')
+        transmed_i = reverse_jordan_wigner(QubitOperator(), n_qubits)
+        expected_i = FermionOperator()
         self.assertTrue(transmed_i.isclose(expected_i))
 
         retransmed_i = jordan_wigner(transmed_i)
-        # self.assertEqual(1, len(retransmed_i.terms))
         self.assertTrue(expected_i.isclose(retransmed_i))
 
     def test_yzxz(self):
@@ -144,25 +143,7 @@ class ReverseJWTermTest(unittest.TestCase):
 
     def test_jw_term_bad_type(self):
         with self.assertRaises(TypeError):
-            reverse_jordan_wigner_term(3)
-
-    def test_jwterm_too_few_qubits(self):
-        self.assertTrue(FermionOperator().isclose(
-            reverse_jordan_wigner_term(QubitOperator((), 1.0), n_qubits=-1)))
-
-
-class ReverseJWOperatorTest(unittest.TestCase):
-
-    def setUp(self):
-        self.identity = QubitOperator((), 0.0)
-        self.coefficient_a = 0.5
-        self.coefficient_b = 1.2
-        self.operators_a = ((1, 'X'), (3, 'Y'), (8, 'Z'))
-        self.operators_b = ((1, 'Z'), (3, 'X'), (8, 'Z'))
-        self.term_a = QubitOperator(((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
-        self.term_b = QubitOperator(((1, 'Z'), (3, 'X'), (8, 'Z')), 1.2)
-
-        self.qubit_operator = self.term_a + self.term_b
+            reverse_jordan_wigner(3)
 
     def test_reverse_jordan_wigner(self):
         transmed_operator = reverse_jordan_wigner(self.qubit_operator)
@@ -179,10 +160,6 @@ class ReverseJWOperatorTest(unittest.TestCase):
     def test_bad_type(self):
         with self.assertRaises(TypeError):
             reverse_jordan_wigner(3)
-
-    def test_too_few_qubits(self):
-        self.assertTrue(FermionOperator().isclose(
-            reverse_jordan_wigner(QubitOperator((), 1.0), n_qubits=-1)))
 
 if __name__ == '__main__':
     unittest.main()

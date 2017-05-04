@@ -12,8 +12,7 @@ from fermilib.ops._fermion_operator import (FermionOperator,
 
 def test_init_defaults():
     loc_op = FermionOperator()
-    assert len(loc_op.terms) == 1
-    assert loc_op.terms[()] == 1.0
+    assert len(loc_op.terms) == 0
 
 
 @pytest.mark.parametrize("coefficient", [0.5, 0.6j, numpy.float64(2.303),
@@ -74,7 +73,7 @@ def test_init_bad_mode_num():
 
 def test_FermionOperator():
     op = FermionOperator((), 3.)
-    assert op.isclose(FermionOperator() * 3.)
+    assert op.isclose(FermionOperator(()) * 3.)
 
 
 def test_number_operator_site():
@@ -415,7 +414,7 @@ def test_pow_zero_term():
     ops = ((3, 1), (1, 0), (4, 1))
     term = FermionOperator(ops, coeff)
     zerod = term ** 0
-    expected = FermionOperator()
+    expected = FermionOperator(())
     assert expected.isclose(zerod)
 
 
@@ -579,7 +578,7 @@ def test_normal_ordered_number():
 def test_normal_ordered_number_reversed():
     n_term_rev2 = FermionOperator(((2, 0), (2, 1)))
     number_op2 = number_operator(3, 2)
-    expected = FermionOperator() - number_op2
+    expected = FermionOperator(()) - number_op2
     assert normal_ordered(n_term_rev2).isclose(expected)
 
 

@@ -19,9 +19,9 @@ from projectqtemp.ops import QubitOperator
 
 class CommutatorTest(unittest.TestCase):
     def test_commutator_commutes(self):
-        zero = QubitOperator((), 0.0)
+        zero = QubitOperator()
         self.assertTrue(
-            _trotter.commutator(QubitOperator(),
+            _trotter.commutator(QubitOperator(()),
                                 QubitOperator('X3')).isclose(zero))
 
     def test_commutator_single_pauli(self):
@@ -39,20 +39,20 @@ class CommutatorTest(unittest.TestCase):
 class TriviallyCommutesTest(unittest.TestCase):
 
     def test_trivially_commutes_id_id(self):
-        self.assertTrue(_trotter.trivially_commutes(QubitOperator(),
-                                                    3 * QubitOperator()))
+        self.assertTrue(_trotter.trivially_commutes(QubitOperator(()),
+                                                    3 * QubitOperator(())))
 
     def test_trivially_commutes_id_x(self):
-        self.assertTrue(_trotter.trivially_commutes(QubitOperator(),
+        self.assertTrue(_trotter.trivially_commutes(QubitOperator(()),
                                                     QubitOperator('X1')))
 
     def test_trivially_commutes_id_xx(self):
         self.assertTrue(_trotter.trivially_commutes(
-            QubitOperator(), QubitOperator('X1 X3')))
+            QubitOperator(()), QubitOperator('X1 X3')))
 
     def test_trivially_commutes_nonid_with_id(self):
         self.assertTrue(_trotter.trivially_commutes(
-            QubitOperator('X1 Z5 Y9 Z11'), QubitOperator()))
+            QubitOperator('X1 Z5 Y9 Z11'), QubitOperator(())))
 
     def test_trivially_commutes_no_intersect(self):
         self.assertTrue(_trotter.trivially_commutes(
@@ -105,9 +105,9 @@ class ErrorOperatorTest(unittest.TestCase):
             _trotter.error_operator([QubitOperator], 1)
 
     def test_error_operator_all_diagonal(self):
-        terms = [QubitOperator(), QubitOperator('Z0 Z1 Z2'),
+        terms = [QubitOperator(()), QubitOperator('Z0 Z1 Z2'),
                  QubitOperator('Z0 Z3'), QubitOperator('Z0 Z1 Z2 Z3')]
-        zero = QubitOperator((), 0.0)
+        zero = QubitOperator()
         self.assertTrue(zero.isclose(_trotter.error_operator(terms)))
 
     def test_error_operator_xyz(self):

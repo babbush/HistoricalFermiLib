@@ -1,1 +1,1 @@
-from ._qubit_operator import QubitOperator
+from _qubit_operator import *

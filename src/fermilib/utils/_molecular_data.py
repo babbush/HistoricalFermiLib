@@ -244,8 +244,8 @@ class MolecularData(object):
         """
         # Check appropriate data as been provided and autoload if requested.
         if ((geometry is None) or
-            (basis is None) or
-            (multiplicity is None)):
+                (basis is None) or
+                (multiplicity is None)):
             if filename:
                 if filename[-5:] == '.hdf5':
                     self.filename = filename[:(len(filename) - 5)]

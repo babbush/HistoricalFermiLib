@@ -6,8 +6,6 @@ import numpy
 
 import fermilib.ops as ops
 import fermilib.utils._jellium as jellium
-from fermilib.ops import FermionOperator
-from projectqtemp.ops import QubitOperator
 from fermilib.transforms import jordan_wigner, get_eigenspectrum
 
 
@@ -279,7 +277,10 @@ class JelliumTest(unittest.TestCase):
                             continue
 
                         zpzq = ((min(p, q), 'Z'), (max(p, q), 'Z'))
-                        potential_coefficient = qubit_potential.terms[zpzq]
+                        if zpzq in qubit_potential.terms:
+                            potential_coefficient = qubit_potential.terms[zpzq]
+                        else:
+                            potential_coefficient = 0.
 
                         for indices_c in \
                                 itertools.product(range(grid_length),

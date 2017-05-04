@@ -52,8 +52,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         self.assertEqual(raising.terms[correct_operators_c], 0.5)
 
     def test_bk_identity(self):
-        self.assertTrue(bravyi_kitaev(FermionOperator()).isclose(
-                        QubitOperator()))
+        self.assertTrue(bravyi_kitaev(FermionOperator(())).isclose(
+                        QubitOperator(())))
 
     def test_bk_jw_number_operator(self):
         # Check if number operator has the same spectrum in both
@@ -179,6 +179,7 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         bk_spectrum = get_eigenspectrum(bk_qubit_operator)
         self.assertAlmostEqual(0., numpy.amax(numpy.absolute(jw_spectrum -
                                                              bk_spectrum)))
+
 
 if __name__ == '__main__':
     unittest.main()
