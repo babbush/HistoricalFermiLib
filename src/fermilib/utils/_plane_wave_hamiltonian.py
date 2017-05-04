@@ -17,12 +17,13 @@ class ValueError(Exception):
     pass
 
 
-def dual_basis_u_operator(grid_length, length_scale, nuclear_charges,
-                          spinless):
+def dual_basis_u_operator(n_dimensions, grid_length, length_scale,
+                          nuclear_charges, spinless):
     """
     Return the external potential operator in plane wave dual basis.
 
     Args:
+        n_dimensions: An int giving the number of dimensions for the model.
         grid_length: Int, the number of points in one dimension of the grid.
         length_scale: Float, the real space length of a box dimension.
         nuclear_charges: 3D int array, the nuclear charges.
@@ -31,7 +32,6 @@ def dual_basis_u_operator(grid_length, length_scale, nuclear_charges,
     Returns:
         operator: An instance of the FermionOperator class.
     """
-    n_dimensions = 3
     n_points = grid_length ** n_dimensions
     volume = length_scale ** float(n_dimensions)
     prefactor = -4.0 * numpy.pi / volume
@@ -56,8 +56,7 @@ def dual_basis_u_operator(grid_length, length_scale, nuclear_charges,
                 momenta_squred = momenta.dot(momenta)
                 if momenta_squred < EQ_TOLERANCE:
                     continue
-                exp_index = numpy.exp(
-                        1.0j * momenta.dot(coordinate_j - coordinate_p))
+                exp_index = 1.0j * momenta.dot(coordinate_j - coordinate_p)
                 coefficient = prefactor / momenta_squred * \
                         nuclear_charges[grid_indices_j] * numpy.exp(exp_index)
 
@@ -73,12 +72,13 @@ def dual_basis_u_operator(grid_length, length_scale, nuclear_charges,
     return operator
 
 
-def plane_wave_u_operator(grid_length, length_scale, nuclear_charges,
-                          spinless):
+def plane_wave_u_operator(n_dimensions, grid_length, length_scale,
+                          nuclear_charges, spinless):
     """
     Return the external potential operator in plane wave basis.
 
     Args:
+        n_dimensions: An int giving the number of dimensions for the model.
         grid_length: Int, the number of points in one dimension of the grid.
         length_scale: Float, the real space length of a box dimension.
         nuclear_charges: 3D int array, the nuclear charges.
@@ -87,7 +87,6 @@ def plane_wave_u_operator(grid_length, length_scale, nuclear_charges,
     Returns:
         operator: An instance of the FermionOperator class.
     """
-    n_dimensions = 3
     n_points = grid_length ** n_dimensions
     volume = length_scale ** float(n_dimensions)
     prefactor = -4.0 * numpy.pi / volume
@@ -152,9 +151,9 @@ def get_hamiltonian(grid_length, length_scale, nuclear_charges, spinless=False,
 
     if use_dual_basis:
         return jellium_model(3, grid_length, length_scale, spinless, False) + \
-            dual_basis_u_operator(grid_length, length_scale, nuclear_charges,
+            dual_basis_u_operator(3, grid_length, length_scale, nuclear_charges,
                                   spinless)
     else:
         return jellium_model(3, grid_length, length_scale, spinless, True) + \
-            plane_wave_u_operator(grid_length, length_scale, nuclear_charges,
+            plane_wave_u_operator(3, grid_length, length_scale, nuclear_charges,
                                   spinless)
