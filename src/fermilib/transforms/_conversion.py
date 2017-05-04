@@ -17,7 +17,7 @@ from fermilib.transforms import FenwickTree
 from fermilib.ops._interaction_operator import InteractionOperatorError
 from fermilib.ops._sparse_operator import (qubit_term_sparse,
                                            qubit_operator_sparse,
-                                           jordan_wigner_operator_sparse)
+                                           jordan_wigner_sparse)
 from fermilib.utils import count_qubits
 
 
@@ -26,7 +26,7 @@ def get_sparse_operator(operator, n_qubits=None):
     if isinstance(operator, InteractionOperator):
         return get_sparse_interaction_operator(operator)
     elif isinstance(operator, FermionOperator):
-        return jordan_wigner_operator_sparse(operator)
+        return jordan_wigner_sparse(operator)
     elif isinstance(operator, QubitOperator):
         if n_qubits is None:
             n_qubits = count_qubits(operator)
@@ -36,7 +36,7 @@ def get_sparse_operator(operator, n_qubits=None):
 def get_sparse_interaction_operator(iop):
     # TODO: Replace with much faster "direct" routine.
     fermion_operator = get_fermion_operator(iop)
-    sparse_operator = jordan_wigner_operator_sparse(fermion_operator)
+    sparse_operator = jordan_wigner_sparse(fermion_operator)
     return sparse_operator
 
 
