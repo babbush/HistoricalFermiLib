@@ -173,7 +173,7 @@ def momentum_kinetic_operator(n_dimensions, grid_length,
     """
     # Initialize.
     n_points = grid_length ** n_dimensions
-    operator = FermionOperator((), 0.0)
+    operator = FermionOperator()
     if spinless:
         spins = [None]
     else:
@@ -308,7 +308,7 @@ def position_kinetic_operator(n_dimensions, grid_length,
     """
     # Initialize.
     n_points = grid_length ** n_dimensions
-    operator = FermionOperator((), 0.0)
+    operator = FermionOperator()
     if spinless:
         spins = [None]
     else:
@@ -368,7 +368,7 @@ def position_potential_operator(n_dimensions, grid_length,
     n_points = grid_length ** n_dimensions
     volume = length_scale ** float(n_dimensions)
     prefactor = 2. * numpy.pi / volume
-    operator = FermionOperator((), 0.0)
+    operator = FermionOperator()
     if spinless:
         spins = [None]
     else:
@@ -471,7 +471,7 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
     else:
         spins = [0, 1]
         n_qubits = 2 * n_orbitals
-    hamiltonian = QubitOperator((), 0.0)
+    hamiltonian = QubitOperator()
 
     # Compute the identity coefficient.
     identity_coefficient = 0.
@@ -486,7 +486,7 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
         identity_coefficient /= 2.
 
     # Add identity term.
-    identity_term = identity_coefficient * QubitOperator()
+    identity_term = QubitOperator((), identity_coefficient)
     hamiltonian += identity_term
 
     # Compute coefficient of local Z terms.

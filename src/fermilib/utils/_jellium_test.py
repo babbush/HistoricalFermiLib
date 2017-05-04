@@ -6,8 +6,6 @@ import numpy
 
 import fermilib.ops as ops
 import fermilib.utils._jellium as jellium
-from fermilib.ops import FermionOperator
-from projectqtemp.ops import QubitOperator
 from fermilib.transforms import jordan_wigner, get_eigenspectrum
 
 

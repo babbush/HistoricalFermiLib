@@ -29,7 +29,7 @@ class JordanWignerTransformTest(unittest.TestCase):
 
     def test_transm_raise3(self):
         raising = jordan_wigner(FermionOperator(((3, 1),)))
-        self.assertEqual(len(raising.terms), 3)  # identity is also there
+        self.assertEqual(len(raising.terms), 2)
 
         correct_operators_x = ((0, 'Z'), (1, 'Z'), (2, 'Z'), (3, 'X'))
         correct_operators_y = ((0, 'Z'), (1, 'Z'), (2, 'Z'), (3, 'Y'))
@@ -177,9 +177,9 @@ class JordanWignerTransformTest(unittest.TestCase):
         c1 = FermionOperator(((1, 1),))
         a1 = hermitian_conjugated(c1)
         self.assertTrue(normal_ordered(c1 * a1).isclose(
-            FermionOperator() - normal_ordered(a1 * c1)))
+            FermionOperator(()) - normal_ordered(a1 * c1)))
         self.assertTrue(jordan_wigner(c1 * a1).isclose(
-            QubitOperator() - jordan_wigner(a1 * c1)))
+            QubitOperator(()) - jordan_wigner(a1 * c1)))
 
     def test_jordan_wigner_transm_op(self):
         n = number_operator(self.n_qubits)
@@ -274,7 +274,7 @@ class GetInteractionOperatorTest(unittest.TestCase):
         interaction_operator = InteractionOperator(-2j, self.one_body,
                                                    self.two_body)
         qubit_operator = jordan_wigner(interaction_operator)
-        self.assertTrue(qubit_operator.isclose(-2j * QubitOperator()))
+        self.assertTrue(qubit_operator.isclose(-2j * QubitOperator(())))
         self.assertEqual(interaction_operator,
                          get_interaction_operator(reverse_jordan_wigner(
                              qubit_operator), self.n_qubits))

@@ -52,8 +52,8 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         self.assertEqual(raising.terms[correct_operators_c], 0.5)
 
     def test_bk_identity(self):
-        self.assertTrue(bravyi_kitaev(FermionOperator()).isclose(
-                        QubitOperator()))
+        self.assertTrue(bravyi_kitaev(FermionOperator(())).isclose(
+                        QubitOperator(())))
 
     def test_bk_jw_number_operator(self):
         # Check if number operator has the same spectrum in both
@@ -144,41 +144,6 @@ class BravyiKitaevTransformTest(unittest.TestCase):
         self.assertAlmostEqual(0., numpy.amax(numpy.absolute(d_spectrum[0] -
                                                              d_spectrum[1])))
 
-    def test_bk_jw_integration(self):
-        # This is a legacy test, which was a minimal failing example when
-        # optimization for hermitian operators was used.
-        n_qubits = 4
-
-        # Minimal failing example:
-        fo = FermionOperator(((3, 1),))
-
-        jw = jordan_wigner(fo)
-        bk = bravyi_kitaev(fo)
-
-        jw_spectrum = get_eigenspectrum(jw)
-        bk_spectrum = get_eigenspectrum(bk)
-
-        self.assertAlmostEqual(0., numpy.amax(numpy.absolute(jw_spectrum -
-                                                             bk_spectrum)))
-
-    def test_bk_jw_integration_original(self):
-        # This is a legacy test, which was an example proposed by Ryan,
-        # failing when optimization for hermitian operators was used.
-        n_qubits = 5
-        fermion_operator = FermionOperator(((3, 1), (2, 1), (1, 0), (0, 0)),
-                                           -4.3)
-        fermion_operator += FermionOperator(((3, 1), (1, 0)), 8.17)
-        fermion_operator += 3.2 * FermionOperator()
-
-        # Map to qubits and compare matrix versions.
-        jw_qubit_operator = jordan_wigner(fermion_operator)
-        bk_qubit_operator = bravyi_kitaev(fermion_operator)
-
-        # Diagonalize and make sure the spectra are the same.
-        jw_spectrum = get_eigenspectrum(jw_qubit_operator)
-        bk_spectrum = get_eigenspectrum(bk_qubit_operator)
-        self.assertAlmostEqual(0., numpy.amax(numpy.absolute(jw_spectrum -
-                                                             bk_spectrum)))
 
 if __name__ == '__main__':
     unittest.main()

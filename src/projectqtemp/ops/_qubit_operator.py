@@ -67,24 +67,20 @@ class QubitOperator(object):
         hamiltonian = 0.5 * QubitOperator('X0 X5') + 0.3 * QubitOperator('Z0')
 
     Attributes:
-      terms (dict): key: A term represented by a tuple of tuples. Each tuple
-                         represents a local operator and is a Pauli operator
-                         ('I', 'X', 'Y', or 'Z') which acts on one qubit
-                         stored as a tuple. The first element is an integer
-                         indicating the qubit on which a non-trivial local
-                         operator acts and the second element is a string,
-                         either 'X', 'Y', or 'Z', indicating which non-trivial
-                         Pauli operator acts on that qubit.
-                         E.g. 'X1 Y5' is ((1, 'X'), (5, 'Y'))
-                         The tuples are sorted according to the qubit number
-                         they act on, starting from 0.
-                    value: Coefficient of this term as a (complex) float
+        terms (dict): **key**: A term represented by a tuple of tuples. Each
+                      tuple represents a local operator and is a Pauli
+                      operator ('I', 'X', 'Y', or 'Z') which acts on one qubit
+                      stored as a tuple. The first element is an integer
+                      indicating the qubit on which a non-trivial local
+                      operator acts and the second element is a string,
+                      either 'X', 'Y', or 'Z', indicating which non-trivial
+                      Pauli operator acts on that qubit.
+                      E.g. 'X1 Y5' is ((1, 'X'), (5, 'Y'))
+                      The tuples are sorted according to the qubit number
+                      they act on, starting from 0.
+                      **value**: Coefficient of this term as a (complex) float
     """
-
-    # TODO: Why is this useful?
-    __array_priority__ = 0  # this ensures good behavior with numpy scalars
-
-    def __init__(self, term=(), coefficient=1.):
+    def __init__(self, term=None, coefficient=1.):
         """
         Inits a QubitOperator.
 
@@ -95,10 +91,11 @@ class QubitOperator(object):
         Example:
             .. code-block:: python
 
-            ham = (QubitOperator('X0 Y3', 0.5) + 0.6 * QubitOperator('X0 Y3'))
-            # Equivalently
-            ham2 = QubitOperator('X0 Y3', 0.5)
-            ham2 += 0.6 * QubitOperator('X0 Y3')
+                ham = ((QubitOperator('X0 Y3', 0.5)
+                        + 0.6 * QubitOperator('X0 Y3')))
+                # Equivalently
+                ham2 = QubitOperator('X0 Y3', 0.5)
+                ham2 += 0.6 * QubitOperator('X0 Y3')
 
         Note:
             Adding terms to QubitOperator is faster using += (as this is done
@@ -117,20 +114,19 @@ class QubitOperator(object):
                    indicating which local operator acts on that qubit.
                 2) A string of the form 'X0 Z2 Y5', indicating an X on
                    qubit 0, Z on qubit 2, and Y on qubit 5. The string should
-                   be sorted by the qubit number.
-                3) default will result in identity operations on all qubits,
-                   which is just an empty tuple '()'
+                   be sorted by the qubit number. '' is the identity.
+                3) default will result in zero operator.
 
         Raises:
           QubitOperatorError: Invalid operators provided to QubitOperator.
         """
-        if not isinstance(term, (tuple, str)):
-            raise ValueError('term specified incorrectly.')
+        self.terms = {}
         if not isinstance(coefficient, (int, float, complex)):
             raise ValueError('Coefficient must be a numeric type.')
-
-        self.terms = {}
-
+        if term is None:
+            return
+        elif not isinstance(term, (tuple, str)):
+            raise ValueError('term specified incorrectly.')
         if isinstance(term, str):
             list_ops = []
             for el in term.split():
@@ -162,8 +158,7 @@ class QubitOperator(object):
                                              ' non-negative int.')
 
     def n_qubits(self):
-        """Return the minimum number of qubits this QubitOperator must
-        act on."""
+        """Return the minimum number of qubits this QubitOperator acts on."""
         highest_qubit = 0
         for term in self.terms:
             term_qubits = max(term or ((-1, -1),), key=lambda t: t[0])[0] + 1
@@ -241,9 +236,8 @@ class QubitOperator(object):
                         if left_qubit == right_qubit:
                             left_operator_index += 1
                             right_operator_index += 1
-                            (scalar, loc_op) = (
-                                _PAULI_OPERATOR_PRODUCTS[(left_loc_op,
-                                                          right_loc_op)])
+                            (scalar, loc_op) = _PAULI_OPERATOR_PRODUCTS[
+                                                  (left_loc_op, right_loc_op)]
 
                             # Add new term.
                             if loc_op != 'I':
@@ -262,7 +256,8 @@ class QubitOperator(object):
 
                     # Finish the remainding operators:
                     if left_operator_index == n_operators_left:
-                        product_operators += right_term[right_operator_index::]
+                        product_operators += right_term[
+                                                right_operator_index::]
                     elif right_operator_index == n_operators_right:
                         product_operators += left_term[left_operator_index::]
 
@@ -357,7 +352,7 @@ class QubitOperator(object):
         """ For compatibility with Python 2. """
         return self.__itruediv__(divisor)
 
-    def __iadd__(self, addend):
+    def __iadd__(self, addend, rel_tol=1e-12):
         """
         In-place method for += addition of QubitOperator.
 
@@ -370,7 +365,11 @@ class QubitOperator(object):
         if isinstance(addend, QubitOperator):
             for term in addend.terms:
                 if term in self.terms:
-                    self.terms[term] += addend.terms[term]
+                    if abs(addend.terms[term] +
+                           self.terms[term]) < rel_tol:
+                        del self.terms[term]
+                    else:
+                        self.terms[term] += addend.terms[term]
                 else:
                     self.terms[term] = addend.terms[term]
         else:
@@ -414,12 +413,6 @@ class QubitOperator(object):
     def __neg__(self):
         return -1. * self
 
-    def is_identity(self):
-        for term in self.terms:
-            if self.terms[term] and term != tuple():
-                return False
-        return True
-
     def __str__(self):
         """Return an easy-to-read string representation."""
         string_rep = ''
@@ -435,8 +428,8 @@ class QubitOperator(object):
                 else:
                     assert operator[1] == 'Z'
                     tmp_string += ' Z{}'.format(operator[0])
-            string_rep += '{}\n'.format(tmp_string)
-        return string_rep
+            string_rep += '{} +\n'.format(tmp_string)
+        return string_rep[:-3]
 
     def __repr__(self):
         return str(self)

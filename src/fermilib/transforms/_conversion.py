@@ -175,7 +175,7 @@ def get_fermion_operator(iop):
         fermion_operator: An instance of the FermionOperator class.
     """
     # Initialize with identity term.
-    fermion_operator = iop.constant * FermionOperator()
+    fermion_operator = FermionOperator((), iop.constant)
 
     # Add one-body terms.
     for p in range(iop.n_qubits):

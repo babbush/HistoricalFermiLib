@@ -1,1 +1,8 @@
-{}
+{
+  "_jellium_test.py::JelliumTest::test_coefficients": true, 
+  "_trotter_test.py::ErrorOperatorTest::test_error_operator_all_diagonal": true, 
+  "_trotter_test.py::TriviallyCommutesTest::test_trivially_commutes_id_id": true, 
+  "_trotter_test.py::TriviallyCommutesTest::test_trivially_commutes_id_x": true, 
+  "_trotter_test.py::TriviallyCommutesTest::test_trivially_commutes_id_xx": true, 
+  "_trotter_test.py::TriviallyCommutesTest::test_trivially_commutes_nonid_with_id": true
+}

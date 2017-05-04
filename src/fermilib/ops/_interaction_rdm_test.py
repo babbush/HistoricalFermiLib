@@ -31,7 +31,6 @@ class InteractionRDMTest(unittest.TestCase):
             term_coefficient = qubit_operator.terms[qubit_term]
             test_energy += (term_coefficient *
                             qubit_expectations.terms[qubit_term])
-
         self.assertLess(abs(test_energy - self.cisd_energy), EQ_TOLERANCE)
 
     def test_get_molecular_operator_expectation(self):

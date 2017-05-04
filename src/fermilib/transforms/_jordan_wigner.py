@@ -8,6 +8,36 @@ from fermilib.ops._sparse_operator import jordan_wigner_operator_sparse
 import itertools
 
 
+def jordan_wigner_term(term, coeff=1.):
+    """
+    Jordan-Wigner transform term and return the resulting qubit operator.
+
+    Returns:
+        transformed_term: An instance of the QubitOperator class.
+
+    Warning:
+        The runtime of this method is exponential in the locality of the
+        original FermionOperator.
+
+    """
+    # Initialize identity matrix.
+    transformed_term = QubitOperator((), coeff)
+
+    # Loop through operators, transform and multiply.
+    for operator in term:
+        z_factors = tuple((index, 'Z') for index in range(operator[0]))
+        pauli_x_component = QubitOperator(z_factors +
+                                          ((operator[0], 'X'),), 0.5)
+        if operator[1]:
+            pauli_y_component = QubitOperator(z_factors +
+                                              ((operator[0], 'Y'),), -0.5j)
+        else:
+            pauli_y_component = QubitOperator(z_factors +
+                                              ((operator[0], 'Y'),), 0.5j)
+        transformed_term *= pauli_x_component + pauli_y_component
+    return transformed_term
+
+
 def jordan_wigner(operator):
     """
     Apply the Jordan-Wigner transform to a FermionOperator or
@@ -28,8 +58,7 @@ def jordan_wigner(operator):
     if not isinstance(operator, FermionOperator):
         raise TypeError("operator must be a FermionOperator or "
                         "InteractionOperator.")
-
-    transformed_operator = QubitOperator((), 0.0)
+    transformed_operator = QubitOperator()
     for term in operator.terms:
         transformed_operator += jordan_wigner_term(term, operator.terms[term])
     return transformed_operator
@@ -46,39 +75,6 @@ def jordan_wigner_sparse(fermion_operator, n_qubits=None):
         return jordan_wigner_operator_sparse(fermion_operator, n_qubits)
 
     raise TypeError("fermion_operator should be a FermionOperator.")
-
-
-def jordan_wigner_term(term, coeff=1.):
-    """
-    Jordan-Wigner transform term and return the resulting qubit operator.
-
-    Returns:
-        transformed_term: An instance of the QubitOperator class.
-
-    Warning:
-        The runtime of this method is exponential in the locality of the
-        original FermionOperator.
-
-    """
-    # Initialize identity matrix.
-    transformed_term = QubitOperator(coefficient=coeff)
-
-    # Loop through operators, transform and multiply.
-    for operator in term:
-        z_factors = tuple((index, 'Z') for index in range(0, operator[0]))
-
-        # Handle identity.
-        pauli_x_component = QubitOperator(z_factors +
-                                          ((operator[0], 'X'),), 0.5)
-        if operator[1]:
-            pauli_y_component = QubitOperator(z_factors +
-                                              ((operator[0], 'Y'),), -0.5j)
-        else:
-            pauli_y_component = QubitOperator(z_factors +
-                                              ((operator[0], 'Y'),), 0.5j)
-
-        transformed_term *= pauli_x_component + pauli_y_component
-    return transformed_term
 
 
 def jordan_wigner_interaction_op(iop, n_qubits=None):
@@ -142,7 +138,7 @@ def jordan_wigner_one_body(p, q):
     because they are equal to their own Hermitian conjugate.
     """
     # Handle off-diagonal terms.
-    qubit_operator = QubitOperator((), 0.0)
+    qubit_operator = QubitOperator()
     if p != q:
         a, b = sorted([p, q])
         parity_string = tuple((z, 'Z') for z in range(a + 1, b))
@@ -167,7 +163,7 @@ def jordan_wigner_two_body(p, q, r, s):
     because they are equal to their own Hermitian conjugate.
     """
     # Initialize qubit operator.
-    qubit_operator = QubitOperator((), 0.0)
+    qubit_operator = QubitOperator()
 
     # Return zero terms.
     if (p == q) or (r == s):
@@ -231,7 +227,7 @@ def jordan_wigner_two_body(p, q, r, s):
 
         # Get operators.
         parity_string = tuple((z, 'Z') for z in range(a + 1, b))
-        pauli_z = QubitOperator(((c, 'Z'),), 1.)
+        pauli_z = QubitOperator(((c, 'Z'),))
         for operator in ['X', 'Y']:
             operators = ((a, operator),) + parity_string + ((b, operator),)
 

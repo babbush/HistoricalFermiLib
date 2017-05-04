@@ -11,7 +11,7 @@ class FermionOperatorError(Exception):
 
 def hermitian_conjugated(fermion_operator):
     """Return Hermitian conjugate of fermionic operator."""
-    conjugate_operator = FermionOperator((), 0.)
+    conjugate_operator = FermionOperator()
     for term, coefficient in iteritems(fermion_operator.terms):
         conjugate_term = tuple([(tensor_factor, 1 - action) for
                                 (tensor_factor, action) in reversed(term)])
@@ -30,7 +30,7 @@ def number_operator(n_orbitals, orbital=None, coefficient=1.):
         coefficient (float): The coefficient of the term.
     """
     if orbital is None:
-        operator = FermionOperator((), 0.0)
+        operator = FermionOperator()
         for spin_orbital in range(n_orbitals):
             operator += number_operator(n_orbitals, spin_orbital, coefficient)
     else:
@@ -66,7 +66,7 @@ def normal_ordered_term(term, coefficient):
     # form. Swap terms operators into correct position by moving from
     # left to right across ladder operators.
     term = list(term)
-    ordered_term = FermionOperator((), 0.)
+    ordered_term = FermionOperator()
     for i in range(1, len(term)):
         for j in range(i, 0, -1):
             right_operator = term[j]
@@ -117,7 +117,7 @@ def normal_ordered(fermion_operator):
       at most a constant number of times in the original term, the
       runtime of this method is exponential in the number of qubits.
     """
-    ordered_operator = FermionOperator((), 0.)
+    ordered_operator = FermionOperator()
     for term, coefficient in fermion_operator.terms.items():
         ordered_operator += normal_ordered_term(term, coefficient)
     return ordered_operator
@@ -156,7 +156,7 @@ class FermionOperator(object):
             value (complex float): The coefficient of term represented by key.
     """
 
-    def __init__(self, term=(), coefficient=1.):
+    def __init__(self, term=None, coefficient=1.):
         """Initializes a FermionOperator.
 
         The init function only allows to initialize a FermionOperator
@@ -188,8 +188,7 @@ class FermionOperator(object):
                    that mode.
                 2) A string of the form '0^ 2', indicating creation in
                    mode 0 and annihilation in mode 2.
-                3) default will result in identity operations on all
-                   modes, which is just an empty tuple '()'.
+                3) default will result in the zero operator.
             coefficient (complex float, optional): The coefficient of the term.
                                                    Default value is 1.0.
 
@@ -199,6 +198,8 @@ class FermionOperator(object):
         if not isinstance(coefficient, (int, float, complex)):
             raise ValueError('Coefficient must be scalar.')
         self.terms = {}
+        if term is None:
+            return
 
         # String input.
         if isinstance(term, str):
@@ -223,8 +224,8 @@ class FermionOperator(object):
             raise ValueError('Operators specified incorrectly.')
 
         # Check type.
-        for term in self.terms:
-            for ladder_operator in term:
+        for stored_term in self.terms:
+            for ladder_operator in stored_term:
                 orbital, action = ladder_operator
                 if not (isinstance(orbital, int) and orbital >= 0):
                     raise FermionOperatorError(
@@ -507,7 +508,7 @@ class FermionOperator(object):
                 'Can only raise FermionOperator to positive integer powers.')
 
         # Initialized identity.
-        exponentiated = FermionOperator()
+        exponentiated = FermionOperator(())
 
         # Handle non-zero exponents.
         for i in range(exponent):
