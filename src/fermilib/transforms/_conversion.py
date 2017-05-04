@@ -33,9 +33,8 @@ def get_sparse_operator(operator, n_qubits=None):
         return qubit_operator_sparse(operator, n_qubits)
 
 
-def get_sparse_interaction_operator(iop):
-    # TODO: Replace with much faster "direct" routine.
-    fermion_operator = get_fermion_operator(iop)
+def get_sparse_interaction_operator(interaction_operator):
+    fermion_operator = get_fermion_operator(interaction_operator)
     sparse_operator = jordan_wigner_sparse(fermion_operator)
     return sparse_operator
 
@@ -45,9 +44,8 @@ def get_interaction_rdm(qubit_operator, n_qubits=None):
 
     Returns: A InteractionRDM object.
     """
-    # to avoid circular import
+    # Avoid circular import.
     from fermilib.transforms import jordan_wigner
-
     if n_qubits is None:
         n_qubits = count_qubits(qubit_operator)
     if n_qubits == 0:
