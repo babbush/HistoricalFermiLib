@@ -277,23 +277,26 @@ class JelliumTest(unittest.TestCase):
                             continue
 
                         zpzq = ((min(p, q), 'Z'), (max(p, q), 'Z'))
-                        #potential_coefficient = qubit_potential.terms[zpzq]
+                        if zpzq in qubit_potential.terms:
+                            potential_coefficient = qubit_potential.terms[zpzq]
+                        else:
+                            potential_coefficient = 0.
 
-                        #for indices_c in \
-                        #        itertools.product(range(grid_length),
-                        #                          repeat=n_dimensions):
-                        #    momenta = jellium.momentum_vector(
-                        #        indices_c, grid_length, length_scale)
+                        for indices_c in \
+                                itertools.product(range(grid_length),
+                                                  repeat=n_dimensions):
+                            momenta = jellium.momentum_vector(
+                                indices_c, grid_length, length_scale)
 
-                        #    if momenta.any():
-                        #        potential_contribution = numpy.pi * numpy.cos(
-                        #            differences.dot(momenta)) / float(
-                        #            momenta.dot(momenta) * volume)
-                        #        paper_potential_coefficient += (
-                        #            potential_contribution)
+                            if momenta.any():
+                                potential_contribution = numpy.pi * numpy.cos(
+                                    differences.dot(momenta)) / float(
+                                    momenta.dot(momenta) * volume)
+                                paper_potential_coefficient += (
+                                    potential_contribution)
 
-                        #self.assertAlmostEqual(
-                        #    potential_coefficient, paper_potential_coefficient)
+                        self.assertAlmostEqual(
+                            potential_coefficient, paper_potential_coefficient)
 
     def test_jordan_wigner_position_jellium(self):
         # Parameters.
