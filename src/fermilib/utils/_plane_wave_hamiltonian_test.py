@@ -6,7 +6,8 @@ import numpy
 import fermilib.ops as ops
 import fermilib.utils._plane_wave_hamiltonian as plane_wave_hamiltonian
 import fermilib.utils._jellium as jellium
-from fermilib.transforms import jordan_wigner, get_eigenspectrum
+from fermilib.transforms import jordan_wigner
+from fermilib.utils import eigenspectrum
 
 
 class PlaneWaveHamiltonianTest(unittest.TestCase):
@@ -51,8 +52,8 @@ class PlaneWaveHamiltonianTest(unittest.TestCase):
                 spinless)
             jw_u_plane_wave = jordan_wigner(u_plane_wave)
             jw_u_dual_basis = jordan_wigner(u_dual_basis)
-            u_plane_wave_spectrum = get_eigenspectrum(jw_u_plane_wave)
-            u_dual_basis_spectrum = get_eigenspectrum(jw_u_dual_basis)
+            u_plane_wave_spectrum = eigenspectrum(jw_u_plane_wave)
+            u_dual_basis_spectrum = eigenspectrum(jw_u_dual_basis)
 
             diff = numpy.amax(numpy.absolute(
                 u_plane_wave_spectrum - u_dual_basis_spectrum))
