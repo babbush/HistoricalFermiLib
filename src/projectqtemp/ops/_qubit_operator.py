@@ -416,10 +416,9 @@ class QubitOperator(object):
     def is_identity(self):
         """Test whether term is identity."""
         for term in self.terms:
-            if term == ():
-                return True
-            return False
-        return False
+            if term != ():
+                return False
+        return bool(len(self.terms))
 
     def __str__(self):
         """Return an easy-to-read string representation."""
