@@ -223,8 +223,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
         hf_state = jw_hartree_fock_state(
             self.molecule.n_electrons, count_qubits(self.qubit_hamiltonian))
-        uccsd_sparse = jordan_wigner_operator_sparse(
-            ucc_operator, count_qubits(self.qubit_hamiltonian))
+        uccsd_sparse = jordan_wigner_operator_sparse(ucc_operator)
         uccsd_state = scipy.sparse.linalg.expm_multiply(uccsd_sparse.matrix,
                                                         hf_state)
         expected_uccsd_energy = self.hamiltonian_matrix.expectation(

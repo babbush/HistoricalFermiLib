@@ -1,5 +1,4 @@
 {
-  "_fermion_operator_test.py": true, 
   "_interaction_rdm_test.py": true, 
   "_sparse_operator_test.py": true
 }
