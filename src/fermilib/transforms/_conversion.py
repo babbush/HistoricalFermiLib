@@ -21,16 +21,31 @@ from fermilib.ops._sparse_operator import (qubit_term_sparse,
 from fermilib.utils import count_qubits
 
 
-def get_sparse_operator(op, n_qubits=None):
+def get_sparse_operator(operator, n_qubits=None):
     """Map a Fermion, Qubit, or InteractionOperator to a SparseOperator."""
-    if isinstance(op, InteractionOperator):
+    if isinstance(operator, InteractionOperator):
         return get_sparse_interaction_operator(op)
+<<<<<<< HEAD
     elif isinstance(op, FermionOperator):
         return jordan_wigner_operator_sparse(op)
     elif isinstance(op, QubitOperator):
         if n_qubits is None:
             n_qubits = count_qubits(op)
         return qubit_operator_sparse(op, n_qubits)
+=======
+    elif isinstance(operator, FermionOperator):
+        return jordan_wigner_sparse(operator, n_qubits)
+    elif not isinstance(operator, QubitOperator):
+        raise TypeError("operator must be mappable to SparseOperator.")
+
+    if n_qubits is None:
+        n_qubits = operator.n_qubits()
+    if n_qubits == 0:
+        raise QubitOperatorError('Invalid n_qubits.')
+    if n_qubits < operator.n_qubits():
+        n_qubits = operator.n_qubits()
+    return qubit_operator_sparse(operator, n_qubits)
+>>>>>>> 71de5ba905c14dc5605b79648f06f4185f0e61b7
 
 
 def get_sparse_interaction_operator(iop):
@@ -148,7 +163,7 @@ def get_interaction_operator(fermion_operator, n_qubits=None):
     return interaction_operator
 
 
-def get_fermion_operator(iop):
+def get_fermion_operator(interaction_operator):
     """
     Output InteractionOperator as an instance of FermionOperator class.
 
@@ -156,9 +171,10 @@ def get_fermion_operator(iop):
         fermion_operator: An instance of the FermionOperator class.
     """
     # Initialize with identity term.
-    fermion_operator = FermionOperator((), iop.constant)
+    fermion_operator = FermionOperator((), interaction_operator.constant)
 
     # Add one-body terms.
+<<<<<<< HEAD
     for p in range(count_qubits(iop)):
         for q in range(count_qubits(iop)):
             coefficient = iop[p, q]
@@ -168,6 +184,17 @@ def get_fermion_operator(iop):
             for r in range(count_qubits(iop)):
                 for s in range(count_qubits(iop)):
                     coefficient = iop[p, q, r, s]
+=======
+    for p in range(interaction_operator.n_qubits):
+        for q in range(interaction_operator.n_qubits):
+            coefficient = interaction_operator[p, q]
+            fermion_operator += FermionOperator(((p, 1), (q, 0)), coefficient)
+
+            # Add two-body terms.
+            for r in range(interaction_operator.n_qubits):
+                for s in range(interaction_operator.n_qubits):
+                    coefficient = interaction_operator[p, q, r, s]
+>>>>>>> 71de5ba905c14dc5605b79648f06f4185f0e61b7
                     fermion_operator += FermionOperator(((p, 1), (q, 1),
                                                          (r, 0), (s, 0)),
                                                         coefficient)

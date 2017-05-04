@@ -1,3 +1,5 @@
 {
-  "_interaction_rdm_test.py::InteractionRDMTest::test_get_qubit_expectations": true
+  "_fermion_operator_test.py": true, 
+  "_interaction_rdm_test.py": true, 
+  "_sparse_operator_test.py": true
 }

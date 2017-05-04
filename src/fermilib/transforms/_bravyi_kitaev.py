@@ -38,8 +38,8 @@ def bravyi_kitaev_term(term, n_qubits=None):
         raise ValueError('Invalid n_qubits.')
     if not len(term.terms):
         return QubitOperator()
-    ops = list(term.terms)[0]
-    coeff = term.terms[ops]
+    operators = list(term.terms)[0]
+    coeff = term.terms[operators]
 
     # Build the Fenwick Tree
     fenwick_tree = FenwickTree(n_qubits)
@@ -48,7 +48,7 @@ def bravyi_kitaev_term(term, n_qubits=None):
     transformed_term = QubitOperator((), coeff)
 
     # Build the Bravyi-Kitaev transformed operators.
-    for operator in ops:
+    for operator in operators:
         index = operator[0]
 
         # Parity set. Set of nodes to apply Z to.
