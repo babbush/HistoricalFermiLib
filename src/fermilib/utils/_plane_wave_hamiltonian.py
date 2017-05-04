@@ -98,21 +98,24 @@ def plane_wave_u_operator(n_dimensions, grid_length, length_scale,
 
     for grid_indices_p in itertools.product(range(grid_length),
                                             repeat=n_dimensions):
-        momenta_p = momentum_vector(grid_indices_p, grid_length,
-                                    length_scale)
         for grid_indices_q in itertools.product(range(grid_length),
                                                 repeat=n_dimensions):
-            if grid_indices_p == grid_indices_q:
+            shift = grid_length // 2
+            grid_indices_p_q = [
+                (grid_indices_p[i] - grid_indices_q[i] + shift) % grid_length
+                for i in range(n_dimensions)]
+            momenta_p_q = momentum_vector(grid_indices_p_q, grid_length,
+                                          length_scale)
+            momenta_p_q_squared = momenta_p_q.dot(momenta_p_q)
+            if momenta_p_q_squared < EQ_TOLERANCE:
                 continue
-            momenta_q = momentum_vector(grid_indices_q, grid_length,
-                                        length_scale)
-            momenta_p_q = momenta_p - momenta_q
+
             for grid_indices_j in itertools.product(range(grid_length),
                                                     repeat=n_dimensions):
                 coordinate_j = position_vector(grid_indices_j, grid_length,
                                                length_scale)
                 exp_index = 1.0j * momenta_p_q.dot(coordinate_j)
-                coefficient = prefactor / momenta_p_q.dot(momenta_p_q) * \
+                coefficient = prefactor / momenta_p_q_squared * \
                         nuclear_charges[grid_indices_j] * numpy.exp(exp_index)
 
                 for spin_p in spins:
@@ -130,12 +133,13 @@ def plane_wave_u_operator(n_dimensions, grid_length, length_scale,
     return operator
 
 
-def get_hamiltonian(grid_length, length_scale, nuclear_charges, spinless=False,
-                    use_dual_basis=True):
+def get_hamiltonian(n_dimensions, grid_length, length_scale, nuclear_charges,
+                    spinless=False, use_dual_basis=True):
     """
     Returns Hamiltonian as FermionOperator class.
 
     Args:
+        n_dimensions: An int giving the number of dimensions for the model.
         grid_length: Int, the number of points in one dimension of the grid.
         length_scale: Float, the real space length of a box dimension.
         nuclear_charges: 3D int array, the nuclear charges.
@@ -146,14 +150,16 @@ def get_hamiltonian(grid_length, length_scale, nuclear_charges, spinless=False,
     Returns:
         hamiltonian: An instance of the FermionOperator class.
     """
-    if nuclear_charges.shape != (grid_length, grid_length, grid_length):
+    if len(nuclear_charges.shape) != n_dimensions:
         raise ValueError('Invalid nuclear charges array shape.')
 
     if use_dual_basis:
-        return jellium_model(3, grid_length, length_scale, spinless, False) + \
-            dual_basis_u_operator(3, grid_length, length_scale, nuclear_charges,
-                                  spinless)
+        return jellium_model(n_dimensions, grid_length, length_scale, spinless,
+                             False) + \
+            dual_basis_u_operator(n_dimensions, grid_length, length_scale,
+                                  nuclear_charges, spinless)
     else:
-        return jellium_model(3, grid_length, length_scale, spinless, True) + \
-            plane_wave_u_operator(3, grid_length, length_scale, nuclear_charges,
-                                  spinless)
+        return jellium_model(n_dimensions, grid_length, length_scale, spinless,
+                             True) + \
+            plane_wave_u_operator(n_dimensions, grid_length, length_scale,
+                                  nuclear_charges, spinless)
