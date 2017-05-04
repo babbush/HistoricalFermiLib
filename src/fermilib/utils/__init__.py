@@ -13,4 +13,4 @@ from ._jellium import (jellium_model,
 
 from ._molecular_data import MolecularData, periodic_table
 
-from ._unitary_cc import uccsd_operator
+from ._unitary_cc import uccsd_operator, uccsd_circuit, uccsd_trotter_engine
