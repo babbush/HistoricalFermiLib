@@ -22,9 +22,9 @@ class ReverseJWTest(unittest.TestCase):
         self.operator_b = QubitOperator(self.operators_b, self.coefficient_b)
         self.operator_ab = self.operator_a + self.operator_b
         self.qubit_operator = QubitOperator(
-                ((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
+            ((1, 'X'), (3, 'Y'), (8, 'Z')), 0.5)
         self.qubit_operator += QubitOperator(
-                ((1, 'Z'), (3, 'X'), (8, 'Z')), 1.2)
+            ((1, 'Z'), (3, 'X'), (8, 'Z')), 1.2)
 
     def test_identity_jwterm(self):
         self.assertTrue(FermionOperator(()).isclose(

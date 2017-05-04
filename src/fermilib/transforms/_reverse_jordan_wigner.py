@@ -65,7 +65,7 @@ def reverse_jordan_wigner(qubit_operator, n_qubits=None):
                         lowering_term *= -1.j
                     elif pauli_operator[1] != 'X':
                         raise QubitOperatorError(
-                                'Pauli operators must be X, Y, or Z')
+                            'Pauli operators must be X, Y, or Z')
                     transformed_pauli = raising_term + lowering_term
 
                     # Account for the phase terms.

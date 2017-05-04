@@ -167,10 +167,10 @@ class FermionOperator(object):
         Example:
             .. code-block:: python
 
-                ham = (FermionOperator('0^ 3', .5) + .5 * FermionOperator('3^ 0'))
-                # Equivalently
-                ham2 = FermionOperator('0^ 3', 0.5)
-                ham2 += FermionOperator('3^ 0', 0.5)
+            ham = (FermionOperator('0^ 3', .5) + .5 * FermionOperator('3^ 0'))
+            # Equivalently
+            ham2 = FermionOperator('0^ 3', 0.5)
+            ham2 += FermionOperator('3^ 0', 0.5)
 
         Note:
             Adding terms to FermionOperator is faster using += (as this
