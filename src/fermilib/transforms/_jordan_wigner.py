@@ -8,36 +8,6 @@ from fermilib.utils import count_qubits
 import itertools
 
 
-def jordan_wigner_term(term, coeff=1.):
-    """
-    Jordan-Wigner transform term and return the resulting qubit operator.
-
-    Returns:
-        transformed_term: An instance of the QubitOperator class.
-
-    Warning:
-        The runtime of this method is exponential in the locality of the
-        original FermionOperator.
-
-    """
-    # Initialize identity matrix.
-    transformed_term = QubitOperator((), coeff)
-
-    # Loop through operators, transform and multiply.
-    for operator in term:
-        z_factors = tuple((index, 'Z') for index in range(operator[0]))
-        pauli_x_component = QubitOperator(z_factors +
-                                          ((operator[0], 'X'),), 0.5)
-        if operator[1]:
-            pauli_y_component = QubitOperator(z_factors +
-                                              ((operator[0], 'Y'),), -0.5j)
-        else:
-            pauli_y_component = QubitOperator(z_factors +
-                                              ((operator[0], 'Y'),), 0.5j)
-        transformed_term *= pauli_x_component + pauli_y_component
-    return transformed_term
-
-
 def jordan_wigner(operator):
     """
     Apply the Jordan-Wigner transform to a FermionOperator or
@@ -54,13 +24,29 @@ def jordan_wigner(operator):
     """
     if isinstance(operator, InteractionOperator):
         return jordan_wigner_interaction_op(operator)
-
     if not isinstance(operator, FermionOperator):
         raise TypeError("operator must be a FermionOperator or "
                         "InteractionOperator.")
     transformed_operator = QubitOperator()
     for term in operator.terms:
-        transformed_operator += jordan_wigner_term(term, operator.terms[term])
+
+        # Initialize identity matrix.
+        transformed_term = QubitOperator((), operator.terms[term])
+
+        # Loop through operators, transform and multiply.
+        for ladder_operator in term:
+            z_factors = tuple((index, 'Z') for
+                              index in range(ladder_operator[0]))
+            pauli_x_component = QubitOperator(
+                z_factors + ((ladder_operator[0], 'X'),), 0.5)
+            if ladder_operator[1]:
+                pauli_y_component = QubitOperator(
+                    z_factors + ((ladder_operator[0], 'Y'),), -0.5j)
+            else:
+                pauli_y_component = QubitOperator(
+                    z_factors + ((ladder_operator[0], 'Y'),), 0.5j)
+            transformed_term *= pauli_x_component + pauli_y_component
+        transformed_operator += transformed_term
     return transformed_operator
 
 
