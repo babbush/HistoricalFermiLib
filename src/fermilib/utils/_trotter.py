@@ -143,8 +143,8 @@ def error_bound(terms, tight=False):
     if tight:
         # return the Frobenius norm of the error operator
         # (upper bound on error)
-        error = sum(coefficient ** 2
-                    for coefficent in error_operator(terms).terms.values())
+        error = sum(abs(coefficient) ** 2
+                    for coefficient in error_operator(terms).terms.values())
 
         error = sqrt(error)
 

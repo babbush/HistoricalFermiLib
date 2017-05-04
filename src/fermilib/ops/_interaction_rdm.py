@@ -75,11 +75,12 @@ class InteractionRDM(InteractionTensor):
 
     def get_qubit_expectations(self, qubit_operator):
         """
-        Return expectations of qubit op as coefficients of new qubit op.
+        Return expectations of qubit operator as coefficients of
+        new QubitOperator.
 
         Args:
-            qubit_operator: QubitOperator instance to be evaluated on this
-                            InteractionRDM.
+            qubit_operator: QubitOperator instance to be evaluated on
+                            this InteractionRDM.
 
         Returns:
             qubit_operator_expectations: QubitOperator with coefficients
