@@ -118,17 +118,16 @@ def plane_wave_u_operator(n_dimensions, grid_length, length_scale,
                 coefficient = prefactor / momenta_p_q_squared * \
                         nuclear_charges[grid_indices_j] * numpy.exp(exp_index)
 
-                for spin_p in spins:
-                    for spin_q in spins:
-                        orbital_p = orbital_id(
-                                grid_length, grid_indices_p, spin_p)
-                        orbital_q = orbital_id(
-                                grid_length, grid_indices_q, spin_q)
-                        operators = ((orbital_p, 1), (orbital_q, 0))
-                        if operator is None:
-                            operator = FermionOperator(operators, coefficient)
-                        else:
-                            operator += FermionOperator(operators, coefficient)
+                for spin in spins:
+                    orbital_p = orbital_id(
+                            grid_length, grid_indices_p, spin)
+                    orbital_q = orbital_id(
+                            grid_length, grid_indices_q, spin)
+                    operators = ((orbital_p, 1), (orbital_q, 0))
+                    if operator is None:
+                        operator = FermionOperator(operators, coefficient)
+                    else:
+                        operator += FermionOperator(operators, coefficient)
 
     return operator
 
