@@ -111,7 +111,7 @@ def jordan_wigner_term_sparse(fermion_term, n_qubits):
     return fermion_term.coefficient * sparse_operator
 
 
-def jordan_wigner_operator_sparse(fermion_operator, n_qubits):
+def jordan_wigner_operator_sparse(fermion_operator):
     """
     Initialize a SparseOperator from a FermionOperator.
 
@@ -124,6 +124,9 @@ def jordan_wigner_operator_sparse(fermion_operator, n_qubits):
         The corresponding SparseOperator.
 
     """
+    from fermilib.utils import count_qubits
+    n_qubits = count_qubits(fermion_operator)
+
     # Create a list of raising and lowering operators for each orbital.
     jw_operators = []
     for tensor_factor in range(n_qubits):

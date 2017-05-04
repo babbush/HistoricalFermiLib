@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 from fermilib.ops import FermionOperator
 from fermilib.transforms import FenwickTree
+from fermilib.utils import count_qubits
 
 from projectqtemp.ops import QubitOperator
 
@@ -17,7 +18,7 @@ def bravyi_kitaev_term(term, n_qubits=None):
 
     Args:
         term: A fermionic operator to be transformed
-        n_qubits: number of qubits in the register TODO (?)
+        n_qubits: number of qubits in the register.
 
     Returns:
         transformed_term: An instance of the QubitOperator class.
@@ -32,8 +33,8 @@ def bravyi_kitaev_term(term, n_qubits=None):
         raise ValueError("term must be a single-term FermionOperator.")
 
     if n_qubits is None:
-        n_qubits = term.n_qubits()
-    if n_qubits < term.n_qubits():
+        n_qubits = count_qubits(term)
+    if n_qubits < count_qubits(term):
         raise ValueError('Invalid n_qubits.')
     if not len(term.terms):
         return QubitOperator()
@@ -94,9 +95,9 @@ def bravyi_kitaev(op, n_qubits=None):
     """
 
     if n_qubits is None:
-        n_qubits = op.n_qubits()
+        n_qubits = count_qubits(op)
 
-    if n_qubits < op.n_qubits():
+    if n_qubits < count_qubits(op):
         raise ValueError('Invalid n_qubits.')
 
     if isinstance(op, FermionOperator) and len(op.terms) == 1:

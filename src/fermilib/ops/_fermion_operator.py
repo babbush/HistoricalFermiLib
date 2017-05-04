@@ -236,15 +236,6 @@ class FermionOperator(object):
                         'Invalid action in FermionOperator: '
                         'Must be 0 (lowering) or 1 (raising).')
 
-    def n_qubits(self):
-        """Return minimum number of qubits on which FermionOperator acts."""
-        highest_mode = 0
-        for term in self.terms:
-            for ladder_operator in term:
-                if ladder_operator[0] + 1 > highest_mode:
-                    highest_mode = ladder_operator[0] + 1
-        return highest_mode
-
     def is_normal_ordered(self):
         """Return whether or not term is in normal order.
 
@@ -252,7 +243,6 @@ class FermionOperator(object):
         from highest tensor factor (on left) to lowest (on right). Also,
         ladder operators come first.
         """
-        n_qubits = self.n_qubits()
         for term in self.terms:
             for i in range(1, len(term)):
                 for j in range(i, 0, -1):
@@ -284,12 +274,6 @@ class FermionOperator(object):
                 particles += (-1) ** operator[1]  # add 1 if create, else -1
                 spin += (-1) ** (operator[0] + operator[1])
             if not (particles == spin == 0):
-                return False
-        return True
-
-    def is_identity(self):
-        for term in self.terms:
-            if self.terms[term] and term != tuple():
                 return False
         return True
 

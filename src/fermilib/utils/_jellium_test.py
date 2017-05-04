@@ -6,7 +6,8 @@ import numpy
 
 import fermilib.ops as ops
 import fermilib.utils._jellium as jellium
-from fermilib.transforms import jordan_wigner, get_eigenspectrum
+from fermilib.transforms import jordan_wigner
+from fermilib.utils import count_qubits, eigenspectrum
 
 
 class JelliumTest(unittest.TestCase):
@@ -117,8 +118,8 @@ class JelliumTest(unittest.TestCase):
         # Diagonalize and confirm the same energy.
         jw_momentum = jordan_wigner(momentum_kinetic)
         jw_position = jordan_wigner(position_kinetic)
-        momentum_spectrum = get_eigenspectrum(jw_momentum)
-        position_spectrum = get_eigenspectrum(jw_position)
+        momentum_spectrum = eigenspectrum(jw_momentum)
+        position_spectrum = eigenspectrum(jw_position)
 
         # Confirm spectra are the same.
         difference = numpy.amax(
@@ -141,8 +142,8 @@ class JelliumTest(unittest.TestCase):
         # Diagonalize and confirm the same energy.
         jw_momentum = jordan_wigner(momentum_potential)
         jw_position = jordan_wigner(position_potential)
-        momentum_spectrum = get_eigenspectrum(jw_momentum)
-        position_spectrum = get_eigenspectrum(jw_position)
+        momentum_spectrum = eigenspectrum(jw_momentum)
+        position_spectrum = eigenspectrum(jw_position)
 
         # Confirm spectra are the same.
         difference = numpy.amax(
@@ -164,8 +165,8 @@ class JelliumTest(unittest.TestCase):
         # Diagonalize and confirm the same energy.
         jw_momentum = jordan_wigner(momentum_hamiltonian)
         jw_position = jordan_wigner(position_hamiltonian)
-        momentum_spectrum = get_eigenspectrum(jw_momentum)
-        position_spectrum = get_eigenspectrum(jw_position)
+        momentum_spectrum = eigenspectrum(jw_momentum)
+        position_spectrum = eigenspectrum(jw_position)
 
         # Confirm spectra are the same.
         difference = numpy.amax(
@@ -318,7 +319,7 @@ class JelliumTest(unittest.TestCase):
         self.assertTrue(test_hamiltonian.isclose(qubit_hamiltonian))
 
         # Check number of terms.
-        n_qubits = qubit_hamiltonian.n_qubits()
+        n_qubits = count_qubits(qubit_hamiltonian)
         if spinless:
             paper_n_terms = 1 - .5 * n_qubits + 1.5 * (n_qubits ** 2)
         else:

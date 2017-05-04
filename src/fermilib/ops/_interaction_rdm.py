@@ -4,11 +4,12 @@ from __future__ import absolute_import
 import copy
 import numpy
 
+from projectqtemp.ops import QubitOperator
+
 from fermilib.ops import (FermionOperator,
                           InteractionTensor,
                           InteractionOperator,
                           normal_ordered)
-from projectqtemp.ops import QubitOperator
 
 
 class InteractionRDMError(Exception):
@@ -89,11 +90,12 @@ class InteractionRDM(InteractionTensor):
           InteractionRDMError: Observable not contained in 1-RDM or 2-RDM.
 
         """
+        from fermilib.utils import is_identity
         qubit_operator_expectations = copy.deepcopy(qubit_operator)
         for qubit_term in qubit_operator_expectations.terms:
             qubit_term = QubitOperator(
                 qubit_term, qubit_operator_expectations.terms[qubit_term])
-            if (not qubit_term.is_identity() and
+            if (not is_identity(qubit_term) and
                     qubit_term.terms[list(qubit_term.terms)[0]]):
 
                 # Set coefficient to 1, then to correct expectation value.
@@ -113,6 +115,7 @@ class InteractionRDM(InteractionTensor):
                         InteractionRDM.
         """
         from fermilib.transforms import reverse_jordan_wigner
+        from fermilib.utils import is_identity
         if len(qubit_term.terms) != 1:
             raise ValueError('qubit_term must be a single-term'
                              ' QubitOperator.')
@@ -125,7 +128,7 @@ class InteractionRDM(InteractionTensor):
             fermion_term = FermionOperator(ops, coeff)
             # Handle molecular terms.
             if fermion_term.is_molecular_term():
-                if fermion_term.is_identity():
+                if is_identity(fermion_term):
                     expectation += coeff
                 else:
                     indices = [operator[0] for operator in

@@ -90,27 +90,6 @@ def test_number_operator_nosite():
     assert op.isclose(expected)
 
 
-def test_nqubits_0():
-    op = FermionOperator()
-    assert op.n_qubits() == 0
-
-
-def test_nqubits_1():
-    op = FermionOperator('0', 3)
-    assert op.n_qubits() == 1
-
-
-def test_nqubits_doubledigit():
-    op = FermionOperator('27 5^ 11^')
-    assert op.n_qubits() == 28
-
-
-def test_nqubits_multiterm():
-    op = (FermionOperator() + FermionOperator('1 2 3') +
-          FermionOperator())
-    assert op.n_qubits() == 4
-
-
 def test_isclose_abs_tol():
     a = FermionOperator('0^', -1.)
     b = FermionOperator('0^', -1.05)
@@ -655,31 +634,6 @@ def test_is_molecular_term_three():
 def test_is_molecular_term_r():
     op = FermionOperator(((0, 1), (2, 0), (1, 1), (3, 0)))
     assert op.is_molecular_term()
-
-
-def test_isidentity_identity():
-    assert FermionOperator().is_identity()
-
-
-def test_isidentity_mulidentity():
-    op = FermionOperator() * 2
-    assert op.is_identity()
-
-
-def test_isidentity_zero():
-    op = 0 * FermionOperator() + FermionOperator('2^', 0.0)
-    assert op.is_identity()
-
-
-def test_isidentity_zeroX():
-    op = -2 * FermionOperator() + FermionOperator('2', 0.0)
-    assert op.is_identity()
-
-
-def test_isidentity_IX():
-    op = -2 * FermionOperator() + FermionOperator('0', 0.03j)
-    assert not op.is_identity()
-
 
 def test_str():
     op = FermionOperator(((1, 1), (3, 0), (8, 1)), 0.5)
