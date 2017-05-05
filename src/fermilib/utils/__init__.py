@@ -39,7 +39,7 @@ from ._sparse_tools import (expectation,
                             sparse_eigenspectrum)
 
 from ._unitary_cc import (uccsd_operator,
-                          uccsd_circuit,
+                          uccsd_singlet_evolution,
                           uccsd_trotter_engine,
                           uccsd_singlet_operator,
                           uccsd_singlet_paramsize)
