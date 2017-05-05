@@ -34,12 +34,12 @@ class PlaneWaveHamiltonianTest(unittest.TestCase):
         nuclear_charges[1] = -3
         nuclear_charges[2] = 2
         for spinless in spinless_set:
-            h_plane_wave = get_hamiltonian(
-                n_dimensions, grid_length, length_scale, nuclear_charges,
-                spinless, False)
-            h_dual_basis = get_hamiltonian(
+            h_plane_wave = plane_wave_hamiltonian(
                 n_dimensions, grid_length, length_scale, nuclear_charges,
                 spinless, True)
+            h_dual_basis = plane_wave_hamiltonian(
+                n_dimensions, grid_length, length_scale, nuclear_charges,
+                spinless, False)
             h_plane_wave_t = fourier_transform(
                 h_plane_wave, n_dimensions, grid_length, length_scale,
                 spinless)
@@ -56,12 +56,12 @@ class PlaneWaveHamiltonianTest(unittest.TestCase):
         nuclear_charges[1] = -3
         nuclear_charges[2] = 2
         for spinless in spinless_set:
-            h_plane_wave = get_hamiltonian(
-                n_dimensions, grid_length, length_scale, nuclear_charges,
-                spinless, False)
-            h_dual_basis = get_hamiltonian(
+            h_plane_wave = plane_wave_hamiltonian(
                 n_dimensions, grid_length, length_scale, nuclear_charges,
                 spinless, True)
+            h_dual_basis = plane_wave_hamiltonian(
+                n_dimensions, grid_length, length_scale, nuclear_charges,
+                spinless, False)
             h_dual_basis_t = inverse_fourier_transform(
                 h_dual_basis, n_dimensions, grid_length, length_scale,
                 spinless)
@@ -80,12 +80,12 @@ class PlaneWaveHamiltonianTest(unittest.TestCase):
         nuclear_charges[1][0] = -3
         nuclear_charges[2][2] = 2
         nuclear_charges[2][1] = -3
-        h_plane_wave = get_hamiltonian(
-            n_dimensions, grid_length, length_scale, nuclear_charges,
-            spinless, False)
-        h_dual_basis = get_hamiltonian(
+        h_plane_wave = plane_wave_hamiltonian(
             n_dimensions, grid_length, length_scale, nuclear_charges,
             spinless, True)
+        h_dual_basis = plane_wave_hamiltonian(
+            n_dimensions, grid_length, length_scale, nuclear_charges,
+            spinless, False)
         h_dual_basis_t = inverse_fourier_transform(
             h_dual_basis, n_dimensions, grid_length, length_scale,
             spinless)

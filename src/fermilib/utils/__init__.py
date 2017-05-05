@@ -28,6 +28,10 @@ from ._molecular_data import MolecularData, periodic_table
 from ._operator_utils import (eigenspectrum, commutator,
                               count_qubits, is_identity)
 
+from ._plane_wave_hamiltonian import (inverse_fourier_transform,
+                                      fourier_transform,
+                                      plane_wave_hamiltonian)
+
 from ._sparse_tools import (expectation,
                             get_density_matrix,
                             get_gap,
@@ -38,10 +42,10 @@ from ._sparse_tools import (expectation,
                             qubit_operator_sparse,
                             sparse_eigenspectrum)
 
+from ._trotter_error import error_bound, error_operator
+
 from ._unitary_cc import (uccsd_operator,
                           uccsd_singlet_evolution,
                           uccsd_trotter_engine,
                           uccsd_singlet_operator,
                           uccsd_singlet_paramsize)
-
-
