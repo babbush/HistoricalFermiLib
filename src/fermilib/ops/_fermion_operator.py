@@ -318,8 +318,8 @@ class FermionOperator(object):
                     tmp_string += '{}^ '.format(operator[0])
                 elif operator[1] == 0:
                     tmp_string += '{} '.format(operator[0])
-            string_rep += '{}]\n'.format(tmp_string.strip())
-        return string_rep[:-1]
+            string_rep += '{}] +\n'.format(tmp_string.strip())
+        return string_rep[:-3]
 
     def __repr__(self):
         return str(self)
