@@ -110,9 +110,9 @@ class InteractionRDM(InteractionTensor):
 
             # Map qubits back to fermions.
             reversed_fermion_operators = reverse_jordan_wigner(
-                    QubitOperator(qubit_term), self.n_qubits)
+                QubitOperator(qubit_term), self.n_qubits)
             reversed_fermion_operators = normal_ordered(
-                    reversed_fermion_operators)
+                reversed_fermion_operators)
 
             # Loop through fermion terms.
             for fermion_term in reversed_fermion_operators.terms:

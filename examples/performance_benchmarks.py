@@ -13,6 +13,7 @@
 """This file contains tests of code performance to reveal bottlenecks."""
 import numpy
 import time
+
 from fermilib.ops import FermionOperator, InteractionOperator, normal_ordered
 from fermilib.transforms import get_fermion_operator, jordan_wigner
 from fermilib.utils import jordan_wigner_sparse
@@ -66,7 +67,7 @@ def artificial_molecular_operator(n_qubits):
 
     # Build the molecular operator and return.
     molecular_operator = InteractionOperator(
-            constant, one_body_coefficients, two_body_coefficients)
+        constant, one_body_coefficients, two_body_coefficients)
     return molecular_operator
 
 
@@ -136,10 +137,10 @@ def benchmark_fermion_math_and_normal_order(n_qubits, term_length, power):
         operators_b += [operator_b]
 
     # Initialize FermionTerms and then sum them together.
-    fermion_term_a = FermionOperator(
-            tuple(operators_a), float(numpy.random.randn()))
-    fermion_term_b = FermionOperator(
-            tuple(operators_b), float(numpy.random.randn()))
+    fermion_term_a = FermionOperator(tuple(operators_a),
+                                     float(numpy.random.randn()))
+    fermion_term_b = FermionOperator(tuple(operators_b),
+                                     float(numpy.random.randn()))
     fermion_operator = fermion_term_a + fermion_term_b
 
     # Exponentiate.
@@ -194,9 +195,9 @@ if __name__ == '__main__':
         power = 15
         print('Starting test on FermionOperator math and normal ordering.')
         runtime_math, runtime_normal = benchmark_fermion_math_and_normal_order(
-                n_qubits, term_length, power)
+            n_qubits, term_length, power)
         print('Math took {} seconds. Normal ordering took {} seconds.'.format(
-                runtime_math, runtime_normal))
+            runtime_math, runtime_normal))
 
     # Run FermionOperator.jordan_wigner_sparse() benchmark.
     if 1:

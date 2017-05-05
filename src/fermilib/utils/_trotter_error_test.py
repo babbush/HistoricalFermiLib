@@ -28,21 +28,21 @@ from projectq.ops import QubitOperator
 
 
 class CommutatorTest(unittest.TestCase):
+
     def test_commutator_commutes(self):
         zero = QubitOperator()
-        self.assertTrue(
-            commutator(QubitOperator(()),
-                                      QubitOperator('X3')).isclose(zero))
+        self.assertTrue(commutator(QubitOperator(()),
+                        QubitOperator('X3')).isclose(zero))
 
     def test_commutator_single_pauli(self):
         com = commutator(QubitOperator('X3'),
-                                        QubitOperator('Y3'))
+                         QubitOperator('Y3'))
         expected = 2j * QubitOperator('Z3')
         self.assertTrue(expected.isclose(com))
 
     def test_commutator_multi_pauli(self):
         com = commutator(QubitOperator('Z1 X2 Y4'),
-                                        QubitOperator('X1 Z2 X4'))
+                         QubitOperator('X1 Z2 X4'))
         expected = -2j * QubitOperator('Y1 Y2 Z4')
         self.assertTrue(expected.isclose(com))
 
@@ -135,17 +135,17 @@ class ErrorBoundTest(unittest.TestCase):
             error_bound(terms, tight=False),
             4. * (2**2 + 1**2)))
 
-    @unittest.skip("fails after sparse update; gives complex conjugate")
     def test_error_operator_xyz(self):
         terms = [QubitOperator('X1'), QubitOperator('Y1'), QubitOperator('Z1')]
         expected = numpy.array([[-2./3, 1./3 + 1.j/6, 0., 0.],
                                 [1./3 - 1.j/6, 2./3, 0., 0.],
                                 [0., 0., -2./3, 1./3 + 1.j/6],
                                 [0., 0., 1./3 - 1.j/6, 2./3]])
-        sparse_op = get_sparse_operator(_trotter_error.error_operator(terms))
+        sparse_op = get_sparse_operator(error_operator(terms))
         matrix = sparse_op.todense()
         self.assertTrue(numpy.allclose(matrix, expected),
                         ("Got " + str(matrix)))
+
 
 if __name__ == '__main__':
     unittest.main()

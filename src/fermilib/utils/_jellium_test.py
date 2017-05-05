@@ -205,9 +205,6 @@ class JelliumTest(unittest.TestCase):
             n_dimensions, grid_length, length_scale, spinless)
         qubit_potential = jordan_wigner(potential)
 
-        # Total.
-        qubit_= qubit_kinetic + qubit_potential
-
         # Check identity.
         identity = tuple()
         kinetic_coefficient = qubit_kinetic.terms[identity]
