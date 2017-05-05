@@ -23,16 +23,17 @@ from fermilib.utils import (eigenspectrum, commutator,
 
 from projectqtemp.ops._qubit_operator import QubitOperator
 
+
 class OperatorUtilsTest(unittest.TestCase):
 
     def setUp(self):
         self.n_qubits = 5
         self.fermion_term = FermionOperator('1^ 2^ 3 4', -3.17)
         self.fermion_operator = self.fermion_term + hermitian_conjugated(
-                self.fermion_term)
+            self.fermion_term)
         self.qubit_operator = jordan_wigner(self.fermion_operator)
         self.interaction_operator = get_interaction_operator(
-                self.fermion_operator)
+            self.fermion_operator)
 
     def test_n_qubits(self):
         self.assertEqual(self.n_qubits,
@@ -72,6 +73,14 @@ class OperatorUtilsTest(unittest.TestCase):
         self.assertTrue(commutator(self.qubit_operator, operator_b).isclose(
             self.qubit_operator * operator_b -
             operator_b * self.qubit_operator))
+
+    def test_commutator_operator_b_bad_type_raise_TypeError(self):
+        with self.assertRaises(TypeError):
+            commutator(1, self.fermion_operator)
+
+    def test_commutator_operator_b_bad_type_raise_TypeError(self):
+        with self.assertRaises(TypeError):
+            commutator(self.qubit_operator, "hello")
 
 
 if __name__ == '__main__':
