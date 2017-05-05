@@ -137,8 +137,9 @@ def plane_wave_u_operator(n_dimensions, grid_length, length_scale,
     return operator
 
 
-def get_hamiltonian(n_dimensions, grid_length, length_scale, nuclear_charges,
-                    spinless=False, use_dual_basis=True):
+def plane_wave_hamiltonian(n_dimensions, grid_length, length_scale,
+                           nuclear_charges, spinless=False,
+                           use_dual_basis=True):
     """Returns Hamiltonian as FermionOperator class.
 
     Args:
