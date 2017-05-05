@@ -2,9 +2,8 @@
 import numpy
 import time
 from fermilib.ops import FermionOperator, InteractionOperator, normal_ordered
-from fermilib.transforms import (get_fermion_operator,
-                                 jordan_wigner,
-                                 jordan_wigner_sparse)
+from fermilib.transforms import get_fermion_operator, jordan_wigner
+from fermilib.utils import jordan_wigner_sparse
 
 
 def artificial_molecular_operator(n_qubits):
@@ -167,7 +166,7 @@ def benchmark_jordan_wigner_sparse(n_qubits):
 if __name__ == '__main__':
 
   # Run InteractionOperator.jordan_wigner_transform() benchmark.
-  if 0:
+  if 1:
     n_qubits = 18
     print('Starting test on InteractionOperator.jordan_wigner_transform()')
     runtime = benchmark_molecular_operator_jordan_wigner(n_qubits)
@@ -186,7 +185,7 @@ if __name__ == '__main__':
         runtime_math, runtime_normal))
 
   # Run FermionOperator.jordan_wigner_sparse() benchmark.
-  if 0:
+  if 1:
     n_qubits = 10
     print('Starting test on FermionOperator.jordan_wigner_sparse().')
     runtime = benchmark_jordan_wigner_sparse(n_qubits)
