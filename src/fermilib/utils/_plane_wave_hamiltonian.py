@@ -139,7 +139,7 @@ def plane_wave_u_operator(n_dimensions, grid_length, length_scale,
 
 def plane_wave_hamiltonian(n_dimensions, grid_length, length_scale,
                            nuclear_charges, spinless=False,
-                           use_dual_basis=True):
+                           momentum_space=True):
     """Returns Hamiltonian as FermionOperator class.
 
     Args:
@@ -148,8 +148,8 @@ def plane_wave_hamiltonian(n_dimensions, grid_length, length_scale,
         length_scale: Float, the real space length of a box dimension.
         nuclear_charges: 3D int array, the nuclear charges.
         spinless: Bool, whether to use the spinless model or not.
-        use_dual_basis: Boole, whether to return in plane wave basis (False)
-            or plane wave dual basis (True).
+        momentum_space: Boole, whether to return in plane wave basis (True)
+            or plane wave dual basis (False).
 
     Returns:
         hamiltonian: An instance of the FermionOperator class.
@@ -157,15 +157,15 @@ def plane_wave_hamiltonian(n_dimensions, grid_length, length_scale,
     if len(nuclear_charges.shape) != n_dimensions:
         raise ValueError('Invalid nuclear charges array shape.')
 
-    if use_dual_basis:
-        return jellium_model(n_dimensions, grid_length, length_scale, spinless,
-                             False) + \
-            dual_basis_u_operator(n_dimensions, grid_length, length_scale,
-                                  nuclear_charges, spinless)
-    else:
+    if momentum_space:
         return jellium_model(n_dimensions, grid_length, length_scale, spinless,
                              True) + \
             plane_wave_u_operator(n_dimensions, grid_length, length_scale,
+                                  nuclear_charges, spinless)
+    else:
+        return jellium_model(n_dimensions, grid_length, length_scale, spinless,
+                             False) + \
+            dual_basis_u_operator(n_dimensions, grid_length, length_scale,
                                   nuclear_charges, spinless)
 
 

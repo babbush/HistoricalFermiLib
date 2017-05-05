@@ -401,7 +401,7 @@ def position_potential_operator(n_dimensions, grid_length,
 
 
 def jellium_model(n_dimensions, grid_length, length_scale,
-                  spinless=False, momentum_space=False):
+                  spinless=False, momentum_space=True):
     """Return jellium Hamiltonian as FermionOperator class.
 
     Args:
