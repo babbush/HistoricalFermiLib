@@ -90,18 +90,18 @@ class LiHIntegrationTest(unittest.TestCase):
         self.assertAlmostEqual(fci_rdm_energy, self.molecule.fci_energy)
 
         # Test sparse matrices.
-        energy, wavefunction = self.hamiltonian_matrix.get_ground_state()
+        energy, wavefunction = get_ground_state(self.hamiltonian_matrix)
         self.assertAlmostEqual(energy, self.molecule.fci_energy)
-        expected_energy = self.hamiltonian_matrix.expectation(wavefunction)
+        expected_energy = expectation(self.hamiltonian_matrix, wavefunction)
         self.assertAlmostEqual(expected_energy, energy)
 
         # Make sure you can reproduce Hartree-Fock energy.
         hf_state = jw_hartree_fock_state(
             self.molecule.n_electrons, count_qubits(self.qubit_hamiltonian))
         hf_density = get_density_matrix([hf_state], [1.])
-        expected_hf_density_energy = self.hamiltonian_matrix.expectation(
+        expected_hf_density_energy = expectation(self.hamiltonian_matrix,
             hf_density)
-        expected_hf_energy = self.hamiltonian_matrix.expectation(hf_state)
+        expected_hf_energy = expectation(self.hamiltonian_matrix, hf_state)
         self.assertAlmostEqual(expected_hf_energy, self.molecule.hf_energy)
         self.assertAlmostEqual(expected_hf_density_energy,
                                self.molecule.hf_energy)
@@ -110,7 +110,7 @@ class LiHIntegrationTest(unittest.TestCase):
         # Recore frozen core result from external calculation.
         self.frozen_core_fci_energy = -7.8807607374168
         no_core_fci_energy = scipy. \
-            linalg.eigh(self.hamiltonian_matrix_no_core.matrix.todense())[0][0]
+            linalg.eigh(self.hamiltonian_matrix_no_core.todense())[0][0]
         self.assertAlmostEqual(no_core_fci_energy,
                                self.frozen_core_fci_energy)
 

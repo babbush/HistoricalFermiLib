@@ -15,14 +15,14 @@ from ._molecular_data import MolecularData, periodic_table
 
 from ._operator_utils import eigenspectrum, is_identity, count_qubits
 
-from ._sparse_operator import (expectation,
-                               get_density_matrix,
-                               get_gap,
-                               get_ground_state,
-                               is_hermitian,
-                               jordan_wigner_sparse,
-                               jw_hartree_fock_state,
-                               qubit_operator_sparse,
-                               sparse_eigenspectrum)
+from ._sparse_tools import (expectation,
+                            get_density_matrix,
+                            get_gap,
+                            get_ground_state,
+                            is_hermitian,
+                            jordan_wigner_sparse,
+                            jw_hartree_fock_state,
+                            qubit_operator_sparse,
+                            sparse_eigenspectrum)
 
 from ._unitary_cc import uccsd_operator
