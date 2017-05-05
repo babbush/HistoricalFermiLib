@@ -55,19 +55,16 @@ def trivially_commutes(term_a, term_b):
 
 
 def trivially_double_commutes(term_a, term_b, term_c):
-    """
-    Check if the double commutator [term_a, [term_b, term_c]] is
-    trivially zero.
+    """Check if the double commutator [term_a, [term_b, term_c]] is zero.
 
     Args:
-      term_a, term_b, term_c: Single-term QubitOperators.
+        term_a, term_b, term_c: Single-term QubitOperators.
 
     Notes:
-      If the sets of qubits which term_b and term_c act on, or if the
-      intersection of term_a's qubits with (term_b's qubits U term_c's
-      qubits) is empty, then the double commutator is trivially zero.
+        If the sets of qubits which term_b and term_c act on, or if the
+        intersection of term_a's qubits with (term_b's qubits U term_c's
+        qubits) is empty, then the double commutator is trivially zero.
     """
-
     # determine the set of qubits each term acts on
     qubits_a = set([list(term_a.terms.keys())[0][i][0]
                     for i in range(len(list(term_a.terms.keys())[0]))])
@@ -81,32 +78,26 @@ def trivially_double_commutes(term_a, term_b, term_c):
 
 
 def error_operator(terms, series_order=2):
-    """
-    Determine the difference between the exact generator of unitary
+    """Determine the difference between the exact generator of unitary
     evolution and the approximate generator given by Trotter-Suzuki
     to the given order.
 
     Args:
         terms: a list of QubitTerms in the Hamiltonian to be simulated.
         series_order: the order at which to compute the BCH expansion.
-                      Only the second order formula is currently
-                      implemented (corresponding to Equation 9 of the
-                      paper).
+            Only the second order formula is currently implemented
+            (corresponding to Equation 9 of the paper).
 
     Returns:
         The difference between the true and effective generators of time
-        evolution for a single Trotter step.
+            evolution for a single Trotter step.
 
-    Notes: follows Equation 9 of Poulin et al.'s work in "The Trotter
-           Step Size Required for Accurate Quantum Simulation of Quantum
-           Chemistry".
+    Notes: follows Equation 9 of Poulin et al.'s work in "The Trotter Step
+        Size Required for Accurate Quantum Simulation of Quantum Chemistry".
     """
-
     if series_order != 2:
         raise NotImplementedError
-
     error_operator = QubitOperator()
-
     for beta in range(len(terms)):
         for alpha in range(beta + 1):
             for alpha_prime in range(beta):
@@ -129,14 +120,13 @@ def error_bound(terms, tight=False):
 
     Args:
         terms: a list of single-term QubitOperators in the Hamiltonian
-               to be simulated.
+            to be simulated.
         tight: whether to use the triangle inequality to give a loose
-               upper bound on the error (default) or to calculate the
-               norm of the error operator.
+            upper bound on the error (default) or to calculate the
+            norm of the error operator.
 
     Returns:
-        A float upper bound on the norm of the error in the ground state
-        energy.
+        A float upper bound on norm of error in the ground state energy.
 
     Notes: follows Poulin et al.'s work in "The Trotter Step Size
            Required for Accurate Quantum Simulation of Quantum

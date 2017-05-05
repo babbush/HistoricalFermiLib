@@ -27,8 +27,7 @@ class MolecularLatticeError(Exception):
 
 def make_atomic_ring(n_atoms, spacing, basis,
                      atom_type='H', charge=0, filename=''):
-    """
-    Function to create atomic rings with n_atoms.
+    """Function to create atomic rings with n_atoms.
 
     Note that basic geometry suggests that for spacing L between atoms
     the radius of the ring should be L / (2 * cos (pi / 2 - theta / 2))
@@ -44,7 +43,6 @@ def make_atomic_ring(n_atoms, spacing, basis,
 
     Returns:
         molecule: A an instance of the MolecularData class.
-
     """
     # Make geometry.
     geometry = []
@@ -76,8 +74,7 @@ def make_atomic_ring(n_atoms, spacing, basis,
 
 def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
                         atom_type='H', charge=0, filename=''):
-    """
-    Function to create atomic lattice with n_atoms.
+    """Function to create atomic lattice with n_atoms.
 
     Args:
         nx_atoms: Integer, the length of lattice (in number of atoms).
@@ -137,8 +134,7 @@ def make_atomic_lattice(nx_atoms, ny_atoms, nz_atoms, spacing, basis,
 
 
 def make_atom(atom_type, basis, filename=''):
-    """
-    Prepare a molecular data instance for a single element.
+    """Prepare a molecular data instance for a single element.
 
     Args:
         atom_type: Float giving atomic symbol.
@@ -146,7 +142,6 @@ def make_atom(atom_type, basis, filename=''):
 
     Returns:
         atom: An instance of the MolecularData class.
-
     """
     geometry = [(atom_type, (0., 0., 0.))]
     atomic_number = periodic_hash_table[atom_type]
