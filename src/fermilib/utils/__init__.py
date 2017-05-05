@@ -44,4 +44,8 @@ from ._sparse_tools import (expectation,
 
 from ._trotter_error import error_bound, error_operator
 
-from ._unitary_cc import uccsd_operator
+from ._unitary_cc import (uccsd_operator,
+                          uccsd_singlet_evolution,
+                          uccsd_trotter_engine,
+                          uccsd_singlet_operator,
+                          uccsd_singlet_paramsize)

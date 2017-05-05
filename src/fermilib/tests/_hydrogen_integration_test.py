@@ -243,6 +243,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
                                             uccsd_state)
         self.assertAlmostEqual(expected_uccsd_energy, self.molecule.fci_energy,
                                places=4)
+        print("UCCSD ENERGY: {}".format(expected_uccsd_energy))
 
         # Test CCSD for precise match against FCI using loaded t amplitudes.
         ccsd_operator = uccsd_operator(
