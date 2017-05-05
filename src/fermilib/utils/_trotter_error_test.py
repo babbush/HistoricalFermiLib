@@ -10,7 +10,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Tests for py."""
+"""Tests for _trotter_error.py."""
 from future.utils import iteritems
 
 from math import sqrt
