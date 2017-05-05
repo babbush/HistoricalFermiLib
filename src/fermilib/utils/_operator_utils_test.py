@@ -8,6 +8,7 @@ from fermilib.ops import *
 from fermilib.transforms import jordan_wigner, get_interaction_operator
 from fermilib.utils import eigenspectrum, is_identity, count_qubits
 
+from projectqtemp.ops._qubit_operator import QubitOperator
 
 class OperatorUtilsTest(unittest.TestCase):
 
@@ -40,51 +41,18 @@ class OperatorUtilsTest(unittest.TestCase):
             self.assertAlmostEqual(fermion_eigenspectrum[i],
                                    interaction_eigenspectrum[i])
 
+    def test_is_identity(self):
+        self.assertTrue(is_identity(FermionOperator(())))
+        self.assertTrue(is_identity(2. * FermionOperator(())))
+        self.assertTrue(is_identity(QubitOperator(())))
+        self.assertTrue(is_identity(QubitOperator((), 2.)))
+        self.assertFalse(is_identity(FermionOperator('1^')))
+        self.assertFalse(is_identity(QubitOperator('X1')))
+        self.assertFalse(is_identity(FermionOperator()))
+        self.assertFalse(is_identity(QubitOperator()))
+
 
 if __name__ == '__main__':
     unittest.main()
 
 
-    #def test_isidentity_identity():
-    #    assert FermionOperator().is_identity()
-    #
-    #
-    #def test_isidentity_mulidentity():
-    #    op = FermionOperator() * 2
-    #    assert op.is_identity()
-    #
-    #
-    #def test_isidentity_zero():
-    #    op = 0 * FermionOperator() + FermionOperator('2^', 0.0)
-    #    assert op.is_identity()
-    #
-    #
-    #def test_isidentity_zeroX():
-    #    op = -2 * FermionOperator() + FermionOperator('2', 0.0)
-    #    assert op.is_identity()
-    #
-    #
-    #def test_isidentity_IX():
-    #    op = -2 * FermionOperator() + FermionOperator('0', 0.03j)
-    #    assert not op.is_identity()
-
-
-    #def test_nqubits_0():
-    #    op = FermionOperator()
-    #    assert op.n_qubits() == 0
-    #
-    #
-    #def test_nqubits_1():
-    #    op = FermionOperator('0', 3)
-    #    assert op.n_qubits() == 1
-    #
-    #
-    #def test_nqubits_doubledigit():
-    #    op = FermionOperator('27 5^ 11^')
-    #    assert op.n_qubits() == 28
-    #
-    #
-    #def test_nqubits_multiterm():
-    #    op = (FermionOperator() + FermionOperator('1 2 3') +
-    #          FermionOperator())
-    #    assert op.n_qubits() == 4
