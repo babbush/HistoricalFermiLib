@@ -6,7 +6,7 @@ from fermilib.utils import (make_atomic_ring,
                             MolecularData,
                             periodic_table)
 
-from run_psi4 import run_psi4
+from _run_psi4 import run_psi4
 
 
 if __name__ == '__main__':
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     basis = 'sto-3g'
     max_electrons = 10
     spacing = 0.7414
-    compute_elements = 1
+    compute_elements = 0
 
     # Select calculations.
     force_recompute = 1

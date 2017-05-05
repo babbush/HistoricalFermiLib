@@ -12,15 +12,14 @@ def create_geometry_string(geometry):
     """This function converts MolecularData geometry to psi4 geometry.
 
     Args:
-      geometry: A list of tuples giving the coordinates of each atom.
-        example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))]. Distances in
-        atomic units. Use atomic symbols to specify atoms.
+        geometry: A list of tuples giving the coordinates of each atom.
+            example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))]. Distances in
+            atomic units. Use atomic symbols to specify atoms.
 
     Returns:
-      geo_string: A string giving the geometry for each atom on a line, e.g.:
-        H 0. 0. 0.
-        H 0. 0. 0.7414
-
+        geo_string: A string giving the geometry for each atom on a line, e.g.:
+            H 0. 0. 0.
+            H 0. 0. 0.7414
     """
     geo_string = ''
     for item in geometry:
@@ -48,19 +47,18 @@ def generate_psi4_input(molecule,
     """This function creates and saves a psi4 input file.
 
     Args:
-      molecule: An instance of the MolecularData class.
-      run_scf: Boolean to run SCF calculation.
-      run_mp2: Boolean to run MP2 calculation.
-      run_cisd: Boolean to run CISD calculation.
-      run_ccsd: Boolean to run CCSD calculation.
-      run_fci: Boolean to FCI calculation.
-      verbose: Boolean whether to print calculation results to screen.
-      tolerate_error: Whether to fail or merely warn when Psi4 fails.
-      memory: Int giving amount of memory to allocate in MB.
+        molecule: An instance of the MolecularData class.
+        run_scf: Boolean to run SCF calculation.
+        run_mp2: Boolean to run MP2 calculation.
+        run_cisd: Boolean to run CISD calculation.
+        run_ccsd: Boolean to run CCSD calculation.
+        run_fci: Boolean to FCI calculation.
+        verbose: Boolean whether to print calculation results to screen.
+        tolerate_error: Whether to fail or merely warn when Psi4 fails.
+        memory: Int giving amount of memory to allocate in MB.
 
     Returns:
-      input_file: A string giving the name of the saved input file.
-
+        input_file: A string giving the name of the saved input file.
     """
     # Create Psi4 geometry string.
     geo_string = create_geometry_string(molecule.geometry)
@@ -147,24 +145,23 @@ def run_psi4(molecule,
     """This function runs a Psi4 calculation.
 
     Args:
-      molecule: An instance of the MolecularData class.
-      run_scf: Optional boolean to run SCF calculation.
-      run_mp2: Optional boolean to run MP2 calculation.
-      run_cisd: Optional boolean to run CISD calculation.
-      run_ccsd: Optional boolean to run CCSD calculation.
-      run_fci: Optional boolean to FCI calculation.
-      verbose: Boolean whether to print calculation results to screen.
-      tolerate_error: Optional boolean to warn or raise when Psi4 fails.
-      delete_input: Optional boolean to delete psi4 input file.
-      delete_output: Optional boolean to delete psi4 output file.
-      memory: Optional int giving amount of memory to allocate in MB.
+        molecule: An instance of the MolecularData class.
+        run_scf: Optional boolean to run SCF calculation.
+        run_mp2: Optional boolean to run MP2 calculation.
+        run_cisd: Optional boolean to run CISD calculation.
+        run_ccsd: Optional boolean to run CCSD calculation.
+        run_fci: Optional boolean to FCI calculation.
+        verbose: Boolean whether to print calculation results to screen.
+        tolerate_error: Optional boolean to warn or raise when Psi4 fails.
+        delete_input: Optional boolean to delete psi4 input file.
+        delete_output: Optional boolean to delete psi4 output file.
+        memory: Optional int giving amount of memory to allocate in MB.
 
     Returns:
-      molecule: The updated MolecularData object.
+        molecule: The updated MolecularData object.
 
     Raises:
-      psi4 errors: An error from psi4.
-
+        psi4 errors: An error from psi4.
     """
     # Prepare input.
     input_file = generate_psi4_input(molecule,

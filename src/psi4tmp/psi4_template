@@ -8,7 +8,7 @@ from fermilib.ops._interaction_tensor import (one_body_basis_change,
 from fermilib.utils import MolecularData
 
 sys.path.append('&THIS_DIRECTORY')
-from psi4_conversion_functions import *
+from _psi4_conversion_functions import *
 
 
 # Set memory that job can use in megabytes.

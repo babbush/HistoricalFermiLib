@@ -11,14 +11,13 @@ from fermilib.config import *
 
 
 def prepare_pyscf_molecule(molecule):
-    """This function creates and saves a psi4 input file.
+    """This function creates and saves a pyscf input file.
 
     Args:
-      molecule: An instance of the MolecularData class.
+        molecule: An instance of the MolecularData class.
 
     Returns:
-      pyscf_molecule: A pyscf molecule instance.
-
+        pyscf_molecule: A pyscf molecule instance.
     """
     pyscf_molecule = pyscf.gto.Mole()
     pyscf_molecule.atom = molecule.geometry
@@ -33,11 +32,10 @@ def compute_scf(pyscf_molecule):
     """Perform a Hartree-Fock calculation.
 
     Args:
-      pyscf_molecule: A pyscf molecule instance.
+        pyscf_molecule: A pyscf molecule instance.
 
     Returns:
-      pyscf_scf: A PySCF "SCF" calculation object.
-
+        pyscf_scf: A PySCF "SCF" calculation object.
     """
     if pyscf_molecule.spin:
         pyscf_scf = pyscf.scf.ROHF(pyscf_molecule)
@@ -50,13 +48,12 @@ def compute_integrals(pyscf_molecule, pyscf_scf):
     """Compute the 1-electron and 2-electron integrals.
 
     Args:
-      pyscf_molecule: A pyscf molecule instance.
-      pyscf_scf: A PySCF "SCF" calculation object.
+        pyscf_molecule: A pyscf molecule instance.
+        pyscf_scf: A PySCF "SCF" calculation object.
 
     Returns:
-      one_electron_integrals: An N by N array storing h_{pq}
-      two_electron_integrals: An N by N by N by N array storing h_{pqrs}.
-
+        one_electron_integrals: An N by N array storing h_{pq}
+        two_electron_integrals: An N by N by N by N array storing h_{pqrs}.
     """
     # Get one electrons integrals.
     n_orbitals = pyscf_molecule.nbas
@@ -138,16 +135,15 @@ def run_pyscf(molecule,
     """This function runs a Psi4 calculation.
 
     Args:
-      molecule: An instance of the MolecularData class.
-      run_scf: Optional boolean to run SCF calculation.
-      run_cisd: Optional boolean to run CISD calculation.
-      run_ccsd: Optional boolean to run CCSD calculation.
-      run_fci: Optional boolean to FCI calculation.
-      verbose: Boolean whether to print calculation results to screen.
+        molecule: An instance of the MolecularData class.
+        run_scf: Optional boolean to run SCF calculation.
+        run_cisd: Optional boolean to run CISD calculation.
+        run_ccsd: Optional boolean to run CCSD calculation.
+        run_fci: Optional boolean to FCI calculation.
+        verbose: Boolean whether to print calculation results to screen.
 
     Returns:
-      molecule: The updated MolecularData object.
-
+        molecule: The updated MolecularData object.
     """
     # Prepare pyscf molecule.
     pyscf_molecule = prepare_pyscf_molecule(molecule)
@@ -237,7 +233,6 @@ if __name__ == '__main__':
 
     # Get molecule and run calculation.
     from fermilib.ops import MolecularData
-    from fermilib.transforms import get_eigenspectrum
     molecule = MolecularData(
         geometry, basis, multiplicity, description=description)
     if 0:
@@ -251,8 +246,3 @@ if __name__ == '__main__':
     # Get molecular Hamiltonian.
     molecular_hamiltonian = molecule.get_molecular_hamiltonian()
     print molecular_hamiltonian
-
-    # Get eigenspectrum.
-    print '\nEigenspectrum follows:'
-    for eigenvalue in get_eigenspectrum(molecular_hamiltonian):
-        print eigenvalue
