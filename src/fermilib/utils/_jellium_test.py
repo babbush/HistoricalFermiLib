@@ -341,24 +341,6 @@ class JelliumTest(unittest.TestCase):
                            coeff != 0.0)
         self.assertTrue(num_nonzeros <= paper_n_terms)
 
-    def test_fourier_transform(self):
-        n_dimensions = 1
-        length_scale = 1.5
-        grid_length = 3
-        spinless_set = [True, False]
-        for spinless in spinless_set:
-            jm_momentum = jellium.jellium_model(n_dimensions, grid_length,
-                                                length_scale, spinless,
-                                                True)
-            jm_position = jellium.jellium_model(n_dimensions, grid_length,
-                                                length_scale, spinless,
-                                                False)
-            jm_t = jellium.fourier_transform(jm_momentum, n_dimensions,
-                                             grid_length, length_scale,
-                                             spinless)
-            assert ops.normal_ordered(jm_t).isclose(
-                ops.normal_ordered(jm_position))
-
 
 # Run test.
 if __name__ == '__main__':
