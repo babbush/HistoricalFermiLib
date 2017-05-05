@@ -112,7 +112,7 @@ class LiHIntegrationTest(unittest.TestCase):
             self.molecule.n_electrons, count_qubits(self.qubit_hamiltonian))
         hf_density = get_density_matrix([hf_state], [1.])
         expected_hf_density_energy = expectation(self.hamiltonian_matrix,
-            hf_density)
+                                                 hf_density)
         expected_hf_energy = expectation(self.hamiltonian_matrix, hf_state)
         self.assertAlmostEqual(expected_hf_energy, self.molecule.hf_energy)
         self.assertAlmostEqual(expected_hf_density_energy,

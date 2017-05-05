@@ -285,11 +285,11 @@ class MolecularData(object):
         self.name = name_molecule(geometry, basis, multiplicity,
                                   charge, description)
         if filename:
-          if filename[-5:] == '.hdf5':
-            filename = filename[:(len(filename) - 5)]
-          self.filename = filename
+            if filename[-5:] == '.hdf5':
+                filename = filename[:(len(filename) - 5)]
+            self.filename = filename
         else:
-          self.filename = DATA_DIRECTORY + '/' + self.name
+            self.filename = DATA_DIRECTORY + '/' + self.name
 
         # Attributes generated automatically by class.
         self.n_atoms = len(geometry)

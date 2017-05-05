@@ -52,8 +52,8 @@ class CommutatorTest(unittest.TestCase):
 class TriviallyCommutesTest(unittest.TestCase):
 
     def test_trivially_commutes_id_id(self):
-        self.assertTrue(_trotter_error.trivially_commutes(QubitOperator(()),
-                                                          3 * QubitOperator(())))
+        self.assertTrue(_trotter_error.trivially_commutes(
+            QubitOperator(()), 3 * QubitOperator(())))
 
     def test_trivially_commutes_id_x(self):
         self.assertTrue(_trotter_error.trivially_commutes(

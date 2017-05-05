@@ -210,6 +210,7 @@ def get_density_matrix(states, probabilities):
         density_matrix = density_matrix + probability * state * state.getH()
     return density_matrix
 
+
 def is_hermitian(sparse_operator):
     """
     Test if matrix is Hermitian.
@@ -223,6 +224,7 @@ def is_hermitian(sparse_operator):
         if discrepancy > EQ_TOLERANCE:
             return False
     return True
+
 
 def get_ground_state(sparse_operator):
     """
@@ -242,6 +244,7 @@ def get_ground_state(sparse_operator):
     eigenvalue = values[0]
     return eigenvalue, eigenstate.getH()
 
+
 def sparse_eigenspectrum(sparse_operator):
     """
     Perform a dense diagonalization.
@@ -256,6 +259,7 @@ def sparse_eigenspectrum(sparse_operator):
     else:
         eigenspectrum = numpy.linalg.eigvals(dense_operator)
     return eigenspectrum
+
 
 def expectation(sparse_operator, state):
     """
@@ -287,6 +291,7 @@ def expectation(sparse_operator, state):
 
     # Return.
     return expectation
+
 
 def get_gap(sparse_operator):
     """

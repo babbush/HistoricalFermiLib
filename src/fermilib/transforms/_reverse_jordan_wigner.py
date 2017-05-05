@@ -20,6 +20,7 @@ from fermilib.utils import count_qubits
 
 from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 
+
 class ReverseJordanWignerError(Exception):
     pass
 

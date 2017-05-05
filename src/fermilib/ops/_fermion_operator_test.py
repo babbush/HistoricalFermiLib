@@ -21,6 +21,7 @@ from fermilib.ops._fermion_operator import (FermionOperator,
                                             normal_ordered,
                                             number_operator)
 
+
 class FermionOperatorTest(unittest.TestCase):
 
     def test_init_defaults(self):

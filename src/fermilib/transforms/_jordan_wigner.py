@@ -232,9 +232,9 @@ def jordan_wigner_two_body(p, q, r, s):
 
         # Get coefficient.
         if p == s:
-          coefficient = -.25
+            coefficient = -.25
         else:
-          coefficient = .25
+            coefficient = .25
 
         # Add terms.
         qubit_operator -= QubitOperator((), coefficient)
