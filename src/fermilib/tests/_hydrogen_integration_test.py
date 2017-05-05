@@ -13,11 +13,11 @@
 """Tests many modules to compute energy of hydrogen."""
 from __future__ import absolute_import
 
-import unittest
 import os
-
 import numpy
 import scipy.sparse
+import unittest
+
 from fermilib.config import *
 from fermilib.ops import *
 from fermilib.transforms import *

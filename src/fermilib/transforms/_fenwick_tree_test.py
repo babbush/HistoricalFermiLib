@@ -9,12 +9,12 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
+"""Tests for Fenwick tree module."""
 from __future__ import absolute_import
 
 import unittest
 
-from fermilib.transforms._fenwick_tree import (FenwickTree, FenwickNode)
+from fermilib.transforms._fenwick_tree import FenwickNode, FenwickTree
 
 
 class FenwickTreeTest(unittest.TestCase):

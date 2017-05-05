@@ -13,10 +13,9 @@
 """Tests for molecular_data."""
 from __future__ import absolute_import
 
-import unittest
-
 import numpy.random
 import scipy.linalg
+import unittest
 
 from fermilib.config import *
 from fermilib.utils import *

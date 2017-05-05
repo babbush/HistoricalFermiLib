@@ -2,6 +2,7 @@
 """
 import numpy
 import warnings
+
 from fermilib.utils import (make_atom, make_atomic_ring,
                             MolecularData, periodic_table)
 

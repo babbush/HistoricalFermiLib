@@ -13,6 +13,7 @@
 """Tests  _jordan_wigner.py."""
 from __future__ import absolute_import
 import numpy
+
 import unittest
 
 from fermilib.ops import (FermionOperator,
@@ -20,13 +21,13 @@ from fermilib.ops import (FermionOperator,
                           InteractionOperator,
                           normal_ordered,
                           number_operator)
-from fermilib.transforms import (jordan_wigner, get_interaction_operator,
+from fermilib.transforms import (get_interaction_operator,
                                  reverse_jordan_wigner)
 from fermilib.transforms._jordan_wigner import (jordan_wigner,
                                                 jordan_wigner_one_body,
                                                 jordan_wigner_two_body)
 
-from projectqtemp.ops import QubitOperator
+from projectq.ops import QubitOperator
 
 
 class JordanWignerTransformTest(unittest.TestCase):

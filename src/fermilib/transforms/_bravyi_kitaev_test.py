@@ -12,8 +12,9 @@
 
 """Tests for _bravyi_kitaev.py."""
 from __future__ import absolute_import
-import unittest
+
 import numpy
+import unittest
 
 from fermilib.ops import FermionOperator, number_operator
 from fermilib.transforms import (bravyi_kitaev,
@@ -21,7 +22,7 @@ from fermilib.transforms import (bravyi_kitaev,
                                  jordan_wigner)
 from fermilib.utils import eigenspectrum
 
-from projectqtemp.ops import QubitOperator
+from projectq.ops import QubitOperator
 
 
 class BravyiKitaevTransformTest(unittest.TestCase):

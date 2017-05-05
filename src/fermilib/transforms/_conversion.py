@@ -14,22 +14,21 @@
 from __future__ import absolute_import
 from future.utils import iteritems
 
+import copy
 import itertools
 import numpy
-import copy
-
-from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
 
 from fermilib.ops import (FermionOperator,
                           normal_ordered,
                           number_operator,
                           InteractionOperator,
                           InteractionRDM)
-from fermilib.transforms import FenwickTree
 from fermilib.ops._interaction_operator import InteractionOperatorError
 from fermilib.utils import (count_qubits,
                             jordan_wigner_sparse,
                             qubit_operator_sparse)
+
+from projectq.ops import QubitOperator
 
 
 def get_sparse_operator(operator, n_qubits=None):
@@ -58,10 +57,6 @@ def get_interaction_rdm(qubit_operator, n_qubits=None):
     # Avoid circular import.
     from fermilib.transforms import jordan_wigner
     if n_qubits is None:
-        n_qubits = count_qubits(qubit_operator)
-    if n_qubits == 0:
-        raise QubitOperatorError('Invalid n_qubits.')
-    if n_qubits < count_qubits(qubit_operator):
         n_qubits = count_qubits(qubit_operator)
     one_rdm = numpy.zeros((n_qubits,) * 2, dtype=complex)
     two_rdm = numpy.zeros((n_qubits,) * 4, dtype=complex)

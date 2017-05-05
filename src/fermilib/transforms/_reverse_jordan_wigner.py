@@ -12,17 +12,14 @@
 
 """Reverse Jordan-Wigner transform on QubitOperators."""
 from __future__ import absolute_import
+
 import copy
 
 from fermilib.ops import (FermionOperator,
                           number_operator)
 from fermilib.utils import count_qubits
 
-from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
-
-
-class ReverseJordanWignerError(Exception):
-    pass
+from projectq.ops import QubitOperator
 
 
 def reverse_jordan_wigner(qubit_operator, n_qubits=None):
@@ -45,15 +42,15 @@ def reverse_jordan_wigner(qubit_operator, n_qubits=None):
 
     Raises:
         TypeError: Input must be a QubitOperator.
-        QubitOperatorError: Invalid number of qubits specified.
-        QubitOperatorError: Pauli operators must be X, Y or Z.
+        TypeError: Invalid number of qubits specified.
+        TypeError: Pauli operators must be X, Y or Z.
     """
     if not isinstance(qubit_operator, QubitOperator):
         raise TypeError('Input must be a QubitOperator.')
     if n_qubits is None:
         n_qubits = count_qubits(qubit_operator)
     if n_qubits < count_qubits(qubit_operator):
-        raise QubitOperatorError(
+        raise TypeError(
             'Invalid number of qubits specified')
 
     # Loop through terms.
@@ -78,7 +75,7 @@ def reverse_jordan_wigner(qubit_operator, n_qubits=None):
                         raising_term *= 1.j
                         lowering_term *= -1.j
                     elif pauli_operator[1] != 'X':
-                        raise QubitOperatorError(
+                        raise TypeError(
                             'Pauli operators must be X, Y, or Z')
                     transformed_pauli = raising_term + lowering_term
 

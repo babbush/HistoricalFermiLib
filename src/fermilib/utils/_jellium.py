@@ -10,16 +10,15 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""This module constructs Hamiltonians for the uniform electron gas
-(jellium)."""
+"""This module constructs Hamiltonians for the uniform electron gas."""
 from __future__ import absolute_import
 
 import itertools
-
 import numpy
 
 from fermilib.ops import FermionOperator
-from projectqtemp.ops._qubit_operator import QubitOperator
+
+from projectq.ops import QubitOperator
 
 
 # Exceptions.

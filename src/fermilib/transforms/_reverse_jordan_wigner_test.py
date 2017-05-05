@@ -12,11 +12,13 @@
 
 """Tests  _reverse_jordan_wigner.py."""
 from __future__ import absolute_import
+
 import unittest
 
 from fermilib.ops import FermionOperator, normal_ordered
 from fermilib.transforms import jordan_wigner, reverse_jordan_wigner
-from projectqtemp.ops._qubit_operator import QubitOperator, QubitOperatorError
+
+from projectq.ops import QubitOperator
 
 
 class ReverseJWTest(unittest.TestCase):

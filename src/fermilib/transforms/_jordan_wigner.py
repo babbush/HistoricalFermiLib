@@ -13,11 +13,12 @@
 """Jordan-Wigner transform on fermionic operators."""
 from __future__ import absolute_import
 
-from projectqtemp.ops import QubitOperator
+import itertools
+
 from fermilib.ops import FermionOperator, InteractionOperator
 from fermilib.utils import count_qubits
 
-import itertools
+from projectq.ops import QubitOperator
 
 
 def jordan_wigner(operator):

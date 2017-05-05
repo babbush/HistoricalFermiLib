@@ -14,18 +14,17 @@
 from __future__ import absolute_import
 
 import copy
-import unittest
-
 import numpy
+import unittest
 
 from fermilib.ops import (InteractionOperator,
                           FermionOperator,
                           normal_ordered,
                           number_operator)
-
 from fermilib.transforms import *
 from fermilib.utils import *
-from projectqtemp.ops import QubitOperator
+
+from projectq.ops import QubitOperator
 
 
 class GetInteractionOperatorTest(unittest.TestCase):

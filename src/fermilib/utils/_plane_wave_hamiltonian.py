@@ -19,9 +19,10 @@ import numpy
 
 from fermilib.config import *
 from fermilib.ops import FermionOperator
-from fermilib.utils._jellium import orbital_id, grid_indices, \
-    position_vector, momentum_vector, jellium_model
-from projectqtemp.ops._qubit_operator import QubitOperator
+from fermilib.utils._jellium import (orbital_id, grid_indices, position_vector,
+                                     momentum_vector, jellium_model)
+
+from projectq.ops import QubitOperator
 
 
 # Exceptions.

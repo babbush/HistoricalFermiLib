@@ -11,18 +11,15 @@
 #   limitations under the License.
 
 """Class and functions to store quantum chemistry data."""
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-import os
-import sys
+from __future__ import absolute_import, unicode_literals
 
 import h5py
 import numpy
+import os
+import sys
 
-from fermilib.ops import InteractionOperator
-from fermilib.ops import InteractionRDM
 from fermilib.config import *
+from fermilib.ops import InteractionOperator, InteractionRDM
 
 
 """NOTE ON PQRS CONVENTION:

@@ -18,8 +18,8 @@ from scipy.sparse import csc_matrix
 import unittest
 
 from fermilib.ops import FermionOperator
+from fermilib.transforms import jordan_wigner, get_sparse_operator
 from fermilib.utils._sparse_tools import *
-from fermilib.transforms import (jordan_wigner, get_sparse_operator)
 
 
 class SparseOperatorTest(unittest.TestCase):

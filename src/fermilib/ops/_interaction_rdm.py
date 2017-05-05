@@ -16,12 +16,12 @@ from __future__ import absolute_import
 import copy
 import numpy
 
-from projectqtemp.ops import QubitOperator
-
 from fermilib.ops import (FermionOperator,
                           InteractionTensor,
                           InteractionOperator,
                           normal_ordered)
+
+from projectq.ops import QubitOperator
 
 
 class InteractionRDMError(Exception):

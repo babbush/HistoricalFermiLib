@@ -21,7 +21,7 @@ from fermilib.transforms import jordan_wigner, get_interaction_operator
 from fermilib.utils import (eigenspectrum, commutator,
                             count_qubits, is_identity)
 
-from projectqtemp.ops._qubit_operator import QubitOperator
+from projectq.ops import QubitOperator
 
 
 class OperatorUtilsTest(unittest.TestCase):
