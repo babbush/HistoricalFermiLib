@@ -123,19 +123,6 @@ class ErrorOperatorTest(unittest.TestCase):
         zero = QubitOperator()
         self.assertTrue(zero.isclose(_trotter_error.error_operator(terms)))
 
-    # @unittest.skip("fails after sparse update; gives complex conjugate")
-    def test_error_operator_xyz(self):
-        terms = [QubitOperator('X1'), QubitOperator('Y1'), QubitOperator('Z1')]
-        expected = numpy.array([[-2./3, 1./3 + 1.j/6, 0., 0.],
-                                [1./3 - 1.j/6, 2./3, 0., 0.],
-                                [0., 0., -2./3, 1./3 + 1.j/6],
-                                [0., 0., 1./3 - 1.j/6, 2./3]])
-        self.assertTrue(numpy.allclose(
-            get_sparse_operator(
-                _trotter_error.error_operator(terms)).todense(), expected),
-                        ("Got " + str(get_sparse_operator(
-                            _trotter_error.error_operator(terms)).todense())))
-
 
 class ErrorBoundTest(unittest.TestCase):
     def test_error_bound_xyz_tight(self):
@@ -150,41 +137,6 @@ class ErrorBoundTest(unittest.TestCase):
             _trotter_error.error_bound(terms, tight=False),
             4. * (2**2 + 1**2)))
 
-    @unittest.skip("does nothing right now")
-    def test_H2_integration(self):
-        # figure out a test for H2 that can be done sensibly
-        geometry = [('H', (0., 0., 0.)), ('H', (0., 0., 0.7414))]
-        basis = 'sto-3g'
-        multiplicity = 1
-        filename = THIS_DIRECTORY + '/tests/testdata/H2_sto-3g_singlet'
-        molecule = MolecularData(
-            geometry, basis, multiplicity, filename=filename)
-        molecule.load()
-
-        molecular_hamiltonian = molecule.get_molecular_hamiltonian()
-        fermion_hamiltonian = transforms.get_fermion_operator(
-            molecular_hamiltonian)
-        fermion_hamiltonian = normal_ordered(fermion_hamiltonian)
-
-        # Get qubit Hamiltonian.
-        qubit_hamiltonian = transforms.jordan_wigner(fermion_hamiltonian)
-        terms = []
-        for term, coefficient in iteritems(qubit_hamiltonian.terms):
-            if coefficient:
-                terms.append(QubitOperator(term, coefficient))
-
-        import time
-        start = time.time()
-
-        #print("\nFor H2 at equilibrium bond length, with "
-        #      "%i terms acting on %i qubits:"
-        #      % (len(terms), qubit_hamiltonian.n_qubits()))
-        #print("Loose error bound = %f" % _trotter_error.error_bound(terms))
-        #print("Took ", time.time() - start, " to compute")
-        #start = time.time()
-        #print("Tight error bound = %f" % _trotter_error.error_bound(
-        #    terms, tight=True))
-        #print("Took ", time.time() - start, " to compute")
 
 if __name__ == '__main__':
     unittest.main()
