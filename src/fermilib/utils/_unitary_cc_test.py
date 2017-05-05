@@ -14,19 +14,16 @@
 
 from __future__ import absolute_import
 
+import unittest
+from numpy.random import randn
+
 import fermilib
 import fermilib.ops
-import fermilib.utils
-import unittest
-
-from fermilib.utils._unitary_cc import *
-from fermilib.utils._unitary_cc import (_two_gate_filter,
-                                        _identify_non_commuting,
-                                        _first_order_trotter)
 from fermilib.ops import FermionOperator
-from numpy.random import randn
-from projectq import MainEngine
+import fermilib.utils
+from fermilib.utils._unitary_cc import *
 
+from projectq import MainEngine
 from projectq.ops import (All, Measure, TimeEvolution,
                           QubitOperator,
                           X)

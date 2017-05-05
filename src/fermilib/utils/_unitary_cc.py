@@ -14,8 +14,11 @@
 from __future__ import absolute_import
 
 import itertools
-
 import numpy
+
+from fermilib.ops import FermionOperator
+from fermilib.transforms import jordan_wigner
+
 import projectq
 import projectq.backends
 import projectq.cengines
@@ -23,8 +26,6 @@ import projectq.meta
 import projectq.ops
 import projectq.setups
 import projectq.setups.decompositions
-from fermilib.ops import FermionOperator
-from fermilib.transforms import jordan_wigner
 
 
 def uccsd_operator(single_amplitudes, double_amplitudes, anti_hermitian=True):
@@ -121,12 +122,11 @@ def uccsd_singlet_operator(packed_amplitudes,
     Returns:
         uccsd_generator(FermionOperator): Generator of the UCCSD operator that
             builds the UCCSD wavefunction.
-
     """
     n_occupied = int(numpy.ceil(n_electrons / 2.))
-    n_virtual = n_qubits / 2 - n_occupied  # Virtual Spatial Orbitals
-    n_t1 = n_occupied * n_virtual
-    n_t2 = n_t1 ** 2
+    n_virtual = int(n_qubits / 2 - n_occupied)  # Virtual Spatial Orbitals
+    n_t1 = int(n_occupied * n_virtual)
+    n_t2 = int(n_t1 ** 2)
 
     t1 = packed_amplitudes[:n_t1]
     t2 = packed_amplitudes[n_t1:]
@@ -196,7 +196,6 @@ def uccsd_singlet_evolution(packed_amplitudes, n_qubits, n_electrons,
         evoution_operator(projectq.ops.TimeEvolution): The unitary operator
             that constructs the UCCSD singlet state.
     """
-
     # Build UCCSD generator
     fermion_generator = uccsd_singlet_operator(packed_amplitudes,
                                                n_qubits,
@@ -307,7 +306,6 @@ def uccsd_trotter_engine(compiler_backend=projectq.backends.Simulator()):
         projectq.cengine that is the compiler engine set up with these
             rules and decompostions.
     """
-
     rule_set = \
         projectq.cengines. \
         DecompositionRuleSet(modules=[projectq.setups.decompositions])
