@@ -55,7 +55,6 @@ class PlaneWaveHamiltonianTest(unittest.TestCase):
             self.assertTrue(ops.normal_ordered(h_dual_basis_t).isclose(
                 ops.normal_ordered(h_plane_wave)))
 
-    @unittest.skip('test failing')
     def test_inverse_fourier_transform_2d(self):
         n_dimensions = 2
         length_scale = 1.5
@@ -77,7 +76,7 @@ class PlaneWaveHamiltonianTest(unittest.TestCase):
         h_dual_basis_t = plane_wave_hamiltonian.inverse_fourier_transform(
             h_dual_basis, n_dimensions, grid_length, length_scale,
             spinless)
-        selft.assertTrue(ops.normal_ordered(h_dual_basis_t).isclose(
+        self.assertTrue(ops.normal_ordered(h_dual_basis_t).isclose(
             ops.normal_ordered(h_plane_wave)))
 
     def test_u_operator_integration(self):
