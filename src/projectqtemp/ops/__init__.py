@@ -1,1 +1,1 @@
-from _qubit_operator import *
+from projectqtemp.ops._qubit_operator import *

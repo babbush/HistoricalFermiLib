@@ -1,3 +1,15 @@
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 """FermionOperator stores a sum of products of fermionic ladder operators."""
 import copy
 from fermilib.config import *
@@ -236,6 +248,23 @@ class FermionOperator(object):
                         'Invalid action in FermionOperator: '
                         'Must be 0 (lowering) or 1 (raising).')
 
+    def compress(self, abs_tol=EQ_TOLERANCE):
+        """
+        Eliminates all terms with coefficients close to zero and removes
+        imaginary parts of coefficients that are close to zero.
+
+        Args:
+            abs_tol(float): Absolute tolerance, must be at least 0.0
+        """
+        new_terms = {}
+        for term in self.terms:
+            coeff = self.terms[term]
+            if abs(coeff.imag) <= abs_tol:
+                coeff = coeff.real
+            if abs(coeff) > abs_tol:
+                new_terms[term] = coeff
+        self.terms = new_terms
+
     def is_normal_ordered(self):
         """Return whether or not term is in normal order.
 
@@ -279,6 +308,8 @@ class FermionOperator(object):
 
     def __str__(self):
         """Return an easy-to-read string representation."""
+        if not self.terms:
+            return '0'
         string_rep = ''
         for term in self.terms:
             tmp_string = '{} ['.format(self.terms[term])
@@ -287,8 +318,8 @@ class FermionOperator(object):
                     tmp_string += '{}^ '.format(operator[0])
                 elif operator[1] == 0:
                     tmp_string += '{} '.format(operator[0])
-            string_rep += '{}]\n'.format(tmp_string.strip())
-        return string_rep
+            string_rep += '{}] +\n'.format(tmp_string.strip())
+        return string_rep[:-3]
 
     def __repr__(self):
         return str(self)

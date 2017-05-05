@@ -1,3 +1,15 @@
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 """Tests  _fermion_operator.py."""
 import copy
 import numpy
@@ -8,6 +20,7 @@ from fermilib.ops._fermion_operator import (FermionOperator,
                                             hermitian_conjugated,
                                             normal_ordered,
                                             number_operator)
+
 
 class FermionOperatorTest(unittest.TestCase):
 
@@ -675,9 +688,9 @@ class FermionOperatorTest(unittest.TestCase):
 
     def test_str(self):
         op = FermionOperator(((1, 1), (3, 0), (8, 1)), 0.5)
-        self.assertEqual(str(op), "0.5 [1^ 3 8^]\n")
+        self.assertEqual(str(op), "0.5 [1^ 3 8^]")
         op2 = FermionOperator((), 2)
-        self.assertEqual(str(op2), "2 []\n")
+        self.assertEqual(str(op2), "2 []")
 
     def test_rep(self):
         op = FermionOperator(((1, 1), (3, 0), (8, 1)), 0.5)

@@ -1,11 +1,10 @@
-"""This is a development-only script for generating data."""
-
+"""This is a simple script for generating data."""
 from fermilib.utils import (make_atomic_ring,
                             make_atom,
                             MolecularData,
                             periodic_table)
 
-from psi4tmp import run_psi4
+from run_psi4 import run_psi4
 
 import os
 

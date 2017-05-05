@@ -1,3 +1,15 @@
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 import fermilib.transforms
 
 from future.utils import iteritems
@@ -19,20 +31,20 @@ def trivially_commutes(term_a, term_b):
     position_b = 0
     commutes = True
 
-    len_a = len(term_a.terms.keys()[0])
-    len_b = len(term_b.terms.keys()[0])
+    len_a = len(list(term_a.terms.keys())[0])
+    len_b = len(list(term_b.terms.keys())[0])
 
     while position_a < len_a and position_b < len_b:
-        qubit_a = term_a.terms.keys()[0][position_a][0]
-        qubit_b = term_b.terms.keys()[0][position_b][0]
+        qubit_a = list(term_a.terms.keys())[0][position_a][0]
+        qubit_b = list(term_b.terms.keys())[0][position_b][0]
 
         if qubit_a > qubit_b:
             position_b += 1
         elif qubit_a < qubit_b:
             position_a += 1
         else:
-            action_a = term_a.terms.keys()[0][position_a][1]
-            action_b = term_b.terms.keys()[0][position_b][1]
+            action_a = list(term_a.terms.keys())[0][position_a][1]
+            action_b = list(term_b.terms.keys())[0][position_b][1]
             if action_a != action_b:
                 commutes = not commutes
             position_a += 1
@@ -56,12 +68,12 @@ def trivially_double_commutes(term_a, term_b, term_c):
     """
 
     # determine the set of qubits each term acts on
-    qubits_a = set([term_a.terms.keys()[0][i][0]
-                    for i in range(len(term_a.terms.keys()[0]))])
-    qubits_b = set([term_b.terms.keys()[0][i][0]
-                    for i in range(len(term_b.terms.keys()[0]))])
-    qubits_c = set([term_c.terms.keys()[0][i][0]
-                    for i in range(len(term_c.terms.keys()[0]))])
+    qubits_a = set([list(term_a.terms.keys())[0][i][0]
+                    for i in range(len(list(term_a.terms.keys())[0]))])
+    qubits_b = set([list(term_b.terms.keys())[0][i][0]
+                    for i in range(len(list(term_b.terms.keys())[0]))])
+    qubits_c = set([list(term_c.terms.keys())[0][i][0]
+                    for i in range(len(list(term_c.terms.keys())[0]))])
 
     return (trivially_commutes(term_b, term_c) or
             not qubits_a.intersection(set(qubits_b.union(qubits_c))))
@@ -145,19 +157,18 @@ def error_bound(terms, tight=False):
         # (upper bound on error)
         error = sum(abs(coefficient) ** 2
                     for coefficient in error_operator(terms).terms.values())
-
         error = sqrt(error)
 
     elif not tight:
         for alpha in range(len(terms)):
             term_a = terms[alpha]
-            coefficient_a = term_a.terms.values()[0]
+            coefficient_a = list(term_a.terms.values())[0]
             if coefficient_a:
                 error_a = 0.
 
                 for beta in range(alpha + 1, len(terms)):
                     term_b = terms[beta]
-                    coefficient_b = term_b.terms.values()[0]
+                    coefficient_b = list(term_b.terms.values())[0]
                     if not (trivially_commutes(term_a, term_b) or
                             commutator(term_a, term_b).isclose(zero)):
                         error_a += abs(coefficient_b)

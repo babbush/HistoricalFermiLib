@@ -1,3 +1,15 @@
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 """This module constructs Hamiltonians for the uniform electron gas
 (jellium)."""
 from __future__ import absolute_import
@@ -546,71 +558,4 @@ def jordan_wigner_position_jellium(n_dimensions, grid_length,
             hamiltonian += QubitOperator(yzy_operators, term_coefficient)
 
     # Return Hamiltonian.
-    return hamiltonian
-
-
-def fourier_transform(jellium_model, n_dimensions, grid_length, length_scale,
-                      spinless):
-    """
-    Apply Fourier tranform to change the jellium model in momentum space.
-    c^\dagger_\nu = sqrt(1/N) \sum_m {a^\dagger_m exp[-i k_\nu r_m]}
-    c_\nu = sqrt(1/N) \sum_m {a_m exp[i k_\nu r_m]}
-
-    Args:
-        jellium_model: The jellium model in momentum space.
-        n_dimensions: An int giving the number of dimensions for the model.
-        grid_length: Int, the number of points in one dimension of the grid.
-        length_scale: Float, the real space length of a box dimension.
-        spinless: Bool, whether to use the spinless model or not.
-
-    Returns:
-        hamiltonian: An instance of the FermionOperator class.
-    """
-    hamiltonian = None
-
-    for term in jellium_model.terms:
-        transformed_term = None
-        for ladder_operator in term:
-            momentum_indices = grid_indices(ladder_operator[0], n_dimensions,
-                                            grid_length, spinless)
-            momentum_vec = momentum_vector(momentum_indices, grid_length,
-                                           length_scale)
-            new_basis = None
-            for position_indices in itertools.product(range(grid_length),
-                                                      repeat=n_dimensions):
-                position_vec = position_vector(position_indices, grid_length,
-                                               length_scale)
-                if spinless:
-                    spin = None
-                else:
-                    spin = ladder_operator[0] % 2
-                orbital = orbital_id(grid_length, position_indices, spin)
-                exp_index = 1.0j * numpy.dot(momentum_vec, position_vec)
-                if ladder_operator[1] == 1:
-                    exp_index *= -1.0
-
-                element = FermionOperator(((orbital, ladder_operator[1]),),
-                                          numpy.exp(exp_index))
-                if new_basis is None:
-                    new_basis = element
-                else:
-                    new_basis += element
-
-            new_basis *= numpy.sqrt(1.0/float(grid_length**n_dimensions))
-
-            if transformed_term is None:
-                transformed_term = new_basis
-            else:
-                transformed_term *= new_basis
-        if transformed_term is None:
-            continue
-
-        # Coefficient.
-        transformed_term *= jellium_model.terms[term]
-
-        if hamiltonian is None:
-            hamiltonian = transformed_term
-        else:
-            hamiltonian += transformed_term
-
     return hamiltonian

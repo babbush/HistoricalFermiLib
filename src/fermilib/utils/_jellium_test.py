@@ -1,3 +1,15 @@
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 from __future__ import absolute_import
 
 import itertools
@@ -328,24 +340,6 @@ class JelliumTest(unittest.TestCase):
         num_nonzeros = sum(1 for coeff in qubit_hamiltonian.terms.values() if
                            coeff != 0.0)
         self.assertTrue(num_nonzeros <= paper_n_terms)
-
-    def test_fourier_transform(self):
-        n_dimensions = 1
-        length_scale = 1.5
-        grid_length = 3
-        spinless_set = [True, False]
-        for spinless in spinless_set:
-            jm_momentum = jellium.jellium_model(n_dimensions, grid_length,
-                                                length_scale, spinless,
-                                                True)
-            jm_position = jellium.jellium_model(n_dimensions, grid_length,
-                                                length_scale, spinless,
-                                                False)
-            jm_t = jellium.fourier_transform(jm_momentum, n_dimensions,
-                                             grid_length, length_scale,
-                                             spinless)
-            assert ops.normal_ordered(jm_t).isclose(
-                ops.normal_ordered(jm_position))
 
 
 # Run test.
