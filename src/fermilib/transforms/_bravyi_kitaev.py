@@ -20,8 +20,7 @@ from projectq.ops import QubitOperator
 
 
 def bravyi_kitaev(operator, n_qubits=None):
-    """
-    Apply the Bravyi-Kitaev transform and return qubit operator.
+    """Apply the Bravyi-Kitaev transform and return qubit operator.
 
     Args:
         operator: A FermionOperator to transform.

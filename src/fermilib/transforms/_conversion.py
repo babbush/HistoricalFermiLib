@@ -50,9 +50,9 @@ def get_sparse_interaction_operator(interaction_operator):
 
 
 def get_interaction_rdm(qubit_operator, n_qubits=None):
-    """Build a InteractionRDM from measured qubit operators.
+    """Build an InteractionRDM from measured qubit operators.
 
-    Returns: A InteractionRDM object.
+    Returns: An InteractionRDM object.
     """
     # Avoid circular import.
     from fermilib.transforms import jordan_wigner
@@ -80,8 +80,7 @@ def get_interaction_rdm(qubit_operator, n_qubits=None):
 
 
 def get_interaction_operator(fermion_operator, n_qubits=None):
-    """Convert a 2-body fermionic operator to instance of
-    InteractionOperator.
+    """Convert a 2-body fermionic operator to InteractionOperator.
 
     This function should only be called on fermionic operators which
     consist of only a_p^\dagger a_q and a_p^\dagger a_q^\dagger a_r a_s
@@ -92,17 +91,16 @@ def get_interaction_operator(fermion_operator, n_qubits=None):
        interaction_operator: An instance of the InteractionOperator class.
 
     Raises:
-        InteractionOperatorError: FermionOperator is not a molecular
-                                  operator.
+        TypeError: Input must be a FermionOperator.
+        TypeError: FermionOperator does not map to InteractionOperator.
 
     Warning:
         Even assuming that each creation or annihilation operator appears
         at most a constant number of times in the original operator, the
         runtime of this method is exponential in the number of qubits.
-
     """
     if not isinstance(fermion_operator, FermionOperator):
-        raise TypeError('fermion_operator must be a FermionOperator.')
+        raise TypeError('Input must be a FermionOperator.')
 
     if n_qubits is None:
         n_qubits = count_qubits(fermion_operator)
@@ -130,8 +128,8 @@ def get_interaction_operator(fermion_operator, n_qubits=None):
                 p, q = [operator[0] for operator in term]
                 one_body[p, q] = coefficient
             else:
-                raise InteractionOperatorError('FermionOperator is not a '
-                                               'molecular operator.')
+                raise InteractionOperatorError('FermionOperator does not map '
+                                               'to InteractionOperator.')
 
         elif len(term) == 4:
             # Handle two-body terms.
@@ -139,13 +137,13 @@ def get_interaction_operator(fermion_operator, n_qubits=None):
                 p, q, r, s = [operator[0] for operator in term]
                 two_body[p, q, r, s] = coefficient
             else:
-                raise InteractionOperatorError('FermionOperator is not '
-                                               'a molecular operator.')
+                raise InteractionOperatorError('FermionOperator does not map '
+                                               'to InteractionOperator.')
 
         else:
             # Handle non-molecular Hamiltonian.
-            raise InteractionOperatorError('FermionOperator is not '
-                                           'a molecular operator.')
+            raise InteractionOperatorError('FermionOperator does not map '
+                                           'to InteractionOperator.')
 
     # Form InteractionOperator and return.
     interaction_operator = InteractionOperator(constant, one_body, two_body)
@@ -153,8 +151,7 @@ def get_interaction_operator(fermion_operator, n_qubits=None):
 
 
 def get_fermion_operator(interaction_operator):
-    """
-    Output InteractionOperator as an instance of FermionOperator class.
+    """Output InteractionOperator as instance of FermionOperator class.
 
     Returns:
         fermion_operator: An instance of the FermionOperator class.

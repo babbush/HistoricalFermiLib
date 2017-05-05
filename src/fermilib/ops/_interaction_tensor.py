@@ -37,7 +37,6 @@ def one_body_basis_change(one_body_tensor, rotation_matrix):
 
     Returns:
         transformed_one_body_tensor: one_body_tensor in the rotated basis.
-
     """
     # If operator acts on spin degrees of freedom, enlarge rotation matrix.
     n_orbitals = rotation_matrix.shape[0]
@@ -66,7 +65,6 @@ def two_body_basis_change(two_body_tensor, rotation_matrix):
 
     Returns:
         transformed_two_body_tensor: two_body_tensor matrix in rotated basis.
-
     """
     # If operator acts on spin degrees of freedom, enlarge rotation matrix.
     n_orbitals = rotation_matrix.shape[0]
@@ -115,12 +113,12 @@ class InteractionTensor(object):
         Args:
             constant: A constant term in the operator given as a
                 float. For instance, the nuclear repulsion energy.
-        one_body_tensor: The coefficients of the 2D matrix terms. This
-            is an n_qubits x n_qubits numpy array of floats. For
-            instance, the one body term of MolecularOperator.
-        two_body_tensor: The coefficients of the 4D matrix terms. This is
-            an n_qubits x n_qubits x n_qubits x n_qubits numpy array of
-            floats. For instance, the two body term of MolecularOperator.
+            one_body_tensor: The coefficients of the 2D matrix terms. This
+                is an n_qubits x n_qubits numpy array of floats. For
+                instance, the one body term of MolecularOperator.
+            two_body_tensor: The coefficients of the 4D matrix terms. This is
+                an n_qubits x n_qubits x n_qubits x n_qubits numpy array of
+                floats. For instance, the two body term of MolecularOperator.
         """
         if constant is None:
             constant = 0.0
@@ -130,11 +128,14 @@ class InteractionTensor(object):
         self.n_qubits = self.one_body_tensor.shape[0]
 
     def __getitem__(self, args):
-        """Args: ints giving indices of tensor. Either p,q or p,q,r,s.
+        """Look up matrix element.
 
-        Raises:   ValueError: args must be of length 2 or 4.
-        ValueError: args must be of length 0, 2 or 4.
+        Args:
+            Ints giving indices of tensor. Either p,q or p,q,r,s.
 
+        Raises:
+            ValueError: args must be of length 2 or 4.
+            ValueError: args must be of length 0, 2 or 4.
         """
         if len(args) == 4:
             p, q, r, s = args
@@ -151,11 +152,13 @@ class InteractionTensor(object):
             raise ValueError('args must be of length 0, 2, or 4.')
 
     def __setitem__(self, args, value):
-        """
-        Args: ints giving indices of tensor. Either p,q or p,q,r,s.
+        """Set matrix element.
 
-        Raises:   ValueError: args must be of length 2 or 4.
+        Args:
+            Ints giving indices of tensor. Either p,q or p,q,r,s.
 
+        Raises:
+            ValueError: args must be of length 2 or 4.
         """
         if len(args) == 4:
             p, q, r, s = args

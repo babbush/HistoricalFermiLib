@@ -29,24 +29,22 @@ class InteractionRDMError(Exception):
 
 
 class InteractionRDM(InteractionTensor):
-    """
-    Class for storing 1- and 2-body reduced density matrices.
+    """Class for storing 1- and 2-body reduced density matrices.
 
     Attributes:
         one_body_tensor: The expectation values <a^\dagger_p a_q>.
         two_body_tensor: The expectation values
-                         <a^\dagger_p a^\dagger_q a_r a_s>.
+            <a^\dagger_p a^\dagger_q a_r a_s>.
         n_qubits: An int giving the number of qubits.
     """
 
     def __init__(self, one_body_tensor, two_body_tensor):
-        """
-        Initialize the InteractionRDM class.
+        """Initialize the InteractionRDM class.
 
         Args:
             one_body_tensor: Expectation values <a^\dagger_p a_q>.
             two_body_tensor: Expectation values
-                             <a^\dagger_p a^\dagger_q a_r a_s>.
+                <a^\dagger_p a^\dagger_q a_r a_s>.
         """
         super(InteractionRDM, self).__init__(None, one_body_tensor,
                                              two_body_tensor)
@@ -60,8 +58,7 @@ class InteractionRDM(InteractionTensor):
         return cls(constant, one_rdm, two_rdm)
 
     def expectation(self, operator):
-        """
-        Return expectation value of an InteractionRDM with an operator.
+        """Return expectation value of an InteractionRDM with an operator.
 
         Args:
             operator: A QubitOperator or InteractionOperator.
@@ -87,20 +84,18 @@ class InteractionRDM(InteractionTensor):
         return expectation
 
     def get_qubit_expectations(self, qubit_operator):
-        """
-        Return expectations of qubit operator as coefficients of
-        new QubitOperator.
+        """Return expectations of QubitOperator in new QubitOperator.
 
         Args:
             qubit_operator: QubitOperator instance to be evaluated on
-                            this InteractionRDM.
+                this InteractionRDM.
 
         Returns:
             qubit_operator_expectations: QubitOperator with coefficients
                 corresponding to expectation values of those operators.
 
         Raises:
-          InteractionRDMError: Observable not contained in 1-RDM or 2-RDM.
+            InteractionRDMError: Observable not contained in 1-RDM or 2-RDM.
         """
         from fermilib.transforms import reverse_jordan_wigner
         qubit_operator_expectations = copy.deepcopy(qubit_operator)

@@ -23,8 +23,7 @@ from projectq.ops import QubitOperator
 
 
 def reverse_jordan_wigner(qubit_operator, n_qubits=None):
-    """
-    Transforms a QubitOperator into a FermionOperator using the
+    """Transforms a QubitOperator into a FermionOperator using the
     Jordan-Wigner transform.
 
     Operators are mapped as follows:
