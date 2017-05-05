@@ -18,7 +18,8 @@ import unittest
 
 from fermilib.ops import *
 from fermilib.transforms import jordan_wigner, get_interaction_operator
-from fermilib.utils import eigenspectrum, is_identity, count_qubits
+from fermilib.utils import (eigenspectrum, commutator,
+                            count_qubits, is_identity)
 
 from projectqtemp.ops._qubit_operator import QubitOperator
 
@@ -63,8 +64,15 @@ class OperatorUtilsTest(unittest.TestCase):
         self.assertFalse(is_identity(FermionOperator()))
         self.assertFalse(is_identity(QubitOperator()))
 
+    def test_commutator(self):
+        operator_a = FermionOperator('')
+        self.assertTrue(FermionOperator().isclose(
+            commutator(operator_a, self.fermion_operator)))
+        operator_b = QubitOperator('X1 Y2')
+        self.assertTrue(commutator(self.qubit_operator, operator_b).isclose(
+            self.qubit_operator * operator_b -
+            operator_b * self.qubit_operator))
+
 
 if __name__ == '__main__':
     unittest.main()
-
-

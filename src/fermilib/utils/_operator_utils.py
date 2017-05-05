@@ -94,3 +94,12 @@ def is_identity(operator):
         return list(operator.terms) == [(),]
     else:
         raise TypeError('Operator of invalid type.')
+
+
+def commutator(operator_a, operator_b):
+  """Compute the commutator of two QubitOperators or FermionOperators."""
+  if (isinstance(operator_a, (QubitOperator, FermionOperator)) and
+          isinstance(operator_a, (QubitOperator, FermionOperator))):
+      return operator_a * operator_b - operator_b * operator_a
+  else:
+      raise TypeError('Operator of invalid type.')
