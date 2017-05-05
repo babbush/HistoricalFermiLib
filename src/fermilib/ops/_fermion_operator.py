@@ -236,6 +236,23 @@ class FermionOperator(object):
                         'Invalid action in FermionOperator: '
                         'Must be 0 (lowering) or 1 (raising).')
 
+    def compress(self, abs_tol=EQ_TOLERANCE):
+        """
+        Eliminates all terms with coefficients close to zero and removes
+        imaginary parts of coefficients that are close to zero.
+
+        Args:
+            abs_tol(float): Absolute tolerance, must be at least 0.0
+        """
+        new_terms = {}
+        for term in self.terms:
+            coeff = self.terms[term]
+            if abs(coeff.imag) <= abs_tol:
+                coeff = coeff.real
+            if abs(coeff) > abs_tol:
+                new_terms[term] = coeff
+        self.terms = new_terms
+
     def is_normal_ordered(self):
         """Return whether or not term is in normal order.
 
