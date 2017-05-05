@@ -49,7 +49,7 @@ set globals {
     opdm true
     tpdm true
     soscf false
-    scf_type direct
+    scf_type df
     maxiter 1e6
     num_amps_print 1e6
     r_convergence 1e-6
