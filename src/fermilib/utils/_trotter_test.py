@@ -122,7 +122,7 @@ class ErrorOperatorTest(unittest.TestCase):
         zero = QubitOperator()
         self.assertTrue(zero.isclose(_trotter.error_operator(terms)))
 
-    @unittest.skip("fails after sparse update")
+    @unittest.skip("fails after sparse update; gives complex conjugate")
     def test_error_operator_xyz(self):
         terms = [QubitOperator('X1'), QubitOperator('Y1'), QubitOperator('Z1')]
         expected = numpy.array([[-2./3, 1./3 + 1.j/6, 0., 0.],
@@ -178,11 +178,11 @@ class ErrorBoundTest(unittest.TestCase):
         #      "%i terms acting on %i qubits:"
         #      % (len(terms), qubit_hamiltonian.n_qubits()))
         #print("Loose error bound = %f" % _trotter.error_bound(terms))
-        #print "Took ", time.time() - start, " to compute"
+        #print("Took ", time.time() - start, " to compute")
         #start = time.time()
-        #print "Tight error bound = %f" % _trotter.error_bound(terms,
-        #                                                      tight=True)
-        #print "Took ", time.time() - start, " to compute"
+        #print("Tight error bound = %f" % _trotter.error_bound(terms,
+        #                                                      tight=True))
+        #print("Took ", time.time() - start, " to compute")
 
 if __name__ == '__main__':
     unittest.main()
