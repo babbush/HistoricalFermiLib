@@ -129,8 +129,7 @@ def uccsd_singlet_operator(packed_amplitudes,
                                     (2 * j + s1, 1),
                                     (2 * (i + n_occ) + s1, 0)),
                                     -t2[t2_ind(i, j, k, l)])
-    print uccsd_generator
-    exit()
+
     return uccsd_generator
 
 
@@ -197,16 +196,18 @@ def uccsd_circuit(packed_amplitudes, n_qubits, n_electrons,
     """Create a uccsd ansatz circuit"""
 
     # Build UCCSD generator
+    #fermion_generator = uccsd_operator(packed_amplitudes[0],
+    #                                   packed_amplitudes[1])
     fermion_generator = uccsd_singlet_operator(packed_amplitudes,
                                                n_qubits,
                                                n_electrons)
-
     # Transform generator to qubits
-    qubit_generator = 1.0j * fermion_transform(fermion_generator)
+    qubit_generator = fermion_transform(fermion_generator)
 
     # Cast to real part only for compatibility with current ProjectQ routine
     for key in qubit_generator.terms:
-        qubit_generator.terms[key] = float(qubit_generator.terms[key].real)
+        qubit_generator.terms[key] = -float(qubit_generator.terms[key].imag)
+
 
     # Allocate wavefunction and act evolution on gate according to compilation
     evolution_operator = projectq.ops.\

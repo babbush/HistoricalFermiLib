@@ -1,7 +1,7 @@
 """Jordan-Wigner transform on fermionic operators."""
 from __future__ import absolute_import
 
-from projectq.ops import QubitOperator
+from projectqtemp.ops import QubitOperator
 from fermilib.ops import FermionOperator, InteractionOperator
 from fermilib.utils import count_qubits
 
