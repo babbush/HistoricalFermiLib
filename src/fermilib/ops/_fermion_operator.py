@@ -308,6 +308,8 @@ class FermionOperator(object):
 
     def __str__(self):
         """Return an easy-to-read string representation."""
+        if not self.terms:
+            return '0'
         string_rep = ''
         for term in self.terms:
             tmp_string = '{} ['.format(self.terms[term])
@@ -317,7 +319,7 @@ class FermionOperator(object):
                 elif operator[1] == 0:
                     tmp_string += '{} '.format(operator[0])
             string_rep += '{}]\n'.format(tmp_string.strip())
-        return string_rep
+        return string_rep[:-1]
 
     def __repr__(self):
         return str(self)

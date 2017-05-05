@@ -687,9 +687,9 @@ class FermionOperatorTest(unittest.TestCase):
 
     def test_str(self):
         op = FermionOperator(((1, 1), (3, 0), (8, 1)), 0.5)
-        self.assertEqual(str(op), "0.5 [1^ 3 8^]\n")
+        self.assertEqual(str(op), "0.5 [1^ 3 8^]")
         op2 = FermionOperator((), 2)
-        self.assertEqual(str(op2), "2 []\n")
+        self.assertEqual(str(op2), "2 []")
 
     def test_rep(self):
         op = FermionOperator(((1, 1), (3, 0), (8, 1)), 0.5)
