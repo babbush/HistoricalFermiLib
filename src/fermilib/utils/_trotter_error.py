@@ -31,20 +31,20 @@ def trivially_commutes(term_a, term_b):
     position_b = 0
     commutes = True
 
-    len_a = len(term_a.terms.keys()[0])
-    len_b = len(term_b.terms.keys()[0])
+    len_a = len(list(term_a.terms.keys())[0])
+    len_b = len(list(term_b.terms.keys())[0])
 
     while position_a < len_a and position_b < len_b:
-        qubit_a = term_a.terms.keys()[0][position_a][0]
-        qubit_b = term_b.terms.keys()[0][position_b][0]
+        qubit_a = list(term_a.terms.keys())[0][position_a][0]
+        qubit_b = list(term_b.terms.keys())[0][position_b][0]
 
         if qubit_a > qubit_b:
             position_b += 1
         elif qubit_a < qubit_b:
             position_a += 1
         else:
-            action_a = term_a.terms.keys()[0][position_a][1]
-            action_b = term_b.terms.keys()[0][position_b][1]
+            action_a = list(term_a.terms.keys())[0][position_a][1]
+            action_b = list(term_b.terms.keys())[0][position_b][1]
             if action_a != action_b:
                 commutes = not commutes
             position_a += 1
@@ -68,12 +68,12 @@ def trivially_double_commutes(term_a, term_b, term_c):
     """
 
     # determine the set of qubits each term acts on
-    qubits_a = set([term_a.terms.keys()[0][i][0]
-                    for i in range(len(term_a.terms.keys()[0]))])
-    qubits_b = set([term_b.terms.keys()[0][i][0]
-                    for i in range(len(term_b.terms.keys()[0]))])
-    qubits_c = set([term_c.terms.keys()[0][i][0]
-                    for i in range(len(term_c.terms.keys()[0]))])
+    qubits_a = set([list(term_a.terms.keys())[0][i][0]
+                    for i in range(len(list(term_a.terms.keys())[0]))])
+    qubits_b = set([list(term_b.terms.keys())[0][i][0]
+                    for i in range(len(list(term_b.terms.keys())[0]))])
+    qubits_c = set([list(term_c.terms.keys())[0][i][0]
+                    for i in range(len(list(term_c.terms.keys())[0]))])
 
     return (trivially_commutes(term_b, term_c) or
             not qubits_a.intersection(set(qubits_b.union(qubits_c))))
