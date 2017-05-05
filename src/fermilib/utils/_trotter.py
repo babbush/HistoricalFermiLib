@@ -155,21 +155,20 @@ def error_bound(terms, tight=False):
     if tight:
         # return the Frobenius norm of the error operator
         # (upper bound on error)
-        error = sum(abs(coefficient) ** 2
-                    for coefficient in error_operator(terms).terms.values())
-
+        error = sum(abs(error_operator.terms[term]) ** 2 for term in
+                    list(error_operator.terms))
         error = sqrt(error)
 
     elif not tight:
         for alpha in range(len(terms)):
             term_a = terms[alpha]
-            coefficient_a = term_a.terms.values()[0]
+            coefficient_a = term_a[list(term_a.terms)[0]]
             if coefficient_a:
                 error_a = 0.
 
                 for beta in range(alpha + 1, len(terms)):
                     term_b = terms[beta]
-                    coefficient_b = term_b.terms.values()[0]
+                    coefficient_b = term_b[list(term_b.terms)[0]]
                     if not (trivially_commutes(term_a, term_b) or
                             commutator(term_a, term_b).isclose(zero)):
                         error_a += abs(coefficient_b)

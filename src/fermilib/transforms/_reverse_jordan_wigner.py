@@ -85,7 +85,8 @@ def reverse_jordan_wigner(qubit_operator, n_qubits=None):
                     for j in reversed(range(pauli_operator[0])):
                         z_term = QubitOperator(((j, 'Z'),))
                         working_term = z_term * working_term
-                    transformed_pauli *= working_term.terms.values()[0]
+                    term_key = list(working_term.terms)[0]
+                    transformed_pauli *= working_term.terms[term_key]
                     working_term.terms[list(working_term.terms)[0]] = 1.
 
                 # Get next non-identity operator acting below 'working_qubit'.

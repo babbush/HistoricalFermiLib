@@ -91,6 +91,6 @@ def is_identity(operator):
        TypeError: Operator of invalid type.
     """
     if isinstance(operator, (QubitOperator, FermionOperator)):
-        return operator.terms.keys() == [(),]
+        return list(operator.terms) == [(),]
     else:
         raise TypeError('Operator of invalid type.')

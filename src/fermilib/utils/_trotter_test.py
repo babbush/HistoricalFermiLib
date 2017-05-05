@@ -166,7 +166,6 @@ class ErrorBoundTest(unittest.TestCase):
 
         # Get qubit Hamiltonian.
         qubit_hamiltonian = transforms.jordan_wigner(fermion_hamiltonian)
-        print qubit_hamiltonian
         terms = []
         for term, coefficient in iteritems(qubit_hamiltonian.terms):
             if coefficient:
@@ -175,15 +174,15 @@ class ErrorBoundTest(unittest.TestCase):
         import time
         start = time.time()
 
-        print("\nFor H2 at equilibrium bond length, with "
-              "%i terms acting on %i qubits:"
-              % (len(terms), qubit_hamiltonian.n_qubits()))
-        print("Loose error bound = %f" % _trotter.error_bound(terms))
-        print "Took ", time.time() - start, " to compute"
-        start = time.time()
-        print "Tight error bound = %f" % _trotter.error_bound(terms,
-                                                              tight=True)
-        print "Took ", time.time() - start, " to compute"
+        #print("\nFor H2 at equilibrium bond length, with "
+        #      "%i terms acting on %i qubits:"
+        #      % (len(terms), qubit_hamiltonian.n_qubits()))
+        #print("Loose error bound = %f" % _trotter.error_bound(terms))
+        #print "Took ", time.time() - start, " to compute"
+        #start = time.time()
+        #print "Tight error bound = %f" % _trotter.error_bound(terms,
+        #                                                      tight=True)
+        #print "Took ", time.time() - start, " to compute"
 
 if __name__ == '__main__':
     unittest.main()
