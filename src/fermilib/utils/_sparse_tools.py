@@ -102,7 +102,7 @@ def jordan_wigner_sparse(fermion_operator, n_qubits=None):
     for term in fermion_operator.terms:
         coefficient = fermion_operator.terms[term]
         sparse_matrix = coefficient * scipy.sparse.identity(
-                2 ** n_qubits, dtype=complex, format='csc')
+            2 ** n_qubits, dtype=complex, format='csc')
         for ladder_operator in term:
             sparse_matrix = sparse_matrix * jw_operators[
                 ladder_operator[0]][ladder_operator[1]]
@@ -157,7 +157,7 @@ def qubit_operator_sparse(qubit_operator, n_qubits):
             if pauli_operator[0] > tensor_factor:
                 identity_qubits = pauli_operator[0] - tensor_factor
                 identity = scipy.sparse.identity(
-                        2 ** identity_qubits, dtype=complex, format='csc')
+                    2 ** identity_qubits, dtype=complex, format='csc')
                 sparse_operators += [identity]
 
             # Add actual operator to the list.
@@ -168,15 +168,15 @@ def qubit_operator_sparse(qubit_operator, n_qubits):
         if tensor_factor < n_qubits or not qubit_term:
             identity_qubits = n_qubits - tensor_factor
             identity = scipy.sparse.identity(
-                    2 ** identity_qubits, dtype=complex, format='csc')
+                2 ** identity_qubits, dtype=complex, format='csc')
             sparse_operators += [identity]
 
         # Extract triplets from sparse_term.
         sparse_matrix = kronecker_operators(sparse_operators)
         values_list.append(sparse_matrix.tocoo(copy=False).data)
-        (row, column) = sparse_matrix.nonzero()
-        row_list.append(row)
+        (column, row) = sparse_matrix.nonzero()
         column_list.append(column)
+        row_list.append(row)
 
     # Create sparse operator.
     values_list = numpy.concatenate(values_list)

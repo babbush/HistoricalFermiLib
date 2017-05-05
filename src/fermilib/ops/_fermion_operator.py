@@ -37,8 +37,7 @@ def number_operator(n_orbitals, orbital=None, coefficient=1.):
     Args:
         n_orbitals (int): The number of spin-orbitals in the system.
         orbital (int, optional): The orbital on which to return the number
-                                 operator. If None, return total number
-                                 operator on all sites.
+            operator. If None, return total number operator on all sites.
         coefficient (float): The coefficient of the term.
     """
     if orbital is None:
@@ -55,15 +54,15 @@ def normal_ordered_term(term, coefficient):
 
     Args:
         term: A tuple of tuples. The first element of each tuple is
-              an integer indicating the mode on which a fermion ladder
-              operator acts, starting from zero. The second element of each
-              tuple is an integer, either 1 or 0, indicating whether creation
-              or annihilation acts on that mode.
+            an integer indicating the mode on which a fermion ladder
+            operator acts, starting from zero. The second element of each
+            tuple is an integer, either 1 or 0, indicating whether creation
+            or annihilation acts on that mode.
         coefficient: The coefficient of the term.
 
     Returns:
         ordered_term (FermionOperator): The normal ordered form of the input.
-                                        Note that this might have more terms.
+            Note that this might have more terms.
 
     In our convention, normal ordering implies terms are ordered
     from highest tensor factor (on left) to lowest (on right).
@@ -125,9 +124,9 @@ def normal_ordered(fermion_operator):
     Also, ladder operators come first.
 
     Warning:
-      Even assuming that each creation or annihilation operator appears
-      at most a constant number of times in the original term, the
-      runtime of this method is exponential in the number of qubits.
+        Even assuming that each creation or annihilation operator appears
+        at most a constant number of times in the original term, the
+        runtime of this method is exponential in the number of qubits.
     """
     ordered_operator = FermionOperator()
     for term, coefficient in fermion_operator.terms.items():
@@ -156,18 +155,14 @@ class FermionOperator(object):
 
     Attributes:
         terms (dict):
-            key (tuple of tuples): Each tuple represents a fermion
-                                   term, i.e. a tensor product of fermion
-                                   ladder operators with a coefficient. The
-                                   first element is an integer indicating the
-                                   mode on which a ladder operator acts and
-                                   the second element is a bool, either '0'
-                                   indicating annihilation, or '1' indicating
-                                   creation in that mode; for example, '2^ 5'
-                                   is ((2, 1), (5, 0)).
+            key (tuple of tuples): Each tuple represents a fermion term,
+                i.e. a tensor product of fermion ladder operators with a
+                coefficient. The first element is an integer indicating the
+                mode on which a ladder operator acts and the second element is
+                a bool, either '0' indicating annihilation, or '1' indicating
+                creation in that mode; for example, '2^ 5' is ((2, 1), (5, 0)).
             value (complex float): The coefficient of term represented by key.
     """
-
     def __init__(self, term=None, coefficient=1.):
         """Initializes a FermionOperator.
 
@@ -202,10 +197,10 @@ class FermionOperator(object):
                    mode 0 and annihilation in mode 2.
                 3) default will result in the zero operator.
             coefficient (complex float, optional): The coefficient of the term.
-                                                   Default value is 1.0.
+                Default value is 1.0.
 
         Raises:
-          FermionOperatorError: Invalid term provided to FermionOperator.
+            FermionOperatorError: Invalid term provided to FermionOperator.
         """
         if not isinstance(coefficient, (int, float, complex)):
             raise ValueError('Coefficient must be scalar.')
@@ -325,8 +320,7 @@ class FermionOperator(object):
         return str(self)
 
     def isclose(self, other, rel_tol=EQ_TOLERANCE, abs_tol=EQ_TOLERANCE):
-        """
-        Returns True if other (FermionOperator) is close to self.
+        """Returns True if other (FermionOperator) is close to self.
 
         Comparison is done for each term individually. Return True
         if the difference between each terms in self and other is
@@ -338,7 +332,6 @@ class FermionOperator(object):
             other (FermionOperator): FermionOperator to compare against.
             rel_tol (float): Relative tolerance, must be greater than 0.0
             abs_tol (float): Absolute tolerance, must be at least 0.0
-
         """
         # terms which are in both:
         for term in set(self.terms).intersection(set(other.terms)):
@@ -390,13 +383,13 @@ class FermionOperator(object):
         """Return self * multiplier for a scalar, or a FermionOperator.
 
         Args:
-          multiplier: A scalar, or a FermionOperator.
+            multiplier: A scalar, or a FermionOperator.
 
         Returns:
-          product: A FermionOperator.
+            product: A FermionOperator.
 
         Raises:
-          TypeError: Invalid type cannot be multiply with FermionOperator.
+            TypeError: Invalid type cannot be multiply with FermionOperator.
         """
         if isinstance(multiplier, (int, float, complex, FermionOperator)):
             product = copy.deepcopy(self)
@@ -407,22 +400,20 @@ class FermionOperator(object):
                 'Object of invalid type cannot multiply with FermionOperator.')
 
     def __rmul__(self, multiplier):
-        """
-        Return multiplier * self for a scalar.
+        """Return multiplier * self for a scalar.
 
         We only define __rmul__ for scalars because the left multiply
         exist for  FermionOperator and left multiply
         is also queried as the default behavior.
 
         Args:
-          multiplier: A scalar to multiply by.
+            multiplier: A scalar to multiply by.
 
         Returns:
-          product: A new instance of FermionOperator.
+            product: A new instance of FermionOperator.
 
         Raises:
-          TypeError: Object of invalid type cannot multiply FermionOperator.
-
+            TypeError: Object of invalid type cannot multiply FermionOperator.
         """
         if not isinstance(multiplier, (int, float, complex)):
             raise TypeError(
@@ -430,28 +421,25 @@ class FermionOperator(object):
         return self * multiplier
 
     def __truediv__(self, divisor):
-        """
-        Return self / divisor for a scalar.
+        """Return self / divisor for a scalar.
 
-        Note:
-            This is always floating point division.
+        Note that this is always floating point division.
 
         Args:
-          divisor: A scalar to divide by.
+            divisor: A scalar to divide by.
 
         Returns:
-          A new instance of FermionOperator.
+            A new instance of FermionOperator.
 
         Raises:
-          TypeError: Cannot divide local operator by non-scalar type.
-
+            TypeError: Cannot divide local operator by non-scalar type.
         """
         if not isinstance(divisor, (int, float, complex)):
             raise TypeError('Cannot divide QubitOperator by non-scalar type.')
         return self * (1.0 / divisor)
 
     def __div__(self, divisor):
-        """ For compatibility with Python 2. """
+        """For compatibility with Python 2. """
         return self.__truediv__(divisor)
 
     def __itruediv__(self, divisor):
@@ -461,18 +449,17 @@ class FermionOperator(object):
         return self
 
     def __idiv__(self, divisor):
-        """ For compatibility with Python 2. """
+        """For compatibility with Python 2. """
         return self.__itruediv__(divisor)
 
     def __iadd__(self, addend):
         """In-place method for += addition of FermionOperator.
 
         Args:
-          addend: A FermionOperator.
+            addend: A FermionOperator.
 
         Raises:
-          TypeError: Cannot add invalid type.
-
+            TypeError: Cannot add invalid type.
         """
         if isinstance(addend, FermionOperator):
             for term in addend.terms:
@@ -489,7 +476,7 @@ class FermionOperator(object):
         return self
 
     def __add__(self, addend):
-        """ Return self + addend for a FermionOperator. """
+        """Return self + addend for a FermionOperator. """
         summand = copy.deepcopy(self)
         summand += addend
         return summand
@@ -507,15 +494,14 @@ class FermionOperator(object):
         """Exponentiate the FermionOperator.
 
         Args:
-          exponent: An int, giving the exponent with which to raise the
-                    operator.
+            exponent: An int, the exponent with which to raise the operator.
 
         Returns:
-          exponentiated: The exponentiated operator.
+            exponentiated: The exponentiated operator.
 
         Raises:
-          ValueError: Can only raise FermionOperator to non-negative
-                      integer powers.
+            ValueError: Can only raise FermionOperator to non-negative
+                integer powers.
         """
         # Handle invalid exponents.
         if not isinstance(exponent, int) or exponent < 0:

@@ -253,7 +253,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
         ccsd_sparse_r = jordan_wigner_sparse(ccsd_operator)
         ccsd_sparse_l = jordan_wigner_sparse(
-                -hermitian_conjugated(ccsd_operator))
+            -hermitian_conjugated(ccsd_operator))
 
         # Test CCSD for precise match against FCI using loaded t amplitudes
         ccsd_operator = uccsd_operator(
@@ -263,7 +263,7 @@ class HydrogenIntegrationTest(unittest.TestCase):
 
         ccsd_sparse_r = jordan_wigner_sparse(ccsd_operator)
         ccsd_sparse_l = jordan_wigner_sparse(
-                -hermitian_conjugated(ccsd_operator))
+            -hermitian_conjugated(ccsd_operator))
         ccsd_state_r = scipy.sparse.linalg.expm_multiply(ccsd_sparse_r,
                                                          hf_state)
         ccsd_state_l = scipy.sparse.linalg.expm_multiply(ccsd_sparse_l,
