@@ -47,8 +47,7 @@ def kronecker_operators(*args):
 
 
 def jordan_wigner_ladder_sparse(n_qubits, tensor_factor, ladder_type):
-    """
-    Make a matrix representation of a fermion ladder operator.
+    """Make a matrix representation of a fermion ladder operator.
 
     Args:
         index: This is a nonzero integer. The integer indicates the tensor
@@ -69,8 +68,7 @@ def jordan_wigner_ladder_sparse(n_qubits, tensor_factor, ladder_type):
 
 
 def jordan_wigner_sparse(fermion_operator, n_qubits=None):
-    """
-    Initialize a SparseOperator from a FermionOperator.
+    """Initialize a SparseOperator from a FermionOperator.
 
     Args:
         fermion_operator(FermionOperator): instance of the FermionOperator
@@ -126,8 +124,7 @@ def jordan_wigner_sparse(fermion_operator, n_qubits=None):
 
 
 def qubit_operator_sparse(qubit_operator, n_qubits):
-    """
-    Initialize a SparseOperator from a QubitOperator.
+    """Initialize a SparseOperator from a QubitOperator.
 
     Args:
         qubit_operator(QubitOperator): instance of the QubitOperator class.
@@ -211,12 +208,7 @@ def get_density_matrix(states, probabilities):
 
 
 def is_hermitian(sparse_operator):
-    """
-    Test if matrix is Hermitian.
-
-    Returns: Bool indicating whether matrix passes test.
-
-    """
+    """Test if matrix is Hermitian."""
     difference = sparse_operator - sparse_operator.getH()
     if difference.nnz:
         discrepancy = max(map(abs, difference.data))
@@ -226,8 +218,7 @@ def is_hermitian(sparse_operator):
 
 
 def get_ground_state(sparse_operator):
-    """
-    Compute lowest eigenvalue and eigenstate.
+    """Compute lowest eigenvalue and eigenstate.
 
     Returns:
         eigenvalue: The lowest eigenvalue, a float.
@@ -245,12 +236,10 @@ def get_ground_state(sparse_operator):
 
 
 def sparse_eigenspectrum(sparse_operator):
-    """
-    Perform a dense diagonalization.
+    """Perform a dense diagonalization.
 
     Returns:
-        eigenspectrum: The lowest eigenvalues in a numpy
-        array.
+        eigenspectrum: The lowest eigenvalues in a numpy array.
     """
     dense_operator = sparse_operator.todense()
     if is_hermitian(sparse_operator):
@@ -261,8 +250,7 @@ def sparse_eigenspectrum(sparse_operator):
 
 
 def expectation(sparse_operator, state):
-    """
-    Compute expectation value of operator with a state.
+    """Compute expectation value of operator with a state.
 
     Args:
         state_vector: scipy.sparse.csc vector representing a pure state,
@@ -293,8 +281,7 @@ def expectation(sparse_operator, state):
 
 
 def get_gap(sparse_operator):
-    """
-    Compute gap between lowest eigenvalue and first excited state.
+    """Compute gap between lowest eigenvalue and first excited state.
 
     Returns: A real float giving eigenvalue gap.
     """

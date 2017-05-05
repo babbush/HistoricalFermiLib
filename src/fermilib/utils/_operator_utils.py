@@ -89,7 +89,7 @@ def is_identity(operator):
         operator: QubitOperator or FermionOperator.
 
     Raises:
-       TypeError: Operator of invalid type.
+        TypeError: Operator of invalid type.
     """
     if isinstance(operator, (QubitOperator, FermionOperator)):
         return list(operator.terms) == [()]

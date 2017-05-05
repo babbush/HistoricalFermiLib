@@ -97,22 +97,19 @@ def name_molecule(geometry,
 
     Args:
         geometry: A list of tuples giving the coordinates of each atom.
-                  example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
-                  Distances in atomic units. Use atomic symbols to
-                  specify atoms.
+            example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
+            Distances in atomic units. Use atomic symbols to specify atoms.
         basis: A string giving the basis set. An example is 'cc-pvtz'.
         multiplicity: An integer giving the spin multiplicity.
         charge: An integer giving the total molecular charge.
         description: A string giving a description. As an example,
-                     for dimers a likely description is the bond length
-                     (e.g. 0.7414).
+            for dimers a likely description is the bond length (e.g. 0.7414).
 
     Returns:
         name: A string giving the name of the instance.
 
     Raises:
         MoleculeNameError: If spin multiplicity is not valid.
-
     """
     # Get sorted atom vector.
     atoms = [item[0] for item in geometry]
@@ -163,8 +160,7 @@ def geometry_from_file(file_name):
 
     Args:
         file_name: a string giving the location of the geometry file.
-            It is assumed that the geometry is given for each atom on a line,
-            e.g.:
+            It is assumed that geometry is given for each atom on line, e.g.:
             H 0. 0. 0.
             H 0. 0. 0.7414
 
@@ -194,9 +190,8 @@ class MolecularData(object):
 
     Attributes:
         geometry: A list of tuples giving the coordinates of each atom. An
-                  example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))].
-                  Distances in atomic units. Use atomic symbols to specify
-                  atoms.
+            example is [('H', (0, 0, 0)), ('H', (0, 0, 0.7414))]. Distances
+            in atomic units. Use atomic symbols to specify atoms.
         basis: A string giving the basis set. An example is 'cc-pvtz'.
         charge: An integer giving the total molecular charge. Defaults to 0.
         multiplicity: An integer giving the spin multiplicity.
@@ -207,8 +202,7 @@ class MolecularData(object):
         n_atoms: Integer giving the number of atoms in the molecule.
         n_electrons: Integer giving the number of electrons in the molecule.
         atoms: List of the atoms in molecule sorted by atomic number.
-        protons: List of the atomic charges in molecule sorted by atomic
-            number.
+        protons: List of atomic charges in molecule sorted by atomic number.
         hf_energy: Energy from open or closed shell Hartree-Fock.
         nuclear_repulsion: Energy from nuclei-nuclei interaction.
         canonical_orbitals: numpy array giving canonical orbital coefficients.
@@ -218,17 +212,14 @@ class MolecularData(object):
         fock_matrix: Numpy array giving the Fock matrix.
         orbital_overlaps: Numpy array giving the orbital overlap coefficients.
         kinetic_integrals: Numpy array giving 1-body kinetic energy integrals.
-        potential_integrals: Numpy array giving 1-body potential energy
-            integrals.
+        potential_integrals: Numpy array giving 1-body potential integrals.
         mp2_energy: Energy from MP2 perturbation theory.
-        cisd_energy: Energy from configuration interaction singles and
-            doubles.
+        cisd_energy: Energy from configuration interaction singles + doubles.
         cisd_one_rdm: Numpy array giving 1-RDM from CISD calculation.
         fci_energy: Exact energy of molecule within given basis.
         fci_one_rdm: Numpy array giving 1-RDM from FCI calculation.
-        ccsd_energy: Energy from coupled cluster singles and doubles.
-        ccsd_amplitudes: Molecular operator holding coupled cluster
-                         amplitudes.
+        ccsd_energy: Energy from coupled cluster singles + doubles.
+        ccsd_amplitudes: Molecular operator holding coupled cluster amplitude.
     """
     def __init__(self, geometry=None, basis=None, multiplicity=None,
                  charge=0, description="", filename=""):
@@ -482,14 +473,13 @@ class MolecularData(object):
         """Method to return 1-electron and 2-electron integrals in MO basis.
 
         Returns:
-          one_body_integrals: An array of the one-electron integrals having
-            shape of (n_orbitals, n_orbitals).
-          two_body_integrals: An array of the two-electron integrals having
-            shape of (n_orbitals, n_orbitals, n_orbitals, n_orbitals).
+            one_body_integrals: An array of the one-electron integrals having
+                shape of (n_orbitals, n_orbitals).
+            two_body_integrals: An array of the two-electron integrals having
+                shape of (n_orbitals, n_orbitals, n_orbitals, n_orbitals).
 
         Raises:
-          MisissingCalculationError: If the SCF calculation has not been
-            performed.
+          MisissingCalculationError: If SCF calculation has not been performed.
         """
         # Make sure integrals have been computed.
         if self.hf_energy is None:
@@ -517,10 +507,8 @@ class MolecularData(object):
         Returns:
             core_constant: Adjustment to constant shift in Hamiltonian from
                 integrating out core orbitals
-            one_body_integrals_new: New one-electron integrals over active
-                space.
-            two_body_integrals_new: New two-electron integrals over active
-                space.
+            one_body_integrals_new: one-electron integrals over active space.
+            two_body_integrals_new: two-electron integrals over active space.
         """
         # Get integrals.
         one_body_integrals, two_body_integrals = self.get_integrals()
@@ -561,8 +549,7 @@ class MolecularData(object):
 
         Args:
             rotation_matrix: A square numpy array or matrix having dimensions
-                of n_orbitals by n_orbitals. Assumed to be real and
-                invertible.
+                of n_orbitals by n_orbitals. Assumed real and invertible.
             active_space_start: An optional int giving the first orbital
                 in the active space.
             active_space stop: An optional int giving the last orbital

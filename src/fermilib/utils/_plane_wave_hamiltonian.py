@@ -10,8 +10,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""This module constructs Hamiltonians in plan wave basis and plan wave dual
-basis for 3D cubic structure."""
+"""Construct Hamiltonians in plan wave basis and its dual in 3D."""
 from __future__ import absolute_import
 
 import itertools
@@ -25,15 +24,9 @@ from fermilib.utils._jellium import (orbital_id, grid_indices, position_vector,
 from projectq.ops import QubitOperator
 
 
-# Exceptions.
-class ValueError(Exception):
-    pass
-
-
 def dual_basis_u_operator(n_dimensions, grid_length, length_scale,
                           nuclear_charges, spinless):
-    """
-    Return the external potential operator in plane wave dual basis.
+    """Return the external potential operator in plane wave dual basis.
 
     Args:
         n_dimensions: An int giving the number of dimensions for the model.
@@ -87,8 +80,7 @@ def dual_basis_u_operator(n_dimensions, grid_length, length_scale,
 
 def plane_wave_u_operator(n_dimensions, grid_length, length_scale,
                           nuclear_charges, spinless):
-    """
-    Return the external potential operator in plane wave basis.
+    """Return the external potential operator in plane wave basis.
 
     Args:
         n_dimensions: An int giving the number of dimensions for the model.
@@ -147,8 +139,7 @@ def plane_wave_u_operator(n_dimensions, grid_length, length_scale,
 
 def get_hamiltonian(n_dimensions, grid_length, length_scale, nuclear_charges,
                     spinless=False, use_dual_basis=True):
-    """
-    Returns Hamiltonian as FermionOperator class.
+    """Returns Hamiltonian as FermionOperator class.
 
     Args:
         n_dimensions: An int giving the number of dimensions for the model.
@@ -157,7 +148,7 @@ def get_hamiltonian(n_dimensions, grid_length, length_scale, nuclear_charges,
         nuclear_charges: 3D int array, the nuclear charges.
         spinless: Bool, whether to use the spinless model or not.
         use_dual_basis: Boole, whether to return in plane wave basis (False)
-                or plane wave dual basis (True).
+            or plane wave dual basis (True).
 
     Returns:
         hamiltonian: An instance of the FermionOperator class.
@@ -179,8 +170,8 @@ def get_hamiltonian(n_dimensions, grid_length, length_scale, nuclear_charges,
 
 def fourier_transform(hamiltonian, n_dimensions, grid_length, length_scale,
                       spinless):
-    """
-    Apply Fourier tranform to change hamiltonian in plane wave basis.
+    """Apply Fourier tranform to change hamiltonian in plane wave basis.
+
     c^\dagger_\nu = sqrt(1/N) \sum_m {a^\dagger_m exp[-i k_\nu r_m]}
     c_\nu = sqrt(1/N) \sum_m {a_m exp[i k_\nu r_m]}
 
@@ -246,8 +237,8 @@ def fourier_transform(hamiltonian, n_dimensions, grid_length, length_scale,
 
 def inverse_fourier_transform(hamiltonian, n_dimensions, grid_length,
                               length_scale, spinless):
-    """
-    Apply Fourier tranform to change hamiltonian in plane wave dual basis.
+    """Apply Fourier tranform to change hamiltonian in plane wave dual basis.
+
     a^\dagger_\nu = sqrt(1/N) \sum_m {c^\dagger_m exp[i k_\nu r_m]}
     a_\nu = sqrt(1/N) \sum_m {c_m exp[-i k_\nu r_m]}
 

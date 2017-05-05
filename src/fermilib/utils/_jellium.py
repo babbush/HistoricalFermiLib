@@ -38,8 +38,7 @@ def orbital_id(grid_length, grid_coordinates, spin=None):
             If None, assume spinless model.
 
     Returns:
-        tensor_factor: The tensor factor associated with provided orbital
-        label.
+        tensor_factor: tensor factor associated with provided orbital label.
 
     Raises:
         OrbitalSpecificiationError: Invalid orbital coordinates provided.
@@ -71,8 +70,7 @@ def orbital_id(grid_length, grid_coordinates, spin=None):
 
 
 def grid_indices(qubit_id, n_dimensions, grid_length, spinless):
-    """
-    This function is the inverse of orbital_id.
+    """This function is the inverse of orbital_id.
 
     Args:
         qubit_id: The tensor factor to map to grid indices.
@@ -100,8 +98,7 @@ def grid_indices(qubit_id, n_dimensions, grid_length, spinless):
 
 
 def position_vector(position_indices, grid_length, length_scale):
-    """
-    Given grid point coordinate, return position vector with dimensions.
+    """Given grid point coordinate, return position vector with dimensions.
 
     Args:
         position_indices: List or tuple of integers giving grid point
@@ -116,7 +113,6 @@ def position_vector(position_indices, grid_length, length_scale):
     Raises:
         orbitalSpecificationError: Position indices must be integers
             in [0, grid_length).
-
     """
     # Raise exceptions.
     if isinstance(position_indices, int):
@@ -135,8 +131,7 @@ def position_vector(position_indices, grid_length, length_scale):
 
 
 def momentum_vector(momentum_indices, grid_length, length_scale):
-    """
-    Given grid point coordinate, return momentum vector with dimensions.
+    """Given grid point coordinate, return momentum vector with dimensions.
 
     Args:
         momentum_indices: List or tuple of integers giving momentum indices.
@@ -170,8 +165,7 @@ def momentum_vector(momentum_indices, grid_length, length_scale):
 
 def momentum_kinetic_operator(n_dimensions, grid_length,
                               length_scale, spinless=False):
-    """
-    Return the kinetic energy operator in momentum second quantization.
+    """Return the kinetic energy operator in momentum second quantization.
 
     Args:
         n_dimensions: An int giving the number of dimensions for the model.
@@ -209,8 +203,7 @@ def momentum_kinetic_operator(n_dimensions, grid_length,
 
 def momentum_potential_operator(n_dimensions, grid_length,
                                 length_scale, spinless=False):
-    """
-    Return the potential operator in momentum second quantization.
+    """Return the potential operator in momentum second quantization.
 
     Args:
         n_dimensions: An int giving the number of dimensions for the model.
@@ -293,8 +286,7 @@ def momentum_potential_operator(n_dimensions, grid_length,
 
 def position_kinetic_operator(n_dimensions, grid_length,
                               length_scale, spinless=False):
-    """
-    Return the kinetic operator in position space second quantization.
+    """Return the kinetic operator in position space second quantization.
 
     Args:
         n_dimensions: An int giving the number of dimensions for the model.
@@ -350,8 +342,7 @@ def position_kinetic_operator(n_dimensions, grid_length,
 
 def position_potential_operator(n_dimensions, grid_length,
                                 length_scale, spinless=False):
-    """
-    Return the potential operator in position space second quantization.
+    """Return the potential operator in position space second quantization.
 
     Args:
         n_dimensions: An int giving the number of dimensions for the model.
@@ -361,7 +352,6 @@ def position_potential_operator(n_dimensions, grid_length,
 
     Returns:
         operator: An instance of the FermionOperator class.
-
     """
     # Initialize.
     n_points = grid_length ** n_dimensions
@@ -412,8 +402,7 @@ def position_potential_operator(n_dimensions, grid_length,
 
 def jellium_model(n_dimensions, grid_length, length_scale,
                   spinless=False, momentum_space=False):
-    """
-    Return jellium Hamiltonian as FermionOperator class.
+    """Return jellium Hamiltonian as FermionOperator class.
 
     Args:
         n_dimensions: An int giving the number of dimensions for the model.
@@ -449,8 +438,7 @@ def jellium_model(n_dimensions, grid_length, length_scale,
 
 def jordan_wigner_position_jellium(n_dimensions, grid_length,
                                    length_scale, spinless=False):
-    """
-    Return the position space jellium Hamiltonian as QubitOperator.
+    """Return the position space jellium Hamiltonian as QubitOperator.
 
     Args:
         n_dimensions: An int giving the number of dimensions for the model.
