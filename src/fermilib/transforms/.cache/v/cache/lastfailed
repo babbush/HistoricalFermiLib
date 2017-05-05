@@ -1,1 +1,7 @@
-{}
+{
+  "_bravyi_kitaev_test.py": true, 
+  "_conversion_test.py": true, 
+  "_fenwick_tree_test.py": true, 
+  "_jordan_wigner_test.py": true, 
+  "_reverse_jordan_wigner_test.py": true
+}

@@ -21,7 +21,10 @@ def eigenspectrum(operator):
         eigenspectrum: dense numpy array of floats giving eigenspectrum.
     """
     from fermilib.transforms import get_sparse_operator
-    return get_sparse_operator(operator).eigenspectrum()
+    from fermilib.utils import sparse_eigenspectrum
+    sparse_operator = get_sparse_operator(operator)
+    eigenspectrum = sparse_eigenspectrum(sparse_operator)
+    return eigenspectrum
 
 
 def count_qubits(operator):

@@ -6,8 +6,3 @@ from ._fermion_operator import (FermionOperator,
 from ._interaction_tensor import InteractionTensor
 from ._interaction_operator import InteractionOperator
 from ._interaction_rdm import InteractionRDM
-
-from ._sparse_operator import (get_density_matrix,
-                               jordan_wigner_sparse,
-                               jw_hartree_fock_state,
-                               qubit_operator_sparse)

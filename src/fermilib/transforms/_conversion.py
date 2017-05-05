@@ -15,10 +15,9 @@ from fermilib.ops import (FermionOperator,
                           InteractionRDM)
 from fermilib.transforms import FenwickTree
 from fermilib.ops._interaction_operator import InteractionOperatorError
-from fermilib.ops._sparse_operator import (qubit_term_sparse,
-                                           qubit_operator_sparse,
-                                           jordan_wigner_sparse)
-from fermilib.utils import count_qubits
+from fermilib.utils import (count_qubits,
+                            jordan_wigner_sparse,
+                            qubit_operator_sparse)
 
 
 def get_sparse_operator(operator, n_qubits=None):

@@ -193,9 +193,9 @@ class HydrogenIntegrationTest(unittest.TestCase):
     def test_sparse_numerically(self):
 
         # Check FCI energy.
-        energy, wavefunction = self.hamiltonian_matrix.get_ground_state()
+        energy, wavefunction = get_ground_state(self.hamiltonian_matrix)
         self.assertAlmostEqual(energy, self.molecule.fci_energy)
-        expected_energy = self.hamiltonian_matrix.expectation(wavefunction)
+        expected_energy = expectation(self.hamiltonian_matrix, wavefunction)
         self.assertAlmostEqual(expected_energy, energy)
 
         # Make sure you can reproduce Hartree energy.
@@ -207,9 +207,10 @@ class HydrogenIntegrationTest(unittest.TestCase):
         hf_state = jw_hartree_fock_state(
             self.molecule.n_electrons, count_qubits(self.qubit_hamiltonian))
         hf_density = get_density_matrix([hf_state], [1.])
-        expected_hf_density_energy = self.hamiltonian_matrix.expectation(
-            hf_density)
-        expected_hf_energy = self.hamiltonian_matrix.expectation(hf_state)
+        expected_hf_density_energy = expectation(self.hamiltonian_matrix,
+                                                 hf_density)
+        expected_hf_energy = expectation(self.hamiltonian_matrix,
+                                         hf_state)
         self.assertAlmostEqual(expected_hf_energy, self.molecule.hf_energy)
         self.assertAlmostEqual(expected_hf_density_energy,
                                self.molecule.hf_energy)
@@ -224,10 +225,10 @@ class HydrogenIntegrationTest(unittest.TestCase):
         hf_state = jw_hartree_fock_state(
             self.molecule.n_electrons, count_qubits(self.qubit_hamiltonian))
         uccsd_sparse = jordan_wigner_sparse(ucc_operator)
-        uccsd_state = scipy.sparse.linalg.expm_multiply(uccsd_sparse.matrix,
+        uccsd_state = scipy.sparse.linalg.expm_multiply(uccsd_sparse,
                                                         hf_state)
-        expected_uccsd_energy = self.hamiltonian_matrix.expectation(
-            uccsd_state)
+        expected_uccsd_energy = expectation(self.hamiltonian_matrix,
+                                            uccsd_state)
         self.assertAlmostEqual(expected_uccsd_energy, self.molecule.fci_energy,
                                places=4)
 
@@ -250,12 +251,12 @@ class HydrogenIntegrationTest(unittest.TestCase):
         ccsd_sparse_r = jordan_wigner_sparse(ccsd_operator)
         ccsd_sparse_l = jordan_wigner_sparse(
                 -hermitian_conjugated(ccsd_operator))
-        ccsd_state_r = scipy.sparse.linalg.expm_multiply(ccsd_sparse_r.matrix,
+        ccsd_state_r = scipy.sparse.linalg.expm_multiply(ccsd_sparse_r,
                                                          hf_state)
-        ccsd_state_l = scipy.sparse.linalg.expm_multiply(ccsd_sparse_l.matrix,
+        ccsd_state_l = scipy.sparse.linalg.expm_multiply(ccsd_sparse_l,
                                                          hf_state)
         expected_ccsd_energy = ccsd_state_l.getH().dot(
-            self.hamiltonian_matrix.matrix.dot(ccsd_state_r))[0, 0]
+            self.hamiltonian_matrix.dot(ccsd_state_r))[0, 0]
         self.assertAlmostEqual(expected_ccsd_energy, self.molecule.fci_energy)
 
     def test_version(self):
