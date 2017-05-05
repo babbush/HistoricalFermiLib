@@ -28,25 +28,34 @@ This will install both FermiLib and `ProjectQ <projectq.ch>`_ as well as all dep
 Basic FermiLib example
 ----------------------
 
-To see a basic example with fermionic operators as well as whether the installation worked, try to run the following code.
+To see a basic example with both fermionic and qubit operators as well as whether the installation worked, try to run the following code.
 
 .. code-block:: python
 
-	from fermilib.ops import FermionOperator  # import fermionic operator class
+	from fermilib.ops import FermionOperator, hermitian_conjugated
+	from fermilib.transforms import jordan_wigner, bravyi_kitaev
+	from fermilib.utils import eigenspectrum
+	from projectq.ops import QubitOperator
+	
+	fermion_operator = FermionOperator('2^ 0', 3.17)
+	fermion_operator += hermitian_conjugated(fermion_operator)
+	print(fermion_operator)
 
-	term_1 = FermionOperator('3^ 1', -1.7)
-	term_2 = FermionOperator('4^ 3^ 9 1', 1. + 2.j)
-	
-	my_operator = term_1 + term_2
-	print(my_operator)
-	
-	my_operator = FermionOperator('4^ 3^ 9 1', 1. + 2.j)
-	term_2 = FermionOperator('3^ 1', -1.7)
-	my_operator += term_2
+	jw_operator = jordan_wigner(fermion_operator)
 	print('')
-	print(my_operator)
+	print(jw_operator)
+	
+	bk_operator = bravyi_kitaev(fermion_operator)
+	print('')
+	print(bk_operator)
+	
+	jw_spectrum = eigenspectrum(jw_operator)
+	bk_spectrum = eigenspectrum(bk_operator)
+	print('')
+	print(jw_spectrum)
+	print(bk_spectrum)
 
 
-This code creates two fermionic operators, adds them, and shows some of the intuitive string methods in FermiLib.
+This code creates the fermionic operator :math:`a^\dagger_2 a_0` and adds its Hermitian conjugate :math:`a^\dagger_0 a_2` to it. It then maps the resulting fermionic operator to qubit operators two transforms included in FermiLib, the Jordan-Wigner and Bravyi-Kitaev transforms. The example also shows some of the intuitive string methods included in FermiLib.
 
 Further examples can be found in the docs (`Examples` in the panel on the left) and in the FermiLib examples folder on `GitHub <https://github.com/babbush/fermilib/tree/master/examples>`_.
