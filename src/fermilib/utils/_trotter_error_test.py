@@ -137,6 +137,17 @@ class ErrorBoundTest(unittest.TestCase):
             _trotter_error.error_bound(terms, tight=False),
             4. * (2**2 + 1**2)))
 
+    @unittest.skip("fails after sparse update; gives complex conjugate")
+    def test_error_operator_xyz(self):
+        terms = [QubitOperator('X1'), QubitOperator('Y1'), QubitOperator('Z1')]
+        expected = numpy.array([[-2./3, 1./3 + 1.j/6, 0., 0.],
+                                [1./3 - 1.j/6, 2./3, 0., 0.],
+                                [0., 0., -2./3, 1./3 + 1.j/6],
+                                [0., 0., 1./3 - 1.j/6, 2./3]])
+        sparse_op = get_sparse_operator(_trotter_error.error_operator(terms))
+        matrix = sparse_op.todense()
+        self.assertTrue(numpy.allclose(matrix, expected),
+                        ("Got " + str(matrix)))
 
 if __name__ == '__main__':
     unittest.main()
