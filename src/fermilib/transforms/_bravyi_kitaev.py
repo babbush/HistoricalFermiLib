@@ -13,10 +13,10 @@
 """Bravyi-Kitaev transform on fermionic operators."""
 from __future__ import absolute_import
 
-from fermilib.transforms import FenwickTree
+from fermilib.transforms._fenwick_tree import FenwickTree
 from fermilib.utils import count_qubits
 
-from projectqtemp.ops import QubitOperator
+from projectq.ops import QubitOperator
 
 
 def bravyi_kitaev(operator, n_qubits=None):

@@ -1,4 +1,6 @@
 """This is a simple script for generating data."""
+import os
+
 from fermilib.utils import (make_atomic_ring,
                             make_atom,
                             MolecularData,
@@ -6,7 +8,6 @@ from fermilib.utils import (make_atomic_ring,
 
 from run_psi4 import run_psi4
 
-import os
 
 if __name__ == '__main__':
 

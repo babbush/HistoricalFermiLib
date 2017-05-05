@@ -1,6 +1,6 @@
 """This is a template for psi4 input format."""
-import sys
 import numpy
+import sys
 
 from fermilib.config import *
 from fermilib.ops._interaction_tensor import (one_body_basis_change,

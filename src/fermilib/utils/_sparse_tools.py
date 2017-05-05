@@ -14,7 +14,6 @@
 from __future__ import absolute_import
 
 from functools import reduce
-
 import numpy
 import numpy.linalg
 import scipy
@@ -23,7 +22,7 @@ import scipy.sparse.linalg
 
 from fermilib.config import *
 
-from projectqtemp.ops import QubitOperator
+from projectq.ops import QubitOperator
 
 
 # Make global definitions.

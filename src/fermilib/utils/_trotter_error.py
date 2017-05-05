@@ -10,16 +10,17 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import fermilib.transforms
-
+"""Module to compute the second order Trotter error."""
 from future.utils import iteritems
+
 from math import sqrt
 from scipy.linalg import expm
 
 from fermilib.config import *
 from fermilib.ops import normal_ordered
 from fermilib.utils import MolecularData
-from projectqtemp.ops import QubitOperator
+
+from projectq.ops import QubitOperator
 
 
 def commutator(op1, op2):

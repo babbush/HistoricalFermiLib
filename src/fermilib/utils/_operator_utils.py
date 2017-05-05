@@ -16,7 +16,8 @@ from __future__ import absolute_import
 import numpy
 
 from fermilib.ops import *
-from projectqtemp.ops._qubit_operator import QubitOperator
+
+from projectq.ops import QubitOperator
 
 
 def eigenspectrum(operator):

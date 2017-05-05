@@ -10,7 +10,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from ._fenwick_tree import FenwickTree
 from ._bravyi_kitaev import bravyi_kitaev
 from ._jordan_wigner import jordan_wigner
 from ._reverse_jordan_wigner import reverse_jordan_wigner
