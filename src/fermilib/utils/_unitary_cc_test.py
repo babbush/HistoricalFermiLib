@@ -51,7 +51,7 @@ class UnitaryCC(unittest.TestCase):
         packed_amplitude_size = uccsd_singlet_paramsize(test_orbitals,
                                                         test_electrons)
 
-        packed_amplitudes = randn(packed_amplitude_size)
+        packed_amplitudes = randn(int(packed_amplitude_size))
 
         generator = uccsd_singlet_operator(packed_amplitudes,
                                            test_orbitals,
