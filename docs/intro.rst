@@ -9,13 +9,21 @@ Tutorial
 Getting started with FermiLib
 -----------------------------
 
-To start using FermiLib, simply run
+To install FermiLib, first install its dependencies. This can be done with
+
+.. code-block:: bash
+	conda install future
+	conda install h5py
+	conda install scipy
+	conda install matplotlib
+
+Then, install FermiLib, by running
 
 .. code-block:: bash
 
 	python -m pip install --user fermilib
 
-or, alternatively, clone/download `this repo <https://github.com/babbush/fermilib>`_ (e.g., to your /home directory) and run
+Alternatively, clone/download `this repo <https://github.com/babbush/fermilib>`_ (e.g., to your /home directory) and run
 
 .. code-block:: bash
 
