@@ -43,27 +43,27 @@ To see a basic example with both fermionic and qubit operators as well as whethe
 	from fermilib.ops import FermionOperator, hermitian_conjugated
 	from fermilib.transforms import jordan_wigner, bravyi_kitaev
 	from fermilib.utils import eigenspectrum
-	from projectq.ops import QubitOperator
 	
+	# Initialize an operator.
 	fermion_operator = FermionOperator('2^ 0', 3.17)
 	fermion_operator += hermitian_conjugated(fermion_operator)
 	print(fermion_operator)
-
+		
+	# Transform to qubits under the Jordan-Wigner transformation and print its spectrum.
 	jw_operator = jordan_wigner(fermion_operator)
 	print('')
 	print(jw_operator)
+	jw_spectrum = eigenspectrum(jw_operator)
+	print(jw_spectrum)
 	
+	# Transform to qubits under the Bravyi-Kitaev transformation and print its spectrum.
 	bk_operator = bravyi_kitaev(fermion_operator)
 	print('')
 	print(bk_operator)
-	
-	jw_spectrum = eigenspectrum(jw_operator)
 	bk_spectrum = eigenspectrum(bk_operator)
-	print('')
-	print(jw_spectrum)
 	print(bk_spectrum)
 
 
-This code creates the fermionic operator :math:`a^\dagger_2 a_0` and adds its Hermitian conjugate :math:`a^\dagger_0 a_2` to it. It then maps the resulting fermionic operator to qubit operators two transforms included in FermiLib, the Jordan-Wigner and Bravyi-Kitaev transforms. The example also shows some of the intuitive string methods included in FermiLib.
+This code creates the fermionic operator :math:`a^\dagger_2 a_0` and adds its Hermitian conjugate :math:`a^\dagger_0 a_2` to it. It then maps the resulting fermionic operator to qubit operators using two transforms included in FermiLib, the Jordan-Wigner and Bravyi-Kitaev transforms. Despite the different representations, these operators are iso-spectral. The example also shows some of the intuitive string methods included in FermiLib.
 
 Further examples can be found in the docs (`Examples` in the panel on the left) and in the FermiLib examples folder on `GitHub <https://github.com/babbush/fermilib/tree/master/examples>`_.
