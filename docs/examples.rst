@@ -167,46 +167,11 @@ Often, one would like to obtain a sparse matrix representation of an operator wh
 	print('\nEnergy of the model is {} in units of T and J.'.format(
 	    get_ground_state(sparse_operator)[0]))
 
-Hamiltonians in the plane wave basis
-------------------------------------
-
-FermiLib uses a third-party electronic structure package to compute molecular orbitals, Hamiltonians, energies, reduced density matrices, coupled cluster amplitudes, etc using Gaussian basis sets. However, this third-party electronic structure package has a restrictive GPL license. Accordingly, we cannot even mention it by name in this tutorial. While we provide scripts which interface between that package and FermiLib, we cannot discuss it here.
-
-When using simpler basis sets such as plane waves, these packages are not needed. FermiLib comes with code which computes Hamiltonians in the plane wave basis. Note that when using plane waves, one is working with the periodized Coulomb operator, best suited for condensed phase calculations such as studying the electronic structure of a solid. To obtain these Hamiltonians one must choose to study the system without a spin degree of freedom (spinless), one must the specify dimension in which the calculation is performed (n_dimensions, usually 3), one must specify how many plane waves are in each dimension (grid_length) and one must specify the length scale of the plane wave harmonics in each dimension (length_scale) and also the locations and charges of the nuclei. One can generate these models with plane_wave_hamiltonian() found in fermilib.utils. For simplicity, below we compute the Hamiltonian in the case of zero external charge (corresponding to the uniform electron gas, aka jellium). We also demonstrate that one can transform the plane wave Hamiltonian using a Fourier transform without effecting the spectrum of the operator.
-
-.. code-block:: python
-
-	from fermilib.utils import eigenspectrum, fourier_transform, jellium_model
-	from fermilib.transforms import jordan_wigner
-	
-	# Let's look at a very small model of jellium in 1D.
-	n_dimensions = 1
-	grid_length = 3
-	length_scale = 1.
-	spinless = True
-	
-	# Get the momentum Hamiltonian.
-	momentum_hamiltonian = jellium_model(n_dimensions, grid_length, length_scale, spinless)
-	momentum_qubit_operator = jordan_wigner(momentum_hamiltonian)
-	momentum_qubit_operator.compress()
-	print(momentum_qubit_operator)
-	
-	# Fourier transform the Hamiltonian to the position basis.
-	position_hamiltonian = fourier_transform(momentum_hamiltonian, n_dimensions, grid_length, length_scale, spinless)
-	position_qubit_operator = jordan_wigner(position_hamiltonian)
-	position_qubit_operator.compress()
-	print('')
-	print (position_qubit_operator)
-	
-	# Check the spectra to make sure these representations are iso-spectral.
-	spectral_difference = eigenspectrum(momentum_qubit_operator) -  eigenspectrum(position_qubit_operator)
-	print('')
-	print(spectral_difference)
 
 Basics of MolecularData class
 -----------------------------
 
-Perhaps the most useful features in FermiLib concern its interaction with open source electronic structure packages. Once again, we provide scripts to interact with one such package but cannot legally refer to it by name here due to its GPL license.
+Perhaps the most useful features in FermiLib concern its interaction with open source electronic structure packages. This allows FermiLib to compute molecular orbitals, Hamiltonians, energies, reduced density matrices, coupled cluster amplitudes, etc using Gaussian basis sets. However, this third-party electronic structure package has a restrictive GPL license. Accordingly, we cannot even mention it by name in this tutorial. While we provide scripts which interface between that package and FermiLib, we cannot discuss it here.
 
 Data from electronic structure calculations is generated using scripts which perform the calculations and then populate a FermiLib data structure called MolecularData. Often, one would like to analyze a chemical series or look at many different Hamiltonians and sometimes the electronic structure calculations are either expensive to compute or difficult to converge (e.g. one needs to mess around with different types of SCF routines to make things converge). Accordingly, we anticipate that users will want some way to automatically database the results of their electronic structure calculations so that important data (such as the SCF intergrals) can be looked up on-the-fly if the user has computed them in the past. FermiLib supports a data provenance strategy which saves key results of the electronic structure calculation (including pointers to files containing large amounts of data, such as the molecular integrals) in an HDF5 container.
 
@@ -245,41 +210,41 @@ If we had previously computed this molecule using the provided scripts which int
 
 .. code-block:: python
 
-# Set molecule parameters.
-basis = 'sto-3g'
-multiplicity = 1
-bond_length_interval = 0.1
-n_points = 25
-
-# Generate molecule at different bond lengths.
-hf_energies = []
-fci_energies = []
-bond_lengths = []
-for point in range(3, n_points + 1):
-    bond_length = bond_length_interval * point
-    bond_lengths += [bond_length]
-    description = str(round(bond_length,2))
-    print(description)
-    geometry = [('H', (0., 0., 0.)), ('H', (0., 0., bond_length))]
-    molecule = MolecularData(
-        geometry, basis, multiplicity, description=description)
-    
-    # Load data.
-    molecule.load()
-
-    # Print out some results of calculation.
-    print('\nAt bond length of {} Bohr, molecular hydrogen has:'.format(
-        bond_length))
-    print('Hartree-Fock energy of {} Hartree.'.format(molecule.hf_energy))
-    print('MP2 energy of {} Hartree.'.format(molecule.mp2_energy))
-    print('FCI energy of {} Hartree.'.format(molecule.fci_energy))
-    print('Nuclear repulsion energy between protons is {} Hartree.'.format(
-        molecule.nuclear_repulsion))
-    for orbital in range(molecule.n_orbitals):
-        print('Spatial orbital {} has energy of {} Hartree.'.format(
-            orbital, molecule.orbital_energies[orbital]))
-    hf_energies += [molecule.hf_energy]
-    fci_energies += [molecule.fci_energy]
+	# Set molecule parameters.
+	basis = 'sto-3g'
+	multiplicity = 1
+	bond_length_interval = 0.1
+	n_points = 25
+	
+	# Generate molecule at different bond lengths.
+	hf_energies = []
+	fci_energies = []
+	bond_lengths = []
+	for point in range(3, n_points + 1):
+	    bond_length = bond_length_interval * point
+	    bond_lengths += [bond_length]
+	    description = str(round(bond_length,2))
+	    print(description)
+	    geometry = [('H', (0., 0., 0.)), ('H', (0., 0., bond_length))]
+	    molecule = MolecularData(
+	        geometry, basis, multiplicity, description=description)
+	    
+	    # Load data.
+	    molecule.load()
+	
+	    # Print out some results of calculation.
+	    print('\nAt bond length of {} Bohr, molecular hydrogen has:'.format(
+	        bond_length))
+	    print('Hartree-Fock energy of {} Hartree.'.format(molecule.hf_energy))
+	    print('MP2 energy of {} Hartree.'.format(molecule.mp2_energy))
+	    print('FCI energy of {} Hartree.'.format(molecule.fci_energy))
+	    print('Nuclear repulsion energy between protons is {} Hartree.'.format(
+	        molecule.nuclear_repulsion))
+	    for orbital in range(molecule.n_orbitals):
+	        print('Spatial orbital {} has energy of {} Hartree.'.format(
+	            orbital, molecule.orbital_energies[orbital]))
+	    hf_energies += [molecule.hf_energy]
+	    fci_energies += [molecule.fci_energy]
 
 
 InteractionOperator and InteractionRDM for efficient numerical representations
@@ -394,7 +359,7 @@ The Variational Quantum Eigensolver (or VQE), works by parameterizing a wavefunc
 
 .. math::
 
-	E(\theta)=\langle \Psi(\theta) | H | \Psi(theta)\rangle
+	E(\theta)=\langle \Psi(\theta) | H | \Psi(\theta)\rangle
  
 To perform the VQE loop with a simple molecule, it helps to wrap the evaluation of the energy into a simple objective function that takes the parameters of the circuit and returns the energy. Here we define that function using ProjectQ to handle the qubits and the simulation.
 
@@ -462,4 +427,4 @@ As we can see, the optimization terminates extremely quickly because the classic
 	evolution_operator | wavefunction
 	compiler_engine.flush()
 
-For more, see the `GitHub examples <https://github.com/babbush/fermilib/tree/master/examples>`_ for more.
+For more, see the `GitHub examples <https://github.com/babbush/fermilib/tree/master/examples>`_.
