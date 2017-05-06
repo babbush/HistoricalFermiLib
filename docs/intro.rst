@@ -12,6 +12,7 @@ Getting started with FermiLib
 To install FermiLib, first install its dependencies. This can be done with
 
 .. code-block:: bash
+	
 	conda install future
 	conda install h5py
 	conda install scipy
