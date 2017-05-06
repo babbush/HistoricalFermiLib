@@ -216,4 +216,149 @@ When electronic structure calculations are run using our scripts, the data files
 
 Basis functions are provided to initialization using a string such as "6-31g". Geometries can be specified using a simple txt input file (see geometry_from_file function in molecular_data.py) or can be passed using a simple python list format demonstrated below. Atoms are specified using a string for their atomic symbol. Distances should be provided in atomic units (Bohr). Below we initialize a simple instance of MolecularData without performing any electronic structure calculations.
 
+.. code-block:: python
+
+	from fermilib.utils import MolecularData
+	
+	# Set parameters to make a simple molecule.
+	diatomic_bond_length = .7414
+	geometry = [('H', (0., 0., 0.)), ('H', (0., 0., diatomic_bond_length))]
+	basis = 'sto-3g'
+	multiplicity = 1
+	charge = 0
+	description = str(diatomic_bond_length)
+	
+	# Make molecule and print out a few interesting facts about it.
+	molecule = MolecularData(geometry, basis, multiplicity,
+	                         charge, description)
+	print('Molecule has automatically generated name {}'.format(
+	    molecule.name))
+	print('Information about this molecule would be saved at:\n{}\n'.format(
+	    molecule.filename))
+	print('This molecule has {} atoms and {} electrons.'.format(
+	    molecule.n_atoms, molecule.n_electrons))
+	for atom, atomic_number in zip(molecule.atoms, molecule.protons):
+	    print('Contains {} atom, which has {} protons.'.format(
+	        atom, atomic_number))
+
+If we had previously computed this molecule using the provided scripts which interact with the electronic structure package, we could call molecule.load() to populate all sorts of interesting fields in the data structure. However, since we cannot demonstrate how to use the electronic structure package with FermiLib (but again, we provide scripts to do so), we will instead load data that ships with FermiLib to make a plot of the energy surface of hydrogen. Note that helper functions to initialize some interesting chemical benchmarks are found in fermilib.utils.
+
+.. code-block:: python
+
+# Set molecule parameters.
+basis = 'sto-3g'
+multiplicity = 1
+bond_length_interval = 0.1
+n_points = 25
+
+# Generate molecule at different bond lengths.
+hf_energies = []
+fci_energies = []
+bond_lengths = []
+for point in range(3, n_points + 1):
+    bond_length = bond_length_interval * point
+    bond_lengths += [bond_length]
+    description = str(round(bond_length,2))
+    print(description)
+    geometry = [('H', (0., 0., 0.)), ('H', (0., 0., bond_length))]
+    molecule = MolecularData(
+        geometry, basis, multiplicity, description=description)
+    
+    # Load data.
+    molecule.load()
+
+    # Print out some results of calculation.
+    print('\nAt bond length of {} Bohr, molecular hydrogen has:'.format(
+        bond_length))
+    print('Hartree-Fock energy of {} Hartree.'.format(molecule.hf_energy))
+    print('MP2 energy of {} Hartree.'.format(molecule.mp2_energy))
+    print('FCI energy of {} Hartree.'.format(molecule.fci_energy))
+    print('Nuclear repulsion energy between protons is {} Hartree.'.format(
+        molecule.nuclear_repulsion))
+    for orbital in range(molecule.n_orbitals):
+        print('Spatial orbital {} has energy of {} Hartree.'.format(
+            orbital, molecule.orbital_energies[orbital]))
+    hf_energies += [molecule.hf_energy]
+    fci_energies += [molecule.fci_energy]
+
+
+InteractionOperator and InteractionRDM for efficient numerical representations
+------------------------------------------------------------------------------
+
+Fermion Hamiltonians can be expressed as :math:`H=h_0+\sum_{pq} h_{pq} a^\dagger_p a_q + \frac12 \sum_{pqrs} h_{pqrs} a^\dagger_p a^\dagger_q a_r a_s`, where :math:`h_0` is a constant shift due to the nuclear repulsion and :math:`h_{pq}`  and  :math:`h_{pqrs}` are the famous molecular integrals. Since fermions interact pairwise, their energy is thus a unique function of the one-particle and two-particle reduced density matrices which are expressed in second quantization as :math:`\rho_{pq} = \langle p | a^\dagger_p a_q | q\rangle` and :math:`\rho_{pqrs} = \langle pq | a^\dagger_p a^\dagger_q a_r a_s | rs \rangle`, respectively.
+
+Because the RDMs and molecular Hamiltonians are both compactly represented and manipulated as 2- and 4- index tensors, we can represent them in a particularly efficient form using similar data structures. The InteractionOperator data structure can be initialized for a Hamiltonian by passing the constant  h0h0  (or 0), as well as numpy arrays representing :math:`h_{pq}` (or :math:`\rho_{pq}`) and :math:`h_{pqrs}` (or :math:`\rho_{pqrs}`). Importantly, InteractionOperators can also be obtained by calling MolecularData.get_molecular_hamiltonian() or by calling the function get_interaction_operator() (found in fermilib.utils) on a FermionOperator. The InteractionRDM data structure is similar but represents RDMs. For instance, one can get a molecular RDM by calling MolecularData.get_molecular_rdm(). When generating Hamiltonians from the MolecularData class, one can choose to restrict the system to an active space.
+
+These classes inherit from the same base class, InteractionTensor. This data structure overloads the slice operator [] so that one can get or set the key attributes of the InteractionOperator: .constant, .one_body_coefficients and .two_body_coefficients. For instance, InteractionOperator[p,q,r,s] would return :math:`h_{pqrs}` and InteractionRDM would return :math:`\rho_{pqrs}`. Importantly, the class supports fast basis transformations using the method InteractionTensor.rotate_basis(rotation_matrix). But perhaps most importantly, one can map the InteractionOperator to any of the other data structures we've described here.
+
+Below, we load MolecularData from a saved calculation of LiH. We then obtain an InteractionOperator representation of this system in an active space. We then map that operator to qubits. We then demonstrate that one can rotate the orbital basis of the InteractionOperator using random angles to obtain a totally different operator that is still iso-spectral.
+
+.. code-block:: python
+	
+	from fermilib.transforms import get_fermion_operator, get_sparse_operator, jordan_wigner
+	from fermilib.utils import get_ground_state, MolecularData
+	import numpy
+	import scipy
+	import scipy.linalg
+	
+	# Load saved file for LiH.
+	diatomic_bond_length = 1.45
+	geometry = [('Li', (0., 0., 0.)), ('H', (0., 0., diatomic_bond_length))]
+	basis = 'sto-3g'
+	multiplicity = 1
+	
+	# Set Hamiltonian parameters.
+	active_space_start = 1
+	active_space_stop = 3
+	
+	# Generate and populate instance of MolecularData.
+	molecule = MolecularData(geometry, basis, multiplicity)
+	molecule.load()
+	
+	# Get the Hamiltonian in an active space.
+	molecular_hamiltonian = molecule.get_molecular_hamiltonian(
+	    active_space_start, active_space_stop)
+	
+	# Map operator to fermions and qubits.
+	fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
+	qubit_hamiltonian = jordan_wigner(fermion_hamiltonian)
+	qubit_hamiltonian.compress()
+	print('The Jordan-Wigner Hamiltonian in canonical basis follows:\n{}'.format(qubit_hamiltonian))
+	
+	# Get sparse operator and ground state energy.
+	sparse_hamiltonian = get_sparse_operator(qubit_hamiltonian)
+	energy, state = get_ground_state(sparse_hamiltonian)
+	print('Ground state energy before rotation is {} Hartree.\n'.format(energy))
+	
+	# Randomly rotate.
+	n_orbitals = molecular_hamiltonian.n_qubits // 2
+	n_variables = int(n_orbitals * (n_orbitals - 1) / 2)
+	random_angles = numpy.pi * (1. - 2. * numpy.random.rand(n_variables))
+	kappa = numpy.zeros((n_orbitals, n_orbitals))
+	index = 0
+	for p in range(n_orbitals):
+	    for q in range(p + 1, n_orbitals):
+	        kappa[p, q] = random_angles[index]
+	        kappa[q, p] = -numpy.conjugate(random_angles[index])
+	        index += 1
+	
+	    # Build the unitary rotation matrix.
+	    difference_matrix = kappa + kappa.transpose()
+	    rotation_matrix = scipy.linalg.expm(kappa)
+	
+	    # Apply the unitary.
+	    molecular_hamiltonian.rotate_basis(rotation_matrix)
+	
+	# Get qubit Hamiltonian in rotated basis.
+	qubit_hamiltonian = jordan_wigner(molecular_hamiltonian)
+	qubit_hamiltonian.compress()
+	print('The Jordan-Wigner Hamiltonian in rotated basis follows:\n{}'.format(qubit_hamiltonian))
+	
+	# Get sparse Hamiltonian and energy in rotated basis.
+	sparse_hamiltonian = get_sparse_operator(qubit_hamiltonian)
+	energy, state = get_ground_state(sparse_hamiltonian)
+	print('Ground state energy after rotation is {} Hartree.'.format(energy))
+
+
+
 FermiLib supports a wide range of models of fermions beyond what is shown in this basic tutorial. See the `GitHub examples <https://github.com/babbush/fermilib/tree/master/examples>`_ for more.
