@@ -13,10 +13,10 @@ To install FermiLib, first install its dependencies. This can be done with
 
 .. code-block:: bash
 	
-	conda install future
-	conda install h5py
-	conda install scipy
-	conda install matplotlib
+	pip install future
+	pip install h5py
+	pip install scipy
+	pip install matplotlib
 
 Then, install FermiLib, by running
 
