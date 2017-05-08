@@ -32,7 +32,7 @@ class LiHIntegrationTest(unittest.TestCase):
         geometry = [('Li', (0., 0., 0.)), ('H', (0., 0., 1.45))]
         basis = 'sto-3g'
         multiplicity = 1
-        filename = THIS_DIRECTORY + '/tests/testdata/H1-Li1_sto-3g_singlet'
+        filename = os.path.join(THIS_DIRECTORY, 'data', 'H1-Li1_sto-3g_singlet')
         self.molecule = MolecularData(
             geometry, basis, multiplicity, filename=filename)
         self.molecule.load()
