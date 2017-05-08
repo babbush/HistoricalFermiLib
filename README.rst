@@ -10,7 +10,7 @@ FermiLib - An open source software for analyzing quantum simulation algorithms
 
 FermiLib is an open source effort for analyzing quantum simulation algorithms.
 
-The first version (v0.1a0) is an alpha release which features data structures and tools for obtaining and manipulating representations of fermionic Hamiltonians. FermiLib is designed as a library of ProjectQ and leverages ProjectQ to compile, emulate and simulate quantum circuits. FermiLib supports plug-ins from third party electronic structure packages in order to perform certain calculations.
+The first version (v0.1a0) is an alpha release which features data structures and tools for obtaining and manipulating representations of fermionic Hamiltonians. FermiLib is designed as a library on top of ProjectQ and leverages ProjectQ to compile, emulate and simulate quantum circuits.
 
 Getting started
 ---------------
