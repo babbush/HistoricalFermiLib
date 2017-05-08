@@ -3,7 +3,7 @@
 Examples
 ========
 
-All of these example codes (and many more!) can be found on `GitHub <https://github.com/babbush/fermilib/tree/master/examples/>`_.
+All of these example codes (and many more!) can be found on `GitHub <https://github.com/ProjectQ-Framework/FermiLib/tree/master/examples/>`_.
 
 .. toctree::
    :maxdepth: 2	
@@ -425,4 +425,4 @@ As we can see, the optimization terminates extremely quickly because the classic
 	evolution_operator | wavefunction
 	compiler_engine.flush()
 
-For more, see the `GitHub examples <https://github.com/babbush/fermilib/tree/master/examples>`_.
+For more, see the `GitHub examples <https://github.com/ProjectQ-Framework/FermiLib/tree/master/examples>`_.
