@@ -345,7 +345,8 @@ Here we load :math:`H_2` from a precomputed molecule file found in the test data
 .. code-block:: python
 
 	# Load the molecule.
-	filename = THIS_DIRECTORY + '/tests/testdata/H2_sto-3g_singlet'
+	import os
+	filename = os.path.join(DATA_DIRECTORY, 'H2_sto-3g_singlet')
 	molecule = MolecularData(filename=filename)
 	
 	# Use a Jordan-Wigner encoding, and compress to remove 0 imaginary components
