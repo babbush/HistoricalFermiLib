@@ -28,7 +28,7 @@ class MolecularDataTest(unittest.TestCase):
         self.geometry = [('H', (0., 0., 0.)), ('H', (0., 0., 0.7414))]
         self.basis = 'sto-3g'
         self.multiplicity = 1
-        filename = THIS_DIRECTORY + '/tests/testdata/H2_sto-3g_singlet'
+        filename = os.path.join(THIS_DIRECTORY, 'data', 'H2_sto-3g_singlet')
         self.molecule = MolecularData(
             self.geometry, self.basis, self.multiplicity, filename=filename)
         self.molecule.load()
@@ -48,7 +48,7 @@ class MolecularDataTest(unittest.TestCase):
         water_geometry = [('O', (0., 0., 0.)),
                           ('H', (0.757, 0.586, 0.)),
                           ('H', (-.757, 0.586, 0.))]
-        filename = THIS_DIRECTORY + '/tests/testdata/geometry_example.txt'
+        filename = os.path.join(THIS_DIRECTORY, 'data', 'geometry_example.txt')
         test_geometry = geometry_from_file(filename)
         for atom in range(3):
             self.assertAlmostEqual(water_geometry[atom][0],
@@ -67,7 +67,7 @@ class MolecularDataTest(unittest.TestCase):
     def test_dummy_save(self):
 
         # Make fake molecule.
-        filename = THIS_DIRECTORY + '/tests/testdata/dummy_molecule'
+        filename = os.path.join(THIS_DIRECTORY, 'data', 'dummy_molecule')
         geometry = [('H', (0., 0., 0.)), ('H', (0., 0., 0.7414))]
         basis = '6-31g*'
         multiplicity = 7
