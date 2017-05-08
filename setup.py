@@ -10,6 +10,8 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+import os
+
 from setuptools import setup, find_packages
 
 # This reads the __version__ variable from projectq/_version.py
@@ -39,6 +41,7 @@ setup(
     package_dir={'': 'src'},
     include_package_data=True,
     package_data={
-        '': ['*.hdf5', '*.npy']
+        '': [os.path.join('src', 'fermilib', 'data', '*.hdf5'),
+             os.path.join('src', 'fermilib', 'data', '*.npy')]
     }
 )
