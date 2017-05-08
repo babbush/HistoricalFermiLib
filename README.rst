@@ -24,14 +24,9 @@ How to contribute
 To contribute code please adhere to the following very simple rules:
 
 1. Make sure your new code comes with extensive tests!
-2. Make sure you adhere to our style guide. Just look at our code for clues.
-   Mostly, we follow pep8 and use the pep8 linter with the following
-   modifications in the pep8 ~/.config/pep8 file: ignore = E111, E114, E226
-3. Make sure your new code passes all tests and lint checks by running:
-   ./precommit_tests
-4. Sort the imports alphabetically, and the 'import foo' block comes before
-   the 'from bar import foo' block.
-5. Put global constants and configuration parameters into src/config.py, and
+2. Make sure you adhere to our style guide. Until we release a code style 
+   guide, just have a look at our code for clues. We mostly follow pep8 and use the pep8 linter to check for it.
+3. Put global constants and configuration parameters into src/config.py, and
    add 'from config import *' in the file that uses the constants/parameters.
 
 Documentation can be found `here <https://github.com/ProjectQ-Framework/FermiLib/tree/master/docs/>`_.
