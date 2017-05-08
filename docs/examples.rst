@@ -3,7 +3,7 @@
 Examples
 ========
 
-All of these example codes (and many more!) can be found on `GitHub <https://github.com/babbush/fermilib/tree/master/examples/>`_.
+All of these example codes (and many more!) can be found on `GitHub <https://github.com/ProjectQ-Framework/FermiLib/tree/master/examples/>`_.
 
 .. toctree::
    :maxdepth: 2	
@@ -171,11 +171,11 @@ Often, one would like to obtain a sparse matrix representation of an operator wh
 Basics of MolecularData class
 -----------------------------
 
-Data from electronic structure calculations are generated using scripts provided by our plugins which perform the calculations and then populate a FermiLib data structure called MolecularData. Often, one would like to analyze a chemical series or look at many different Hamiltonians and sometimes the electronic structure calculations are either expensive to compute or difficult to converge (e.g. one needs to mess around with different types of SCF routines to make things converge). Accordingly, we anticipate that users will want some way to automatically database the results of their electronic structure calculations so that important data (such as the SCF intergrals) can be looked up on-the-fly if the user has computed them in the past. FermiLib supports a data provenance strategy which saves key results of the electronic structure calculation (including pointers to files containing large amounts of data, such as the molecular integrals) in an HDF5 container.
+Data from electronic structure calculations can be saved in a FermiLib data structure called MolecularData, which makes it easy to access within our library. Often, one would like to analyze a chemical series or look at many different Hamiltonians and sometimes the electronic structure calculations are either expensive to compute or difficult to converge (e.g. one needs to mess around with different types of SCF routines to make things converge). Accordingly, we anticipate that users will want some way to automatically database the results of their electronic structure calculations so that important data (such as the SCF intergrals) can be looked up on-the-fly if the user has computed them in the past. FermiLib supports a data provenance strategy which saves key results of the electronic structure calculation (including pointers to files containing large amounts of data, such as the molecular integrals) in an HDF5 container.
 
 The MolecularData class stores information about molecules. One initializes a MolecularData object by specifying parameters of a molecule such as its geometry, basis, multiplicity, charge and an optional string describing it. One can also initialize MolecularData simply by providing a string giving a filename where a previous MolecularData object was saved in an HDF5 container. One can save a MolecularData instance by calling the class's .save() method. This automatically saves the instance in a data folder specified during FermiLib installation. The name of the file is generated automatically from the instance attributes and optionally provided description. Alternatively, a filename can also be provided as an optional input if one wishes to manually name the file.
 
-When electronic structure calculations are run using our scripts, the data files for the molecule are automatically updated. For instance, once one runs an FCI calculation on the molecule, the attribute MolecularData.fci_energy will be saved and set equal the FCI energy. If one wishes to later use that data they either initialize MolecularData with the instance filename or initialize the instance and then later call the .load() method.
+When electronic structure calculations are run, the data files for the molecule can be automatically updated. If one wishes to later use that data they either initialize MolecularData with the instance filename or initialize the instance and then later call the .load() method.
 
 Basis functions are provided to initialization using a string such as "6-31g". Geometries can be specified using a simple txt input file (see geometry_from_file function in molecular_data.py) or can be passed using a simple python list format demonstrated below. Atoms are specified using a string for their atomic symbol. Distances should be provided in atomic units (Bohr). Below we initialize a simple instance of MolecularData without performing any electronic structure calculations.
 
@@ -425,4 +425,4 @@ As we can see, the optimization terminates extremely quickly because the classic
 	evolution_operator | wavefunction
 	compiler_engine.flush()
 
-For more, see the `GitHub examples <https://github.com/babbush/fermilib/tree/master/examples>`_.
+For more, see the `GitHub examples <https://github.com/ProjectQ-Framework/FermiLib/tree/master/examples>`_.
