@@ -64,7 +64,7 @@ class InteractionRDM(InteractionTensor):
             operator: A QubitOperator or InteractionOperator.
 
         Returns:
-            expectation: A float giving the expectation value.
+            float: Expectation value
 
         Raises:
             InteractionRDMError: Invalid operator provided.
@@ -91,8 +91,8 @@ class InteractionRDM(InteractionTensor):
                 this InteractionRDM.
 
         Returns:
-            qubit_operator_expectations: QubitOperator with coefficients
-                corresponding to expectation values of those operators.
+            QubitOperator: QubitOperator with coefficients
+            corresponding to expectation values of those operators.
 
         Raises:
             InteractionRDMError: Observable not contained in 1-RDM or 2-RDM.

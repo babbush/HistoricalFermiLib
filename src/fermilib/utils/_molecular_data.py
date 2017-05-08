@@ -505,10 +505,16 @@ class MolecularData(object):
                 space stop.
 
         Returns:
-            core_constant: Adjustment to constant shift in Hamiltonian from
-                integrating out core orbitals
-            one_body_integrals_new: one-electron integrals over active space.
-            two_body_integrals_new: two-electron integrals over active space.
+            tuple: Tuple with the following entries:
+
+            **core_constant**: Adjustment to constant shift in Hamiltonian
+            from integrating out core orbitals
+
+            **one_body_integrals_new**: one-electron integrals over active
+            space.
+
+            **two_body_integrals_new**: two-electron integrals over active
+            space.
         """
         # Get integrals.
         one_body_integrals, two_body_integrals = self.get_integrals()

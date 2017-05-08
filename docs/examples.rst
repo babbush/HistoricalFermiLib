@@ -55,7 +55,7 @@ FermionOperator has only one attribute: .terms. This attribute is the dictionary
 	print(my_operator)
 	print(my_operator.terms)
 
-FermionOperator supports a wide range of builtins including str(), repr(), =, , /, /=, +, +=, -, -=, - and **. Note that instead of supporting != and ==, we have the method .isclose(), since FermionOperators involve floats.
+FermionOperator supports a wide range of builtins including str(), repr(), =, , /, /=, +, +=, -, -=, - and \*\*. Note that instead of supporting != and ==, we have the method .isclose(), since FermionOperators involve floats.
 
 Qubit Operators
 ---------------

@@ -155,13 +155,14 @@ class FermionOperator(object):
 
     Attributes:
         terms (dict):
-            key (tuple of tuples): Each tuple represents a fermion term,
-                i.e. a tensor product of fermion ladder operators with a
-                coefficient. The first element is an integer indicating the
-                mode on which a ladder operator acts and the second element is
-                a bool, either '0' indicating annihilation, or '1' indicating
-                creation in that mode; for example, '2^ 5' is ((2, 1), (5, 0)).
-            value (complex float): The coefficient of term represented by key.
+            **key** (tuple of tuples): Each tuple represents a fermion term,
+            i.e. a tensor product of fermion ladder operators with a
+            coefficient. The first element is an integer indicating the
+            mode on which a ladder operator acts and the second element is
+            a bool, either '0' indicating annihilation, or '1' indicating
+            creation in that mode; for example, '2^ 5' is ((2, 1), (5, 0)).
+            **value** (complex float): The coefficient of term represented by
+            key.
     """
     def __init__(self, term=None, coefficient=1.):
         """Initializes a FermionOperator.
@@ -174,10 +175,10 @@ class FermionOperator(object):
         Example:
             .. code-block:: python
 
-            ham = (FermionOperator('0^ 3', .5) + .5 * FermionOperator('3^ 0'))
-            # Equivalently
-            ham2 = FermionOperator('0^ 3', 0.5)
-            ham2 += FermionOperator('3^ 0', 0.5)
+                ham = (FermionOperator('0^ 3', .5) + .5 * FermionOperator('3^ 0'))
+                # Equivalently
+                ham2 = FermionOperator('0^ 3', 0.5)
+                ham2 += FermionOperator('3^ 0', 0.5)
 
         Note:
             Adding terms to FermionOperator is faster using += (as this

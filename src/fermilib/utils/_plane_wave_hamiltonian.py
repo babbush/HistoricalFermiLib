@@ -173,8 +173,10 @@ def fourier_transform(hamiltonian, n_dimensions, grid_length, length_scale,
                       spinless):
     """Apply Fourier tranform to change hamiltonian in plane wave basis.
 
-    c^\dagger_\nu = sqrt(1/N) \sum_m {a^\dagger_m exp[-i k_\nu r_m]}
-    c_\nu = sqrt(1/N) \sum_m {a_m exp[i k_\nu r_m]}
+    .. math::
+
+        c^\dagger_v = \sqrt{1/N} \sum_m {a^\dagger_m \exp(-i k_v r_m)}
+        c_v = \sqrt{1/N} \sum_m {a_m \exp(i k_v r_m)}
 
     Args:
         hamiltonian: The hamiltonian in plane wave basis.
@@ -240,8 +242,10 @@ def inverse_fourier_transform(hamiltonian, n_dimensions, grid_length,
                               length_scale, spinless):
     """Apply Fourier tranform to change hamiltonian in plane wave dual basis.
 
-    a^\dagger_\nu = sqrt(1/N) \sum_m {c^\dagger_m exp[i k_\nu r_m]}
-    a_\nu = sqrt(1/N) \sum_m {c_m exp[-i k_\nu r_m]}
+    .. math::
+
+        a^\dagger_v = \sqrt{1/N} \sum_m {c^\dagger_m \exp(i k_v r_m)}
+        a_v = \sqrt{1/N} \sum_m {c_m \exp(-i k_v r_m)}
 
     Args:
         hamiltonian: The hamiltonian in plane wave dual basis.
