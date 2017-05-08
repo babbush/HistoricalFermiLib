@@ -14,14 +14,14 @@ requirements = [r.strip() for r in requirements]
 
 
 def post_install(directory):
-    path = os.path.join(directory, 'data')
-    print('Using {} as data directory.'.format(str(path)))
+    directory = os.path.join(directory, 'fermilib')
+    print('Using {} as directory.'.format(directory))
 
 
 class ExtendedInstall(install):
     def run(self):
         install.run(self)
-        self.execute(post_install, (self.install_headers,),
+        self.execute(post_install, (self.install_lib,),
                      msg="Configuring FermiLib")
 
 
