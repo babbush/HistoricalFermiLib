@@ -9,16 +9,7 @@ Tutorial
 Getting started with FermiLib
 -----------------------------
 
-To install FermiLib, first install its dependencies. This can be done with
-
-.. code-block:: bash
-	
-	pip install future
-	pip install h5py
-	pip install scipy
-	pip install matplotlib
-
-Then, install FermiLib, by running
+Installing FermiLib requires pip. Make sure that you are using an up-to-date version of it. Then, install FermiLib, by running
 
 .. code-block:: bash
 
@@ -31,7 +22,7 @@ Alternatively, clone/download `this repo <https://github.com/ProjectQ-Framework/
 	cd /home/fermilib
 	python -m pip install --user .
 
-This will install both FermiLib and `ProjectQ <projectq.ch>`_ as well as all dependencies. FermiLib is compatible with both Python 2 and 3.
+This will install FermiLib and all its dependencies automatically. In particular, FermiLib requires `ProjectQ <https://projectq.ch>`_ . It might be useful to install ProjectQ separately before installing FermiLib as it might require setting some manual options such as, e.g., a C++ compiler. Please follow the `ProjectQ installation <https://projectq.ch/code-and-docs/>`_ instructions. FermiLib is compatible with both Python 2 and 3.
 
 
 Basic FermiLib example
