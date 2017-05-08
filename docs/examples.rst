@@ -204,7 +204,7 @@ Basis functions are provided to initialization using a string such as "6-31g". G
 	    print('Contains {} atom, which has {} protons.'.format(
 	        atom, atomic_number))
 
-If we had previously computed this molecule using provided scripts which interact with electronic structure packages, we could call molecule.load() to populate all sorts of interesting fields in the data structure. Though we make no assumptions about what electronic structure packages users might install, FermiLib includes basic scripts for interfacing with several different ones. For the purposes of this example, we will load data that ships with FermiLib to make a plot of the energy surface of hydrogen. Note that helper functions to initialize some interesting chemical benchmarks are found in fermilib.utils.
+If we had previously computed this molecule using an electronic structure package, we can call molecule.load() to populate all sorts of interesting fields in the data structure. Though we make no assumptions about what electronic structure packages users might install, we assume that the calculations are saved in Fermilib's MolecularData objects. There may be plugins available in future. For the purposes of this example, we will load data that ships with FermiLib to make a plot of the energy surface of hydrogen. Note that helper functions to initialize some interesting chemical benchmarks are found in fermilib.utils.
 
 .. code-block:: python
 
