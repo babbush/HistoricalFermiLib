@@ -12,11 +12,14 @@ requirements = [r.strip() for r in requirements]
 setup(
     name='fermilib',
     version=__version__,
-    author='TODO',
-    author_email='TODO',
+    author='Ryan Babbush, Jarrod McClean, Damian Steiger, Ian Kivlichan,
+    Thomas Haener, Vojtech Havlicek, Matthew Neeley, Wei Sun'
+    author_email='ryanbabbush@gmail.com, jarrod.mcc@gmail.com,
+    fermilib@projectq.ch',
     url='http://www.projectq.ch',
     description=('FermiLib - '
-                 'WRITE MORE'),
+                 'An open source package for analyzing, compiling and
+                 emulating quantum algorithms for simulation of fermions.'),
     long_description=long_description,
     install_requires=requirements,
     license='Apache 2',
