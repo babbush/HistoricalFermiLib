@@ -14,7 +14,6 @@
 from __future__ import absolute_import
 
 from fermilib.transforms._fenwick_tree import FenwickTree
-from fermilib.utils import count_qubits
 
 from projectq.ops import QubitOperator
 
@@ -32,6 +31,7 @@ def bravyi_kitaev(operator, n_qubits=None):
         ValueError: Invalid number of qubits specified.
     """
     # Compute the number of qubits.
+    from fermilib.utils import count_qubits
     if n_qubits is None:
         n_qubits = count_qubits(operator)
     if n_qubits < count_qubits(operator):

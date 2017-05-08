@@ -16,7 +16,6 @@ from __future__ import absolute_import
 import itertools
 
 from fermilib.ops import FermionOperator, InteractionOperator
-from fermilib.utils import count_qubits
 
 from projectq.ops import QubitOperator
 
@@ -69,6 +68,7 @@ def jordan_wigner_interaction_op(iop, n_qubits=None):
     Returns:
         qubit_operator: An instance of the QubitOperator class.
     """
+    from fermilib.utils import count_qubits
     if n_qubits is None:
         n_qubits = count_qubits(iop)
     if n_qubits < count_qubits(iop):
